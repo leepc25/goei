@@ -1,0 +1,3083 @@
+교체"]] }, help: "내가 댓글을 단 남의 글도 새로고침 때 남길지예요" }
+        ]
+      },
+      {
+        title: "쪽지",
+        rows: [
+          { key: "incoming", label: "선쪽지 받기", ctl: { t: "seg", opts: [["1", "받기"], ["0", "안 받기"]], fb: "1" }, help: "게시판 사람이 먼저 나에게 쪽지를 보낼 수 있게 할지예요" },
+          { key: "storage", label: "쪽지 자동 정리", ctl: { t: "custom" } }
+        ]
+      }
+    ]
+  };
+
+  // src/core/fetchparts.ts
+  var PART_CONCURRENCY = 4;
+  async function fetchParts(names4, get, onDone, limit = PART_CONCURRENCY) {
+    const out2 = new Array(names4.length);
+    let next = 0;
+    let done3 = 0;
+    let failed4 = false;
+    const worker = async () => {
+      while (next < names4.length && !failed4) {
+        const i = next++;
+        try {
+          out2[i] = await get(names4[i]);
+        } catch (error) {
+          failed4 = true;
+          throw error;
+        }
+        onDone?.(++done3);
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(limit, names4.length) }, worker));
+    return out2.join("");
+  }
+
+  // src/core/stalever.ts
+  var VERSION = /^\d+(\.\d+)*$/;
+  function oldPluginMessage(mine3, up) {
+    if (typeof up !== "string" || !VERSION.test(up) || !VERSION.test(mine3)) return null;
+    const a = mine3.split(".").map(Number);
+    const b = up.split(".").map(Number);
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+      const d = (b[i] ?? 0) - (a[i] ?? 0);
+      if (d < 0) return null;
+      if (d > 0) return `플러그인이 옛 판(v${mine3})이에요. 새 판 ${josa(`v${up}`, "이", "가")} 나왔어요. Risu 설정 → 플러그인에서 업데이트해 주세요.`;
+    }
+    return null;
+  }
+
+  // src/host/datapack.ts
+  var WORLD_KEY2 = "goei:data-world";
+  var INSTALL_KEY = "goei:data-install";
+  var DataPackError = class extends Error {
+  };
+  var TIMEOUT_MS = 4e4;
+  function timeout(p2, name) {
+    let t;
+    return Promise.race([p2, new Promise((_, rej) => t = setTimeout(() => rej(new Error(`${josa(name, "을", "를")} ${TIMEOUT_MS / 1e3}초 안에 받지 못했어요.`)), TIMEOUT_MS))]).finally(() => clearTimeout(t));
+  }
+  async function getText(name) {
+    const url = `${UPDATE_BASE}/${name}?t=${Date.now()}`;
+    const legacy = risuai.risuFetch;
+    if (legacy) {
+      try {
+        const r = await timeout(legacy(url, { method: "GET", plainFetchForce: true, rawResponse: true, headers: { "Content-Type": "text/plain" } }), name);
+        if (r?.ok && r.data instanceof Uint8Array) return new TextDecoder().decode(r.data);
+      } catch {
+      }
+    }
+    const res = await timeout(risuai.nativeFetch(url, { method: "GET" }), name);
+    if (!res.ok) throw new Error(`${josa(name, "을", "를")} 받지 못했어요 (${res.status}).`);
+    return String(await timeout(res.text(), name) ?? "");
+  }
+  async function getBytes(name) {
+    const url = `${UPDATE_BASE}/${name}?t=${Date.now()}`;
+    const legacy = risuai.risuFetch;
+    if (legacy) {
+      try {
+        const r = await timeout(legacy(url, { method: "GET", plainFetchForce: true, rawResponse: true, headers: { "Content-Type": "text/plain" } }), name);
+        const b = r?.ok ? toBytes3(r.data) : null;
+        if (b?.length) return b;
+      } catch {
+      }
+    }
+    const res = await timeout(risuai.nativeFetch(url, { method: "GET" }), name);
+    if (!res.ok) throw new Error(`${josa(name, "을", "를")} 받지 못했어요 (${res.status}).`);
+    return new Uint8Array(await timeout(res.arrayBuffer(), name));
+  }
+  async function fetchPack(pack4, progress4) {
+    if (!UPDATE_BASE) throw new DataPackError("받을 곳이 정해지지 않은 빌드예요.");
+    if (!pack4.expect.hash) throw new DataPackError(`이 빌드에는 ${pack4.label} 지문이 없어요.`);
+    progress4?.(`${pack4.label} 목록 받는 중…`);
+    let index = null;
+    try {
+      index = JSON.parse((await getText(`${pack4.name}.json`)).replace(/^﻿/, ""));
+    } catch (error) {
+      throw new DataPackError(`${pack4.label} 목록을 받지 못했어요 (${error instanceof Error ? error.message : String(error)})`);
+    }
+    if (!index || !Array.isArray(index.parts) || typeof index.length !== "number") throw new DataPackError(`${pack4.label} 목록 형식이 달라요.`);
+    if (index.hash !== pack4.expect.hash) throw new DataPackError(oldPluginMessage(PLUGIN_VERSION, index.version) ?? `아직 이 판의 ${josa(pack4.label, "이", "가")} 올라오지 않았어요. 잠시 뒤 다시 받아 주세요.`);
+    const re = new RegExp(`^${pack4.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.\\d+\\.txt$`);
+    for (const name of index.parts) {
+      if (typeof name !== "string" || !re.test(name)) throw new DataPackError(`${pack4.label} 목록 형식이 달라요.`);
+    }
+    const parts = index.parts;
+    const t0 = Date.now();
+    const text5 = await fetchParts(parts, getText, (n3) => progress4?.(`${pack4.label} 받는 중 ${n3}/${parts.length}`));
+    console.log(`[goei] ${pack4.label} ${parts.length}조각 받기: ${((Date.now() - t0) / 1e3).toFixed(1)}초`);
+    if (text5.length !== pack4.expect.length) throw new DataPackError(`${josa(pack4.label, "을", "를")} 끝까지 받지 못했어요. (${text5.length}/${pack4.expect.length}자)`);
+    const got = await sha256Text(text5);
+    if (got !== null) {
+      if (got !== pack4.expect.sha256) throw new DataPackError(`받은 ${josa(pack4.label, "이", "가")} 깨져 있어요(sha256). 다시 받아 주세요.`);
+    } else if (textHash(text5) !== pack4.expect.hash) throw new DataPackError(`받은 ${josa(pack4.label, "이", "가")} 깨져 있어요(hash). 다시 받아 주세요.`);
+    return text5;
+  }
+  async function loadWorldData(force = false) {
+    let saved = null;
+    try {
+      saved = await risuai.pluginStorage.getItem(WORLD_KEY2);
+    } catch {
+    }
+    if (typeof saved === "string" && packMatches(saved, WORLD_PACK.expect)) {
+      try {
+        applyWorldPack(saved);
+        return "store";
+      } catch (error) {
+        console.log(`[goei] 저장된 세계 자료를 읽지 못했어요 (다시 받아요): ${error instanceof Error ? error.message : String(error)}`);
+      }
+    } else if (typeof saved === "string") console.log("[goei] 저장된 세계 자료가 이 판과 달라 다시 받아요");
+    const g3 = globalThis;
+    if (!force && g3.__goeiWorldFail && Date.now() - g3.__goeiWorldFail.at < 6e4) throw new Error(g3.__goeiWorldFail.reason);
+    let text5;
+    try {
+      text5 = await fetchPack(WORLD_PACK);
+    } catch (error) {
+      const reason3 = `${WORLD_PACK.label}(${WORLD_PACK.name})${josa(WORLD_PACK.label, "을", "를").slice(WORLD_PACK.label.length)} 받지 못했어요: ${error instanceof Error ? error.message : String(error)}`;
+      g3.__goeiWorldFail = { at: Date.now(), reason: reason3 };
+      throw new Error(reason3);
+    }
+    await keepWorldData(text5);
+    return "fetch";
+  }
+  async function keepWorldData(text5) {
+    const g3 = globalThis;
+    applyWorldPack(text5);
+    delete g3.__goeiWorldFail;
+    delete g3.__goeiWorldDismissed;
+    try {
+      await risuai.pluginStorage.setItem(WORLD_KEY2, text5);
+    } catch (error) {
+      console.log(`[goei] 세계 자료를 저장하지 못했어요 (다음에 다시 받아요): ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  async function installWorldFile(raw) {
+    const text5 = raw.replace(/^\ufeff/, "");
+    if (!packMatches(text5, WORLD_PACK.expect)) {
+      let head3 = null;
+      try {
+        head3 = text5.length < 4e3 ? JSON.parse(text5) : null;
+      } catch {
+      }
+      if (head3 && typeof head3 === "object" && Array.isArray(head3.parts)) throw new DataPackError("그건 조각 목록(goei-data-world.json)이에요. 릴리스 zip 의 goei-data-world.txt 를 넣어 주세요.");
+      throw new DataPackError(`이 플러그인 판과 맞는 세계 자료(goei-data-world.txt)가 아니에요. (${text5.length.toLocaleString()}자, 기대 ${WORLD_PACK.expect.length.toLocaleString()}자)`);
+    }
+    await keepWorldData(text5);
+  }
+  var installPending = null;
+  async function ensureInstallData(progress4) {
+    if (installDataReady()) return;
+    installPending ??= (async () => {
+      let saved = null;
+      try {
+        saved = await risuai.pluginStorage.getItem(INSTALL_KEY);
+      } catch {
+      }
+      if (typeof saved === "string" && packMatches(saved, INSTALL_PACK.expect)) {
+        try {
+          applyInstallPack(saved);
+          return;
+        } catch (error) {
+          console.log(`[goei] 저장된 설치 자료를 읽지 못했어요 (다시 받아요): ${error instanceof Error ? error.message : String(error)}`);
+        }
+      } else if (typeof saved === "string") console.log("[goei] 저장된 설치 자료가 이 판과 달라 다시 받아요");
+      const text5 = await fetchPack(INSTALL_PACK, progress4);
+      applyInstallPack(text5);
+      try {
+        await risuai.pluginStorage.setItem(INSTALL_KEY, text5);
+      } catch (error) {
+        console.log(`[goei] 설치 자료를 저장하지 못했어요 (다음에 다시 받아요): ${error instanceof Error ? error.message : String(error)}`);
+      }
+    })().finally(() => installPending = null);
+    await installPending;
+  }
+
+  // src/host/itemicons.ts
+  var ITEMS_KEY = "goei:data-items";
+  var pack3 = null;
+  var loading3 = null;
+  var failed = "";
+  var failedAt = 0;
+  var RETRY_MS = 3e4;
+  var canRetry = () => !failed || Date.now() - failedAt >= RETRY_MS;
+  var progress = "";
+  var redraw2 = () => {
+  };
+  var urls2 = /* @__PURE__ */ new Map();
+  var hits = /* @__PURE__ */ new Map();
+  var hitGen = -1;
+  function hitOf(key, f) {
+    const g3 = iconGen();
+    if (g3 !== hitGen) {
+      hits.clear();
+      hitGen = g3;
+    }
+    if (hits.has(key)) return hits.get(key);
+    const v = f();
+    if (hits.size > 3e3) hits.delete(hits.keys().next().value);
+    hits.set(key, v);
+    return v;
+  }
+  function setItemIconRedraw(fn2) {
+    redraw2 = fn2;
+  }
+  var itemIconStatus = () => ({ ready: !!pack3, loading: !!loading3, progress, failed });
+  function ensureItemIcons() {
+    if (pack3 || loading3) return loading3 ?? Promise.resolve();
+    loading3 = (async () => {
+      failed = "";
+      try {
+        let saved = null;
+        try {
+          saved = await risuai.pluginStorage.getItem(ITEMS_KEY);
+        } catch {
+        }
+        if (typeof saved === "string" && packMatches(saved, ITEMS_PACK.expect)) {
+          try {
+            pack3 = applyItemsPack(saved);
+            hits.clear();
+            return;
+          } catch (error) {
+            console.log(`[goei] 저장된 소지품 그림을 읽지 못했어요 (다시 받아요): ${error instanceof Error ? error.message : String(error)}`);
+          }
+        }
+        const text5 = await fetchPack(ITEMS_PACK, (t) => {
+          progress = t;
+          redraw2();
+        });
+        pack3 = applyItemsPack(text5);
+        hits.clear();
+        try {
+          await risuai.pluginStorage.setItem(ITEMS_KEY, text5);
+        } catch (error) {
+          console.log(`[goei] 소지품 그림을 저장소에 두지 못했어요 (이번엔 메모리로): ${error instanceof Error ? error.message : String(error)}`);
+        }
+      } catch (error) {
+        failed = error instanceof DataPackError || error instanceof Error ? error.message : String(error);
+        failedAt = Date.now();
+        console.log(`[goei] 소지품 그림 팩: ${failed}`);
+      } finally {
+        progress = "";
+        loading3 = null;
+        redraw2();
+      }
+    })();
+    return loading3;
+  }
+  function itemIconUrl(name, icon, seed2, more) {
+    if (!pack3) {
+      if (canRetry()) void ensureItemIcons();
+      return null;
+    }
+    const p2 = pack3;
+    return urlOf(hitOf(`i${name}${icon ?? ""}${seed2 ?? ""}${more?.desc ?? ""}`, () => matchItemIcon(p2, name, icon, seed2, more)));
+  }
+  var itemPictures = (name, icon) => pack3 ? itemPictureNames(pack3, name, icon) : null;
+  function titleIconUrl(title2) {
+    if (!pack3) {
+      if (canRetry()) void ensureItemIcons();
+      return null;
+    }
+    const p2 = pack3;
+    return urlOf(hitOf(`t${title2}`, () => matchTitleIcon(p2, title2) ?? p2.base.misc ?? null));
+  }
+  function urlOf(file) {
+    if (!pack3 || !file) return null;
+    let u = urls2.get(file);
+    if (!u) {
+      u = `data:image/${file.endsWith(".png") ? "png" : "webp"};base64,${pack3.icons[file]}`;
+      urls2.set(file, u);
+    }
+    return u;
+  }
+
+  // src/ui/browser.ts
+  var esc11 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var SITES = [
+    { id: "gn", name: "괴담넷", title: "괴담넷 - 자유게시판", host: "goedam.net", path: "/board/free" },
+    { id: "gal", name: "괴담갤", title: "괴담 갤러리 - 괴담갤", host: "gall.goedam.co.kr", path: "/board/lists/?id=horror" },
+    { id: "wpf", name: "세정게", title: "::: 世界政治 게시판 :::", host: "www.wpf.or.kr", path: "/zboard/zboard.php?id=politics" },
+    { id: "sm", name: "연어 마켓", title: "연어 마켓 | 미친 세상을 거슬러 오르는 우리들", host: "salmon-market.kr", path: "" },
+    { id: "cos", get name() {
+      return guideTxt("Cos", "MALL_NAME");
+    }, get title() {
+      return `★${guideTxt("Cos", "MALL_NAME")}★에 오는 것을 환영하는 것이다`;
+    }, host: "cosmic-mall.alien", path: "/~shop/index.html" },
+    { id: "wk", name: "괴이위키", title: "괴이위키", host: "goei.wiki", path: "/w/괴이위키:대문" },
+    { id: "bm", get name() {
+      return guideTxt("Bm", "MALL_NAME");
+    }, get title() {
+      return guideTxt("Bm", "MALL_NAME");
+    }, host: "point.baekilmong.intra", path: "/mall/main" },
+    { id: "hs", get name() {
+      return guideTxt("Hs", "CHANNEL_NAME");
+    }, get title() {
+      return `${guideTxt("Hs", "CHANNEL_NAME")} LIVE`;
+    }, host: "live.mangsang.tv", path: "/onair" }
+  ];
+  var siteOf = (id2) => SITES.find((s8) => s8.id === id2);
+  var isSite = (id2) => SITES.some((s8) => s8.id === id2);
+  var LOGO2 = {
+    gn: ["0 0 24 24", '<path fill="#2dd4bf" d="M12 2C7.6 2 4 5.6 4 10v11.5l2.7-2.2 2.6 2.2 2.7-2.2 2.7 2.2 2.6-2.2 2.7 2.2V10c0-4.4-3.6-8-8-8z"/><ellipse fill="#0f1113" cx="9.2" cy="10.5" rx="1.5" ry="2.1"/><ellipse fill="#0f1113" cx="14.8" cy="10.5" rx="1.5" ry="2.1"/><path fill="#0f1113" d="M10 15.2q2 1.6 4 0v.9q-2 1.4-4 0z"/>'],
+    gal: ["0 0 24 24", '<path fill="#3b4890" d="M3 3h18a1 1 0 011 1v12a1 1 0 01-1 1H10l-5 4v-4H3a1 1 0 01-1-1V4a1 1 0 011-1z"/><path fill="#fff" d="M12 5.5c-2.5 0-4.3 1.9-4.3 4.2v5.1l1.4-1 1.4 1 1.5-1 1.5 1 1.4-1 1.4 1V9.7c0-2.3-1.8-4.2-4.3-4.2z"/><circle fill="#3b4890" cx="10.5" cy="9.6" r=".9"/><circle fill="#3b4890" cx="13.5" cy="9.6" r=".9"/>'],
+    wpf: ["0 0 24 24", '<circle fill="#7a1010" cx="12" cy="12" r="11"/><circle fill="#1a5aa8" cx="12" cy="12" r="7.5"/><path fill="none" stroke="#ffd24a" stroke-width="1" d="M4.5 12h15M12 4.5v15M6 8.2h12M6 15.8h12"/><ellipse fill="none" stroke="#ffd24a" stroke-width="1" cx="12" cy="12" rx="3.4" ry="7.5"/><circle fill="none" stroke="#ffd24a" stroke-width="1.2" cx="12" cy="12" r="10"/>'],
+    sm: ["0 0 32 20", '<path fill="#f26c4f" d="M2 10C5 3.5 13 1.8 20 4.5L26 1.5 24.5 10 26 18.5 20 15.5C13 18.2 5 16.5 2 10z"/><path fill="#ffb49b" d="M4 11.2c4 3.3 10.5 3.8 16 2.2-5.5.6-11-.2-16-2.2z"/><path fill="none" stroke="#fff" stroke-width="1" stroke-linecap="round" d="M11 5.2l1.5 4M14.5 4.6l1.5 4.2M18 4.8l1.3 4"/><circle fill="#fff" cx="6.3" cy="8.6" r="1.4"/><circle fill="#2a1a14" cx="6.5" cy="8.6" r=".7"/>'],
+    cos: ["0 0 32 24", '<circle fill="#ff3cf0" cx="25" cy="6" r="4"/><ellipse fill="none" stroke="#ffd700" stroke-width="1" cx="25" cy="6" rx="6.5" ry="1.8"/><path fill="#8ff" d="M10 11a6 6 0 0112 0z"/><ellipse fill="#bbb" cx="16" cy="13" rx="14" ry="4.2"/><ellipse fill="#666" cx="16" cy="14.4" rx="10" ry="2"/><circle fill="#ff0" cx="8" cy="13" r="1"/><circle fill="#f0f" cx="16" cy="14" r="1"/><circle fill="#0ff" cx="24" cy="13" r="1"/><path fill="#ffef7a" opacity=".55" d="M11 17h10l3 7H8z"/>'],
+    wk: ["0 0 24 24", '<rect width="24" height="24" rx="5" fill="#27685b"/><path fill="#fff" d="M6 5h5.2c.9 0 .8.6.8 1.3V19c-.4-.6-1-1-1.8-1H6zM18 5h-5.2c-.9 0-.8.6-.8 1.3V19c.4-.6 1-1 1.8-1H18z"/><circle cx="8.6" cy="10" r="1.1" fill="#27685b"/><circle cx="15.4" cy="10" r="1.1" fill="#27685b"/>'],
+    bm: ["0 0 24 24", '<rect width="24" height="24" rx="5" fill="#1f2a44"/><path fill="#f3d9a4" d="M15.5 4.5a7.5 7.5 0 107 10.2A6 6 0 0115.5 4.5z"/><circle cx="7" cy="7" r="1" fill="#f3d9a4"/><circle cx="5" cy="11" r=".7" fill="#f3d9a4"/>'],
+    hs: ["0 0 24 24", '<rect width="24" height="24" rx="5" fill="#60131b"/><rect x="4" y="7" width="16" height="11" rx="1.5" fill="#0b0513" stroke="#eeb76c" stroke-width="1.4"/><path stroke="#eeb76c" stroke-width="1.4" stroke-linecap="round" d="M9 3.5l3 3 3-3"/><circle cx="12" cy="12.5" r="2.6" fill="#b33031"/>'],
+    home: ["0 0 24 24", '<circle fill="#5f6368" cx="12" cy="12" r="11"/><path fill="#e8eaed" d="M10 18v-4.5h4V18h3.5v-6H20L12 5 4 12h2.5v6z"/>']
+  };
+  var siteLogo = (id2, cls = "br-fv") => {
+    const [vb, body5] = LOGO2[id2 || "home"];
+    return `<svg class="${cls}" viewBox="${vb}" aria-hidden="true">${body5}</svg>`;
+  };
+  var ic = (d, cls = "br-i") => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
+  var IC = {
+    back: "M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z",
+    fwd: "M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z",
+    rel: "M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z",
+    x: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
+    add: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z",
+    tune: "M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z",
+    acct: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
+    home: "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z",
+    srch: "M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+  };
+  var HIST_MAX = 50;
+  var CLOSED_MAX = 10;
+  var seq3 = 1;
+  var br = {
+    tabs: [{ id: seq3++, site: "", hist: [], at: -1 }],
+    cur: 0,
+    /** 로그인 창 열림 */
+    login: false,
+    /** 폰: 탭 목록 화면 */
+    list: false,
+    /** 닫은 탭 (최근 것이 끝, 마우스 제스처 ㄱ 으로 되살림) */
+    closed: []
+  };
+  var curTab = () => br.tabs[Math.min(br.cur, br.tabs.length - 1)];
+  function recordTab(state2) {
+    const t = curTab();
+    const key = JSON.stringify(state2);
+    if (t.hist[t.at] === key) return;
+    t.hist = t.hist.slice(0, t.at + 1);
+    t.hist.push(key);
+    if (t.hist.length > HIST_MAX) t.hist.shift();
+    t.at = t.hist.length - 1;
+  }
+  var tabCan = (dir2) => {
+    const t = curTab();
+    return t.at + dir2 >= 0 && t.at + dir2 < t.hist.length;
+  };
+  function tabGo(dir2) {
+    if (!tabCan(dir2)) return null;
+    const t = curTab();
+    t.at += dir2;
+    return JSON.parse(t.hist[t.at]);
+  }
+  function tabState(i = br.cur) {
+    const t = br.tabs[i];
+    return t && t.at >= 0 ? JSON.parse(t.hist[t.at]) : null;
+  }
+  function newTab() {
+    br.tabs.push({ id: seq3++, site: "", hist: [], at: -1 });
+    br.cur = br.tabs.length - 1;
+  }
+  function closeTab(i) {
+    const [gone] = br.tabs.splice(i, 1);
+    if (gone?.site) br.closed = [...br.closed, gone].slice(-CLOSED_MAX);
+    if (!br.tabs.length) br.tabs.push({ id: seq3++, site: "", hist: [], at: -1 });
+    if (br.cur >= i && br.cur > 0) br.cur--;
+    br.cur = Math.min(br.cur, br.tabs.length - 1);
+  }
+  function reopenTab() {
+    const t = br.closed.pop();
+    if (!t) return false;
+    const empty2 = br.tabs.length === 1 && !br.tabs[0].site ? 0 : -1;
+    if (empty2 >= 0) br.tabs.splice(empty2, 1);
+    br.tabs.push({ ...t, id: seq3++ });
+    br.cur = br.tabs.length - 1;
+    return true;
+  }
+  function openSite(site) {
+    const i = br.tabs.findIndex((t) => t.site === site);
+    if (i < 0) {
+      curTab().site = site;
+      return "here";
+    }
+    if (i !== br.cur) {
+      const id2 = br.tabs[i].id;
+      if (!curTab().site) closeTab(br.cur);
+      br.cur = br.tabs.findIndex((t) => t.id === id2);
+    }
+    return "tab";
+  }
+  var focusSite = (site) => void openSite(site);
+  var BR_TABS_VAR = "$br_tabs";
+  var SAVE_HIST = 10;
+  var packTab = (t) => ({ s: t.site, h: t.hist.slice(-SAVE_HIST), a: Math.max(-1, t.at - Math.max(0, t.hist.length - SAVE_HIST)) });
+  function unpackTab(t) {
+    const site = isSite(String(t?.s)) ? t.s : "";
+    const hist = Array.isArray(t?.h) ? t.h.filter((x) => typeof x === "string").slice(-SAVE_HIST) : [];
+    const at = Number.isInteger(t?.a) ? Math.min(Math.max(-1, t.a), hist.length - 1) : hist.length - 1;
+    return { id: seq3++, site, hist, at };
+  }
+  function tabsJson() {
+    return JSON.stringify({ c: br.cur, t: br.tabs.map(packTab), ...br.closed.length ? { x: br.closed.map(packTab) } : {} });
+  }
+  function restoreTabs(raw) {
+    br.login = false;
+    br.list = false;
+    br.closed = [];
+    br.tabs = [];
+    br.cur = 0;
+    try {
+      const v = JSON.parse(String(raw ?? ""));
+      for (const t of Array.isArray(v?.t) ? v.t : []) br.tabs.push(unpackTab(t));
+      if (Number.isInteger(v?.c)) br.cur = v.c;
+      br.closed = (Array.isArray(v?.x) ? v.x : []).map(unpackTab).filter((t) => t.site).slice(-CLOSED_MAX);
+    } catch {
+    }
+    if (!br.tabs.length) br.tabs.push({ id: seq3++, site: "", hist: [], at: -1 });
+    br.cur = Math.max(0, Math.min(br.cur, br.tabs.length - 1));
+  }
+  function tabTitle(t, i, o) {
+    const s8 = t.site ? siteOf(t.site) : void 0;
+    if (!s8) return "새 탭";
+    return i === br.cur && o.title ? o.title : s8.title;
+  }
+  function chromeHtml(o) {
+    const t = curTab();
+    const s8 = t.site ? siteOf(t.site) : void 0;
+    const tabs2 = br.tabs.map((x, i) => `<div class="br-tab${i === br.cur ? " on" : ""}" role="tab" aria-selected="${i === br.cur}"><button class="br-tabb" data-action="br-tab" data-value="${i}">${siteLogo(x.site)}<span class="br-tt">${esc11(tabTitle(x, i, o))}</span></button><button class="br-tx" data-action="br-close" data-value="${i}" aria-label="탭 닫기">${ic(IC.x, "br-i s")}</button></div>`).join("");
+    const omni = s8 ? `<span class="br-ti">${ic(IC.tune)}</span><span class="br-u"><b>${esc11(s8.host)}</b>${esc11(o.path || s8.path)}</span>` : `<span class="br-ti">${ic(IC.srch)}</span><span class="br-u">검색어 또는 URL 입력</span>`;
+    const prof = o.nick ? o.photo ? `<img src="${esc11(o.photo)}" alt="">` : `<b>${esc11([...o.nick][0] ?? "")}</b>` : ic(IC.acct);
+    const bms = o.bookmarks.map((id2) => `<button class="br-bm" data-action="br-go" data-value="${id2}">${siteLogo(id2)}<span>${esc11(siteOf(id2).name)}</span></button>`).join("");
+    return `<div class="br-tabs" role="tablist">${tabs2}<button class="br-plus" data-action="br-new" aria-label="새 탭">${ic(IC.add, "br-i s")}</button></div>
+  <div class="br-tool">
+    <button class="br-tb pc" data-action="br-back" aria-label="뒤로" ${tabCan(-1) ? "" : "disabled"}>${ic(IC.back)}</button>
+    <button class="br-tb pc" data-action="br-fwd" aria-label="앞으로" ${tabCan(1) ? "" : "disabled"}>${ic(IC.fwd)}</button>
+    <button class="br-tb pc" data-action="br-reload" aria-label="새로고침">${ic(IC.rel)}</button>
+    <button class="br-tb mo" data-action="br-home" aria-label="새 탭">${ic(IC.home)}</button>
+    <div class="br-omni">${omni}</div>
+    <button class="br-prof${o.nick ? " in" : ""}" data-action="br-login" aria-label="${o.nick ? `${esc11(josaRo(o.nick))} 로그인됨` : "로그인"}">${prof}</button>
+    <button class="br-tabn mo" data-action="br-list" aria-label="탭 ${br.tabs.length}개">${br.tabs.length}</button>
+  </div>
+  <div class="br-bms">${bms}</div>`;
+  }
+  function loginHtml(o) {
+    if (!br.login) return "";
+    const face3 = o.photo ? `<img src="${esc11(o.photo)}" alt="">` : ic(IC.acct);
+    const nick = o.nick || o.nickDefault;
+    return `<div class="br-lgn" role="dialog" aria-label="로그인"><h4>로그인</h4><div class="br-face">${face3}</div>
+    <input class="br-in" name="br-nick" data-enter="br-login-save" value="${esc11(nick)}" placeholder="닉네임" maxlength="36" aria-label="닉네임">
+    <button class="br-b1" data-action="br-login-save" data-take="br-nick"${needAttr("br-nick", nick)}>로그인</button><hr>
+    <button class="br-b2" data-action="br-login-guest">${o.nick ? "로그아웃" : "로그인하지 않고 계속"}</button></div>`;
+  }
+  function tabListHtml(o) {
+    return `<div class="br-tlist">${br.tabs.map((t, i) => `<div class="br-tcard${i === br.cur ? " on" : ""}"><button class="br-tabb" data-action="br-tab" data-value="${i}">${siteLogo(t.site)}<span class="br-tt">${esc11(tabTitle(t, i, o))}</span></button><button class="br-tx" data-action="br-close" data-value="${i}" aria-label="탭 닫기">${ic(IC.x, "br-i s")}</button></div>`).join("")}<button class="br-tnew" data-action="br-new">${ic(IC.add, "br-i s")}새 탭</button></div>`;
+  }
+  function homeHtml(sites) {
+    return `<div class="br-ntp"><div class="br-ntp-lg"><span>G</span><span>o</span><span>e</span><span>i</span></div><div class="br-ntp-q">${ic(IC.srch)}검색어 또는 URL 입력</div>
+    <div class="br-ntp-sc">${sites.map((id2) => `<button class="br-ntp-s" data-action="br-go" data-value="${id2}"><i>${siteLogo(id2)}</i><span>${esc11(siteOf(id2).name)}</span></button>`).join("")}</div></div>`;
+  }
+  function soonHtml(id2) {
+    const s8 = siteOf(id2);
+    return `<div class="br-soon">${siteLogo(id2, "br-soon-lg")}<b>${esc11(s8.name)}</b><p>준비 중인 사이트예요.</p></div>`;
+  }
+
+  // src/ui/popwin.ts
+  var winStyle = (b) => b ? ` style="width:min(${b.w}px,100%);height:min(${b.h}px,100%);left:max(0px,min(${b.x}px,calc(100% - min(${b.w}px,100%))));top:max(0px,min(${b.y}px,calc(100% - 40px)));right:auto;bottom:auto"` : "";
+  function bindPopWins(root3, render3, specs) {
+    root3.addEventListener("pointerdown", (ev) => {
+      if (ev.button !== 0) return;
+      const t = ev.target;
+      for (const sp of specs) {
+        const host4 = t.closest(sp.host);
+        if (!host4 || host4.classList.contains(sp.skip)) continue;
+        const win = t.closest(sp.win);
+        if (!win) {
+          if (sp.isOpen() && !t.closest(sp.keep)) {
+            sp.close();
+            render3();
+          }
+          return;
+        }
+        const grip = t.closest(sp.grip) && !t.closest("button, input, select, textarea, a") ? "move" : t.closest(sp.size) ? "size" : "";
+        if (!grip) return;
+        ev.preventDefault();
+        const hr = host4.getBoundingClientRect();
+        const r = win.getBoundingClientRect();
+        const start3 = { px: ev.clientX, py: ev.clientY, x: r.left - hr.left, y: r.top - hr.top, w: r.width, h: r.height };
+        const cur = { ...start3 };
+        const [minW, minH] = sp.min;
+        const apply = () => {
+          win.style.left = `${cur.x}px`;
+          win.style.top = `${cur.y}px`;
+          win.style.width = `${cur.w}px`;
+          win.style.height = `${cur.h}px`;
+          win.style.right = "auto";
+          win.style.bottom = "auto";
+        };
+        const move = (e) => {
+          const dx = e.clientX - start3.px;
+          const dy = e.clientY - start3.py;
+          if (grip === "move") {
+            cur.x = Math.min(Math.max(0, start3.x + dx), Math.max(0, hr.width - start3.w));
+            cur.y = Math.min(Math.max(0, start3.y + dy), Math.max(0, hr.height - 40));
+          } else {
+            cur.w = Math.min(Math.max(minW, start3.w + dx), Math.max(minW, hr.width - start3.x));
+            cur.h = Math.min(Math.max(minH, start3.h + dy), Math.max(minH, hr.height - start3.y));
+          }
+          apply();
+        };
+        const up = () => {
+          window.removeEventListener("pointermove", move);
+          window.removeEventListener("pointerup", up);
+          window.removeEventListener("pointercancel", up);
+          sp.save({ x: Math.round(cur.x), y: Math.round(cur.y), w: Math.round(cur.w), h: Math.round(cur.h) });
+        };
+        apply();
+        window.addEventListener("pointermove", move);
+        window.addEventListener("pointerup", up);
+        window.addEventListener("pointercancel", up);
+        return;
+      }
+    });
+  }
+
+  // src/ui/gnet.ts
+  var gnet = {
+    sub: "board",
+    open: null,
+    openDm: null,
+    compose: null,
+    draft: "",
+    attach: [],
+    to: "",
+    confirm: null,
+    editNick: false,
+    nick: "",
+    notice: "",
+    failure: null,
+    settings: false,
+    attachMenu: false,
+    cat: "",
+    sort: "new",
+    q: "",
+    page: 1,
+    dmWin: null
+  };
+  var GN_KINDS = ["image", "photo", "video", "file", "link"];
+  function resetGnet() {
+    uiSaved.clear();
+    Object.assign(gnet, { sub: "board", open: null, openDm: null, compose: null, draft: "", attach: [], to: "", confirm: null, editNick: false, notice: "", failure: null, settings: false, attachMenu: false, cat: "", sort: "new", q: "", page: 1, held: null });
+  }
+  var jobs3 = /* @__PURE__ */ new Map();
+  var chatKey3 = (ctx2) => `${ctx2.charIndex}:${ctx2.chatIndex}:${siteOf2(ctx2)}`;
+  var siteOf2 = (ctx2) => ctx2.site ?? "gn";
+  function siteCtx(ctx2, site) {
+    if (ctx2.site === site) return ctx2;
+    return { ...ctx2, chat: boardView(ctx2.chat, site), site };
+  }
+  async function upd(ctx2, f) {
+    const site = siteOf2(ctx2);
+    const saved = await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+      const r = f(boardView(chat, site));
+      return r ? boardWrite(chat, r, site) : null;
+    });
+    return saved ? boardView(saved, site) : null;
+  }
+  var uiSite = "gn";
+  var uiSaved = /* @__PURE__ */ new Map();
+  var freshUi = () => ({ sub: "board", open: null, openDm: null, compose: null, draft: "", attach: [], to: "", confirm: null, editNick: false, nick: "", notice: "", failure: null, settings: false, attachMenu: false, cat: "", sort: "new", q: "", page: 1, dmWin: null, held: null });
+  function useBoardSite(site) {
+    if (site === uiSite) return;
+    uiSaved.set(uiSite, { ...gnet });
+    Object.assign(gnet, uiSaved.get(site) ?? freshUi());
+    uiSite = site;
+  }
+  function boardFailures() {
+    const out2 = [];
+    for (const s8 of BOARD_SITES) {
+      const u = s8 === uiSite ? gnet : uiSaved.get(s8);
+      if (u?.failure) out2.push({ site: s8, name: BOARD_NAME[s8], reason: u.failure.reason, raw: u.failure.raw });
+    }
+    return out2;
+  }
+  function clearBoardFailures() {
+    gnet.failure = null;
+    for (const u of uiSaved.values()) u.failure = null;
+  }
+  var dmW = () => uiSite === "sm" ? "채팅" : "쪽지";
+  var dmBox = () => uiSite === "sm" ? "내 채팅" : "쪽지함";
+  var dmWo = () => uiSite === "sm" ? "채팅을" : "쪽지를";
+  function uiFor(site) {
+    if (site === uiSite) return gnet;
+    let u = uiSaved.get(site);
+    if (!u) uiSaved.set(site, u = freshUi());
+    return u;
+  }
+  var esc12 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var retry = (chat) => {
+    const site = chat.scriptstate?.[BOARD_SITE_VAR];
+    return { ...genSettings(chat.scriptstate), reiterate: craftSettings(chat.scriptstate, "gn").reiterate, staticModel: featureModel(chat.scriptstate, "gn"), state: chat.scriptstate, label: BOARD_NAME[isBoardSite(site) ? site : "gn"] };
+  };
+  var source3 = (ctx2, chat = ctx2.chat) => playerSource({ char: ctx2.char, chat, persona: personaText() });
+  function names3(ctx2) {
+    try {
+      return factionNames(parseCatalog(ctx2.char.globalLore), String(ctx2.chat.scriptstate?.["$st_faction"] ?? ""));
+    } catch {
+      return {};
+    }
+  }
+  var ORIGIN_KEY = "$gn_incoming_origin";
+  function savedOrigin(chat) {
+    try {
+      const v = JSON.parse(String(chat.scriptstate?.[ORIGIN_KEY] ?? ""));
+      return v && Number.isInteger(v.post) ? v : null;
+    } catch {
+      return null;
+    }
+  }
+  function shiftOrigin(chat, post, k) {
+    const o = savedOrigin(chat);
+    if (!o || o.post !== post || !o.comment || o.comment < k) return {};
+    const { comment, ...rest } = o;
+    return { [ORIGIN_KEY]: JSON.stringify(comment === k ? rest : { ...rest, comment: comment - 1 }) };
+  }
+  function withVars(chat, vars) {
+    return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...vars } };
+  }
+  function saveIncoming(chat, st, rows3, plan, post) {
+    try {
+      if (commitIncoming(st, rows3, plan, dateNow(chat), post)) return { vars: { [GN_COOLDOWN]: String(storyTurns(chat)) }, note: chat.scriptstate?.[BOARD_SITE_VAR] === "sm" ? "새 채팅이 왔어요." : "새 쪽지가 왔어요." };
+      return { vars: {}, note: "" };
+    } catch (error) {
+      return { vars: {}, note: `본 결과는 저장했어요. 선쪽지만 적용하지 않았어요: ${error instanceof Error ? error.message : String(error)}` };
+    }
+  }
+  var jobUi = (env3, site) => env3.detached ? freshUi() : uiFor(site);
+  async function run2(ctx2, env3, label2, work) {
+    const key = chatKey3(ctx2);
+    const site = siteOf2(ctx2);
+    const u = jobUi(env3, site);
+    if (jobs3.has(key)) {
+      u.notice = `${jobs3.get(key)} 끝난 뒤 다시 눌러 주세요.`;
+      env3.render();
+      return;
+    }
+    jobs3.set(key, label2);
+    u.notice = "";
+    u.failure = null;
+    env3.render();
+    await env3.refresh().catch(() => void 0);
+    try {
+      const note2 = await work();
+      jobUi(env3, site).notice = note2;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      const ui3 = jobUi(env3, site);
+      ui3.notice = msg;
+      const raw = error.raw;
+      if (raw) ui3.failure = { label: label2, reason: msg, raw };
+    } finally {
+      jobs3.delete(key);
+      await env3.refresh();
+    }
+  }
+  var viewing = (site) => {
+    const u = uiFor(site);
+    return { post: u.sub === "board" ? u.open : null, nick: u.sub === "dm" ? u.openDm : null };
+  };
+  function refreshBoard(ctx2, env3, automatic = false, joint, made) {
+    return run2(ctx2, env3, automatic ? "채팅 응답에 맞춰 게시판을 새로 불러오는 중이에요." : "게시판을 불러오는 중이에요.", async () => {
+      applyAdvanced(ctx2.chat.scriptstate);
+      const startLength = ctx2.chat.message?.length ?? 0;
+      const before = readGnet(ctx2.chat);
+      const nick = userNick(ctx2.chat.scriptstate);
+      const s8 = gnetSettings(ctx2.chat.scriptstate);
+      const plan = incomingPlan(ctx2.chat, before, s8, nick, Math.random, void 0, savedOrigin(ctx2.chat));
+      const prompt = fitPrompt(fnBudget(ctx2.chat.scriptstate, "gn", "refresh"), () => refreshPrompt(source3(ctx2), before, plan, nick, names3(ctx2)));
+      const site = siteOf2(ctx2);
+      const first = joint && ((m) => joint.ask(site, m));
+      const { raw, value } = await generate(prompt.messages, s8.model, (r) => withRaw(r, () => parseJsonPayload(r)), { ...retry(ctx2.chat), first });
+      let note2 = "";
+      await upd(ctx2, (chat) => {
+        if (automatic && (chat.message?.length ?? 0) !== startLength && !(made && turnResultValid(chat, made))) {
+          note2 = "그 응답이 바뀌어서 이번 자동 새로고침 결과는 저장하지 않았어요.";
+          return null;
+        }
+        const res = withRaw(raw, () => applyBoard(before, readGnet(chat), value, { nick, settings: s8, date: dateNow(chat), sent: prompt.sent }));
+        const inc = saveIncoming(chat, res.st, value.incoming, plan);
+        note2 = [res.notice, res.emptyComments ? "이번 게시판에는 댓글이 하나도 없어요." : "", inc.note].filter(Boolean).join(" ");
+        const figs = s8.keyFigures ? mergeKeyFigures(chat.scriptstate, value.keyFigures) : null;
+        return writeGnet(withVars(chat, { ...inc.vars, ...figs ?? {} }), res.st, { ack: viewing(site) });
+      });
+      const u = jobUi(env3, site);
+      if (!automatic) u.open = null;
+      else if (u.open !== null && !findAnyPost(readGnet(await currentChat(ctx2) ?? ctx2.chat), u.open)) u.open = null;
+      return note2;
+    });
+  }
+  function withRaw(raw, f) {
+    try {
+      return f();
+    } catch (error) {
+      if (error instanceof GnetError && !error.raw) throw new GnetError(error.message, raw);
+      throw error;
+    }
+  }
+  function writePost(ctx2, env3, input3, tag = "") {
+    return run2(ctx2, env3, "글을 올리는 중이에요.", async () => {
+      const st = readGnet(ctx2.chat);
+      const nick = userNick(ctx2.chat.scriptstate);
+      const s8 = gnetSettings(ctx2.chat.scriptstate);
+      const draftPost = { id: 0, date: "", nick, title: "", body: input3, views: 0, votes: 0, mine: true, comments: [] };
+      const plan = incomingPlan(ctx2.chat, st, s8, nick, Math.random, { post: draftPost });
+      const prompt = fitPrompt(fnBudget(ctx2.chat.scriptstate, "gn", "post"), () => postPrompt(source3(ctx2), st, input3, plan, names3(ctx2), tag));
+      const { value, draft: parsed } = (await generate(prompt.messages, s8.model, (r) => {
+        const v = withRaw(r, () => parseJsonPayload(r));
+        return { value: v, draft: withRaw(r, () => parsePostDraft(v)) };
+      }, retry(ctx2.chat))).value;
+      const draft2 = attachPostDraft(parsed, input3);
+      let note2 = "글을 올렸어요.";
+      let newId = 0;
+      await upd(ctx2, (chat) => {
+        const cur = readGnet(chat);
+        const p2 = addUserPost(cur, nick, draft2.title, draft2.content, dateNow(chat), storyTurns(chat));
+        if (tag || draft2.tag) p2.tag = tag || draft2.tag;
+        newId = p2.id;
+        const got = acceptComments(value.comments, [], { postId: p2.id, replyTo: 0, total: 0, supplied: /* @__PURE__ */ new Set() }, nick);
+        pushComments(p2, got.comments, dateNow(chat));
+        bumpStats(p2, got.comments.length);
+        const [, skipped2] = applyActivity(cur, value.activity, prompt.activity.snapshots, nick, dateNow(chat), gnetSettings(chat.scriptstate).counts.act[1]);
+        trimBoard(cur, s8);
+        const inc = saveIncoming(chat, cur, value.incoming, plan, p2);
+        if (!got.comments.length) note2 = "글을 올렸어요. 아직 댓글은 없어요.";
+        if (skipped2) note2 += ` 다른 글 활동 ${skipped2}건은 형식이 맞지 않아 뺐어요.`;
+        if (inc.note) note2 += ` ${inc.note}`;
+        return writeGnet(withVars(chat, { ...inc.vars, [ORIGIN_KEY]: JSON.stringify({ post: p2.id }) }), cur, { ack: { post: p2.id } });
+      });
+      const ui3 = uiFor(siteOf2(ctx2));
+      ui3.compose = null;
+      ui3.draft = "";
+      ui3.attach = [];
+      ui3.sub = "board";
+      ui3.open = newId;
+      return note2;
+    });
+  }
+  function bumpStats(p2, n3) {
+    p2.views += n3 * (5 + Math.floor(Math.random() * 20)) + Math.floor(Math.random() * 10);
+    p2.votes += Math.floor(Math.random() * (n3 + 2));
+  }
+  function refreshPost(ctx2, env3, postId2) {
+    return run2(ctx2, env3, "이 글을 새로 불러오는 중이에요.", async () => {
+      const chat = ctx2.chat;
+      const st = readGnet(chat);
+      const target = findPost(st, postId2);
+      if (!target) throw new GnetError("대상 글이 없어졌어요.");
+      const s8 = gnetSettings(chat.scriptstate);
+      const nick = userNick(chat.scriptstate);
+      const plan = incomingPlan(chat, st, { ...s8, incoming: false }, nick, Math.random);
+      const prompt = fitPrompt(fnBudget(chat.scriptstate, "gn", "refresh"), () => commentPrompt(source3(ctx2, chat), st, postId2, 0, "", plan, nick, names3(ctx2), POST_REFRESH_ACTION, "refresh"));
+      const snapshot3 = postKey(target);
+      const { value } = await generate(prompt.messages, s8.model, (r) => withRaw(r, () => parseJsonPayload(r)), retry(chat));
+      let note2 = "";
+      await upd(ctx2, (latest) => {
+        const cur = readGnet(latest);
+        const p2 = findPost(cur, postId2);
+        if (!p2 || postKey(p2) !== snapshot3) {
+          note2 = "불러오는 동안 글이 바뀌어서 적용하지 않았어요. 다시 눌러 주세요.";
+          return null;
+        }
+        const got = acceptComments(value.comments, p2.comments, { postId: postId2, replyTo: 0, total: prompt.total, supplied: prompt.supplied }, nick);
+        pushComments(p2, got.comments, dateNow(latest));
+        const n3 = got.comments.length;
+        bumpStats(p2, n3);
+        const [, skipped2] = applyActivity(cur, value.activity, prompt.activity.snapshots, nick, dateNow(latest), gnetSettings(latest.scriptstate).counts.act[1]);
+        note2 = n3 ? "" : "새 댓글이 없어요.";
+        if (got.dropped) note2 += ` 형식이 맞지 않는 댓글 ${got.dropped}개는 뺐어요.`;
+        if (skipped2) note2 += ` 다른 글 활동 ${skipped2}건은 형식이 맞지 않아 뺐어요.`;
+        return writeGnet(latest, cur, { ack: viewing(siteOf2(ctx2)) });
+      });
+      return note2.trim();
+    });
+  }
+  async function writeComment(ctx2, env3, postId2, parent, body5) {
+    const key = chatKey3(ctx2);
+    if (jobs3.has(key)) {
+      gnet.notice = `${jobs3.get(key)} 끝난 뒤 다시 눌러 주세요.`;
+      return env3.render();
+    }
+    const nick = userNick(ctx2.chat.scriptstate);
+    let index = 0;
+    jobs3.set(key, "댓글을 올리는 중이에요.");
+    env3.render();
+    let saved;
+    try {
+      saved = await upd(ctx2, (chat) => {
+        const st = readGnet(chat);
+        index = addUserComment(st, postId2, parent, nick, body5, dateNow(chat), storyTurns(chat));
+        return writeGnet(withVars(chat, { [ORIGIN_KEY]: JSON.stringify({ post: postId2, comment: index }) }), st);
+      });
+    } catch (error) {
+      jobs3.delete(key);
+      uiFor(siteOf2(ctx2)).notice = error instanceof Error ? error.message : String(error);
+      return env3.refresh();
+    }
+    jobs3.delete(key);
+    const cu = uiFor(siteOf2(ctx2));
+    cu.compose = null;
+    cu.draft = "";
+    cu.attach = [];
+    if (!saved) return env3.refresh();
+    return run2({ ...ctx2, chat: saved }, env3, "댓글 반응을 기다리는 중이에요.", async () => {
+      const st = readGnet(saved);
+      const s8 = gnetSettings(saved.scriptstate);
+      const target = findPost(st, postId2);
+      const plan = incomingPlan(saved, st, s8, nick, Math.random, { post: target, commentIndex: index });
+      let value;
+      let prompt;
+      try {
+        prompt = fitPrompt(fnBudget(saved.scriptstate, "gn", "comment"), () => commentPrompt(source3(ctx2, saved), st, postId2, index, body5, plan, nick, names3(ctx2)));
+        value = (await generate(prompt.messages, s8.model, (r) => withRaw(r, () => parseJsonPayload(r)), retry(saved))).value;
+      } catch (error) {
+        throw new GnetError(`댓글은 저장했어요. ${error instanceof Error ? error.message : String(error)}`, error.raw ?? "");
+      }
+      const snapshot3 = postKey(target);
+      let note2 = "";
+      await upd(ctx2, (chat) => {
+        const cur = readGnet(chat);
+        const p2 = findPost(cur, postId2);
+        if (!p2 || postKey(p2) !== snapshot3) {
+          note2 = "생성하는 동안 글이 바뀌어서 답글을 적용하지 않았어요. 내 댓글은 저장돼 있어요.";
+          return null;
+        }
+        const got = acceptComments(value.comments, p2.comments, { postId: postId2, replyTo: index, total: prompt.total, supplied: prompt.supplied }, nick);
+        pushComments(p2, got.comments, dateNow(chat));
+        bumpStats(p2, got.comments.length);
+        const [, skipped2] = applyActivity(cur, value.activity, prompt.activity.snapshots, nick, dateNow(chat), gnetSettings(chat.scriptstate).counts.act[1]);
+        const inc = saveIncoming(chat, cur, value.incoming, plan, p2);
+        note2 = got.comments.length ? "" : "등록했어요. 추가 답글은 없어요.";
+        if (got.dropped) note2 += ` 형식이 맞지 않는 답글 ${got.dropped}개는 뺐어요.`;
+        if (skipped2) note2 += ` 다른 글 활동 ${skipped2}건은 형식이 맞지 않아 뺐어요.`;
+        if (inc.note) note2 += ` ${inc.note}`;
+        return writeGnet(withVars(chat, inc.vars), cur, { ack: viewing(siteOf2(ctx2)) });
+      });
+      return note2.trim();
+    });
+  }
+  async function sendDm(ctx2, env3, nick, body5, src) {
+    const key = chatKey3(ctx2);
+    if (jobs3.has(key)) {
+      gnet.notice = `${jobs3.get(key)} 끝난 뒤 다시 눌러 주세요.`;
+      return env3.render();
+    }
+    const me = userNick(ctx2.chat.scriptstate);
+    if (nick === me) {
+      gnet.notice = `나에게는 ${dmWo()} 보낼 수 없어요.`;
+      return env3.render();
+    }
+    jobs3.set(key, `${nick}에게 보내는 중이에요.`);
+    env3.render();
+    let saved;
+    try {
+      saved = await upd(ctx2, (chat) => {
+        const st = readGnet(chat);
+        addOutgoingDm(st, nick, body5, dateNow(chat), src);
+        return writeGnet(chat, st);
+      });
+    } catch (error) {
+      jobs3.delete(key);
+      uiFor(siteOf2(ctx2)).notice = error instanceof Error ? error.message : String(error);
+      return env3.refresh();
+    }
+    jobs3.delete(key);
+    const du = uiFor(siteOf2(ctx2));
+    const before = { draft: du.draft, compose: du.compose, attach: du.attach, to: du.to };
+    du.compose = null;
+    du.draft = "";
+    du.attach = [];
+    du.to = "";
+    du.sub = "dm";
+    du.openDm = nick;
+    if (!saved) return env3.refresh();
+    return run2({ ...ctx2, chat: saved }, env3, `${nick}의 답장을 기다리는 중이에요.`, async () => {
+      const st = readGnet(saved);
+      const s8 = gnetSettings(saved.scriptstate);
+      let reply;
+      try {
+        const prompt = fitPrompt(fnBudget(saved.scriptstate, "gn", "dm"), () => dmPrompt(source3(ctx2, saved), st, nick, body5, me, names3(ctx2)));
+        reply = (await generate(prompt.messages, s8.model, (r) => withRaw(r, () => parseDmBody(r)), { ...retry(saved), fix: (raw, reason3) => retryMessages(prompt, raw, reason3) })).value;
+      } catch (error) {
+        await upd(ctx2, (chat) => {
+          const cur = readGnet(chat);
+          let i = cur.dms.length - 1;
+          while (i >= 0 && !(cur.dms[i].nick === nick && cur.dms[i].side === "me")) i--;
+          if (i < 0) return null;
+          cur.dms.splice(i, 1);
+          return writeGnet(chat, cur);
+        }).catch(() => null);
+        const ui3 = uiFor(siteOf2(ctx2));
+        if (!ui3.draft && !ui3.attach.length) Object.assign(ui3, before);
+        let why = error instanceof Error ? error.message : String(error);
+        for (const k of ["GNET.ERR_DM_BODY_EMPTY", "GNET.ERR_DM_BODY"]) {
+          const en2 = guideTxt("Common", k).trim();
+          if (en2) why = why.split(en2).join("답장 형식이 맞지 않았어요.");
+        }
+        throw new GnetError(`${siteOf2(ctx2) === "sm" ? "채팅을" : "쪽지를"} 보내지 못했어요. 쓴 내용은 입력칸에 돌려놨어요. ${why}`, error.raw ?? "");
+      }
+      await upd(ctx2, (chat) => {
+        const cur = readGnet(chat);
+        cur.dms.push({ nick, side: "npc", body: reply, unread: true, date: dateNow(chat) });
+        return writeGnet(chat, cur, { ack: viewing(siteOf2(ctx2)) });
+      });
+      return "";
+    });
+  }
+  async function mutate2(ctx2, env3, f, vars = {}, reconcile = true) {
+    await upd(ctx2, (chat) => {
+      const st = readGnet(chat);
+      if (f(st, chat) === false) return null;
+      return writeGnet(withVars(chat, typeof vars === "function" ? vars(chat) : vars), st, { reconcile });
+    });
+    await env3.refresh();
+  }
+  async function setVar2(ctx2, env3, key, value) {
+    await setVars2(ctx2, env3, { [key]: value });
+  }
+  async function setVars2(ctx2, env3, vars) {
+    await upd(ctx2, (chat) => withVars(chat, vars));
+    await env3.refresh();
+  }
+  var body2 = (text5) => attachBody(text5, true);
+  function time(date) {
+    return /(\d\d:\d\d)/.exec(date)?.[1] ?? "";
+  }
+  var tool2 = (action, icon, label2, extra2 = "", short = "") => `<button class="ph-tool" data-action="${action}" aria-label="${label2}" title="${label2}" ${extra2}>${icon}${short ? `<span class="ph-tool-l">${short}</span>` : ""}</button>`;
+  function paneHead3(title2, sub, right = "", back = true) {
+    return `<header class="ph-room-head">${back ? `<button class="ph-tool ph-back" data-action="gn-back" aria-label="뒤로">${ICONS.back}</button>` : ""}<div class="ph-room-title"><b>${title2}</b>${sub ? `<small>${sub}</small>` : ""}</div>${right ? `<span class="ph-act">${right}</span>` : ""}</header>`;
+  }
+  var narrow = () => isPhone();
+  function composer(busy6, placeholder, chip3 = "", label2 = "", board2 = false) {
+    if (board2 && gnet.sub === "dm") {
+      const h = gnet.held?.sub === "board" ? gnet.held : null;
+      return `<div class="ph-composer gn-composer">
+    ${chip3}
+    ${attachEditor("gn", h?.attach ?? [], GN_KINDS, true, "", false)}
+    <div class="ph-compose">
+      <button class="ph-tool ph-plus" aria-label="첨부" title="첨부" disabled>${ICONS.plus}</button>
+      <textarea class="ph-input" name="gn-held" rows="1" placeholder="${esc12(placeholder)}" readonly>${esc12(h?.draft ?? "")}</textarea>
+      <button class="ph-send${label2 ? " txt" : ""}" aria-label="등록" title="등록" disabled>${label2 || ICONS.send}</button>
+      <button class="ph-tool ph-back2" data-action="gn-back" aria-label="목록으로" title="목록으로">${ICONS.back}</button>
+    </div>
+  </div>`;
+    }
+    return `<div class="ph-composer gn-composer">
+    ${chip3}
+    ${attachEditor("gn", gnet.attach, GN_KINDS, busy6, "", gnet.attachMenu)}
+    <div class="ph-compose">
+      <button class="ph-tool ph-plus${gnet.attachMenu ? " on" : ""}" data-action="gn-att-menu" aria-label="첨부" aria-expanded="${gnet.attachMenu}" title="첨부">${ICONS.plus}</button>
+      <textarea class="ph-input" name="gn-draft" data-input="gn-draft" rows="1" placeholder="${esc12(placeholder)}" ${busy6 ? "disabled" : ""}>${esc12(gnet.draft)}</textarea>
+      <button class="ph-send${label2 ? " txt" : ""}" data-action="gn-send" aria-label="등록" title="등록"${needAttr("gn-draft", gnet.draft, busy6, gnet.attach.length > 0)}>${label2 || ICONS.send}</button>
+      <button class="ph-tool ph-back2" data-action="gn-back" aria-label="목록으로" title="목록으로">${ICONS.list}</button>
+    </div>
+  </div>`;
+  }
+  function composeView(c, busy6) {
+    const post = c.kind === "post";
+    const to = c.kind === "newdm" ? `<input class="gx-search" name="gn-to" data-input="gn-to" placeholder="받는 사람 닉네임" value="${esc12(gnet.to)}" aria-label="받는 사람">` : c.kind === "dm" ? `<p class="gn-to">받는 사람 <b>${esc12(c.nick)}</b></p>` : "";
+    const ph = post ? "올릴 글이나 쓰고 싶은 내용 (제목과 본문은 다듬어서 올려요)" : gnet.attach.length ? "함께 보낼 글 (선택)" : `${dmW()} 내용`;
+    const need = c.kind !== "newdm" ? needAttr("gn-draft", gnet.draft, busy6, gnet.attach.length > 0) : gnet.attach.length ? needAttr("gn-to", gnet.to, busy6) : needAttr("gn-draft gn-to", gnet.draft.trim() && gnet.to.trim() ? "1" : "", busy6);
+    return `<div class="ph-form gn-cpane">${paneHead3(post ? "새 글" : `새 ${dmW()}`, c.kind === "dm" ? esc12(c.label) : "")}
+    <div class="ph-form-body">${to}${post && uiSite === "sm" ? `<div class="cats gn-wtags" role="group" aria-label="거래 구분">${smTags().map((t, _i, tags) => `<button class="${(c.tag ?? tags[0]) === t ? "on" : ""}" data-action="gn-wtag" data-value="${esc12(t)}" aria-pressed="${(c.tag ?? tags[0]) === t}">${esc12(t)}</button>`).join("")}</div>` : ""}
+      <textarea class="gx-search gn-text" name="gn-draft" data-input="gn-draft" rows="${post ? 8 : 5}" placeholder="${esc12(ph)}" aria-label="내용">${esc12(gnet.draft)}</textarea>
+      ${attachEditor("gn", gnet.attach, GN_KINDS, busy6)}
+    </div>
+    <div class="ph-form-foot"><button class="gx-start" data-action="gn-send"${need}>${post ? "올리기" : "보내기"}</button></div></div>`;
+  }
+  function replyBox(label2, busy6, depth) {
+    const chip3 = `<div class="gn-replyto"><span>${esc12(label2)}</span><button class="ph-tool sm" data-action="gn-cancel" aria-label="답글 취소" title="취소">${ICONS.close}</button></div>`;
+    return `<li class="gn-c-compose" style="--gn-depth:${Math.min(depth, 3)}">${composer(busy6, "답글 입력", chip3, "등록", true)}</li>`;
+  }
+  function commentClock(_p, c) {
+    if (!c.time) return "";
+    return `<time class="gn-c-time">${esc12(`${c.time.slice(5, 10)} ${hhmm(c.time)}`)}</time>`;
+  }
+  function dmPane(st, nick, busy6, inline = false) {
+    const t = dmThreads(st).find((x) => x.nick === nick);
+    if (!t) return "";
+    const confirm = gnet.confirm === `d:${nick}`;
+    const right = confirm ? `<button class="gx-mini danger" data-action="gn-del-thread" data-value="${esc12(nick)}">정말 삭제</button>` : tool2("gn-del-thread", ICONS.trash, `${dmW()} 삭제`, `data-value="${esc12(nick)}"`);
+    const src = st.sources[nick];
+    const c = gnet.compose;
+    const ph = c?.kind === "dm" && c.nick === nick && c.source ? `「${c.source.title}」 보고 보내는 ${dmW()}` : `${dmW()} 입력`;
+    return `<div class="${inline ? "gn-inline gn-dm-inline" : "ph-room gn-pane"}">${inline ? "" : paneHead3(esc12(nick), `${t.rows.length}통`, right)}
+    <div class="ph-log">${src ? `<div class="ph-sys">처음 이어진 글 「${esc12(src.title)}」</div>` : ""}
+      ${t.rows.map((d, i) => {
+      const first = i === 0 || t.rows[i - 1].side !== d.side;
+      return `<div class="ph-msg ${d.side === "me" ? "me" : "npc"}${first ? " first" : ""}"><div class="ph-msg-col"><div class="ph-bubble">${body2(d.body)}</div>${d.date ? `<small class="gn-dm-t">${esc12(d.date)}</small>` : ""}</div></div>`;
+    }).join("")}
+    </div>
+    ${inline ? "" : composer(busy6, ph)}
+  </div>`;
+  }
+  function dmList(st, busy6, mobile) {
+    const threads = dmThreads(st);
+    if (!threads.length) return uiSite === "sm" ? '<div class="ph-blank"><p>주고받은 채팅이 없어요.<br>매물에서 「채팅하기」를 눌러 보내 보세요.</p></div>' : '<div class="ph-blank"><p>주고받은 쪽지가 없어요.<br>게시판에서 닉네임을 누르거나 쪽지를 눌러 보내 보세요.</p></div>';
+    return `<ul class="ph-list gn-list">${threads.map((t) => {
+      const on3 = gnet.openDm === t.nick && !gnet.settings;
+      const last2 = t.rows[t.rows.length - 1];
+      const confirm = gnet.confirm === `d:${t.nick}`;
+      const del = confirm ? `<button class="gx-mini danger ph-rdel" data-action="gn-del-thread" data-value="${esc12(t.nick)}">정말 삭제</button>` : `<button class="ph-tool sm ph-rdel" data-action="gn-del-thread" data-value="${esc12(t.nick)}" aria-label="${esc12(t.nick)} ${dmW()} 삭제" title="삭제">${ICONS.trash}</button>`;
+      return `<li class="ph-row"><button class="ph-main gn-dmrow${on3 ? " on" : ""}" data-action="gn-open-dm" data-value="${esc12(t.nick)}" aria-pressed="${on3}">
+        <span class="ph-avatar gn-ava">${ICONS.mail}</span>
+        <span class="ph-who"><span class="ph-who-top"><b>${esc12(t.nick)}</b>${t.lastDate ? `<small class="ph-time">${esc12(time(t.lastDate) || t.lastDate)}</small>` : ""}</span>
+        <span class="ph-who-bot"><small>${last2.side === "me" ? "나: " : ""}${esc12([...previewText(last2.body)].slice(0, 60).join(""))}</small>${t.unread ? `<span class="ph-badge">${t.unread}</span>` : ""}</span></span></button>${del}${mobile && on3 && gnet.compose?.kind !== "newdm" ? dmPane(st, t.nick, busy6, true) : ""}</li>`;
+    }).join("")}</ul>`;
+  }
+  function settingsView3(ctx2, back = true) {
+    const state2 = ctx2.chat.scriptstate;
+    const keep2 = gnetRetention(state2);
+    const counts = gnetSettings(state2).counts;
+    const wire = {
+      cur: (k) => String(state2?.[CFG(k)] ?? GN_DEFAULTS[k]),
+      minmax: (k) => counts[k],
+      pageTitle: gnetLabel(state2),
+      custom: {
+        joint: () => ({ ctl: setSeg("gn-cfg", "joint", jointOn(state2) ? "1" : "0", [["1", "ON"], ["0", "OFF"]]) }),
+        storage: () => ({
+          ctl: `<span class="ph-inline">${setSeg("gn-cfg", "storage", keep2.auto ? "1" : "0", [["1", "ON"], ["0", "OFF"]])}${keep2.auto ? `<input class="gx-search ph-pct" type="number" min="1" max="${STORAGE_MAX}" data-change="gn-keep" value="${keep2.limit}" aria-label="상대별 쪽지 보관 상한"><span>통</span>` : ""}</span>`,
+          help: `상대마다 최근 ${keep2.limit}통만 남겨요`
+        })
+      }
+    };
+    const own2 = ["privacy", "subject", "mood", "protagonist"];
+    const site = { ...GNET_SET, groups: [{ title: "", rows: GNET_SET.groups.flatMap((g3) => g3.rows).filter((r) => own2.includes(r.key)) }] };
+    const rows3 = `${defGroups(site, wire)}`;
+    return `<div class="ph-form">${paneHead3(`${gnetLabel(ctx2.chat.scriptstate)} 설정`, "", defaultsButtons("gn"), back)}${defaultsConfirm("gn")}<div class="ph-form-body ps">${rows3}</div></div>`;
+  }
+  var PAGE2 = 20;
+  var LOGO_SM = (id2, cls = "bs-logo") => siteLogo(id2 === "gal" ? "gal" : id2 === "wpf" ? "wpf" : id2 === "sm" ? "sm" : "gn", cls);
+  var smWant = (p2) => {
+    const t = p2.tag ?? "";
+    const buy2 = smTag("BUY");
+    return !!buy2 && t.includes(buy2) || /구합니다|구해요|구함|구매|매입/.test(t);
+  };
+  var tagHit = (site, p2, cat) => site === "sm" && cat === smTag("BUY") ? smWant(p2) : site === "sm" && cat === smTag("INFO") ? (p2.tag ?? "").includes(cat) : p2.tag === cat;
+  function shownPosts(st, site) {
+    const q = gnet.q.trim().toLowerCase();
+    const pool = gnet.cat === "@mine" ? [...st.posts, ...(st.archive ?? []).filter((p2) => p2.mine)] : gnet.cat === "@scrap" ? [...st.posts, ...(st.archive ?? []).filter((p2) => p2.scrap)] : st.posts;
+    let list4 = pool.filter((p2) => (gnet.cat === "" || (gnet.cat === "@mine" ? p2.mine || p2.comments.some((c) => c.mine) : gnet.cat === "@scrap" ? !!p2.scrap : tagHit(site, p2, gnet.cat))) && (!q || `${p2.title}
+${p2.body}`.toLowerCase().includes(q)));
+    if (gnet.sort === "hot") list4 = [...list4].sort((a, b) => b.votes - a.votes || b.views - a.views);
+    if (gnet.sort === "cmt") list4 = [...list4].sort((a, b) => b.comments.length - a.comments.length);
+    return list4;
+  }
+  var tagsOf = (st) => [...new Set(st.posts.map((p2) => p2.tag ?? "").filter(Boolean))];
+  function when(p2, now2) {
+    const d = String(p2.date);
+    return d.slice(0, 10) === now2.slice(0, 10) ? time(d) : d.slice(5, 10);
+  }
+  var minuteOf = (d) => {
+    const m = /^(\d{4})\.(\d\d)\.(\d\d)\s+(\d\d):(\d\d)/.exec(String(d));
+    return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) / 6e4 : null;
+  };
+  function ago2(p2, now2) {
+    const a = minuteOf(p2.date);
+    const b = minuteOf(now2);
+    if (a === null || b === null || b < a) return when(p2, now2);
+    const d = b - a;
+    if (d < 1) return "방금";
+    if (d < 60) return `${d}분 전`;
+    if (d < 1440) return `${Math.floor(d / 60)}시간 전`;
+    if (d < 2880) return "어제";
+    return `${Math.floor(d / 1440)}일 전`;
+  }
+  var dot = (p2) => postUnread(p2) ? '<span class="gn-dot" aria-label="새 댓글"></span>' : "";
+  var openBtn = (p2, inner, cls = "") => `<button class="gn-row-main gn-row${cls ? ` ${cls}` : ""}" data-action="gn-open" data-value="${p2.id}">${inner}</button>`;
+  var pageOf = (list4) => list4.slice((Math.max(1, gnet.page) - 1) * PAGE2, Math.max(1, gnet.page) * PAGE2);
+  var pages = (total) => Math.max(1, Math.ceil(total / PAGE2));
+  function pager(total, cls, prev = "", next = "") {
+    if (!total) return "";
+    const n3 = pages(total);
+    const cur = Math.min(gnet.page, n3);
+    const nums = Array.from({ length: n3 }, (_, i) => i + 1).map((k) => k === cur ? `<b>${k}</b>` : `<button data-action="gn-page" data-value="${k}">${k}</button>`).join(" ");
+    const go3 = (label2, k, on3) => label2 ? on3 ? `<button data-action="gn-page" data-value="${k}">${label2}</button>` : `<span>${label2}</span>` : "";
+    return `<nav class="${cls}">${go3(prev, cur - 1, cur > 1)} ${nums} ${go3(next, cur + 1, cur < n3)}</nav>`;
+  }
+  var searchInput = (ph) => `<input name="gn-q" data-enter="gn-search" value="${esc12(gnet.q)}" placeholder="${esc12(ph)}" aria-label="${esc12(ph)}">`;
+  var writeBtn = (cls, label2 = "글쓰기") => `<button class="${cls}" data-action="gn-write">${label2}</button>`;
+  var emptyList = (busy6, text5, write = true) => `<div class="bs-empty"><p>${text5}</p><div class="bs-ebt"><button class="bs-w" data-action="gn-refresh" ${busy6 ? "disabled" : ""}>${busy6 ? "불러오는 중…" : "새로고침"}</button>${write ? writeBtn("bs-w") : ""}</div></div>`;
+  var none2 = (list4) => !list4.length ? '<p class="bs-none">해당하는 글이 없어요.</p>' : "";
+  var dmTakes = () => gnet.sub === "dm" && narrow();
+  var readingNow = () => !gnet.compose || gnet.compose.kind === "comment";
+  var onCat = (v) => !dmTakes() && gnet.cat === v;
+  var catBtn = (v, label2, cls = "", extra2 = "", on3 = onCat(v)) => `<button class="${[cls, on3 ? "on" : ""].filter(Boolean).join(" ")}" data-action="gn-cat" data-value="${esc12(v)}" aria-pressed="${on3}">${esc12(label2)}${extra2}</button>`;
+  var dmBtn = (st, unreadDm, label2 = "쪽지함", cls = "") => `<button class="${[cls, dmTakes() ? "on" : "", narrow() ? "" : "gn-dmpop"].filter(Boolean).join(" ")}" data-action="gn-sub" data-value="dm" ${narrow() ? `aria-pressed="${dmTakes()}"` : `aria-haspopup="dialog" aria-expanded="${gnet.sub === "dm"}"`}>${narrow() ? "" : ICONS.mail}${label2}${unreadDm ? ` <b class="bs-new">${unreadDm}</b>` : dmUnread(st) ? '<span class="gn-dot"></span>' : ""}</button>`;
+  var ipOf = (id2) => `${id2 * 37 % 200 + 20}.${id2 * 101 % 250}`;
+  var nickIp = (nick, id2) => `${esc12(nick)}${nick === anonAuthor() ? ` <span class="ip">(${ipOf(id2)})</span>` : ""}`;
+  function thumb(p2) {
+    const t = boardThumb(p2.body);
+    if (!t) return "<span></span>";
+    return `<span class="th">${t.url ? `<img src="${esc12(t.url)}" alt="">` : CAMERA}</span>`;
+  }
+  function priceOf2(p2) {
+    const s8 = `${p2.title}
+${previewText(p2.body)}`;
+    const m = /(\d[\d,]*\s*(?:만\s*)?원)/.exec(s8);
+    if (m) return m[1].replace(/\s+/g, "");
+    const free = smTag("FREE");
+    if (free && (p2.tag === free || s8.includes(free))) return free;
+    if (smWant(p2)) return "가격 제안";
+    return "";
+  }
+  function smItemName(p2) {
+    const words = [...smTags().filter(Boolean).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), "급처", "급매", "판매", "구합니다", "구매"];
+    const t = p2.title.replace(/^\s*(?:\[[^\]]*\]\s*)+/, "").replace(new RegExp(`\\s*(?:${words.join("|")})\\s*$`, "u"), "");
+    return t.split(/\s*(?:\s및\s|,|\/|\+|·|~)\s*/)[0].trim();
+  }
+  function smPicUrl(p2) {
+    const t = boardThumb(p2.body);
+    if (t?.url) return t.url;
+    const name = smItemName(p2);
+    return name ? iconQuiet(() => titleIconUrl(name)) : null;
+  }
+  var CAMERA = '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M4 7h3l2-3h6l2 3h3v13H4z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="13" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+  var smTag = (k) => guideTxt("Salmon", `POST.TRADE_TAG.${k}`);
+  var smTags = () => [smTag("SELL"), smTag("BUY"), smTag("FREE")];
+  var SM_BG = ["cloth", "news", "floor", "wood", "desk", "dark"];
+  function siteHead(site, st, unreadDm) {
+    const home = (inner, cls = "lg") => `<button class="${cls}" data-action="gn-home" aria-label="첫 화면">${inner}</button>`;
+    switch (site) {
+      case "gal":
+        return `<div class="hd">${home(`${LOGO_SM(site)}<span>괴담 갤러리<small>무섭고 이상한 이야기</small></span>`)}<label class="sch">${searchInput("갤러리 & 통합검색")}<b>${ICONS.search}</b></label></div>`;
+      case "wpf":
+        return `<div class="ban">${home(`<b>世界政治 게시판</b><small>WORLD POLITICS FORUM</small>${LOGO_SM(site, "bs-logo wlogo")}`, "bh0")}</div>${narrow() ? `
+        <div class="bar">${wpfMenu(st, unreadDm)}</div>` : ""}`;
+      case "sm":
+        return `<div class="hd">${home(`${LOGO_SM(site)}${esc12(BOARD_NAME.sm)}`)}<nav>${catBtn("", "중고거래")}${catBtn(smTag("BUY"), smTag("BUY"))}${catBtn(smTag("INFO"), "오컬트 정보")}</nav><label class="sr">${searchInput(narrow() ? "물건 찾기" : "물건 이름으로 찾기")}</label>${writeBtn("wr")}<button class="ch" data-action="gn-sub" data-value="dm">내 채팅${unreadDm ? `<em>${unreadDm}</em>` : ""}</button></div>
+        <div class="note">⚠ 직거래는 사람 많은 곳에서 하세요. 연어 마켓은 거래하다 생긴 일을 책임지지 않습니다.</div>`;
+      default: {
+        const nav = `<nav><button class="${!dmTakes() && gnet.sort !== "hot" ? "on" : ""}" data-action="gn-home">커뮤니티</button>${dmBtn(st, unreadDm)}<button class="${!dmTakes() && gnet.sort === "hot" ? "on" : ""}" data-action="gn-sort" data-value="hot">랭킹</button></nav>`;
+        return `<div class="hd">${home(`${LOGO_SM(site)}${esc12(BOARD_NAME.gn)}<small>.net</small>`)}${nav}<label class="sr">${ICONS.search}${searchInput(`${BOARD_NAME.gn} 검색`)}</label></div>`;
+      }
+    }
+  }
+  function gnSide(st, unreadDm) {
+    const posts = [...st.posts].sort((a, b) => b.id - a.id).slice(0, 60);
+    const items = posts.map((p2) => {
+      const on3 = !dmTakes() && gnet.open === p2.id && readingNow();
+      return `<button class="sp${on3 ? " on" : ""}" data-action="${on3 ? "gn-home" : "gn-open-side"}" data-value="${p2.id}" aria-pressed="${on3}" title="${esc12(p2.title)}">${p2.tag ? `<i>[${esc12(p2.tag)}]</i>` : ""}<span>${esc12(p2.title)}</span>${p2.comments.length ? `<em>[${p2.comments.length}]</em>` : ""}${dot(p2)}</button>`;
+    }).join("");
+    const reading2 = gnet.open !== null && readingNow();
+    const cat = (v, label2) => catBtn(v, label2, "", "", onCat(v) && !reading2);
+    return `<nav class="side" aria-label="게시판 메뉴"><h6>글 목록</h6>${cat("", "전체 글")}<div class="splist">${items || '<p class="sp-none">아직 글이 없어요.</p>'}</div><h6>내 메뉴</h6>${dmBtn(st, unreadDm)}${cat("@mine", "내가 쓴 글")}${cat("@scrap", "스크랩")}</nav>`;
+  }
+  function wpfMenu(st, unreadDm) {
+    const reading2 = gnet.open !== null && readingNow();
+    const cat = (v) => onCat(v) && !reading2;
+    return `<button class="${cat("") ? "on" : ""}" data-action="gn-home" aria-pressed="${cat("")}">HOME</button>${dmBtn(st, unreadDm)}${catBtn("@mine", "내가 쓴 글", "", "", cat("@mine"))}${catBtn("@scrap", "스크랩", "", "", cat("@scrap"))}`;
+  }
+  function wpfTop(st) {
+    const top = [...st.posts].filter((p2) => p2.tag !== "공지").sort((a, b) => b.views - a.views || b.votes - a.votes || b.id - a.id).slice(0, 10);
+    if (!top.length) return "";
+    const items = top.map((p2) => {
+      const on3 = !dmTakes() && gnet.open === p2.id && readingNow();
+      return `<li><button class="${on3 ? "on" : ""}" data-action="gn-open-side" data-value="${p2.id}" title="${esc12(p2.title)}">${esc12(p2.title)}</button></li>`;
+    }).join("");
+    return `<div class="t top">인기글</div><ol class="top">${items}</ol>`;
+  }
+  function galSide(st) {
+    const top = [...st.posts].filter((p2) => p2.tag !== "공지").sort((a, b) => b.views - a.views || b.votes - a.votes || b.id - a.id).slice(0, 15);
+    const items = top.map((p2) => {
+      const on3 = !dmTakes() && gnet.open === p2.id && readingNow();
+      return `<li><button class="${on3 ? "on" : ""}" data-action="gn-open-side" data-value="${p2.id}" title="${esc12(p2.title)}"><span>${esc12(p2.title)}</span>${p2.comments.length ? `<em>[${p2.comments.length}]</em>` : ""}<small>${p2.views}</small></button></li>`;
+    }).join("");
+    return `<div class="hit"><h4>힛갤</h4>${items ? `<ol>${items}</ol>` : '<p class="none">아직 글이 없어요.</p>'}</div>`;
+  }
+  var gnChips = (st, unreadDm) => `<div class="mchips">${catBtn("", "전체")}${tagsOf(st).map((t) => catBtn(t, t)).join("")}${dmBtn(st, unreadDm)}${catBtn("@mine", "내가 쓴 글")}${catBtn("@scrap", "스크랩")}</div>`;
+  function siteList(site, st, now2, busy6, unreadDm) {
+    const all = shownPosts(st, site);
+    gnet.page = Math.min(Math.max(1, gnet.page), pages(all.length));
+    const list4 = pageOf(all);
+    const empty2 = !st.posts.length ? emptyList(busy6, "게시글이 없어요.", site === "gal" || site === "wpf") : "";
+    switch (site) {
+      case "gal": {
+        const tabOn = !dmTakes() && gnet.cat === "";
+        const tabs2 = `<div class="lt"><button class="${tabOn ? "on" : ""}" data-action="gn-tab" data-value="all" aria-pressed="${tabOn}">전체글</button>${dmBtn(st, unreadDm)}${empty2 ? "" : writeBtn("wr")}</div>`;
+        const heads = `<div class="hds">${catBtn("", "전체")}${catBtn("@mine", "내가 쓴 글")}${catBtn("@scrap", "스크랩")}</div>`;
+        const ic2 = (p2) => `<span class="ii ${boardThumb(p2.body) ? "im" : "tx"}"></span>`;
+        const ntc = (p2) => p2.tag === "공지";
+        const rows3 = list4.map((p2) => ntc(p2) ? `<tr class="ntc"><td><span class="sb">공지</span></td><td><span class="sb">공지</span></td><td class="t">${openBtn(p2, `${esc12(p2.title)}${dot(p2)}`)}</td><td class="n">${esc12(p2.nick)}<span class="fix"></span></td><td>${esc12(when(p2, now2))}</td><td>-</td><td>-</td></tr>` : `<tr${p2.mine ? ' class="mine"' : ""}><td>${p2.id}</td><td>${esc12(p2.tag ?? "일반")}</td><td class="t">${openBtn(p2, `${ic2(p2)}${esc12(p2.title)}<em>[${p2.comments.length}]</em>${dot(p2)}`)}</td><td class="n">${nickIp(p2.nick, p2.id)}</td><td>${esc12(when(p2, now2))}</td><td>${p2.views}</td><td>${p2.votes}</td></tr>`).join("");
+        const table2 = `<table><colgroup><col style="width:72px"><col style="width:54px"><col><col style="width:120px"><col style="width:56px"><col style="width:52px"><col style="width:42px"></colgroup>
+        <tr><th>번호</th><th>말머리</th><th>제목</th><th>글쓴이</th><th>작성일</th><th>조회</th><th>추천</th></tr>${rows3}</table>`;
+        const mlist = `<div class="mlist">${list4.map((p2) => `<div class="it${ntc(p2) ? " ntc" : ""}">${openBtn(p2, `<div class="t">${ntc(p2) ? "" : `[${esc12(p2.tag ?? "일반")}] `}${esc12(p2.title)}${ntc(p2) ? "" : `<em>[${p2.comments.length}]</em>`}${dot(p2)}</div><div class="m">${ntc(p2) ? `${esc12(p2.nick)} · ${esc12(when(p2, now2))}` : `${esc12(p2.nick)}${p2.nick === anonAuthor() ? `(${ipOf(p2.id)})` : ""} · ${esc12(when(p2, now2))} · 조회 ${p2.views} · 추천 ${p2.votes}`}</div>`)}</div>`).join("")}</div>`;
+        if (empty2) return `<div class="body">${tabs2}${empty2}</div>`;
+        return `<div class="body">${tabs2}${heads}${table2}${mlist}${none2(list4)}
+        <div class="bt2">${catBtn("", "전체글")}${writeBtn("wr")}</div>${pager(all.length, "pager", "", "다음")}
+        <label class="bsch"><span>제목+내용</span>${searchInput("검색어")}<button class="go" data-action="gn-search-go">검색</button></label></div>`;
+      }
+      case "wpf": {
+        const ntc = (p2) => p2.tag === "공지";
+        const rows3 = list4.map((p2) => `<tr${ntc(p2) ? ' class="ntc"' : ""}><td>${ntc(p2) ? "공지" : p2.id % 1e5}</td><td class="t">${openBtn(p2, `${p2.tag && !ntc(p2) ? `[${esc12(p2.tag)}] ` : ""}${esc12(p2.title)}${p2.comments.length ? ` <span class="cm">[${p2.comments.length}]</span>` : ""}${postUnread(p2) ? '<span class="nw">N</span>' : ""}`)}</td><td>${esc12(p2.nick)}</td><td>${esc12(when(p2, now2).replace(".", "/"))}</td><td>${p2.views}</td></tr>`).join("");
+        const table2 = `<table><tr><th style="width:44px">번호</th><th>제 목</th><th style="width:96px">글쓴이</th><th style="width:56px">날짜</th><th style="width:40px">조회</th></tr>${rows3}</table>`;
+        const wml = `<div class="wml">${list4.map((p2) => `<div class="it${ntc(p2) ? " ntc" : ""}">${openBtn(p2, `<div class="t">${esc12(p2.title)}${p2.comments.length ? ` <span class="cm">[${p2.comments.length}]</span>` : ""}${postUnread(p2) ? '<span class="nw">N</span>' : ""}</div><div class="m">${esc12(p2.nick)} · ${esc12(when(p2, now2).replace(".", "/"))} · 조회 ${p2.views}</div>`)}</div>`).join("")}</div>`;
+        return `<div class="ct"><div class="warn">※ 경.고 : 이 게.시.판은 감.시.받.고 있.습.니.다. 사.진 올.리.지 마.세.요.</div>
+        <div class="tot"><span>Total : ${st.posts.length} &nbsp; Page : ${Math.min(gnet.page, pages(all.length))}/${pages(all.length)}</span><span class="srt">${[["new", "최신"], ["hot", "인기"], ["cmt", "댓글"]].map(([k, l]) => `<button class="${gnet.sort === k ? "on" : ""}" data-action="gn-sort" data-value="${k}">${l}</button>`).join(" · ")}</span></div>
+        ${empty2 || `${table2}${wml}${none2(list4)}`}${pager(all.length, "pgn", `[이전 ${PAGE2}개]`, `[다음 ${PAGE2}개]`)}
+        ${empty2 ? "" : `<div class="nav2"><span>${catBtn("", "목록", "bb")}</span><label class="sch">${searchInput("제목·내용")} <button class="bb" data-action="gn-search-go">검색</button></label>${writeBtn("bb")}</div>`}
+      </div>`;
+      }
+      case "sm": {
+        const cards2 = list4.map((p2) => {
+          const want = smWant(p2);
+          const u = smPicUrl(p2);
+          const img = u ? `<img src="${esc12(u)}" alt="">` : ICONS.bag;
+          const ph = want ? `<div class="ph want"><span class="tag">${esc12(smTag("BUY"))}</span><p>${esc12([...previewText(p2.body)].slice(0, 70).join(""))}</p></div>` : `<div class="ph ${SM_BG[p2.id % SM_BG.length]}">${img}${p2.tag ? `<span class="tag${p2.tag === smTag("FREE") ? " g" : ""}">${esc12(p2.tag)}</span>` : ""}</div>`;
+          const price = priceOf2(p2);
+          return openBtn(p2, `${ph}<div><div class="nm">${esc12(p2.title)}${dot(p2)}</div>${price ? `<div class="pr">${esc12(price)}</div>` : ""}<div class="mt">${esc12(ago2(p2, now2))} · 관심 ${p2.votes} · 댓글 ${p2.comments.length}</div></div>`, "c");
+        }).join("");
+        const cats = `<div class="cats">${["", ...tagsOf(st)].map((t) => catBtn(t, t || "전체")).join("")}${catBtn("@mine", "내 글")}${catBtn("@scrap", "관심 목록")}${dmBtn(st, unreadDm, "내 채팅")}</div>`;
+        const sort = `<span class="sort">${[["hot", "인기순"], ["new", "최신순"]].map(([k, l]) => `<button class="${gnet.sort === k ? "on" : ""}" data-action="gn-sort" data-value="${k}">${l}</button>`).join(" · ")}</span>`;
+        return `<div class="sec"><div class="bar2"><span class="loc">근처 매물</span>${cats}${sort}</div>${empty2 || `<div class="grid">${cards2}</div>${none2(list4)}`}${pager(all.length, "pg")}</div>`;
+      }
+      default: {
+        const rows3 = list4.map((p2) => openBtn(p2, `<div>${p2.tag ? `<span class="c${p2.tag === "목격" ? " hot" : ""}">${esc12(p2.tag)}</span>` : ""}<span class="tt">${esc12(p2.title)}${p2.comments.length ? `<em>${p2.comments.length}</em>` : ""}${dot(p2)}</span><small>${esc12(p2.nick)} · ${esc12(ago2(p2, now2))} · 조회 ${p2.views.toLocaleString()}</small></div>${thumb(p2)}`, `row${p2.mine ? " mine" : ""}`)).join("");
+        const title2 = gnet.cat === "@mine" ? "내가 쓴 글" : gnet.cat === "@scrap" ? "스크랩" : gnet.cat || (gnet.sort === "hot" ? "랭킹" : "전체");
+        const sort = `<div class="sort">${[["new", "최신"], ["hot", "랭킹"], ["cmt", "댓글순"]].map(([k, l]) => `<button class="${gnet.sort === k ? "on" : ""}" data-action="gn-sort" data-value="${k}" aria-pressed="${gnet.sort === k}">${l}</button>`).join("")}</div>`;
+        const chips3 = gnChips(st, unreadDm);
+        return `<div class="gmain"><div class="bh"><h2>${esc12(title2)}</h2>${writeBtn("w")}</div>${chips3}${sort}${empty2 || `${rows3}${none2(list4)}`}${pages(all.length) > 1 ? pager(all.length, "pg", "", "›") : ""}</div>`;
+      }
+    }
+  }
+  function commentTree(site, p2, busy6) {
+    const kids = /* @__PURE__ */ new Map();
+    p2.comments.forEach((c, i) => {
+      const parent = c.parent > 0 && c.parent <= p2.comments.length && c.parent !== i + 1 ? c.parent : 0;
+      kids.set(parent, [...kids.get(parent) ?? [], i + 1]);
+    });
+    const out2 = [];
+    const seen4 = /* @__PURE__ */ new Set();
+    const target = gnet.compose?.kind === "comment" && gnet.compose.post === p2.id ? gnet.compose.parent : 0;
+    const walk = (n3, depth) => {
+      for (const k of kids.get(n3) ?? []) {
+        if (seen4.has(k)) continue;
+        seen4.add(k);
+        const c = p2.comments[k - 1];
+        const confirm = gnet.confirm === `c:${p2.id}:${k}`;
+        const shown6 = site === "wpf" && c.nick === anonAuthor() ? "익명" : c.nick;
+        const author = c.mine ? `<b class="gn-me">${esc12(shown6)}</b>` : `<button class="gn-nick" data-action="gn-dm-from" data-value="${p2.id}:${k}" title="${dmW()} 보내기"><b>${esc12(shown6)}</b></button>`;
+        const ip = site === "gal" && c.nick === anonAuthor() ? ` <span class="ip">(${ipOf(p2.id + k)})</span>` : "";
+        const del = c.mine ? confirm ? `<button class="gx-mini danger" data-action="gn-del-comment" data-value="${p2.id}:${k}">정말 삭제</button>` : `<button class="gn-cdel" data-action="gn-del-comment" data-value="${p2.id}:${k}" aria-label="댓글 삭제" title="삭제">삭제</button>` : "";
+        const re = depth ? '<span class="gn-re" aria-hidden="true">↳</span>' : "";
+        const unread = c.unread ? '<span class="gn-dot" aria-label="새 답글"></span>' : "";
+        const clock4 = commentClock(p2, c);
+        const acts = `<span class="cma"><button class="gn-reply" data-action="gn-reply" data-value="${p2.id}:${k}">답글</button>${del}</span>`;
+        const cls = `cm gn-c${depth ? " re" : ""}${c.unread ? " unread" : ""}${target === k ? " target" : ""}`;
+        const style = ` style="--gn-depth:${Math.min(depth, 3)}"`;
+        if (site === "gal") out2.push(`<li class="${cls}"${style}><div class="ch">${re}${author}${ip}${unread}</div><div class="cb gn-c-body">${body2(c.body)}</div><small>${clock4}${acts}</small></li>`);
+        else if (site === "wpf") out2.push(`<li class="${cls}"${style}>${re}${author} : <span class="gn-c-body">${body2(c.body)}</span> <small>(${clock4})</small>${unread}${acts}</li>`);
+        else out2.push(`<li class="${cls}"${style}><div class="ch">${re}${author} <small>${clock4}</small>${unread}${acts}</div><div class="gn-c-body">${body2(c.body)}</div></li>`);
+        if (target === k && gnet.compose?.kind === "comment") out2.push(replyBox(gnet.compose.label, busy6, depth + 1));
+        walk(k, depth + 1);
+      }
+    };
+    walk(0, 0);
+    return out2.join("");
+  }
+  function sitePost(site, p2, busy6, now2) {
+    const c = gnet.compose;
+    const reply = c?.kind === "comment" && c.post === p2.id && c.parent > 0 ? c : null;
+    const confirm = gnet.confirm === `p:${p2.id}`;
+    const who = p2.mine ? `<b class="gn-me">${esc12(p2.nick)}</b>` : `<button class="gn-nick" data-action="gn-dm-from" data-value="${p2.id}:0" title="${dmW()} 보내기"><b>${esc12(p2.nick)}</b></button>`;
+    const del = (cls) => p2.mine ? `<button class="${cls}${confirm ? " danger" : ""}" data-action="gn-del-post" data-value="${p2.id}">${confirm ? "정말 삭제" : "삭제"}</button>` : "";
+    const more = (cls) => `<button class="${cls}" data-action="gn-post-refresh" data-value="${p2.id}" ${busy6 ? "disabled" : ""}>새 댓글 보기</button>`;
+    const back = (cls, label2 = "‹ 목록으로") => `<button class="${cls}" data-action="gn-back">${label2}</button>`;
+    const scrap = (cls, on3 = "★ 스크랩됨", off = "☆ 스크랩") => `<button class="${cls}${p2.scrap ? " on" : ""}" data-action="gn-scrap" data-value="${p2.id}" aria-pressed="${!!p2.scrap}">${p2.scrap ? on3 : off}</button>`;
+    const vote = (cls, inner) => `<button class="${cls}${p2.voted ? " on" : ""}" data-action="gn-vote" data-value="${p2.id}" aria-pressed="${!!p2.voted}">${inner}</button>`;
+    const list4 = p2.comments.length ? `<ul class="cms0 gn-comments">${commentTree(site, p2, busy6)}</ul>` : `<p class="bs-none gn-c-none">${site === "sm" ? "아직 문의가 없어요." : "아직 댓글이 없어요."}</p>`;
+    const cin = reply ? "" : composer(busy6, "댓글을 입력하세요", "", "등록", true);
+    switch (site) {
+      case "gal": {
+        const files = boardFiles(p2.body);
+        const att = files.length ? `<div class="att"><b>원본 첨부파일 ${files.length}</b>${files.map((f) => f.url ? `<a href="${esc12(f.url)}" target="_blank" rel="noopener noreferrer">🔗 ${esc12(f.text)}</a>` : `<a>${f.kind === "file" ? "📎" : "🔗"} ${esc12(f.text)}</a>`).join("")}</div>` : "";
+        return `<article class="body dpost gn-post"><div class="vt"><h3>${p2.tag ? `<span>[${esc12(p2.tag)}]</span> ` : ""}<span class="gn-post-title">${esc12(p2.title)}</span></h3><div class="vm"><span>${who}${p2.nick === anonAuthor() ? ` <span class="ip">(${ipOf(p2.id)})</span>` : ""} · ${esc12(p2.date)}</span><span>조회 ${p2.views} · 추천 ${p2.votes} · 댓글 ${p2.comments.length}</span></div></div>
+        ${att}<div class="pb gn-post-body">${attachBody(p2.body, true, true)}</div>
+        <div class="rec">${vote("b up", `<b>${p2.votes}</b><span>개념 추천</span>`)}<button class="b dn${p2.down ? " on" : ""}" data-action="gn-down" data-value="${p2.id}" aria-pressed="${!!p2.down}"><b>${p2.down ? 1 : 0}</b><span>비추</span></button></div>
+        <div class="cmh">전체 댓글 <b>${p2.comments.length}</b>개</div>${list4}${cin}
+        <div class="bt2">${catBtn("", "전체글")}${back("")}${scrap("", "스크랩됨", "스크랩")}${more("")}${del("")}${writeBtn("wr")}</div></article>`;
+      }
+      case "wpf": {
+        const files = boardFiles(p2.body);
+        return `<article class="ct wpost gn-post"><table class="vw"><tr><th>제 목</th><td class="tt gn-post-title" colspan="3">${esc12(p2.title)}</td></tr><tr><th>글쓴이</th><td>${who}</td><th>날 짜</th><td>${esc12(p2.date.slice(5).replace(".", "/"))}</td></tr><tr><th>조 회</th><td>${p2.views}</td><th>첨 부</th><td>${files.map((f) => f.url ? `<a href="${esc12(f.url)}" target="_blank" rel="noopener noreferrer">${esc12(f.text)}</a>` : `<a>${esc12(f.text)}</a>`).join("<br>")}</td></tr>
+        <tr><td class="bd gn-post-body" colspan="4">${attachBody(p2.body, true, true)}</td></tr></table>
+        <div class="cms">${list4}${cin}</div>
+        <div class="nav2">${back("bb", "목록")}<span>${scrap("bb", "스크랩됨", "스크랩")} ${more("bb")} ${del("bb")}</span>${writeBtn("bb")}</div></article>`;
+      }
+      case "sm": {
+        const price = priceOf2(p2);
+        const want = smWant(p2);
+        const u = want ? null : smPicUrl(p2);
+        const pic3 = want ? `<div class="ph want"><span class="tag">${esc12(smTag("BUY"))}</span></div>` : `<div class="ph ${SM_BG[p2.id % SM_BG.length]}">${u ? `<img src="${esc12(u)}" alt="">` : ICONS.bag}</div>`;
+        return `<article class="detail gn-post"><div class="side">${pic3}<div class="seller"><i></i><div>${who}<small>관심 ${p2.votes} · 댓글 ${p2.comments.length} · 조회 ${p2.views}</small></div></div></div><div class="info">
+        <h2 class="gn-post-title">${esc12(p2.title)}</h2>${price ? `<div class="price">${esc12(price)}</div>` : ""}<div class="mt2">${p2.tag ? `${esc12(p2.tag)} · ` : ""}${esc12(p2.date)} · ${esc12(ago2(p2, now2))}</div>
+        <div class="body gn-post-body">${body2(p2.body)}</div></div>
+        <div class="qna">
+        <div class="act">${scrap("", "♥", "♡")}${p2.mine ? "" : `<button class="chat" data-action="gn-dm-from" data-value="${p2.id}:0">채팅하기</button>`}${back("back")}${more("")}${del("")}</div>
+        ${p2.comments.length ? `<div class="cmh">문의 <b>${p2.comments.length}</b></div>` : ""}${list4}${cin}</div></article>`;
+      }
+      default:
+        return `<article class="gmain gpost gn-post"><div class="ph1">${p2.tag ? `<span class="c">${esc12(p2.tag)}</span>` : ""}<h2 class="gn-post-title">${esc12(p2.title)}</h2><div class="mt">${who} · ${esc12(p2.date.slice(5))} · 조회 ${p2.views.toLocaleString()} · 추천 ${p2.votes}</div></div>
+        <div class="pb gn-post-body">${body2(p2.body)}</div>
+        <div class="acts">${vote("up", `▲ 추천 ${p2.votes}`)}${scrap("")}</div>
+        <div class="cmh">댓글 <b>${p2.comments.length}</b></div>${list4}${cin}
+        <div class="bt">${back("")}${more("")}${del("")}<span class="sp"></span>${writeBtn("w")}</div></article>`;
+    }
+  }
+  function siteDm(st, busy6) {
+    const c = gnet.compose;
+    if (c && (c.kind === "newdm" || c.kind === "dm" && !st.dms.some((d) => d.nick === c.nick))) return composeView(c, busy6);
+    if (gnet.openDm && st.dms.some((d) => d.nick === gnet.openDm)) return dmPane(st, gnet.openDm, busy6);
+    return `<div class="bs-dmh"><h2>${dmBox()}</h2><button class="bs-w" data-action="gn-newdm">${dmW()} 쓰기</button></div>${dmList(st, busy6, false)}`;
+  }
+  function siteMain(site, ctx2, st, busy6, unreadDm, popDm) {
+    const now2 = dateNow(ctx2.chat);
+    if (gnet.compose?.kind === "post") return composeView(gnet.compose, busy6);
+    if (gnet.sub === "dm" && !popDm) return (site === "gn" && !gnet.openDm && !gnet.compose ? gnChips(st, unreadDm) : "") + siteDm(st, busy6);
+    const p2 = gnet.open !== null ? findAnyPost(st, gnet.open) : void 0;
+    if (p2) return (archived(st, p2.id) ? '<p class="bs-arch">보관된 글이에요. 게시판 목록과 메인 요청에는 들어가지 않아요. 댓글을 달면 그 턴에만 다시 들어가요.</p>' : "") + sitePost(site, p2, busy6, now2);
+    return siteList(site, st, now2, busy6, unreadDm);
+  }
+  function siteHtml(site, ctx2, st, busy6, mobile, extras2, note2) {
+    const unreadDm = st.dms.filter((d) => d.unread).length;
+    const popDm = gnet.sub === "dm" && !mobile;
+    const main2 = siteMain(site, ctx2, st, busy6, unreadDm, popDm);
+    const plain2 = gnet.sub === "dm" && !popDm || gnet.compose?.kind === "post";
+    const box3 = (inner2) => plain2 ? `<div class="bs-plain">${extras2}${inner2}</div>` : `${extras2 ? `<div class="bs-x">${extras2}</div>` : ""}${inner2}`;
+    let inner;
+    if (site === "gn") inner = `<div class="wrap">${gnSide(st, unreadDm)}<div class="gcol">${plain2 ? `<div class="gmain">${extras2}${main2}</div>` : `${extras2}${main2}`}</div></div>`;
+    else if (site === "gal" && !mobile) inner = `<div class="gal-cols${st.posts.length ? "" : " solo"}"><div class="gal-main">${box3(main2)}</div>${st.posts.length ? `<aside class="gal-side">${galSide(st)}</aside>` : ""}</div>`;
+    else if (site === "wpf") {
+      const lm = `<div class="lm"><div class="t">MENU</div>${wpfMenu(st, unreadDm)}${writeBtn("")}${wpfTop(st)}</div>`;
+      inner = `<div class="pg">${box3(`<div class="cols">${lm}<div class="colr">${main2}</div></div><div class="ft">관리 : 부매니저 &nbsp;·&nbsp; 이 게시판은 감시받고 있습니다</div>`)}</div>`;
+    } else inner = box3(main2);
+    const dmWin = popDm ? `<div class="gn-dmhost"><aside class="gn-dmwin" role="dialog" aria-label="${dmBox()}"${winStyle(gnet.dmWin)}><div class="gn-dmwin-hd"><b>${ICONS.mail} ${dmBox()}</b><button class="ph-tool sm" data-action="gn-dm-close" aria-label="닫기" title="닫기">${ICONS.close}</button></div><div class="gn-dmwin-bd">${siteDm(st, busy6)}</div><i class="gn-rs" aria-hidden="true"></i></aside></div>` : "";
+    return `<main class="gx-body gn bs bs-${site}${mobile ? " bs-m" : ""}" data-site="${site}">${dmWin}${siteHead(site, st, unreadDm)}${inner}${note2}</main>`;
+  }
+  var gnetDmWinSpec = {
+    host: ".bs",
+    skip: "bs-m",
+    win: ".gn-dmwin",
+    grip: ".gn-dmwin-hd",
+    size: ".gn-rs",
+    keep: '[data-action="gn-sub"][data-value="dm"], [data-action="gn-newdm"], [data-action="gn-dm-from"], .gx-gest',
+    min: [320, 280],
+    isOpen: () => gnet.sub === "dm" && !narrow(),
+    close: () => closeDm(),
+    save: (b) => {
+      gnet.dmWin = b;
+    }
+  };
+  var gnetDmOpen = () => gnet.sub === "dm" && !narrow();
+  function moveTo(next) {
+    if (gnet.sub === next) return;
+    const held = gnet.held;
+    gnet.held = gnet.draft || gnet.attach.length ? { sub: gnet.sub, draft: gnet.draft, attach: gnet.attach } : null;
+    const back = held?.sub === next ? held : null;
+    gnet.draft = back?.draft ?? "";
+    gnet.attach = back?.attach ?? [];
+    gnet.sub = next;
+  }
+  function closeDm() {
+    moveTo("board");
+    if (gnet.compose && gnet.compose.kind !== "post" && gnet.compose.kind !== "comment") gnet.compose = null;
+    gnet.confirm = null;
+  }
+  function gnetTab(base, env3, site = "gn") {
+    if (env3) liveEnv3 = env3;
+    sitePicFor2(base);
+    useBoardSite(site);
+    const ctx2 = siteCtx(base, site);
+    const st = readGnet(ctx2.chat);
+    const me = userNick(ctx2.chat.scriptstate);
+    const job = jobs3.get(chatKey3(ctx2));
+    const busy6 = !!job;
+    const mobile = narrow();
+    const anon = guideTxt("Common", "GNET.ANON_NICK");
+    const nick = gnet.editNick ? `<div class="gn-nickform"><input class="gx-search" name="gn-nick" data-enter="gn-nick-save" value="${esc12(me === anon && !ctx2.chat.scriptstate?.[GN_NICK] ? "" : me)}" placeholder="내 닉네임 (비우면 ${esc12(anon)})" maxlength="36" aria-label="내 닉네임"><button class="gx-mini" data-action="gn-nick-save" data-take="gn-nick">저장</button></div>` : "";
+    const fail4 = gnet.failure ? `<details class="nw-fail"><summary>최근 실패 원문</summary><p>${esc12(gnet.failure.reason)}</p><textarea class="gx-search" rows="6" readonly>${esc12(gnet.failure.raw)}</textarea></details>` : "";
+    const status2 = job ? `<div class="nw-busy" role="status"><span class="nw-spin"></span>${esc12(job)} 창을 닫아도 계속돼요.</div>` : "";
+    const note2 = toast("gn", gnet.notice, (t) => {
+      if (gnet.notice === t) gnet.notice = "";
+    });
+    return siteHtml(site, ctx2, st, busy6, mobile, `${status2}${nick}${fail4}`, note2);
+  }
+  var AUTO_LAST = "$gn_auto_last";
+  var quietEnv3 = { render: () => {
+  }, refresh: async () => {
+  }, current: () => null };
+  var liveEnv3 = null;
+  async function currentChat(ctx2) {
+    try {
+      const chat = await risuai.getChatFromIndex(ctx2.charIndex, ctx2.chatIndex);
+      return chat ? boardView(chat, siteOf2(ctx2)) : null;
+    } catch {
+      return null;
+    }
+  }
+  async function autoRefreshGnet(base, messageIndex, open3 = false, joint, site = "gn") {
+    const ctx2 = siteCtx(base, site);
+    const s8 = gnetSettings(ctx2.chat.scriptstate);
+    if (!s8.enabled || !(open3 ? s8.autoOpen : s8.auto) || jobs3.has(chatKey3(ctx2))) return;
+    const data3 = String(ctx2.chat.message?.[messageIndex]?.data ?? "");
+    if (!data3.trim()) return;
+    const stamp = turnKeyAt(ctx2.chat, messageIndex);
+    if (String(ctx2.chat.scriptstate?.[AUTO_LAST] ?? "") === stamp) return;
+    const saved = await upd(ctx2, (chat) => withVars(chat, { [AUTO_LAST]: stamp }));
+    if (!saved) return;
+    const env3 = liveEnv3 ?? quietEnv3;
+    const showing = env3.current();
+    const target = showing && showing.charIndex === ctx2.charIndex && showing.chatIndex === ctx2.chatIndex ? env3 : { ...quietEnv3, detached: true };
+    const notice2 = gnet.notice;
+    await refreshBoard({ ...ctx2, chat: saved }, target, true, joint, { index: messageIndex, data: data3, turn: stamp });
+    if (target !== env3) gnet.notice = notice2;
+  }
+  function gnetOpenCheck(base, env3, site = "gn") {
+    liveEnv3 = env3;
+    const ctx2 = siteCtx(base, site);
+    if (!gnetSettings(ctx2.chat.scriptstate).autoOpen) return;
+    const at = lastReply(ctx2.chat);
+    if (at < 0) return;
+    void autoRefreshGnet(ctx2, at, true, void 0, site).catch((error) => console.log(`[goei] 괴담넷 새로고침 실패: ${error instanceof Error ? error.message : String(error)}`));
+  }
+  async function handleGnet(action, value, base, env3, site = uiSite) {
+    if (!action.startsWith("gn-")) return false;
+    liveEnv3 = env3;
+    useBoardSite(site);
+    const ctx2 = siteCtx(base, site);
+    const v = value ?? "";
+    const [a, b] = v.split(":").map(Number);
+    const st = () => readGnet(ctx2.chat);
+    const ackDm = async (nick) => {
+      if (!nick || !dmUnread(st(), nick)) return false;
+      await mutate2(ctx2, env3, (s8) => acknowledge(s8, void 0, nick), {}, false);
+      return true;
+    };
+    if (!action.startsWith("gn-")) return false;
+    if (action !== "gn-del-post" && action !== "gn-del-comment" && action !== "gn-del-thread") gnet.confirm = null;
+    if (action.startsWith("gn-def-")) {
+      try {
+        const msg = await defaultsAction("gn", action, v, ctx2, env3.refresh);
+        if (msg) gnet.notice = msg;
+      } catch (error) {
+        gnet.notice = `기본값을 처리하지 못했어요: ${error instanceof Error ? error.message : String(error)}`;
+      }
+      env3.render();
+      return true;
+    }
+    switch (action) {
+      case "gn-dm-close":
+        closeDm();
+        break;
+      case "gn-sub":
+        moveTo(v === "dm" ? "dm" : "board");
+        if (gnet.compose?.kind === "comment" || gnet.compose?.kind === "dm") gnet.compose = null;
+        if (gnet.sub === "dm" && gnet.compose?.kind !== "newdm" && await ackDm(gnet.openDm)) return true;
+        break;
+      case "gn-back":
+        if (gnet.settings) gnet.settings = false;
+        else if (gnet.compose && (gnet.compose.kind === "post" || gnet.compose.kind === "newdm" || gnet.compose.kind === "dm" && !st().dms.some((d) => d.nick === gnet.compose.nick))) gnet.compose = null;
+        else if (gnet.sub === "board") gnet.open = null;
+        else gnet.openDm = null;
+        if (gnet.compose?.kind === "comment" || gnet.compose?.kind === "dm") gnet.compose = null;
+        gnet.attachMenu = false;
+        break;
+      case "gn-settings":
+        gnet.settings = !gnet.settings;
+        break;
+      case "gn-att-menu":
+        gnet.attachMenu = !gnet.attachMenu;
+        break;
+      case "gn-open":
+      case "gn-open-side": {
+        gnet.open = action === "gn-open" && gnet.open === a && !gnet.settings && !(gnet.compose && gnet.compose.kind !== "comment") ? null : a;
+        moveTo("board");
+        gnet.settings = false;
+        if (gnet.compose && gnet.compose.kind !== "post") gnet.compose = null;
+        if (gnet.compose?.kind === "post") gnet.compose = null;
+        const p2 = gnet.open !== null ? findAnyPost(st(), gnet.open) : void 0;
+        if (p2 && postUnread(p2)) {
+          const id2 = p2.id;
+          await mutate2(ctx2, env3, (s8) => acknowledge(s8, id2), {}, false);
+          return true;
+        }
+        break;
+      }
+      case "gn-open-dm": {
+        gnet.openDm = gnet.openDm === v && !gnet.settings && !gnet.compose ? null : v;
+        gnet.settings = false;
+        gnet.compose = null;
+        if (gnet.openDm && st().dms.some((d) => d.nick === v && d.unread)) {
+          await mutate2(ctx2, env3, (s8) => acknowledge(s8, void 0, v), {}, false);
+          return true;
+        }
+        break;
+      }
+      case "gn-refresh":
+        void refreshBoard(ctx2, env3);
+        return true;
+      case "gn-home":
+        moveTo("board");
+        Object.assign(gnet, { open: null, openDm: null, compose: null, cat: "", q: "", page: 1, settings: false });
+        break;
+      case "gn-cat":
+        moveTo("board");
+        Object.assign(gnet, { open: null, openDm: null, cat: v, page: 1, settings: false });
+        if (gnet.compose?.kind !== "post") gnet.compose = null;
+        break;
+      case "gn-tab":
+        moveTo("board");
+        Object.assign(gnet, { open: null, openDm: null, page: 1, settings: false, cat: "", sort: "new" });
+        if (gnet.compose?.kind !== "post") gnet.compose = null;
+        break;
+      case "gn-sort":
+        gnet.sort = v === "hot" || v === "cmt" ? v : "new";
+        moveTo("board");
+        Object.assign(gnet, { open: null, page: 1 });
+        if (gnet.compose?.kind !== "post") gnet.compose = null;
+        break;
+      case "gn-search-go": {
+        const ins = [...document.querySelectorAll('.bs input[name="gn-q"]')];
+        const q = (ins.find((i) => i.value.trim() !== gnet.q) ?? ins[0])?.value ?? "";
+        moveTo("board");
+        Object.assign(gnet, { open: null, q: q.trim().slice(0, 60), page: 1 });
+        break;
+      }
+      case "gn-vote":
+      case "gn-down":
+        await mutate2(ctx2, env3, (s8) => {
+          const p2 = findAnyPost(s8, a);
+          if (!p2) return false;
+          if (action === "gn-down") p2.down = !p2.down;
+          else {
+            p2.voted = !p2.voted;
+            p2.votes = Math.max(0, p2.votes + (p2.voted ? 1 : -1));
+          }
+        }, {}, false);
+        return true;
+      case "gn-page":
+        gnet.page = Math.max(1, Math.floor(Number(v)) || 1);
+        break;
+      case "gn-search":
+        moveTo("board");
+        Object.assign(gnet, { open: null, q: v.trim().slice(0, 60), page: 1 });
+        break;
+      case "gn-scrap":
+        await mutate2(ctx2, env3, (s8) => {
+          const p2 = findAnyPost(s8, a);
+          if (!p2) return false;
+          p2.scrap = !p2.scrap;
+          if (!p2.scrap && !p2.mine && archived(s8, p2.id)) {
+            s8.archive = s8.archive.filter((x) => x.id !== p2.id);
+            if (gnet.open === p2.id) gnet.open = null;
+          }
+        }, {}, false);
+        return true;
+      case "gn-wtag":
+        if (gnet.compose?.kind === "post") gnet.compose = { kind: "post", tag: v };
+        break;
+      case "gn-write":
+        gnet.settings = false;
+        moveTo("board");
+        gnet.compose = { kind: "post" };
+        gnet.draft = "";
+        gnet.attach = [];
+        break;
+      case "gn-newdm":
+        gnet.settings = false;
+        moveTo("dm");
+        gnet.compose = { kind: "newdm" };
+        gnet.draft = "";
+        gnet.attach = [];
+        break;
+      case "gn-comment": {
+        gnet.compose = { kind: "comment", post: a, parent: 0, label: "댓글" };
+        gnet.attach = [];
+        env3.render();
+        const box3 = document.querySelector('.gn-composer [data-input="gn-draft"]');
+        scrollInside(box3, "center", true);
+        box3?.focus({ preventScroll: true });
+        return true;
+      }
+      case "gn-reply": {
+        const c = findAnyPost(st(), a)?.comments[b - 1];
+        if (!c) break;
+        gnet.draft = "";
+        gnet.attach = [];
+        if (gnet.compose?.kind === "comment" && gnet.compose.post === a && gnet.compose.parent === b) {
+          gnet.compose = null;
+          break;
+        }
+        gnet.compose = { kind: "comment", post: a, parent: b, label: `${c.nick}에게 답글` };
+        env3.render();
+        const box3 = document.querySelector('.gn-c-compose [data-input="gn-draft"]');
+        box3?.focus({ preventScroll: true });
+        scrollInside(box3?.closest(".gn-c-compose"));
+        return true;
+      }
+      case "gn-dm-from": {
+        const p2 = findAnyPost(st(), a);
+        const contact = p2 && (b > 0 ? p2.comments[b - 1] : p2);
+        if (!p2 || !contact || contact.mine) break;
+        moveTo("dm");
+        gnet.settings = false;
+        gnet.openDm = contact.nick;
+        gnet.compose = { kind: "dm", nick: contact.nick, source: sourceFor(p2, b), label: `${contact.nick}에게 ${dmW()} · 「${p2.title}」` };
+        gnet.draft = "";
+        gnet.attach = [];
+        if (await ackDm(contact.nick)) return true;
+        break;
+      }
+      case "gn-dm-reply":
+        gnet.compose = { kind: "dm", nick: v, label: `${v}에게 답장` };
+        gnet.draft = "";
+        gnet.attach = [];
+        break;
+      case "gn-cancel":
+        gnet.compose = null;
+        gnet.draft = "";
+        gnet.attach = [];
+        break;
+      case "gn-att-add":
+      case "gn-att-del":
+        attachAction(gnet.attach, action === "gn-att-add" ? "add" : "del", v, GN_KINDS);
+        break;
+      case "gn-send": {
+        const c = gnet.compose ?? (gnet.sub === "board" && gnet.open !== null ? { kind: "comment", post: gnet.open, parent: 0, label: "댓글" } : gnet.sub === "dm" && gnet.openDm ? { kind: "dm", nick: gnet.openDm, label: `${gnet.openDm}에게 답장` } : null);
+        if (!c) break;
+        if (!gnet.draft.trim() && !gnet.attach.length) {
+          gnet.notice = "내용을 입력해 주세요.";
+          break;
+        }
+        const blank4 = emptyAttachment(gnet.attach);
+        if (blank4) {
+          gnet.notice = "첨부 내용을 입력하거나 ✕로 빼 주세요.";
+          break;
+        }
+        const text5 = composeBody(gnet.attach, gnet.draft);
+        const cap = c.kind === "post" ? LIMITS.post_tokens : c.kind === "comment" ? LIMITS.comment_tokens : LIMITS.dm_tokens;
+        if (tokens(describe(text5)) > cap) {
+          gnet.notice = `첨부 내용과 글이 작성 상한(${cap}토큰)을 넘었어요. 조금 줄여 주세요.`;
+          break;
+        }
+        if (c.kind === "post") void writePost(ctx2, env3, text5, siteOf2(ctx2) === "sm" ? c.tag ?? smTag("SELL") : "");
+        else if (c.kind === "comment") void writeComment(ctx2, env3, c.post, c.parent, text5);
+        else if (c.kind === "dm") void sendDm(ctx2, env3, c.nick, text5, c.source);
+        else {
+          const to = gnet.to.trim().slice(0, 80);
+          if (!to) {
+            gnet.notice = "받는 사람 닉네임을 적어 주세요.";
+            break;
+          }
+          void sendDm(ctx2, env3, to, text5);
+        }
+        return true;
+      }
+      case "gn-post-refresh":
+        if (findPost(st(), a)) void refreshPost(ctx2, env3, a);
+        else if (archived(st(), a)) gnet.notice = "보관된 글이라 새 댓글을 불러오지 않아요. 댓글을 달면 그 턴에 다시 이어져요.";
+        break;
+      case "gn-del-post":
+        if (gnet.confirm !== `p:${a}`) {
+          gnet.confirm = `p:${a}`;
+          break;
+        }
+        gnet.confirm = null;
+        gnet.open = null;
+        await mutate2(ctx2, env3, (s8) => deletePost(s8, a));
+        return true;
+      case "gn-del-comment":
+        if (gnet.confirm !== `c:${a}:${b}`) {
+          gnet.confirm = `c:${a}:${b}`;
+          break;
+        }
+        gnet.confirm = null;
+        await mutate2(ctx2, env3, (s8) => deleteComment(s8, a, b), (chat) => shiftOrigin(chat, a, b));
+        return true;
+      case "gn-del-thread":
+        if (gnet.confirm !== `d:${v}`) {
+          gnet.confirm = `d:${v}`;
+          break;
+        }
+        gnet.confirm = null;
+        gnet.openDm = null;
+        await mutate2(ctx2, env3, (s8) => deleteThread(s8, v));
+        return true;
+      case "gn-nick":
+        gnet.editNick = true;
+        break;
+      case "gn-nick-save":
+        gnet.editNick = false;
+        await setVar2(ctx2, env3, GN_NICK, v.trim().slice(0, 36));
+        return true;
+      case "gn-cfg": {
+        const [k, val] = v.split("=");
+        if (k === "storage") {
+          await setVar2(ctx2, env3, GN_STORAGE_AUTO, val === "0" ? "0" : "1");
+          return true;
+        }
+        if (k === "joint") {
+          await setVar2(ctx2, env3, JOINT_VAR, val === "0" ? "0" : "1");
+          return true;
+        }
+        if (k in GN_DEFAULTS) await setVar2(ctx2, env3, CFG(k), val);
+        else if (BOARD_REF_CFG.includes(k) && (val === "1" || val === "0")) await setVar2(ctx2, env3, CFG(k), val);
+        else env3.render();
+        return true;
+      }
+      case "gn-count": {
+        const m = /^(post|cmt|act)_(min|max)=(.*)$/.exec(v);
+        if (!m) return true;
+        const k = m[1];
+        const [a2, b2] = gnetSettings(ctx2.chat.scriptstate).counts[k];
+        const [lo, hi] = COUNT_RANGE[k];
+        const raw = Math.floor(Number(m[3]));
+        if (!Number.isFinite(raw) || m[3].trim() === "") return env3.render(), true;
+        const n3 = Math.max(lo, Math.min(hi, raw));
+        const vars = { [CFG(`${k}_${m[2]}`)]: String(n3) };
+        if (m[2] === "min" && n3 > b2) vars[CFG(`${k}_max`)] = String(n3);
+        if (m[2] === "max" && n3 < a2) vars[CFG(`${k}_min`)] = String(n3);
+        await setVars2(ctx2, env3, vars);
+        return true;
+      }
+      case "gn-chance": {
+        const n3 = Math.round(Number(v));
+        if (v.trim() !== "" && Number.isFinite(n3)) await setVar2(ctx2, env3, CFG("incoming_chance"), String(Math.max(0, Math.min(100, n3))));
+        else env3.render();
+        return true;
+      }
+      case "gn-keep": {
+        const n3 = Math.floor(Number(v));
+        if (Number.isFinite(n3) && n3 >= 1 && n3 <= STORAGE_MAX) await setVar2(ctx2, env3, GN_STORAGE_LIMIT, String(n3));
+        else env3.render();
+        return true;
+      }
+      case "gn-text": {
+        const [k, ...rest] = v.split("=");
+        if (["subject", "mood", "protagonist"].includes(k)) await setVar2(ctx2, env3, CFG(k), rest.join("=").trim());
+        return true;
+      }
+      default:
+        return false;
+    }
+    env3.render();
+    return true;
+  }
+  function gnetSettingsPane(ctx2, site = "gn") {
+    useBoardSite(site);
+    return settingsView3(siteCtx(ctx2, site), true);
+  }
+  function previewGnetRefresh(base, site = "gn") {
+    const ctx2 = siteCtx(base, site);
+    const before = readGnet(ctx2.chat);
+    const nick = userNick(ctx2.chat.scriptstate);
+    const s8 = gnetSettings(ctx2.chat.scriptstate);
+    const plan = incomingPlan(ctx2.chat, before, s8, nick, Math.random, void 0, savedOrigin(ctx2.chat));
+    return fitPrompt(fnBudget(ctx2.chat.scriptstate, "gn", "refresh"), () => refreshPrompt(source3(ctx2), before, plan, nick, names3(ctx2))).messages;
+  }
+  function sitePicFor2(ctx2) {
+    setSitePicSource((raw) => {
+      const name = resolveSitePic(ctx2.char, raw);
+      return name ? imageUrl(ctx2.char, name) : null;
+    });
+  }
+  function boardChrome(base, site) {
+    useBoardSite(site);
+    if (gnet.sub !== "board" && narrow() || gnet.open === null || gnet.compose?.kind === "post") return null;
+    const p2 = findAnyPost(readGnet(siteCtx(base, site).chat), gnet.open);
+    if (!p2) return null;
+    const path = site === "gal" ? `/board/view/?id=horror&no=${p2.id}` : site === "wpf" ? `/zboard.php?id=wpf&no=${p2.id}` : site === "sm" ? `/articles/${p2.id}` : `/board/free/${p2.id}`;
+    return { title: site === "sm" ? "" : p2.title, path };
+  }
+
+  // src/core/setdef/settings.ts
+  var SETTINGS_SET = {
+    id: "set",
+    flat: true,
+    groups: [
+      {
+        title: "화면",
+        rows: [
+          { key: "theme", label: "테마", ctl: { t: "seg", opts: [["light", "라이트"], ["dark", "다크"], ["paper", "페이퍼"]] } },
+          { key: "nav", label: "메뉴 위치", ctl: { t: "seg", opts: [["left", "왼쪽"], ["right", "오른쪽"]] }, help: "PC 창에서 메뉴 목록을 놓을 쪽이에요.", scope: "device" },
+          { key: "wiki-side", label: "위키 목록 위치", ctl: { t: "seg", opts: [["left", "왼쪽"], ["right", "오른쪽"]] }, help: "위키의 세로바와 숨은 목록 서랍을 놓을 쪽이에요. 폰의 「목록」 책갈피도 같은 쪽으로 가요.", scope: "device" },
+          { key: "agents", label: "요원 칸", ctl: { t: "seg", opts: [["wall", "모니터"], ["list", "목록"]] }, help: "상황판 요원 칸 모양이에요.", scope: "device" },
+          { key: "dim", label: "창 바깥 불투명도", ctl: { t: "custom" }, help: "창 뒤 채팅 화면을 가리는 정도예요. 0%면 그대로 보이고 100%면 다 가려요.", scope: "device" },
+          { key: "progress", label: "호출 진행 창", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "채팅을 보내면 채팅 화면 오른쪽 위에 지금 도는 단계(라우터·디렉터·메인·갱신기·인터넷)와 모델·토큰·경과 시간을 보여 줘요. PC는 카드로 펼쳐졌다 끝나면 버튼으로 접히고, 폰은 점 다섯 개짜리 막대예요. 눌러서 지난 턴을 다시 볼 수 있어요.", scope: "device" },
+          // 기다리는 시간 (전수점검 보통-5·사소-9: 코드에 박혀 있던 시간, core/timing.ts). 처리기는 set-time
+          { key: "time-modelIdle", label: "모델 응답 대기", ctl: { t: "custom" }, help: "괴담넷·괴담톡·위키·상점·인물 기록 같은 보조 호출이 응답을 받지 못하면(받는 중이면 마지막 조각부터) 실패로 보는 시간이에요. 생각이 긴 모델을 스트리밍 없이 쓰면 늘리세요. 받는 도중 멈춘 것만 「모델 오류 재시도」만큼 다시 보내고, 아무것도 받지 못한 채 끊긴 것은 다시 보내지 않아요.", scope: "device" },
+          { key: "time-retryGap", label: "재시도 간격", ctl: { t: "custom" }, help: "모델 쪽 일시 오류(빈 응답·과부하·시간 초과) 뒤 같은 요청을 다시 보내기 전에 쉬는 시간이에요.", scope: "device" },
+          { key: "time-mainWait", label: "메인 응답 대기", ctl: { t: "custom" }, help: "채팅을 보낸 뒤 메인 응답을 기다리는 시간이에요. 그동안 소지품 「사용」을 잠그고, 지나면 아직 만드는 중인지 확인해요.", scope: "device" },
+          { key: "time-mainAgain", label: "응답 다시 확인", ctl: { t: "custom" }, help: "메인 응답 대기가 끝났는데 아직 만드는 중이면, 다시 확인할 때까지의 시간이에요.", scope: "device" },
+          { key: "time-cancelTwice", label: "취소 두 번 누르기", ctl: { t: "custom" }, help: "응답을 기다리는 중에 Risu의 「취소」를 누르면 한 번은 막고, 이 시간 안에 한 번 더 누르면 취소해요.", scope: "device" },
+          { key: "time-progWatch", label: "진행 감시", ctl: { t: "custom" }, help: "호출 진행 창이 메인 응답을 기다리다 「응답 없음」으로 닫는 시간이에요.", scope: "device" },
+          { key: "time-progHideOk", label: "진행 창 펼침 (성공)", ctl: { t: "custom" }, help: "PC 호출 진행 창이 끝난 턴을 펼친 채 두었다 접을 때까지의 시간이에요.", scope: "device" },
+          { key: "time-progHideFail", label: "진행 창 펼침 (실패)", ctl: { t: "custom" }, help: "실패한 단계가 있는 턴을 펼친 채 두는 시간이에요.", scope: "device" },
+          { key: "trace-keep", label: "호출 기록 보관", ctl: { t: "custom" }, help: "호출 기록에 남겨 두는 최근 턴 수예요. 모든 채팅의 기록을 한곳에 모아 두어서 모든 채팅에 같이 적용돼요. 늘리면 저장 공간을 더 써요.", scope: "device" },
+          { key: "frame", label: "외부 프레임", ctl: { t: "seg", opts: [["none", "없음"], ["tablet", "일반 태블릿"], ["tactical", "전술 태블릿"]] }, scope: "device" },
+          { key: "editor-width", label: "설정 창 폭", ctl: { t: "seg", opts: [["60", "60%"], ["70", "70%"], ["80", "80%"], ["90", "90%"], ["100", "100%"]] }, help: "이 설정 창이 화면 가로의 몇 %를 쓸지예요. 높이는 늘 화면의 90%. 폰에서는 늘 전체 화면이에요.", scope: "device" },
+          { key: "consult-lines", label: "AI 상담 대화 보관", ctl: { t: "custom" }, help: "AI 상담 창에 채팅마다 남겨 두는 대화 줄 수예요. 모든 채팅의 대화를 한곳에 모아 두어서 모든 채팅에 같이 적용돼요. 넘으면 오래된 줄부터 지워요.", scope: "device" },
+          { key: "consult-chats", label: "AI 상담 보관 채팅", ctl: { t: "custom" }, help: "AI 상담 대화를 남겨 두는 채팅 수예요. 모든 채팅에 같이 적용돼요. 넘으면 상담한 지 오래된 채팅의 대화부터 지워요.", scope: "device" }
+        ]
+      },
+      {
+        title: "캐릭터 이미지",
+        rows: [
+          { key: "asset", label: "사용", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "본문에 등장하는 캐릭터의 등록 이미지를 표시하도록 이미지 태그를 적어요. 이미지와 태그 목록은 봇 카드에 들어 있어요." },
+          { key: "img-size", label: "크기", ctl: { t: "custom" }, help: "채팅 속 캐릭터 이미지 칸의 크기예요. 100%가 원래 크기이고, 채팅 폭보다 커지지는 않아요.", scope: "device" },
+          { key: "img-foldon", label: "접기", ctl: { t: "seg", opts: [["1", "접음"], ["0", "펼침"]] }, help: "접음 = 이미지를 위쪽만 보이게 접어 둬요. 펼침 = 늘 펼쳐 둬요.", scope: "device" },
+          { key: "img-foldlock", label: "접힌 그림 펼치기", ctl: { t: "seg", opts: [["1", "펼침"], ["0", "안 펼침"]] }, help: "펼침 = 접힌 그림을 누르거나 마우스를 올리면 펼쳐요. 안 펼침 = 늘 접힌 채 둬요.", scope: "device" },
+          { key: "img-fold", label: "접힌 높이", ctl: { t: "custom" }, help: "접혔을 때 그림 높이의 몇 %를 보여 줄지예요. 68%면 정사각형으로 보여요.", scope: "device" },
+          { key: "img-show", label: "표시 범위", ctl: { t: "custom" }, help: "이미지를 띄울 메시지예요. 「최근만」이면 마지막 메시지부터 정한 개수까지만 띄워요. 바꾼 값은 메시지를 다시 그릴 때 반영돼요.", scope: "device" },
+          { key: "img-send", label: "요청 속 이미지 태그", ctl: { t: "custom" }, help: "모델에 보내는 대화 기록에서 이미지 태그를 남길 메시지예요. 오래된 태그를 빼면 토큰이 줄어요. 최근 태그는 모델이 태그 쓰는 법을 따라 하도록 남겨요.", scope: "device" },
+          { key: "asset-model", label: "모델", ctl: { t: "seg", opts: [["main", "메인 모델"], ["aux", "보조 모델"]] }, help: "메인 모델은 본문과 함께 적고, 보조 모델은 응답이 끝난 뒤 한 번 더 불러 태그를 보충해요." },
+          { key: "img-scene", label: "장면 인물만", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "켜면 이미지 지침의 캐릭터 목록에 최근 대화에 이름이 나온 캐릭터만 넣어요. 토큰이 줄지만, 처음 등장하는 캐릭터는 다음 응답부터 이미지가 붙어요.", scope: "device" },
+          { key: "asset-player", label: "주인공 이미지", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "「캐릭터로 플레이」로 고른 요원(내가 연기하는 주인공)에게도 이미지 태그를 붙일지예요. 끄면 페르소나처럼 주인공 이미지는 띄우지 않아요." },
+          { key: "asset-limit", label: "캐릭터당 이미지 수", ctl: { t: "seg", opts: [["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"]] }, help: "보조 모델이 한 응답에서 캐릭터 한 명에게 붙일 이미지 태그의 최대 개수" }
+        ]
+      },
+      {
+        title: "상황판",
+        rows: [
+          { key: "anomaly", label: "괴이 발생 · 요원 시스템", ctl: { t: "custom" } },
+          { key: "agent", label: "요원 표시 인원", ctl: { t: "custom" } },
+          { key: "support", label: "지원 투입", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "편성에서 등록 요원 외의 일반 지원 인원을 더할 수 있어요." }
+        ]
+      },
+      {
+        title: "상태창",
+        rows: [
+          { key: "status", label: "배색", ctl: { t: "seg", opts: [["auto", "테마"], ["light", "라이트"], ["dark", "다크"], ["paper", "페이퍼"], ["off", "미표시"]] }, help: "채팅 속 상태창의 배색이에요. 「테마」는 위 테마를 따라가요. 미표시를 고르면 상자만 숨기고, 모델은 상태 태그를 계속 써요.", scope: "device" }
+        ]
+      },
+      {
+        title: "가계부",
+        rows: [
+          { key: "wallet-on", label: "사용", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "켜면 상태창에 잔고 칸을 두고, 본문에 금액이 적힌 거래를 인물 기록 갱신기가 뽑아 가계부에 더하고 빼요. 끄면 잔고 칸과 거래 기록이 빠져요. 소지품·상점과 따로 켜고 꺼요." },
+          { key: "wallet-start", label: "시작 잔고", ctl: { t: "custom" } },
+          { key: "wallet-edit", label: "잔고 직접 수정", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "켜면 가계부에서 잔고를 고치고 거래를 지울 수 있고, 진행 중인 채팅의 시작 잔고도 바꿀 수 있어요. 이야기 밖에서 바뀐 잔고는 모델이 이유를 몰라 대화가 길어질수록 앞뒤가 꼬이기 쉬워요." },
+          { key: "wallet-sync", label: "상태창 잔고 따르기", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "켜면 모델이 상태창 잔고 칸을 바꿨을 때 가계부를 그 값에 맞춰요. 끄면 가계부 값만 믿고, 다음 요청에 넘기는 지난 상태창의 잔고를 가계부 값으로 덮어 모델이 고치게 해요." },
+          { key: "wallet-loose", label: "거래 읽는 기준", ctl: { t: "seg", opts: [["0", "금액이 적힌 것만"], ["1", "어림도 받기"]] }, help: "금액이 적힌 것만이면 「3만 원을 냈다」처럼 금액이 글에 있는 거래만 적어요. 어림도 받기면 「밥을 사 먹었다」처럼 금액이 없는 거래도 보조 모델이 서울 물가로 어림해 메모에 「(어림)」을 붙여 적어요." },
+          { key: "wallet-recent", label: "컨텍스트 포함", ctl: { t: "custom" } },
+          { key: "wallet-cap", label: "거래 줄 상한", ctl: { t: "custom" } }
+        ]
+      },
+      {
+        title: "소지품",
+        rows: [
+          { key: "inv-on", label: "사용", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "끄면 소지품 화면·[Inventory] 글·보조 모델 읽기·「다음 메시지에 사용」이 다 빠지고, 소지품에 딸린 상점도 같이 꺼져요. 가계부는 그대로예요." },
+          { key: "items-auto", label: "응답에서 자동 반영", ctl: { t: "custom" }, help: "켜면 인물 기록 갱신기가 응답을 읽어 얻은·잃은 물건을 목록에 맞춰요(근거 문장이 있는 것만). 갱신기가 돌아야 하니 인물 기록이 켜져 있어야 해요. 끄면 직접 넣기와 상점으로만 바뀌어요." },
+          { key: "items-slots", label: "칸 수", ctl: { t: "custom" } },
+          { key: "items-carry", label: "소지 한도", ctl: { t: "custom" } },
+          { key: "items-edit", label: "고치기", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "켜면 물건 창에 「고치기」 버튼이 생겨 이름·설명·효과·장착·횟수·무게를 손으로 바꿀 수 있어요. 이야기 밖에서 바뀐 물건은 모델이 이유를 몰라서 기본은 꺼 둬요." },
+          { key: "items-limit", label: "지닐 수 있는 한계", ctl: { t: "custom" }, help: "모델에 알려 주는 한 줄이에요(Carry limit). 비우면 기본 문장으로 돌아가요." },
+          { key: "items-rules", label: "판정 표", ctl: { t: "custom" }, help: "표에 적은 종류·물건만 이 표대로 정하고, 나머지는 모델이 지침대로 정해요. 예: 망치 → 손" },
+          // 기본 표는 비움 (사용자 2026-11-14)
+          { key: "items-left-words", label: "두고 온 물건 표시어", ctl: { t: "text", ph: "", def: ITEM_LEFT_WORDS_DEFAULT, max: ITEM_WORDS_MAX }, help: "갱신기가 물건을 없앴다고 알리지 않고 설명만 「…에 두고 온」처럼 고쳐 보냈을 때, 설명에 이 말이 있으면 소지품에서 빼요(기록에 남고, 본문에서 다시 얻으면 같은 물건으로 돌아와요). 쉼표로 나눠 적어요." },
+          { key: "items-off-words", label: "장착 해제 표시어", ctl: { t: "text", ph: "", def: ITEM_OFF_WORDS_DEFAULT, max: ITEM_WORDS_MAX }, help: "갱신기가 장착한 물건의 설명을 「벗어 둔 …」처럼 고쳐 보냈을 때, 설명에 이 말이 있으면 장착만 풀어요(소지품에는 남아요). 쉼표로 나눠 적어요." },
+          { key: "items-alias", label: "그림 대체 말", ctl: { t: "custom" }, help: "물건 그림을 찾을 때 이름의 끝 말을 바꿔 찾아요. 「외투 → 코트」면 이름이 외투로 끝나는 물건을 코트 그림으로 찾아요. 줄을 전부 지우면 기본 표로 돌아가요. 그림은 모델이 「종류/물건말」(옷/코트)로 적은 종류 안에서 먼저 찾고, 없으면 전체에서 찾아요. 그래도 없으면 상자 그림이에요." },
+          { key: "items-pool", label: "분류 그림 섞기", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "물건 이름이 「과자·다과·간식」처럼 세부 이름이 아니라 분류 말이면 그 분류의 그림 가운데 하나를 물건마다 뽑아 보여 줘요. 한 번 정해진 그림은 그 물건에 그대로 남아요. 끄면 분류마다 대표 그림 한 장만 나와요." },
+          { key: "items-misses", label: "그림을 못 찾은 물건", ctl: { t: "custom" }, help: "이번에 앱을 켠 뒤로 제 그림을 못 찾아 상자로 간 물건이에요. 그림을 더 뽑을 때 참고해요." },
+          { key: "items-detail", label: "넘길 내용", ctl: { t: "seg", opts: [["full", "전부"], ["state", "이름·판정"], ["name", "이름만"]] }, help: "[Inventory] 한 줄에 무엇을 넣을지예요. 전부 = 이름·설명·효과·장착·남은 횟수·상태, 이름·판정 = 설명·효과를 빼고, 이름만 = 이름뿐. 물건이 많을 때 줄이면 토큰이 덜 들어요." },
+          { key: "items-scope", label: "물건으로 만드는 범위", ctl: { t: "seg", opts: [["narrow", "좁게"], ["mid", "보통"], ["wide", "넓게"]] }, help: "갱신기가 응답을 읽고 어디까지 물건으로 만들지예요. 좁게 = 쓰임이 있는 것만(무기·도구·기기·약·열쇠·부적·봉인·괴이 물건·값나가는 것). 보통 = 거기에 지급받거나 산 옷·가방과 서류까지. 넓게 = 얻어서 갖고 있는 것 전부. 상점에서 산 것과 직접 넣은 것은 늘 들어와요." },
+          { key: "items-skip", label: "만들지 않을 것", ctl: { t: "custom" }, help: "여기 적은 것은 물건으로 만들지 않아요. 갱신기에 그대로 넘기는 글이에요. 예: 지급받은 옷, 명함, 영수증" },
+          { key: "items-state", label: "상태 바꾸기", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "켜면 갱신기가 응답을 보고 물건을 손상·고장·파괴로 바꿔요. 끄면 손상·고장은 받지 않고, 부서진 물건은 「없어짐」으로만 빠져요." },
+          { key: "items-spent", label: "다 쓴 물건", ctl: { t: "seg", opts: [["remove", "목록에서 빼기"], ["keep", "남겨 두기"]] }, help: "남은 횟수가 0이 된 소모품을 어떻게 할지예요. 남겨 두면 「다 씀」으로 칸에 남고 메인 요청에도 used up 으로 넘어가요(빈 병·다 쓴 탄창처럼)." },
+          { key: "items-away-turns", label: "치운 물건 기억", ctl: { t: "custom" } },
+          { key: "items-list-cap", label: "물건 줄 상한", ctl: { t: "custom" } },
+          { key: "items-logcap", label: "기록 줄 상한", ctl: { t: "custom" } },
+          { key: "items-act-gap", label: "아바타 동작 간격", ctl: { t: "custom" } },
+          { key: "items-logturns", label: "사용·처분 기록 넘기기", ctl: { t: "custom" } },
+          { key: "items-start", label: "시작 소지품", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "고유 인물로 시작할 때 명부의 「시작 소지품」을 넣고 손에 드는 것은 손 칸, 장비는 장착할지예요. 새 채팅을 시작할 때만 쓰여요." }
+        ]
+      },
+      {
+        title: "상점",
+        rows: [
+          { key: "shop-on-locked", label: "사용", ctl: { t: "custom" } },
+          { key: "shop-on", label: "사용", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "켜면 지금 장면에 살 수 있는 곳이 있는지 판단해(아래 「상점 판단」), 있으면 그 응답 아래에 「상점 열기」가 붙어요. 물건은 열 때 보조 모델이 맥락대로 지어요. 잔고·소지품은 모델에 넘기지 않아요." },
+          { key: "shop-judge", label: "판단", ctl: { t: "seg", opts: [["auto", "자동"], ["main", "메인 모델"], ["updater", "갱신기"]] } },
+          { key: "shop-model", label: "모델", ctl: { t: "seg", opts: [["main", "메인 모델"], ["aux", "보조 모델"]] }, help: "진열대와 주인 대사를 지을 모델이에요." },
+          { key: "shop-min", label: "상품 수", ctl: { t: "custom" } },
+          { key: "shop-feature", label: "희귀·특가 구획", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "켜면 진열대마다 희귀 물건 단 하나와 특가 물건 1~3개를 따로 받아, 희귀는 진열장에, 특가는 원래 값에 줄을 긋고 할인율을 붙여 따로 보여 줘요. 끄면 한 격자에 늘어놓아요." },
+          { key: "shop-ctx", label: "맥락 반영", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "켜면 주인공 신분·상태창(시각·장소)·진행 중 괴이와 사건·최근 챗로그를 넘겨 지금 상황에 맞는 물건이 나와요. 끄면 가게 이름·주인·가게 정체와 아래 참조 로어북만 넘겨요. 로어북은 이 설정과 상관없이 넘어가요. 잔고·소지품·페르소나·작가 노트는 어느 쪽이든 넘기지 않아요." },
+          { key: "shop-price", label: "값 기준", ctl: { t: "custom" }, help: "모델에 알려 주는 값 기준 한 줄이에요. 비우면 그 가게에 어울리는 실제 물가로 지어요." },
+          { key: "shop-diverse", label: "다양성 강화", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "켜면 뻔한 물건만 늘어놓지 않고 싼 것·비싼 것·흔한 것·특이한 것을 섞어요." },
+          { key: "shop-thoughts", label: "생각 단계", ctl: { t: "seg", opts: [["off", "사용 안 함"], ["inner", "속으로만"], ["note", "적고 지움"]] }, help: "물건을 짓기 전에 가게·장면·주인을 먼저 정리하게 해요. 적고 지움은 응답이 길어져요." },
+          { key: "shop-prev", label: "지난 목록 피하기", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "새로고침할 때 이번 방문에 이미 보였던 물건을 피해요." },
+          { key: "shop-kick", label: "거래 끊음", ctl: { t: "seg", opts: [["1", "ON"], ["0", "OFF"]] }, help: "켜면 주인이 모욕·끝없는 흥정 같은 일에 거래를 끊을 수 있어요. 끊기면 진열대가 잠기고 다음 턴 메인 요청에 넘어가요. 끄면 주인이 아무리 화나도 가게는 열려 있어요." },
+          { key: "shop-where", label: "열리는 자리", ctl: { t: "seg", opts: [["any", "어디서든"], ["shop", "가게 장면만"]] }, help: "어디서든이면 판매자가 있는 가게뿐 아니라 온라인몰·홈쇼핑·카탈로그·자판기처럼 주인이 없는 곳에서도 「상점 열기」가 붙어요. 가게 장면만이면 판매자가 그 자리에 있는 가게·노점에서만 붙어요." },
+          { key: "shop-turns", label: "챗로그 포함", ctl: { t: "custom" }, help: "진열대와 주인 대사를 지을 때 넘기는 최근 턴 수예요(1~8). 맥락 반영이 켜져 있을 때만 쓰여요." },
+          { key: "shop-refs", label: "참조 로어북", ctl: { t: "custom" }, help: "봇 설명·지금 켜진 로어북·가게 이름과 주인 이름이 걸리는 로어북(주인 인물 포함)·위키의 가게 문서 가운데 최대 몇 개를 넘길지예요(0~12)." }
+        ]
+      }
+    ]
+  };
+
+  // src/core/shopfn.ts
+  var GIVE_SHOPS = ["shop", "cos", "bm", "hs"];
+  var isGiveShop = (v) => GIVE_SHOPS.includes(v);
+  var SHOP_FNS = [
+    { key: "shelf", label: "진열" },
+    { key: "talk", label: "문의" },
+    { key: "desk", label: "1:1 상담" },
+    /** 망상홈쇼핑에서 내가 보낸 채팅에 진행자·시청자가 답하는 요청 (ui/homeshop.ts say) */
+    { key: "say", label: "채팅 반응" }
+  ];
+  var isShopFn = (v) => SHOP_FNS.some((f) => f.key === v);
+  var SHOP_GIVE_KEYS = [...REF_CHIP_KEYS, "ctx"];
+  var isGiveKey = (v) => SHOP_GIVE_KEYS.includes(v);
+  var SHOP_DEF = { desc: true, authors: false, persona: false, active: true, related: true, secondary: false };
+  var FN_DEF = { desc: true, authors: true, persona: true, active: true, related: true, secondary: false };
+  function shopGiveVar(shop, key) {
+    const sh = key === "ctx" ? SHOP_CTX_VAR : `$sh_give_${key}`;
+    return shop === "shop" ? sh : shop === "hs" ? `$hs_${sh.slice(1)}` : mallKey(sh, shop);
+  }
+  function shopGiveOn(vars, shop, key) {
+    if (key === "ctx") {
+      if (shop === "hs") {
+        const h = vars?.[shopGiveVar("hs", "ctx")];
+        return h === "1" || h === "0" ? h === "1" : shopSettings(vars).context;
+      }
+      return shop === "shop" ? shopSettings(vars).context : mallSettings(vars, shop).context;
+    }
+    const v = vars?.[shopGiveVar(shop, key)];
+    return v === "1" || v === "0" ? v === "1" : SHOP_DEF[key];
+  }
+  var SHOP_AMOUNTS = {
+    turns: { label: "챗로그", min: 1, max: 8, unit: "턴" },
+    refs: { label: "참조 로어북", min: 0, max: 12, unit: "개" },
+    /** 진열(새로 받기)·문의 요청에 같이 넘기는 지난 문의 대화. 상한은 「보관하는 양」 문의 대화의 상한, 기본값은 그 채팅에 저장해 두는 줄 수 (= 전부) (전수점검 보통-33) */
+    talk: { label: "지난 대화", min: 0, max: SHOP_LIMITS.talk.max, unit: "줄" }
+  };
+  var isShopAmount = (v) => v === "turns" || v === "refs" || v === "talk";
+  var shopAmountNone = (fn2, key) => key === "talk" && fn2 !== "shelf" && fn2 !== "talk";
+  var shopFnVar = (fn2, key) => `$sh_fn_${fn2}_${key}`;
+  function shopFnOn(vars, fn2, key) {
+    const v = vars?.[shopFnVar(fn2, key)];
+    return v === "1" || v === "0" ? v === "1" : key === "ctx" ? true : FN_DEF[key];
+  }
+  function shopFnNum(vars, fn2, key) {
+    const raw = vars?.[shopFnVar(fn2, key)];
+    const n3 = Number(raw);
+    const a = SHOP_AMOUNTS[key];
+    if (raw !== void 0 && raw !== null && String(raw).trim() !== "" && Number.isInteger(n3) && n3 >= a.min && n3 <= a.max) return n3;
+    return key === "talk" ? shopLimits(vars).talk : shopSettings(vars)[key];
+  }
+  var TOGGLE2 = { desc: "description", authors: "authors", persona: "persona", active: "active", related: "related", secondary: "secondary" };
+  function shopGive(vars, shop, fn2) {
+    const toggles = {};
+    for (const chip3 of REF_CHIP_KEYS) toggles[TOGGLE2[chip3]] = shopGiveOn(vars, shop, chip3) && shopFnOn(vars, fn2, chip3);
+    return { toggles, context: shopGiveOn(vars, shop, "ctx") && shopFnOn(vars, fn2, "ctx"), turns: shopFnNum(vars, fn2, "turns"), refs: shopFnNum(vars, fn2, "refs"), talk: shopFnNum(vars, fn2, "talk") };
+  }
+  function matchedBooks(registry2, text5) {
+    const out2 = /* @__PURE__ */ new Set();
+    for (const e of referenceEntries(registry2, text5)) if (e.lore) out2.add(e.lore.trim().toLowerCase());
+    return out2;
+  }
+
+  // src/core/setdef/homeshop.ts
+  var on2 = onOff("1");
+  var num5 = (k) => ({ t: "num", lo: HS_NUM[k].lo, hi: HS_NUM[k].hi, unit: HS_NUM[k].unit });
+  var pair = (a, b) => ({ t: "minmax", lo: HS_NUM[a].lo, hi: HS_NUM[a].hi, unit: HS_NUM[a].unit, act: "num", keys: [a, b] });
+  var SCALES = [["auto", "자동"], ["fit", "폭 맞춤"], ["0.5", "0.5배"], ["1", "1배"], ["2", "2배"]];
+  var row2 = (key, label2, ctl, help, more = {}) => ({ key, label: label2, ctl, ...help ? { help } : {}, ...more });
+  var HS_PAIRS = {
+    cue: ["cueMin", "cueMax"],
+    chat: ["chatMin", "chatMax"],
+    sayCue: ["sayCueMin", "sayCueMax"],
+    sayChat: ["sayChatMin", "sayChatMax"],
+    call: ["callLo", "callHi"],
+    fill: ["fillLo", "fillHi"],
+    end: ["endLo", "endHi"]
+  };
+  var mm = (k) => pair(...HS_PAIRS[k]);
+  var HS_TEL_KEY = "$hs_tel";
+  var HS_RETRY_KEY = "$hs_retry";
+  var HS_FLAG = { net: HS_KEY.net, cut: HS_KEY.cut, bulb: HS_KEY.bulb, tear: HS_KEY.tear, scan: HS_KEY.scan, turn: HS_KEY.turn, lock: HS_KEY.lock, drop: HS_KEY.drop, aud: HS_KEY.aud, peek: HS_KEY.peek, say: HS_KEY.say, barter: HS_KEY.barter, talk: HS_KEY.talk };
+  var HS_DEF_TEXT = { tel: [HS_TEL_KEY, HS_TEL_DEFAULT, 20], read: [HS_KEY.read, HS_READ_DEFAULT, 200] };
+  var HS_OTHER = { retry: HS_RETRY_KEY, clips: HS_KEY.clips, scalePc: HS_KEY.scalePc, scalePh: HS_KEY.scalePhone };
+  var HOMESHOP_SET = {
+    id: "hs",
+    groups: [
+      {
+        title: "",
+        rows: [
+          row2("net", "인터넷에 상시 노출", on2, "켜면 인터넷 즐겨찾기에 늘 보여요. 꺼도 메인 응답의 카드로 접속하면 열려요(설정 → 상점 → 고유 상점)."),
+          row2("retry", "자동 다시 연결", { t: "step", lo: 0, hi: 3, unit: "회", action: "hs-retry", vkey: "n" }, "편성을 받지 못하면 「신호 없음」 화면에서 스스로 다시 연결하는 횟수예요(0~3)."),
+          row2("say", "채팅 보내기", on2, "내가 채팅을 쓰면 한 번 더 호출해 진행자와 시청자의 반응을 받아요."),
+          row2("sayCue", "보낸 채팅마다 진행자 대사 수", mm("sayCue"), "내가 보낸 채팅 하나에 진행자가 답하는 장면 수예요."),
+          row2("sayChat", "보낸 채팅마다 채팅 줄 수", mm("sayChat"), "내가 보낸 채팅 하나에 다른 시청자가 다는 채팅 줄 수예요."),
+          row2("sayHost", "같이 넘기는 진행자 대사", num5("sayHost"), "내가 채팅을 보낼 때 방금 나온 진행자 대사를 이만큼 같이 넘겨요."),
+          row2("sayFlow", "같이 넘기는 최근 채팅", num5("sayFlow"), "내가 채팅을 보낼 때 방금까지 흐른 채팅을 내 채팅까지 쳐서 이만큼 같이 넘겨요.")
+        ]
+      },
+      {
+        title: "편성",
+        rows: [
+          row2("cue", "상품마다 진행자 대사 수", mm("cue"), "상품 하나에 진행자가 말하는 장면 수예요.", { aria: "진행자 대사 수" }),
+          row2("chat", "상품마다 채팅 줄 수", mm("chat"), "상품 하나가 방송되는 동안 흘리는 시청자 채팅 줄 수예요. 다 흐르면 되풀이하지 않아요."),
+          row2("prevKeep", "기억하는 지난 상품 수", num5("prevKeep"), "지난 편성의 상품 이름을 이만큼 기억해 두고 새 편성에서 겹치지 않게 해요.")
+        ]
+      },
+      {
+        title: "방송 흐름",
+        rows: [
+          row2("speed", "자막 속도", num5("speed"), "진행자 대사가 찍히는 빠르기예요. 대사 길이가 장면 길이를 정해요."),
+          row2("hold", "대사 뒤 쉼", num5("hold"), "대사가 다 찍힌 뒤 다음 장면으로 넘어가기까지예요(12 = 1.2초)."),
+          row2("frame", "동작 한 장 길이", num5("frame"), "진행자 동작이 한 장 넘어가는 시간이에요. 작을수록 빨라요."),
+          row2("chatGap", "채팅 간격", num5("chatGap"), "채팅 한 줄이 올라오는 평균 간격이에요(22 = 2.2초)."),
+          row2("next", "다음 부까지", num5("next"), "큐시트가 끝난 뒤 다음 상품으로 넘어가기까지예요. 0이면 스스로 넘어가지 않아요."),
+          row2("turn", "턴이 넘어가면 다음 부로", on2, "켜면 턴이 한 번 진행될 때마다 편성이 한 칸 넘어가요. 놓친 상품은 편성표에서 보기만 해요."),
+          row2("lock", "지난 부 잠그기", on2, "켜면 지난 부에 「판매 종료」 딱지가 붙어요. 「매진」은 방송에서 정말 다 팔린 상품에만 붙어요.")
+        ]
+      },
+      {
+        title: "남은 수량",
+        rows: [
+          row2("left", "남은 수량 시작 값", num5("left")),
+          row2("drop", "수량 저절로 줄기", on2, "켜면 방송 동안 남은 수량이 몇 초마다 조금씩 줄고, 전화 주문을 하면 1 줄어요. 저절로는 0이 되지 않고, 「매진」은 큐시트에 있을 때만 떠요. 끄면 큐시트의 「남은 수량 -N」 때만 줄어요."),
+          row2("dropRate", "줄어드는 빠르기", num5("dropRate"), "100이면 큐시트가 끝날 즈음 「끝날 때 남기는 수」에 닿아요. 크게 하면 더 일찍 닿아요."),
+          row2("dropFast", "빨라질 때 배수", num5("dropFast"), "「가격 공개」와 「주문 폭주」 뒤에는 이만큼 빨리 줄어요(20 = 2배)."),
+          row2("dropStep", "한 번에 줄어드는 수", num5("dropStep"), "한 번 줄 때 1부터 이 수까지 줄어요."),
+          row2("soonAt", "매진 임박 기준 수", num5("soonAt"), "남은 수량이 이 수 이하가 되면 「매진 임박」 딱지가 저절로 붙어요. 0이면 큐시트에 있을 때만 붙어요."),
+          row2("end", "끝날 때 남기는 수", mm("end"), "저절로 줄어드는 것은 이 사이의 수에서 멈춰요.")
+        ]
+      },
+      {
+        title: "주문",
+        rows: [
+          row2("barter", "물건 맞교환", on2, "전화 주문에서 가진 물건을 내밀면 상담원이 감정해 받거나, 거절하거나, 더 내라고 해요. 감정할 때마다 한 번 호출해요."),
+          row2("talk", "상담원과 흥정", on2, "전화 주문에서 상담원에게 말로 조건을 정할 수 있어요. 한 마디마다 한 번 호출해요."),
+          row2("talkKeep", "통화 기록 줄 수", num5("talkKeep"), "전화 주문 한 통화에서 남겨 두는 말 줄 수예요. 넘으면 오래된 말부터 지워요."),
+          row2("orderKeep", "주문 기록 수", num5("orderKeep"), "남겨 두는 주문 수예요. 새로 주문할 때 이 수를 넘으면 시연 호출까지 끝난 주문과 없던 일이 된 주문을 오래된 것부터 지워요. 상자를 아직 안 연 주문, 시연 호출이 남은 주문, 방금 상자를 연 주문은 지우지 않아서 이 수보다 많이 남을 수 있어요."),
+          row2("peek", "스티커 들추기", on2, "상품 스티커 창에서 모서리를 들추면 스티커 밑에 찍힌 원래 용도가 몇 글자만 보여요.")
+        ]
+      },
+      {
+        title: "컨텍스트 포함",
+        rows: [
+          row2("call", "시연 호출까지", mm("call"), "「다음 방송 시연 참여」가 걸린 주문은 택배 상자를 연 뒤 이만큼 턴이 지나면 메인 요청에 시연 호출을 한 번 넘겨요. 상담원과 돈·물건이 아닌 약조를 정한 주문도 같은 간격이 지난 턴에 채널이 약조를 받으러 와요. 상자를 열기 전에는 걸리지 않아요. 평소에는 메인 요청에 아무것도 보내지 않아요. 호출 글은 지침 → 망상홈쇼핑의 CALL 절, 약조 글은 PROMISE 절에서 고쳐요."),
+          row2("aud", "방청 신청", on2, "결제와는 따로예요. 신청하면 다음 턴 메인 요청에 방송 객석으로 불려 간다는 글을 한 번 넘겨요. 글은 지침의 AUDIENCE 절에서 고쳐요."),
+          row2("logKeep", "시청 기록 줄 수", num5("logKeep"), "방송 하나에서 남겨 두는 시청 기록 줄 수예요. 넘으면 오래된 줄부터 지우고, 내 채팅과 주문은 맨 나중에 지워요.")
+        ]
+      },
+      {
+        title: "진행자 동작",
+        note: "아무 일 없을 때는 「기본」 동작을 되풀이하다가, 정해진 횟수마다 「가끔」 동작을 하나 끼워요. 그 자리에서 확률로 「드물게」 동작이 대신 나와요. 「대사·사건」 동작은 큐시트의 표정에 맞춰서만 나와요. 같은 동작의 1·2판은 번갈아 써요.",
+        rows: [
+          row2("fill", "「가끔」 동작 간격", mm("fill"), "기본 동작을 이만큼 되풀이한 뒤 하나 끼워요.", { aria: "가끔 동작 간격" }),
+          row2("fillCool", "「가끔」 다시 나오기까지", num5("fillCool"), "같은 동작이 다시 나오기까지 기본 동작 되풀이 수예요.", { aria: "가끔 다시 나오기까지" }),
+          row2("rareP", "「드물게」 확률", num5("rareP"), "「가끔」 자리마다 이 확률로 섬뜩한 동작이 나와요.", { aria: "드물게 확률" }),
+          row2("rareCool", "「드물게」 다시 나오기까지", num5("rareCool"), void 0, { aria: "드물게 다시 나오기까지" }),
+          row2("read", "채팅 읽는 동작", { t: "text", ph: "", def: HS_READ_DEFAULT, max: 200 }, "내가 보낸 채팅을 읽는 동안 기본 동작과 번갈아 나오는 동작이에요. 쉼표로 나눠요."),
+          row2("clips", "동작 분류 고치기", { t: "area", ph: "", rows: 4, cls: "ms-area", labeled: true })
+        ]
+      },
+      {
+        title: "방송 화면",
+        rows: [
+          row2("tel", "주문 전화번호", { t: "text", ph: "", def: HS_TEL_DEFAULT, max: 20 }, "방송 화면과 머리에 보이는 번호예요."),
+          row2("cut", "컷 전환", on2, "끄면 진행자 정면(바스트) 한 장면만 써요."),
+          row2("bulb", "전구 반짝임", on2),
+          row2("tear", "신호 찢김", on2, "0.2~0.4초 동안 화면이 찢기고 다른 얼굴이 끼어들어요."),
+          row2("tearP", "찢김 확률", num5("tearP"), "장면이 바뀔 때마다 저절로 찢길 확률이에요. 큐시트의 「신호 찢김」은 늘 나와요."),
+          row2("scan", "주사선", on2),
+          row2("scalePc", "PC 표시 배율", { t: "seg", opts: SCALES }, "자동 = 채팅 칸·상품 칸이 같이 보이게 화면에 맞춤(들어가면 1배·2배)."),
+          row2("scalePh", "폰 표시 배율", { t: "seg", opts: SCALES }, "자동 = 화면 폭에 맞춤.")
+        ]
+      }
+    ]
+  };
+
+  // src/host/homeshop.ts
+  var HOMESHOP_KEY = "goei:data-homeshop";
+  var HS_FONT = "goei-neodgm";
+  var art = null;
+  var loading4 = null;
+  var failed2 = "";
+  var progress2 = "";
+  var redraws = /* @__PURE__ */ new Set();
+  function onHomeshopReady(fn2) {
+    redraws.add(fn2);
+  }
+  var redraw3 = () => redraws.forEach((fn2) => fn2());
+  var homeshopStatus = () => ({ ready: !!art, loading: !!loading4, progress: progress2, failed: failed2 });
+  function bytesOf(b64) {
+    const bin = atob(b64);
+    const out2 = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out2[i] = bin.charCodeAt(i);
+    return out2;
+  }
+  function load3(b64) {
+    return new Promise((res, rej) => {
+      const im = new Image();
+      const url = URL.createObjectURL(new Blob([bytesOf(b64).buffer], { type: "image/webp" }));
+      im.onload = () => res(im);
+      im.onerror = () => rej(new Error("방송 그림을 풀지 못했어요."));
+      im.src = url;
+    });
+  }
+  async function build2(text5) {
+    const pack4 = parseHomeshopPack(text5);
+    const img = /* @__PURE__ */ new Map();
+    await Promise.all(Object.entries(pack4.files).map(async ([name, b64]) => void img.set(name, await load3(b64))));
+    if (pack4.font && typeof FontFace === "function") {
+      try {
+        const face3 = new FontFace(HS_FONT, bytesOf(pack4.font).buffer);
+        await face3.load();
+        document.fonts.add(face3);
+      } catch (error) {
+        console.log(`[goei] 방송 글꼴을 올리지 못했어요 (기본 글꼴로): ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+    return { pack: pack4, img };
+  }
+  function ensureHomeshop() {
+    if (art || loading4) return loading4 ?? Promise.resolve();
+    loading4 = (async () => {
+      failed2 = "";
+      try {
+        let saved = null;
+        try {
+          saved = await risuai.pluginStorage.getItem(HOMESHOP_KEY);
+        } catch {
+        }
+        if (typeof saved === "string" && packMatches(saved, HOMESHOP_PACK.expect)) {
+          try {
+            art = await build2(saved);
+            return;
+          } catch (error) {
+            console.log(`[goei] 저장된 방송 그림을 읽지 못했어요 (다시 받아요): ${error instanceof Error ? error.message : String(error)}`);
+          }
+        }
+        const text5 = await fetchPack(HOMESHOP_PACK, (t) => {
+          progress2 = t;
+          redraw3();
+        });
+        art = await build2(text5);
+        try {
+          await risuai.pluginStorage.setItem(HOMESHOP_KEY, text5);
+        } catch (error) {
+          console.log(`[goei] 방송 그림을 저장소에 두지 못했어요 (이번엔 메모리로): ${error instanceof Error ? error.message : String(error)}`);
+        }
+      } catch (error) {
+        failed2 = error instanceof DataPackError || error instanceof Error ? error.message : String(error);
+        console.log(`[goei] 방송 그림 팩: ${failed2}`);
+      } finally {
+        progress2 = "";
+        loading4 = null;
+        redraw3();
+      }
+    })();
+    return loading4;
+  }
+  function homeshopArt() {
+    if (!art && !failed2 && !loading4) void ensureHomeshop();
+    return art;
+  }
+
+  // src/host/usebox.ts
+  var SLOTS3 = 12;
+  var LAST2 = '.chat-message-container:first-child [data-goei-card="use"]';
+  var USE_SLOT = `<div data-goei-card="use" style="display:none"><span data-gu-label></span>${Array.from({ length: SLOTS3 }, (_, i) => `<span data-gu="${i}"><span data-gu-x="${i}" role="button" aria-label="빼기"></span></span>`).join("")}<span data-gu-more></span></div>`;
+  var cssStr = (s8) => `"${s8.replace(/[\r\n]+/g, " ").replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+  function useBoxCss(names4, sending = false) {
+    if (!names4.length) return "";
+    const show = names4.slice(0, names4.length > SLOTS3 ? SLOTS3 - 1 : SLOTS3);
+    const more = names4.length - show.length;
+    return [
+      `${LAST2} { display: flex !important; flex-wrap: wrap; align-items: center; gap: 6px 8px; width: fit-content; min-width: min(100%, 420px); max-width: 100%; box-sizing: border-box; margin: 10px auto 0; padding: 10px 16px; border: 1px solid var(--goei-accentLine); border-radius: 14px; background: var(--goei-accentBg); color: var(--goei-sub); font-size: .92em; line-height: 1.5; }`,
+      `${LAST2} [data-gu-label]::before { content: "${sending ? "보내는 중" : "다음 메시지에 사용"}"; color: var(--goei-signal); font-weight: 600; margin-right: 4px; }`,
+      `${LAST2} [data-gu] { display: none; align-items: center; gap: 6px; max-width: 100%; padding: 2px 4px 2px 10px; border: 1px solid var(--goei-accentLine); border-radius: 999px; color: var(--goei-text); }`,
+      `${LAST2} [data-gu]::before { max-width: 14em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }`,
+      `${LAST2} [data-gu-x] { flex: none; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--goei-accentLine); color: var(--goei-signal); line-height: 1; cursor: pointer; }`,
+      `${LAST2} [data-gu-x]::before { content: "×"; }`,
+      ...show.map((n3, i) => `${LAST2} [data-gu="${i}"] { display: inline-flex; } ${LAST2} [data-gu="${i}"]::before { content: ${cssStr(n3.label)}; }`),
+      more > 0 ? `${LAST2} [data-gu-more]::before { content: "외 ${more}개"; }` : "",
+      // 보내는 중에는 × 를 숨긴다: 이미 요청에 실려 나간 사용이라 뺄 수 없다 (재검토 11-14 B-9 사용자 결정)
+      sending ? `${LAST2} [data-gu-x] { display: none; } ${LAST2} [data-gu] { padding-right: 10px; }` : ""
+    ].join("\n");
+  }
+  var host = null;
+  var styleEl = null;
+  var where = { charIndex: -1, chatIndex: -1 };
+  var shown2 = [];
+  var busy3 = false;
+  var sent = null;
+  function sentUseIds(chat, charIndex, chatIndex) {
+    if (!sent || !chat || sent.charIndex !== charIndex || sent.chatIndex !== chatIndex) return null;
+    if (chat.scriptstate?.[ITEM_USE_AT_VAR] || lastUserKey(chat) !== sent.userKey) {
+      sent = null;
+      return null;
+    }
+    return sent.ids;
+  }
+  function useSending(chat, charIndex, chatIndex, id2) {
+    if (!sent || !chat || sent.charIndex !== charIndex || sent.chatIndex !== chatIndex) return false;
+    return !chat.scriptstate?.[ITEM_USE_AT_VAR] && lastUserKey(chat) === sent.userKey && sent.ids.has(id2);
+  }
+  var settling = 0;
+  function holdUseSettle() {
+    let done3 = false;
+    const release = () => {
+      if (done3) return;
+      done3 = true;
+      clearTimeout(timer5);
+      settling = Math.max(0, settling - 1);
+      if (!settling) sent = null;
+    };
+    settling++;
+    const timer5 = setTimeout(release, 3e4);
+    return release;
+  }
+  var lockAt = null;
+  function setUseLockAt(at) {
+    lockAt = at ? { charIndex: at.charIndex, chatIndex: at.chatIndex } : null;
+    if (!at) {
+      out = null;
+      blind = false;
+    }
+  }
+  var blind = false;
+  function setUseBlind() {
+    blind = true;
+  }
+  function useBlind() {
+    return blind;
+  }
+  var out = null;
+  function sentOut(charIndex, chatIndex, chat) {
+    if (!out || !chat || out.charIndex !== charIndex || out.chatIndex !== chatIndex || out.userKey !== lastUserKey(chat)) return null;
+    return out.ids;
+  }
+  function sentReroll(charIndex, chatIndex, chat) {
+    return sentOut(charIndex, chatIndex, chat) ? out.reroll : null;
+  }
+  function useLocked(charIndex, chatIndex) {
+    if (settling > 0) return true;
+    if (!isWaiting()) return false;
+    return !lockAt || charIndex === void 0 || chatIndex === void 0 || lockAt.charIndex === charIndex && lockAt.chatIndex === chatIndex;
+  }
+  async function risuBusy() {
+    try {
+      const screen = await (await body())?.doc.querySelector(".default-chat-screen");
+      if (!screen) return "unknown";
+      if (await screen.querySelector(".loadmove")) return "busy";
+      return await screen.querySelector(".button-icon-send") ? "idle" : "unknown";
+    } catch {
+      return "unknown";
+    }
+  }
+  async function freeUseLock() {
+    if (!isWaiting()) return;
+    if (await risuBusy() === "idle") setWaiting(false, true);
+  }
+  setWaitingProbe(async () => await risuBusy() === "busy");
+  async function markUseSent(charIndex, chatIndex, chat) {
+    const userKey = lastUserKey(chat);
+    const ids = usesToSend(chat).map((u) => u.id);
+    out = { charIndex, chatIndex, userKey, ids: new Set(ids), reroll: useRerolling(chat) };
+    if (!ids.length || chat.scriptstate?.[ITEM_USE_AT_VAR]) return;
+    sent = { charIndex, chatIndex, userKey, ids: new Set(ids) };
+    await refreshUseBox(charIndex, chatIndex, chat);
+  }
+  onWaiting((w, late) => {
+    if (!w) lockAt = null;
+    if (w || !late || !sent) return;
+    const { charIndex, chatIndex } = sent;
+    sent = null;
+    void refreshUseBox(charIndex, chatIndex).catch(() => {
+    });
+  });
+  function useBoxNames(chat) {
+    if (!chat || chat.scriptstate?.[ITEM_USE_AT_VAR] || !invOn(chat.scriptstate)) return [];
+    const live = liveItems(readItems(chat.scriptstate), aliveAnchors(chat));
+    return readItemUse(chat.scriptstate).flatMap((u) => {
+      const e = live.find((x) => x.id === u.id);
+      return e ? [{ id: u.id, label: `${e.name}${u.n > 1 ? ` ×${u.n}` : ""}` }] : [];
+    });
+  }
+  async function ensure() {
+    const root3 = await body();
+    if (!root3) return null;
+    const { doc: doc2 } = root3;
+    if (host && styleEl) return { doc: doc2, style: styleEl };
+    try {
+      for (const old of await elements(doc2, "[x-goei-usebox]")) await old.remove().catch(() => {
+      });
+    } catch {
+    }
+    const h = await doc2.createElement("div");
+    await h.setAttribute("x-goei-usebox", "true");
+    const style = await doc2.createElement("style");
+    await h.appendChild(style);
+    await root3.body.appendChild(h);
+    host = h;
+    styleEl = style;
+    return { doc: doc2, style };
+  }
+  function dropUseUnlessSent(chat, charIndex, chatIndex, id2) {
+    if (useLocked(charIndex, chatIndex) || sentUseIds(chat, charIndex, chatIndex)?.has(id2)) return null;
+    const next = dropUse(readItemUse(chat.scriptstate), id2);
+    return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...itemUseVars(next) } };
+  }
+  onChatClick("use", async (doc2, x, y) => {
+    if (!shown2.length || where.charIndex < 0) return "idle";
+    if (busy3) return false;
+    const xs = await elements(doc2, `${LAST2} [data-gu-x]`);
+    for (let i = 0; i < xs.length; i++) {
+      if (!await hit2(xs[i], x, y)) continue;
+      const id2 = shown2[i]?.id;
+      if (!id2) return false;
+      busy3 = true;
+      try {
+        const { charIndex, chatIndex } = where;
+        await freeUseLock();
+        await updateChat(charIndex, chatIndex, (chat) => dropUseUnlessSent(chat, charIndex, chatIndex, id2));
+        await refreshUseBox(charIndex, chatIndex);
+      } catch (error) {
+        console.log(`[goei] 사용 상자 빼기 실패: ${error instanceof Error ? error.message : String(error)}`);
+      } finally {
+        busy3 = false;
+      }
+      return true;
+    }
+    return false;
+  });
+  async function redrawLast(doc2, charIndex, chatIndex) {
+    if (!(await elements(doc2, ".chat-message-container")).length || (await elements(doc2, LAST2)).length) return;
+    const flip = (add) => updateChat(charIndex, chatIndex, (cur) => {
+      const list4 = cur.message ?? [];
+      const m = list4[list4.length - 1];
+      if (!m || typeof m.data !== "string" || cur.isStreaming) return null;
+      if (!add && !m.data.endsWith("\n")) return null;
+      return { ...cur, message: [...list4.slice(0, -1), { ...m, data: add ? `${m.data}
+` : m.data.slice(0, -1) }] };
+    }).catch(() => null);
+    if (!await flip(true)) return;
+    await new Promise((r) => setTimeout(r, 300));
+    await flip(false);
+  }
+  async function refreshUseBox(charIndex, chatIndex, known) {
+    if (charIndex < 0 || chatIndex < 0) return hideUseBox();
+    const chat = known ?? await risuai.getChatFromIndex(charIndex, chatIndex);
+    const hold = sentUseIds(chat, charIndex, chatIndex);
+    const all = useBoxNames(chat);
+    const fresh3 = all.filter((n3) => !hold?.has(n3.id));
+    const sending = !fresh3.length && all.length > 0 && !!hold;
+    const names4 = sending ? all : fresh3;
+    where = { charIndex, chatIndex };
+    if (!names4.length) return hideUseBox();
+    const e = await ensure();
+    if (!e) return;
+    shown2 = names4.slice(0, names4.length > SLOTS3 ? SLOTS3 - 1 : SLOTS3);
+    await e.style.setTextContent(useBoxCss(names4, sending));
+    armChatClick("use");
+    await redrawLast(e.doc, charIndex, chatIndex).catch(() => {
+    });
+  }
+  async function hideUseBox() {
+    shown2 = [];
+    if (styleEl) await styleEl.setTextContent("").catch(() => {
+    });
+  }
+
+  // src/ui/itemIcons.ts
+  var ITEM_ICON = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8 12 3l9 5-9 5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>`;
+
+  // src/core/paging.ts
+  function pageCount(page, presses) {
+    const p2 = Math.max(1, Math.trunc(page) || 1);
+    return p2 * (Math.max(0, Math.trunc(presses) || 0) + 1);
+  }
+  function cutGroups(groups, count2) {
+    const total = groups.reduce((n3, g3) => n3 + g3.rows.length, 0);
+    let left = Math.max(0, Math.trunc(count2) || 0);
+    const out2 = [];
+    for (const g3 of groups) {
+      if (left <= 0) break;
+      const shown6 = g3.rows.slice(0, left);
+      left -= shown6.length;
+      if (shown6.length) out2.push({ ...g3, shown: shown6 });
+    }
+    const shownN = out2.reduce((n3, g3) => n3 + g3.shown.length, 0);
+    return { groups: out2, total, rest: total - shownN };
+  }
+
+  // src/ui/more.ts
+  var esc13 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var state = /* @__PURE__ */ new Map();
+  var seen = /* @__PURE__ */ new Set();
+  function moreBegin() {
+    seen.clear();
+  }
+  function moreEnd() {
+    for (const k of [...state.keys()]) if (!seen.has(k)) state.delete(k);
+  }
+  function resetMore() {
+    state.clear();
+    seen.clear();
+  }
+  function moreAction(key) {
+    const s8 = state.get(key);
+    if (s8) s8.presses += 1;
+  }
+  var listPage = (vars) => journalSettings(vars).listPage;
+  function moreCut(key, sig, vars, groups, unit = "줄") {
+    seen.add(key);
+    let s8 = state.get(key);
+    if (!s8 || s8.sig !== sig) {
+      s8 = { sig, presses: 0 };
+      state.set(key, s8);
+    }
+    const cut3 = cutGroups(groups, pageCount(listPage(vars), s8.presses));
+    const more = cut3.rest > 0 ? `<div class="gx-more"><button class="gx-mini ph-more" data-action="list-more" data-value="${esc13(key)}">더 보기 <small>남은 ${cut3.rest.toLocaleString("en-US")}${esc13(unit)}</small></button></div>` : "";
+    return { groups: cut3.groups, more };
+  }
+
+  // src/ui/wallet.ts
+  var esc14 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var walletUi = { filter: "all", q: "", open: null, edit: false, notice: "", kind: "won" };
+  var walletOn = (ctx2) => colConfig(ctx2.chat.scriptstate).wallet !== "off";
+  var walletOf = (ctx2) => readWallet(ctx2.chat.scriptstate, getPrefs().walletStart ?? WALLET_START_DEFAULT);
+  var ledgerOf = (ctx2) => walletUi.kind === "p" ? readPoints(ctx2.chat.scriptstate) : walletOf(ctx2);
+  var money = (n3) => walletUi.kind === "p" ? formatPoints(n3) : formatWon(n3);
+  function balanceText(ctx2) {
+    return formatWon(walletBalance(walletOf(ctx2), aliveAnchors(ctx2.chat)));
+  }
+  function walletHeadButton(ctx2, here = false) {
+    if (!walletOn(ctx2) || here) return "";
+    return `<button class="gx-hwallet" data-action="tab" data-value="wallet" aria-label="가계부 · 잔고 ${esc14(balanceText(ctx2))}">${esc14(balanceText(ctx2))}</button>`;
+  }
+  var SRC_ICON = { story: ICONS.phone, field: ICONS.phone, manual: ICONS.pen, store: ICONS.bag };
+  var SRC_NAME = { story: "본문", field: "거래", manual: "직접 수정", store: "상점" };
+  var WEEK3 = "일월화수목금토";
+  function datesOf(ctx2) {
+    const at = /* @__PURE__ */ new Map();
+    const time2 = /* @__PURE__ */ new Map();
+    let cur = "";
+    let curTime = "";
+    (ctx2.chat.message ?? []).forEach((m, i) => {
+      const tags = findStatusTags(String(m.data ?? ""));
+      if (tags.length) {
+        cur = tags[tags.length - 1].date.trim() || cur;
+        curTime = statusClock24(tags[tags.length - 1].time) || curTime;
+      }
+      at.set(messageKey(m, i), cur);
+      time2.set(messageKey(m, i), curTime);
+    });
+    return { at, time: time2, today: cur };
+  }
+  function dayLabel(date) {
+    const m = /(\d{4})\D+(\d{1,2})\D+(\d{1,2})/.exec(date);
+    if (!m) return date || "날짜 없음";
+    const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    return `${m[1]}.${m[2].padStart(2, "0")}.${m[3].padStart(2, "0")} (${WEEK3[d.getUTCDay()]})`;
+  }
+  function monthOf(date) {
+    const m = /(\d{4})\D+(\d{1,2})/.exec(date);
+    return m ? `${m[1]}.${m[2].padStart(2, "0")}` : "";
+  }
+  function monthLine(month, rows3) {
+    const list4 = rows3.filter((r) => r.e.src !== "manual" && monthOf(r.date) === month);
+    const inc = list4.filter((r) => r.e.amount > 0).reduce((n3, r) => n3 + r.e.amount, 0);
+    const out2 = -list4.filter((r) => r.e.amount < 0).reduce((n3, r) => n3 + r.e.amount, 0);
+    return `<div class="gx-wt-month"><b>${esc14(month)}</b><span>수입 <em class="in">+${esc14(inc.toLocaleString("en-US"))}</em></span><span>지출 <em class="out">−${esc14(out2.toLocaleString("en-US"))}</em></span></div>`;
+  }
+  function rowsOf(ctx2) {
+    const w = ledgerOf(ctx2);
+    const live = liveWallet(w, aliveAnchors(ctx2.chat));
+    const { at, time: time2, today } = datesOf(ctx2);
+    let bal = w.start;
+    let last2 = "";
+    const rows3 = live.map((e) => {
+      bal += e.amount;
+      const date = e.anchor ? at.get(e.anchor) ?? "" : last2;
+      last2 = date;
+      return { e, after: bal, date, time: e.anchor ? time2.get(e.anchor) ?? "" : "" };
+    });
+    return { rows: rows3, today, start: w.start };
+  }
+  function subOf(e) {
+    if (e.src === "field") return [e.place, e.time].filter(Boolean).join(" ");
+    if (e.src === "manual") return "직접 수정";
+    return e.quote ? `「${e.quote}」` : "";
+  }
+  function walletList(ctx2) {
+    const { rows: rows3 } = rowsOf(ctx2);
+    const editable = walletEditable(ctx2.chat.scriptstate);
+    const q = walletUi.q.trim().toLowerCase();
+    const shown6 = rows3.filter(({ e }) => walletUi.filter === "in" ? e.amount > 0 : walletUi.filter === "out" ? e.amount < 0 : true).filter(({ e }) => !q || `${e.memo} ${e.quote ?? ""} ${e.place ?? ""}`.toLowerCase().includes(q)).reverse();
+    if (!shown6.length) return `<p class="gx-wt-empty">${rows3.length ? "맞는 거래가 없어요." : walletUi.kind === "p" ? "아직 포인트 거래가 없어요. 본문에 적힌 포인트 지급·사용이 여기에 쌓여요." : "아직 거래가 없어요. 본문에 금액이 적힌 거래가 여기에 쌓여요."}</p>`;
+    const groups = [];
+    for (const r of shown6) {
+      const g3 = groups[groups.length - 1];
+      if (g3 && g3.date === r.date) g3.rows.push(r);
+      else groups.push({ date: r.date, rows: [r] });
+    }
+    let lastMonth = null;
+    const cut3 = moreCut(`wallet-${walletUi.kind}`, `${walletUi.filter}|${q}`, ctx2.chat.scriptstate, groups, "건");
+    return cut3.groups.map((g3) => {
+      const month = monthOf(g3.date);
+      const head3 = month && month !== lastMonth ? monthLine(month, rows3) : "";
+      lastMonth = month;
+      return `${head3}<section class="gx-wt-day">
+    <h3><span>${esc14(dayLabel(g3.date))}</span>${((sum) => `<em class="${sum > 0 ? "in" : sum < 0 ? "out" : ""}">${esc14(formatDelta(sum))}</em>`)(g3.rows.filter((r) => r.e.src !== "manual").reduce((n3, r) => n3 + r.e.amount, 0))}</h3>
+    <ul>${g3.shown.map(({ e, after, time: when3 }) => {
+        const open3 = walletUi.open === e.id;
+        const sub = [e.src === "field" ? "" : when3, subOf(e)].filter(Boolean).join(" · ");
+        return `<li class="gx-wt-row${open3 ? " open" : ""}">
+        <button class="gx-wt-main" data-action="wallet-open" data-value="${esc14(e.id)}" aria-expanded="${open3}" aria-label="${esc14(`${SRC_NAME[e.src]} · ${e.memo} ${formatDelta(e.amount)}`)}">
+          <span class="gx-wt-ic ${e.src}" title="${SRC_NAME[e.src]}">${SRC_ICON[e.src]}</span>
+          <span class="gx-wt-memo"><b>${esc14(e.memo || "(메모 없음)")}</b>${sub ? `<small>${esc14(sub)}</small>` : ""}</span>
+          <span class="gx-wt-amt"><b class="${e.amount < 0 ? "out" : "in"}">${esc14(formatDelta(e.amount))}</b><small>${esc14(after.toLocaleString("en-US"))}</small></span>
+        </button>
+        ${editable ? `<button class="gx-wt-del" data-action="wallet-del" data-value="${esc14(e.id)}" aria-label="이 거래 지우기">✕</button>` : ""}
+      </li>`;
+      }).join("")}</ul>
+  </section>`;
+    }).join("") + cut3.more;
+  }
+  function walletTools(ctx2) {
+    if (walletUi.kind === "won" && !walletOn(ctx2)) return "";
+    const chip3 = (v, label2) => `<button class="gx-chip${walletUi.filter === v ? " on" : ""}" data-action="wallet-filter" data-value="${v}" aria-pressed="${walletUi.filter === v}">${label2}</button>`;
+    return `<div class="gx-rec-tools gx-wt-tools">${chip3("all", "전체")}${chip3("in", "수입")}${chip3("out", "지출")}<input class="gx-wt-q" type="search" data-input="wallet-q" value="${esc14(walletUi.q)}" placeholder="메모·근거 검색" aria-label="거래 검색"></div>`;
+  }
+  var fit = (text5) => text5.length > 14 ? " fit2" : text5.length > 10 ? " fit1" : "";
+  function walletPane(ctx2, kind = "won") {
+    walletUi.kind = kind;
+    if (kind === "won" && !walletOn(ctx2)) {
+      return `<div class="gx-wallettab"><div class="gx-empty">이 채팅은 상태창 「잔고」 칸을 쓰지 않아요. 설정 → 소지품 → 가계부에서 켜면 가계부가 생겨요.</div></div>`;
+    }
+    const { rows: rows3, today, start: start3 } = rowsOf(ctx2);
+    const sum = (f) => rows3.filter(f).reduce((n3, r) => n3 + r.e.amount, 0);
+    const real2 = (r) => r.e.src !== "manual";
+    const income = sum((r) => real2(r) && r.e.amount > 0);
+    const spend = -sum((r) => real2(r) && r.e.amount < 0);
+    const inN = rows3.filter((r) => real2(r) && r.e.amount > 0).length;
+    const outN = rows3.filter((r) => real2(r) && r.e.amount < 0).length;
+    const todayRows = rows3.filter((r) => real2(r) && today && r.date === today);
+    const todayNet = todayRows.reduce((n3, r) => n3 + r.e.amount, 0);
+    const balance2 = rows3.length ? rows3[rows3.length - 1].after : start3;
+    const editable = walletEditable(ctx2.chat.scriptstate);
+    const edit = editable && walletUi.edit ? `<div class="gx-wt-edit"><input type="text" name="wt-adj" inputmode="numeric" placeholder="${kind === "p" ? "예: 1,000 또는 1만" : "예: 1,200,000 또는 120만"}" aria-label="잔고를 이 값으로" data-enter="wallet-adj"><button class="gx-mini" data-action="wallet-adj" data-take="wt-adj">저장</button><button class="gx-mini" data-action="wallet-edit">취소</button></div>` : "";
+    return `<div class="gx-wallettab">
+    <section class="gx-mon gx-wt-tiles">
+      <div class="gx-mon-osd"><span><span class="gx-mon-tag live"><i></i>${kind === "p" ? "포인트" : "가계부"}</span></span>${today ? `<span>${esc14(today)}</span>` : ""}</div>
+      <div class="gx-mon-cells">
+        <div class="gx-mon-cell gx-wt-tile bal"><small>잔고</small><div class="gx-wt-balrow"><b class="mint${fit(money(balance2))}">${esc14(money(balance2))}</b>${editable ? `<button class="gx-wt-pen" data-action="wallet-edit" aria-label="잔고 고치기" title="잔고 고치기">${ICONS.pen}</button>` : ""}</div>${edit}<span>시작 ${esc14(money(start3))} · 거래 ${rows3.length}건</span></div>
+        <div class="gx-mon-cell gx-wt-tile"><small>수입</small><b class="mint${fit(`+${income.toLocaleString("en-US")}`)}">+${esc14(income.toLocaleString("en-US"))}</b><span>${inN}건</span></div>
+        <div class="gx-mon-cell gx-wt-tile"><small>지출</small><b class="red${fit(`−${Math.abs(spend).toLocaleString("en-US")}`)}">${spend ? `−${esc14(Math.abs(spend).toLocaleString("en-US"))}` : "0"}</b><span>${outN}건</span></div>
+        <div class="gx-mon-cell gx-wt-tile"><small>오늘</small><b class="${todayNet < 0 ? "red" : todayNet > 0 ? "mint" : ""}${fit(formatDelta(todayNet) || "0")}">${esc14(formatDelta(todayNet) || "0")}</b><span>${todayRows.length}건</span></div>
+      </div>
+    </section>
+    ${walletUi.notice ? `<div class="gx-err" role="alert">${esc14(walletUi.notice)}</div>` : ""}
+    ${isPhone() ? "" : walletTools(ctx2)}
+    <div class="gx-wt-list">${walletList(ctx2)}</div>
+  </div>`;
+  }
+
+  // src/ui/items.ts
+  var named2 = (n3, withBatchim, without) => `「${n3}」${josa(n3, withBatchim, without).slice(n3.length)}`;
+  var esc15 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var itemsUi = {
+    sub: "items",
+    view: "grid",
+    /** 기록 거르기: 전체 · 획득 · 사용 (사용 = 쓰기·버리기·없어짐·합침·팖) */
+    logFilter: "all",
+    q: "",
+    open: "",
+    mode: "view",
+    /** 버리기 띠에 끌어다 놓아 연 확인창: 취소하면 물건 팝업으로 가지 않고 닫는다 (2026-11-08 사용자) */
+    dragDrop: false,
+    notice: "",
+    info: ""
+  };
+  function resetItems() {
+    Object.assign(itemsUi, { sub: "items", view: "grid", q: "", open: "", mode: "view", dragDrop: false, notice: "", info: "" });
+  }
+  var itemsNav = () => ({ sub: itemsUi.sub, view: itemsUi.view, open: itemsUi.open });
+  function applyItemsNav(n3) {
+    Object.assign(itemsUi, { sub: n3.sub === "wallet" || n3.sub === "points" ? n3.sub : "items", view: n3.view === "log" ? "log" : "grid", open: n3.open ?? "", mode: "view", notice: "" });
+  }
+  var itemsMemo = null;
+  var itemsOf = (ctx2) => {
+    const v = ctx2.chat.scriptstate;
+    const raw = v?.[ITEMS_VAR];
+    const spent = v?.[ITEM_SPENT_VAR];
+    if (itemsMemo && itemsMemo.raw === raw && itemsMemo.spent === spent) return itemsMemo.it;
+    const it = readItems(v);
+    itemsMemo = { raw, spent, it };
+    return it;
+  };
+  var liveOf = (ctx2) => liveItems(itemsOf(ctx2), aliveAnchors(ctx2.chat));
+  function itemPic(it) {
+    const u = itemIconUrl(it.name, it.icon, it.id ?? it.name, { desc: it.desc });
+    return u ? `<img src="${u}" alt="" draggable="false">` : ITEM_ICON;
+  }
+  function traitsLine(it, left) {
+    return [it.equip ? EQUIP_LABEL[it.equip] : "", left !== void 0 ? `남은 ${left}회` : it.use ? "사용" : "", it.weight !== void 0 ? it.uses !== void 0 ? `${weightText(lineWeight(it, left))} (1개 ${weightText(it.weight)})` : weightText(it.weight) : "", it.state !== "ok" ? STATE_LABEL[it.state] : ""].filter(Boolean).join(" · ");
+  }
+  var FROM_NAME = { store: "상점", story: "본문", manual: "직접" };
+  var needsEquip = (ctx2, it) => it.equip === "gear" && !isEquipped(it, liveOf(ctx2));
+  var equipLabel = (it, equipped) => (equipped ? slotKind(it) : it.equip ?? "weapon") === "weapon" ? equipped ? "넣기" : "들기" : equipped ? "해제" : "장착";
+  var fullText = (k) => `${EQUIP_LABEL[k]} 칸이 다 찼어요. ${k === "weapon" ? "손에 든 것을 먼저 넣으세요" : "칸에 있는 것을 먼저 해제하세요"}${isPhone() ? "" : " (칸으로 끌어다 바꿔도 돼요)"}.`;
+  var usableNow = (ctx2, it) => canUse(it) && !needsEquip(ctx2, it);
+  function whenOf(ctx2) {
+    const at = /* @__PURE__ */ new Map();
+    let cur = "";
+    (ctx2.chat.message ?? []).forEach((m, i) => {
+      const tags = findStatusTags(String(m.data ?? ""));
+      if (tags.length) {
+        const t = tags[tags.length - 1];
+        const d = /(\d{4})\D+(\d{1,2})\D+(\d{1,2})/.exec(t.date ?? "");
+        const date = d ? `${d[1]}.${d[2].padStart(2, "0")}.${d[3].padStart(2, "0")}` : (t.date ?? "").trim();
+        const next = [date, statusClock24(t.time)].filter(Boolean).join(" ");
+        if (next) cur = next;
+      }
+      at.set(messageKey(m, i), cur);
+    });
+    return { at, last: cur };
+  }
+  var realOf = (iso) => {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    const p2 = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(d);
+    const g3 = (t) => p2.find((x) => x.type === t)?.value ?? "";
+    return `${g3("year")}.${g3("month")}.${g3("day")} ${g3("hour")}:${g3("minute")}`;
+  };
+  var whenLabel = (w, anchor, iso) => (anchor ? w.at.get(anchor) : "") || w.last || realOf(iso);
+  var paidLine = (it) => [Number.isSafeInteger(it.price) && (it.price > 0 || !it.paidWith) ? `₩ ${it.price.toLocaleString("en-US")}` : "", it.paidWith ?? ""].filter(Boolean).join(" + ");
+  var sourceLine = (it, w) => [FROM_NAME[it.from], whenLabel(w, it.anchor, it.at), paidLine(it)].filter(Boolean).join(" · ");
+  function useQueue(ctx2) {
+    return ctx2.chat.scriptstate?.[ITEM_USE_AT_VAR] ? [] : readItemUse(ctx2.chat.scriptstate);
+  }
+  var leftOf = (ctx2, it) => itemLeft(itemsOf(ctx2), it, aliveAnchors(ctx2.chat));
+  function itemsTab(ctx2) {
+    const SUBS2 = [["wallet", "가계부"], ["points", "포인트"], ["items", "소지품"]].filter(([v]) => v === "wallet" ? walletOn(ctx2) : v === "points" ? pointsOn(ctx2.chat) : invOn(ctx2.chat.scriptstate));
+    if (SUBS2.length && !SUBS2.some(([v]) => v === itemsUi.sub)) itemsUi.sub = SUBS2[0][0];
+    const tabs2 = `<div class="ph-subs gx-rec-tabs it-tabs" role="tablist">${SUBS2.map(([v, l]) => `<button role="tab" class="ph-sub${itemsUi.sub === v ? " on" : ""}" data-action="items-sub" data-value="${v}" aria-selected="${itemsUi.sub === v}" aria-pressed="${itemsUi.sub === v}">${l}</button>`).join("")}</div>`;
+    const note2 = toast("items", itemsUi.info, (t) => {
+      if (itemsUi.info === t) itemsUi.info = "";
+    });
+    if (itemsUi.sub === "wallet" || itemsUi.sub === "points") {
+      const kind = itemsUi.sub === "points" ? "p" : "won";
+      walletUi.kind = kind;
+      const drawer2 = isPhone() && (kind === "p" || walletOn(ctx2)) ? drawerBox(walletTools(ctx2), "gx-rdrawer") : "";
+      return `<main class="gx-body gx-records gx-items">${tabs2}${walletPane(ctx2, kind)}${note2}</main>${drawer2}`;
+    }
+    const notice2 = itemsUi.notice ? `<div class="gx-err" role="alert">${esc15(itemsUi.notice)}</div>` : "";
+    const drawer = isPhone() ? drawerHtml(`${addButton("ph-tool")}${mergeButton(ctx2, "ph-tool")}`, "", "gx-idrawer") : "";
+    const fix = !isPhone() && itemsUi.view === "grid" ? " it-fix" : "";
+    const pop = popup(ctx2);
+    return `<main class="gx-body gx-records gx-items${fix}">${tabs2}${pop ? "" : notice2}${itemsPane(ctx2)}${pop ? "" : note2}</main>${pop && note2 ? pop.replace(/<\/div>$/, `${note2}</div>`) : pop}${drawer}`;
+  }
+  var addButton = (cls) => `<button class="${cls} it-add" data-action="items-add" aria-label="직접 넣기">${ICONS.plus}<span class="${cls === "ph-tool" ? "ph-tool-l" : ""}">직접 넣기</span></button>`;
+  var mergeMates = (ctx2, it) => liveOf(ctx2).filter((o) => canMerge(it, o));
+  function mergeButton(ctx2, cls) {
+    const live = liveOf(ctx2);
+    const any2 = live.some((a) => live.some((b) => canMerge(a, b)));
+    return `<button class="${cls} it-merge" data-action="items-merge-start" aria-label="합치기" title="같은 소모품끼리 합쳐요 (이름에 같은 낱말)" ${any2 ? "" : "disabled"}>${ICONS.merge}<span class="${cls === "ph-tool" ? "ph-tool-l" : ""}">합치기</span></button>`;
+  }
+  function statsRow(ctx2, live) {
+    const carried = gridItems(live).length;
+    const slots = itemSlots(ctx2.chat.scriptstate);
+    const over = Math.max(0, carried - slots);
+    return `<div class="it-stats"><span class="it-stat${over ? " over" : ""}" title="칸 ${carried} / ${slots}${over ? ` (${over}칸 넘침)` : ""}">${ICONS.bag}<b>${carried}</b><small>/ ${slots}</small>${over ? `<em>+${over}</em>` : ""}</span>${weightPill(ctx2, live)}</div>`;
+  }
+  function itemsPane(ctx2) {
+    const seg6 = (v, label2) => `<button class="gx-seg${itemsUi.view === v ? " on" : ""}" data-action="items-view" data-value="${v}" aria-pressed="${itemsUi.view === v}">${label2}</button>`;
+    const tools = `<div class="gx-rec-tools gx-wt-tools it-tools">
+    <div class="gx-segs gx-segs-sm it-segs">${seg6("grid", "물건")}${seg6("log", "기록")}</div>
+    <span class="it-right">${isPhone() ? "" : `${addButton("it-act")}${mergeButton(ctx2, "it-act")}`}<input class="gx-wt-q it-q" type="search" data-input="items-q" value="${esc15(itemsUi.q)}" placeholder="물건·기록 검색" aria-label="물건·기록 검색"></span>
+  </div>`;
+    const st = itemIconStatus();
+    const picNote = st.loading ? `<p class="it-picnote">물건 그림 받는 중… ${esc15(st.progress)}</p>` : st.failed ? `<p class="it-picnote">물건 그림을 받지 못해 기본 아이콘으로 보여요. (${esc15(st.failed)})</p>` : "";
+    if (itemsUi.view === "log") return `${tools}${picNote}<div class="it-body">${logList(ctx2)}</div>`;
+    return `${tools}${picNote}${equipBox(ctx2, "items")}<div class="it-scrollwrap"><div class="it-body it-scroll">${gridHtml(ctx2)}</div><div class="it-trash" data-drop="drop" aria-hidden="true">${ICONS.close}<span>여기에 놓으면 버려요</span></div></div>`;
+  }
+  function weightPill(ctx2, live) {
+    const items = itemsOf(ctx2);
+    const alive = aliveAnchors(ctx2.chat);
+    const w = totalWeight(live, (e) => itemLeft(items, e, alive));
+    const cap = itemCarry(ctx2.chat.scriptstate);
+    const ov = w > cap ? Math.min(1, (w - cap) / cap) : 0;
+    const num8 = (n3) => String(Number(n3.toFixed(1)));
+    return `<span class="it-stat it-wgt${w > cap ? " over" : ""}"${w > cap ? ` style="--ov:${ov.toFixed(3)}"` : ""} title="무게 ${num8(w)}kg / 소지 한도 ${num8(cap)}kg${w > cap ? ` (${num8(w - cap)}kg 넘음)` : ""}">${ICONS.weight}<b>${num8(w)}</b><small>/ ${num8(cap)}kg</small></span>`;
+  }
+  var avatarHtml = () => "";
+  function setAvatarHtml(fn2) {
+    avatarHtml = fn2;
+  }
+  function equipBox(ctx2, where2, sel = "") {
+    const { av, slots } = equipParts(ctx2, where2, sel);
+    if (where2 === "sell") return `<section class="it-box it-eqbox sell" aria-label="장착"><div class="it-eqin">${av ? `<div class="it-av">${av}</div>` : ""}${slots}</div></section>`;
+    return `<section class="it-box it-eqbox" aria-label="장착"><div class="it-eqin">${av ? `<div class="it-av" data-drop="auto">${av}</div>` : ""}<div class="it-eqcol" data-drop="auto">${statsRow(ctx2, liveOf(ctx2))}${slots}</div>${isPhone() ? "" : useBox(ctx2)}</div></section>`;
+  }
+  function equipParts(ctx2, where2, sel = "") {
+    const items = itemsOf(ctx2);
+    const alive = aliveAnchors(ctx2.chat);
+    const live = liveItems(items, alive);
+    const eq = equippedOf(live);
+    let when3;
+    const slot = (k, i) => {
+      const it = eq[k][i];
+      if (!it) return `<div class="it-slot it-s-${k} empty" data-drop="equip:${k}:${i}" aria-label="${EQUIP_LABEL[k]} 빈 칸" title="${EQUIP_LABEL[k]}"><span class="it-ic">${k === "weapon" ? ICONS.hand : ICONS.gear}</span></div>`;
+      const act2 = where2 === "sell" ? "shop-sell-pick" : "items-open";
+      const left = itemLeft(items, it, alive);
+      when3 ??= whenOf(ctx2);
+      return `<button class="it-slot it-s-${k}${stateCls(it)}${(where2 === "sell" ? sel : itemsUi.open) === it.id ? " sel" : ""}" data-action="${act2}" data-value="${esc15(it.id)}" data-drop="equip:${k}:${i}"${where2 === "items" && !isPhone() ? ` draggable="true" data-drag="${esc15(it.id)}" data-equip="${it.equip ?? ""}"${canUse(it) ? ' data-usable="1"' : ""}` : ""} aria-label="${esc15(it.name)} (${EQUIP_LABEL[k]})"><span class="it-ic">${itemPic(it)}${wtMark(it, left)}</span>${marks(it, left)}${tipOf(it, left, when3)}</button>`;
+    };
+    const slots = `<div class="it-eqslots">${["weapon", "gear"].flatMap((k) => Array.from({ length: EQUIP_SLOTS[k] }, (_, i) => slot(k, i))).join("")}</div>`;
+    return { av: avatarHtml(ctx2), slots };
+  }
+  var sendingUse = (ctx2, id2) => useSending(ctx2.chat, ctx2.charIndex, ctx2.chatIndex, id2);
+  var WAIT_NOTE = "답을 기다리는 중이라 지금은 사용에 넣을 수 없어요. 답이 온 뒤에 넣어 주세요.";
+  var WAIT_UNUSE_NOTE = "답을 기다리는 중이라 지금은 사용을 취소할 수 없어요. 답이 온 뒤에 해 주세요.";
+  var WAIT_MERGE_NOTE = "사용에 넣은 물건은 답이 온 뒤에 합칠 수 있어요.";
+  var lockedHere = (ctx2) => useLocked(ctx2.charIndex, ctx2.chatIndex);
+  var useNote = (why, it) => why === "wait" ? WAIT_NOTE : `${named2(it.name, "은", "는")} 지금 보내는 중이라 답이 온 뒤에 더 쓸 수 있어요.`;
+  function useBox(ctx2) {
+    const live = liveOf(ctx2);
+    const q = useQueue(ctx2).flatMap((u) => {
+      const it = live.find((x) => x.id === u.id);
+      return it ? [{ it, n: u.n }] : [];
+    });
+    const chips3 = q.map(({ it, n: n3 }) => `<span class="it-uchip"><span class="it-ic">${itemPic(it)}</span><b>${esc15(it.name)}</b>${n3 > 1 ? `<em>×${n3}</em>` : ""}${sendingUse(ctx2, it.id) ? "" : `<button class="it-ux" data-action="items-unuse" data-value="${esc15(it.id)}" aria-label="${esc15(it.name)} 사용 취소">${ICONS.close}</button>`}</span>`).join("");
+    return `<div class="it-usebox${q.length ? "" : " empty"}" data-drop="use" aria-label="사용"><span class="it-ulab">사용</span><div class="it-uchips">${chips3 || '<p class="it-uhint">쓸 물건을 여기에 끌어다 놓으면 다음 메시지에 같이 보내요.</p>'}</div></div>`;
+  }
+  var wtMark = (it, left) => {
+    const w = lineWeight(it, left);
+    return w !== void 0 ? `<span class="it-wt" title="무게">${weightText(w)}</span>` : "";
+  };
+  var stateCls = (it) => it.state === "broken" ? " broken" : it.state === "damaged" ? " damaged" : "";
+  function marks(it, left) {
+    return `${left !== void 0 ? `<span class="it-left" title="남은 횟수">${left}</span>` : ""}${it.state === "damaged" ? '<span class="it-dmg" title="손상">손상</span>' : it.state === "broken" ? '<span class="it-brk" title="고장">고장</span>' : ""}`;
+  }
+  function tipOf(it, left, w) {
+    const tr = traitsLine(it, left);
+    return `<span class="it-tip" aria-hidden="true"><b>${esc15(it.name)}</b><small>${esc15([tr, sourceLine(it, w)].filter(Boolean).join(" · "))}</small>${it.desc ? `<p>${esc15(it.desc)}</p>` : ""}${it.effect ? `<p class="ef">효과: ${esc15(it.effect)}</p>` : ""}</span>`;
+  }
+  function gridHtml(ctx2) {
+    const slots = itemSlots(ctx2.chat.scriptstate);
+    const q = itemsUi.q.trim();
+    const items = itemsOf(ctx2);
+    const alive = aliveAnchors(ctx2.chat);
+    const list4 = q ? searchItems(items, alive, q).items : gridItems(liveItems(items, alive));
+    if (q && !list4.length) return `<p class="gx-wt-empty">맞는 물건이 없어요.</p>`;
+    const w = whenOf(ctx2);
+    const queued2 = new Map(useQueue(ctx2).map((u) => [u.id, u.n]));
+    const live = liveItems(items, alive);
+    const cells2 = list4.map((it, i) => cell(it, itemLeft(items, it, alive), !q && i >= slots, w, queued2.get(it.id) ?? 0, canUse(it) && (it.equip !== "gear" || isEquipped(it, live))));
+    if (!q) for (let i = list4.length; i < slots; i++) cells2.push('<div class="it-c empty" aria-hidden="true"><span class="it-ic"></span><b>&nbsp;</b></div>');
+    return `<div class="it-grid" data-drop="grid">${cells2.join("")}</div>`;
+  }
+  function cell(it, left, over, w, queued2, usable) {
+    const all = queued2 > 0 && (left === void 0 || queued2 >= left);
+    const drag = !isPhone() ? ` draggable="true" data-drag="${esc15(it.id)}"${it.equip ? ` data-equip="${it.equip}"` : ""}${usable ? ' data-usable="1"' : ""}` : "";
+    return `<button class="it-c${over ? " over" : ""}${itemsUi.open === it.id ? " sel" : ""}${all ? " queued" : ""}${stateCls(it)}" data-action="items-open" data-value="${esc15(it.id)}"${drag} aria-label="${esc15(it.name)}${over ? " (넘침)" : ""}${queued2 ? " (사용 예정)" : ""}"><span class="it-ic">${itemPic(it)}${wtMark(it, left)}</span>${marks(it, left)}${queued2 ? `<span class="it-q8">사용 예정${queued2 > 1 ? ` ×${queued2}` : ""}</span>` : ""}<b>${esc15(it.name)}</b>${tipOf(it, left, w)}</button>`;
+  }
+  var WHAT = { get: "획득", use: "사용", drop: "버림", gone: "없어짐", destroy: "파괴", merge: "합침", sell: "팖", left: "없어짐", off: "해제" };
+  var logWhatLabel = (l) => l.what === "off" && l.hand ? "넣기" : WHAT[l.what] ?? l.what;
+  var BY = { story: "본문", manual: "직접", use: "사용 버튼", store: "상점" };
+  var WEEK4 = "일월화수목금토";
+  function dayOf3(when3) {
+    const m = /(\d{4})\.(\d{2})\.(\d{2})/.exec(when3);
+    if (!m) return when3.split(" ")[0] || "날짜 없음";
+    const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    return `${m[1]}.${m[2]}.${m[3]} (${WEEK4[d.getUTCDay()]})`;
+  }
+  function logList(ctx2) {
+    const q = itemsUi.q.trim();
+    const items = itemsOf(ctx2);
+    const alive = aliveAnchors(ctx2.chat);
+    const all = (q ? searchItems(items, alive, q).log : items.log.slice().reverse()).filter((l) => !l.anchor || alive.has(l.anchor));
+    const rows3 = all.filter((l) => itemsUi.logFilter === "get" ? l.what === "get" : itemsUi.logFilter === "out" ? l.what !== "get" : true);
+    const chip3 = (v, label2, n3) => `<button class="gx-chip${itemsUi.logFilter === v ? " on" : ""}" data-action="items-log-filter" data-value="${v}" aria-pressed="${itemsUi.logFilter === v}">${label2}${n3 ? ` <small>${n3}</small>` : ""}</button>`;
+    const got = all.filter((l) => l.what === "get").length;
+    const chips3 = `<div class="gx-rec-tools it-logchips">${chip3("all", "전체", all.length)}${chip3("get", "획득", got)}${chip3("out", "사용", all.length - got)}</div>`;
+    if (!rows3.length) return `${chips3}<p class="gx-wt-empty">${q ? "맞는 기록이 없어요." : itemsUi.logFilter === "get" ? "아직 획득한 물건이 없어요." : itemsUi.logFilter === "out" ? "아직 사용 기록이 없어요. 물건을 쓰거나 버리면 여기에 쌓여요." : "아직 기록이 없어요. 물건을 얻거나 쓰면 여기에 쌓여요."}</p>`;
+    const w = whenOf(ctx2);
+    const pic3 = (l) => itemPic(l);
+    const row8 = (l) => {
+      const when3 = whenLabel(w, l.anchor, l.at);
+      const sub = [BY[l.by] ?? l.by, l.what === "use" && (l.n ?? 1) > 1 ? `×${l.n}` : "", l.note, l.quote ? `「${l.quote}」` : ""].filter(Boolean).join(" · ");
+      return `<li class="gx-wt-row"><div class="gx-wt-main"><span class="it-ic">${pic3(l)}</span><span class="gx-wt-memo"><b>${esc15(l.name)} <em class="it-what ${l.what === "get" ? "get" : "out"}">${logWhatLabel(l)}</em></b><small>${esc15(sub)}</small></span><span class="gx-wt-amt"><small>${esc15(when3.split(" ")[1] ?? when3)}</small></span></div></li>`;
+    };
+    const groups = [];
+    for (const l of rows3) {
+      const day = dayOf3(whenLabel(w, l.anchor, l.at));
+      const g3 = groups[groups.length - 1];
+      if (g3 && g3.day === day) g3.rows.push(l);
+      else groups.push({ day, rows: [l] });
+    }
+    const cut3 = moreCut("items-log", `${itemsUi.logFilter}|${q}`, ctx2.chat.scriptstate, groups);
+    return `${chips3}<div class="gx-wallettab it-log">${cut3.groups.map((g3) => {
+      const gi = g3.rows.filter((l) => l.what === "get").length;
+      const go3 = g3.rows.length - gi;
+      return `<section class="gx-wt-day"><h3><span>${esc15(g3.day)}</span><em>${[gi ? `획득 ${gi}` : "", go3 ? `사용 ${go3}` : ""].filter(Boolean).join(" · ")}</em></h3><ul>${g3.shown.map(row8).join("")}</ul></section>`;
+    }).join("")}${cut3.more}</div>`;
+  }
+  function popup(ctx2) {
+    if (itemsUi.mode === "add") return shell2("직접 넣기", `${formHead("직접 넣기")}${form(null)}`);
+    if (!itemsUi.open) return "";
+    const it = liveOf(ctx2).find((x) => x.id === itemsUi.open);
+    if (!it) return "";
+    if (itemsUi.mode === "edit" && itemEditOn(ctx2.chat.scriptstate)) return shell2("고치기", `${formHead("고치기")}${form(it, leftOf(ctx2, it))}`);
+    if (itemsUi.mode === "merge") return shell2("합치기", mergePick(ctx2, it));
+    const head3 = `<div class="it-ph"><span class="it-ic">${itemPic(it)}</span><div><b>${esc15(it.name)}</b><small>${esc15([traitsLine(it, leftOf(ctx2, it)), sourceLine(it, whenOf(ctx2))].filter(Boolean).join(" · "))}</small></div></div>`;
+    if (itemsUi.mode === "drop") {
+      return shell2("버리기", `${head3}<p>버릴까요? 목록에서 빠지고 기록에 남아요.</p><div class="it-btns"><button class="gx-chip red" data-action="items-drop" data-value="${esc15(it.id)}">버리기</button><button class="gx-chip" data-action="items-back">취소</button></div>`);
+    }
+    if (itemsUi.mode === "purge") {
+      return shell2("삭제", `${head3}<p>삭제할까요? 목록과 기록에서 지워지고 되돌릴 수 없어요.</p><div class="it-btns"><button class="gx-chip red" data-action="items-purge" data-value="${esc15(it.id)}">삭제</button><button class="gx-chip" data-action="items-back">취소</button></div>`);
+    }
+    const queued2 = useQueue(ctx2).find((u) => u.id === it.id)?.n ?? 0;
+    const left = leftOf(ctx2, it);
+    const sending = sendingUse(ctx2, it.id);
+    const more = !sending && usableNow(ctx2, it) && (left === void 0 ? !queued2 : queued2 < left);
+    const equipped = isEquipped(it, liveOf(ctx2));
+    const body5 = `${head3}
+    ${it.desc ? `<p>${esc15(it.desc)}</p>` : '<p class="dim">설명 없음</p>'}
+    ${it.effect ? `<p class="ef">효과: ${esc15(it.effect)}</p>` : ""}
+    ${it.state === "broken" ? '<p class="bad">고장 나서 쓸 수 없어요.</p>' : ""}
+    ${it.text ? `<div class="it-note">${esc15(it.text)}</div>` : ""}
+    ${it.quote ? `<p class="qt">근거 「${esc15(it.quote)}」</p>` : ""}
+    <div class="it-btns">
+      ${it.use ? `<button class="gx-chip${queued2 ? " on" : ""}" data-action="items-use" data-value="${esc15(it.id)}" ${more || queued2 ? "" : "disabled"}${needsEquip(ctx2, it) ? ' title="장착해야 쓸 수 있어요"' : queued2 && more ? ' title="누르면 한 번 더 넣어요"' : ""}>${queued2 ? `사용 ×${queued2}` : "사용"}</button>` : ""}
+      ${queued2 && !sending ? `<button class="gx-chip" data-action="items-unuse" data-value="${esc15(it.id)}">사용 취소</button>` : ""}
+      ${boxButton(ctx2, it.id)}
+      <button class="gx-chip" data-action="${equipped ? "items-unequip" : "items-equip"}" data-value="${esc15(it.id)}"${!equipped && !it.equip ? ' title="손 칸에 들어가요"' : ""}>${equipLabel(it, equipped)}</button>
+      ${itemEditOn(ctx2.chat.scriptstate) ? '<button class="gx-chip" data-action="items-edit">고치기</button>' : ""}
+      ${it.uses !== void 0 ? `<button class="gx-chip" data-action="items-merge" ${mergeMates(ctx2, it).length ? "" : "disabled"} title="이름에 같은 낱말이 있는 소모품끼리 합쳐요">합치기</button>` : ""}
+    </div>
+    <div class="it-btns it-btns-end"><button class="gx-chip" data-action="items-drop-ask" data-value="${esc15(it.id)}" title="목록에서 빠지고 기록에 남아요">버리기</button></div>
+    ${queued2 ? '<p class="dim">다음 메시지를 보낼 때 메인 요청에 「이번 턴 사용」으로 넘어가요.</p>' : ""}`;
+    return shell2(it.name, body5, it.id);
+  }
+  var shell2 = (label2, inner, del = "") => `<div class="gx-agpop it-pop" data-action="items-close" role="dialog" aria-label="${esc15(label2)}"><div class="gx-agpop-card it-card" data-action="items-keep">${del ? `<button class="gx-agpop-x it-del" data-action="items-purge-ask" data-value="${esc15(del)}" aria-label="삭제 (되돌릴 수 없음)" title="삭제: 목록과 기록에서 지워지고 되돌릴 수 없어요">${ICONS.trash}</button>` : ""}<button class="gx-agpop-x" data-action="items-close" aria-label="닫기">${ICONS.close}</button>${inner}</div></div>`;
+  var formHead = (label2) => `<div class="it-ph it-fhead"><b>${esc15(label2)}</b></div>${itemsUi.notice ? `<div class="gx-err" role="alert">${esc15(itemsUi.notice)}</div>` : ""}`;
+  function form(it, left) {
+    const eq = it?.equip ?? "";
+    const opt = (v, l) => `<option value="${v}"${eq === v ? " selected" : ""}>${l}</option>`;
+    const pics2 = it ? itemPictures(it.name, it.icon) : null;
+    const picNow = it ? splitIconWord(it.icon).word : "";
+    return `<div class="it-form" data-it-form="1">
+    <label><span>이름</span><input name="name" maxlength="30" required value="${esc15(it?.name ?? "")}" placeholder="예: 소금 봉지"></label>
+    <label><span>설명</span><input name="desc" maxlength="80" value="${esc15(it?.desc ?? "")}" placeholder="양·상태도 글로 (예: 두 봉지 남음)"></label>
+    <label><span>효과</span><input name="effect" maxlength="60" value="${esc15(it?.effect ?? "")}" placeholder="있으면 (예: 저급 괴이의 접근을 늦춘다)"></label>
+    <label><span>장착</span><select name="equip">${opt("", "없음")}${opt("weapon", "손")}${opt("gear", "장비")}</select></label>
+    <label class="it-chk"><span>사용</span><span><input type="checkbox" name="use"${it?.use ? " checked" : ""}> 쓸 수 있음</span></label>
+    <label><span>횟수</span><input name="uses" type="number" min="${left !== void 0 ? 0 : 1}" max="999" inputmode="numeric" value="${left ?? it?.uses ?? ""}" placeholder="소모성이면 남은 횟수 (비우면 닳지 않음)"></label>
+    <label><span>무게(1개)</span><input name="weight" type="number" min="0" step="0.001" inputmode="decimal" value="${it?.weight ?? ""}" placeholder="kg"></label>
+${pics2 ? `<label><span>그림</span><select name="pic">${pics2.some((n3) => n3 === picNow) ? "" : '<option value="" selected>그대로</option>'}${pics2.map((n3) => `<option value="${esc15(n3)}"${n3 === picNow ? " selected" : ""}>${esc15(n3)}</option>`).join("")}</select></label>` : ""}
+    <div class="it-btns it-formfoot"><button type="button" class="gx-start" data-action="items-save" data-value="${esc15(it?.id ?? "")}"${needAttr("name", it?.name ?? "")}>${it ? "저장" : "추가"}</button><button type="button" class="gx-chip" data-action="${it ? "items-back" : "items-close"}">취소</button></div>
+  </div>`;
+  }
+  function mergePick(ctx2, keep2) {
+    const others = mergeMates(ctx2, keep2);
+    const w = whenOf(ctx2);
+    return `<div class="it-ph"><span class="it-ic">${itemPic(keep2)}</span><div><b>${esc15(keep2.name)}</b><small>합칠 상대를 고르세요. 이름·설명은 이 물건 그대로, 남은 횟수와 무게만 더해져요.</small></div></div>
+    <ul class="it-pick">${others.map((o) => `<li><button class="it-pickrow" data-action="items-merge-to" data-value="${esc15(o.id)}"><span class="it-ic">${itemPic(o)}</span><span><b>${esc15(o.name)}</b><small>${esc15(o.desc || sourceLine(o, w))}</small></span></button></li>`).join("")}</ul>
+    <div class="it-btns"><button class="gx-chip" data-action="items-back">취소</button></div>`;
+  }
+  async function itemsAction(action, value, ctx2, env3, formEl) {
+    const write = (fn2) => updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+      const cur = readItems(chat.scriptstate);
+      const done3 = fn2(cur, aliveAnchors(chat));
+      const next = itemAutoOn(chat.scriptstate) ? done3 : forgetAway(done3, chat);
+      if (next === cur) return null;
+      return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...itemsVars(next) } };
+    });
+    const full = (k) => {
+      itemsUi.info = fullText(k);
+      env3.render();
+    };
+    const holdFirst = async (it) => {
+      if (it.equip !== "weapon" || !canUse(it) || isEquipped(it, liveOf(ctx2))) return true;
+      if (!equippedOf(liveOf(ctx2)).weapon.some((x) => !x)) {
+        full("weapon");
+        return false;
+      }
+      await write((x, alive) => equipItem(x, alive, it.id));
+      return true;
+    };
+    if (/^items-(use|unuse|dnd|drop|purge|equip|unequip|merge-to)$/.test(action)) await freeUseLock();
+    switch (action) {
+      case "items-sub":
+        itemsUi.sub = value === "wallet" || value === "points" ? value : "items";
+        Object.assign(walletUi, { open: null, edit: false, notice: "" });
+        itemsUi.open = "";
+        itemsUi.mode = "view";
+        itemsUi.notice = "";
+        env3.render();
+        return true;
+      case "items-log-filter":
+        itemsUi.logFilter = value === "get" ? "get" : value === "out" ? "out" : "all";
+        env3.render();
+        return true;
+      case "items-view":
+        itemsUi.view = value === "log" ? "log" : "grid";
+        env3.render();
+        return true;
+      case "items-open":
+        itemsUi.open = value ?? "";
+        itemsUi.mode = "view";
+        env3.render();
+        return true;
+      case "items-keep":
+        return true;
+      case "items-close":
+        itemsUi.open = "";
+        itemsUi.mode = "view";
+        itemsUi.dragDrop = false;
+        env3.render();
+        return true;
+      case "items-back":
+        if (itemsUi.mode === "drop" && itemsUi.dragDrop) itemsUi.open = "";
+        itemsUi.mode = "view";
+        itemsUi.dragDrop = false;
+        env3.render();
+        return true;
+      case "items-add":
+        itemsUi.open = "";
+        itemsUi.mode = "add";
+        env3.render();
+        return true;
+      case "items-edit":
+        if (!itemEditOn(ctx2.chat.scriptstate)) return true;
+        itemsUi.mode = "edit";
+        env3.render();
+        return true;
+      case "items-merge":
+        itemsUi.mode = "merge";
+        env3.render();
+        return true;
+      case "items-merge-start": {
+        const first = liveOf(ctx2).find((x) => mergeMates(ctx2, x).length);
+        if (!first) return true;
+        itemsUi.open = first.id;
+        itemsUi.mode = "merge";
+        itemsUi.info = "남길 물건의 팝업에서 합칠 상대를 고르세요. 다른 물건을 남기려면 그 칸을 먼저 누르세요.";
+        env3.render();
+        return true;
+      }
+      case "items-merge-to": {
+        const keep2 = itemsUi.open;
+        if (!keep2 || !value) return true;
+        let held = false;
+        await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+          const vars = chat.scriptstate;
+          const q = readItemUse(vars);
+          const busy6 = (id2) => useSending(chat, ctx2.charIndex, ctx2.chatIndex, id2) || lockedHere(ctx2) && (q.some((u) => u.id === id2) || usesToSend(chat).some((u) => u.id === id2));
+          if (busy6(keep2) || busy6(value)) {
+            held = true;
+            return null;
+          }
+          const cur = readItems(vars);
+          const next = mergeItems(cur, aliveAnchors(chat), keep2, value, lastBotKey(chat));
+          if (next === cur) return null;
+          const use = vars?.[ITEM_USE_AT_VAR] ? {} : itemUseVars(mergeUse(q, keep2, value));
+          return { ...chat, scriptstate: { ...vars ?? {}, ...itemsVars(next), ...use } };
+        });
+        if (held) {
+          itemsUi.info = WAIT_MERGE_NOTE;
+          env3.render();
+          return true;
+        }
+        void refreshUseBox(ctx2.charIndex, ctx2.chatIndex);
+        itemsUi.mode = "view";
+        itemsUi.info = "합쳤어요.";
+        await env3.refresh();
+        return true;
+      }
+      case "items-drop-ask":
+        if (!value) return true;
+        itemsUi.open = value;
+        itemsUi.mode = "drop";
+        itemsUi.dragDrop = false;
+        env3.render();
+        return true;
+      case "items-purge-ask":
+        if (!value) return true;
+        itemsUi.open = value;
+        itemsUi.mode = "purge";
+        itemsUi.dragDrop = false;
+        env3.render();
+        return true;
+      case "items-purge": {
+        if (!value) return true;
+        await write((it) => purgeItem(it, value));
+        await dropFromUse(ctx2, value);
+        itemsUi.open = "";
+        itemsUi.mode = "view";
+        itemsUi.dragDrop = false;
+        itemsUi.info = "삭제했어요.";
+        await env3.refresh();
+        return true;
+      }
+      case "items-drop": {
+        if (!value) return true;
+        const msgs4 = ctx2.chat.message ?? [];
+        const key = msgs4.length ? messageKey(msgs4[msgs4.length - 1], msgs4.length - 1) : "";
+        await write((it) => removeItem(it, value, "drop", "manual", "", { key }));
+        await dropFromUse(ctx2, value);
+        itemsUi.open = "";
+        itemsUi.mode = "view";
+        itemsUi.dragDrop = false;
+        itemsUi.info = "버렸어요. 기록에 남아요.";
+        await env3.refresh();
+        return true;
+      }
+      case "items-save": {
+        const f = formEl;
+        if (!f) return true;
+        const get = (n3) => String(f.querySelector(`[name="${n3}"]`)?.value ?? "").trim();
+        const use = !!f.querySelector('[name="use"]')?.checked;
+        const usesRaw = get("uses");
+        const usesN = /^\d+$/.test(usesRaw) ? Math.min(999, Number(usesRaw)) : void 0;
+        const was = value ? itemsOf(ctx2).list.find((x) => x.id === value) : void 0;
+        const uses = usesN !== void 0 && (usesN >= 1 || was?.uses !== void 0) ? usesN : void 0;
+        const name = get("name");
+        if (!name) {
+          itemsUi.notice = "이름을 적어 주세요.";
+          env3.render();
+          return true;
+        }
+        if (usesN === 0 && uses === void 0) {
+          itemsUi.notice = "횟수는 1 이상으로 적어 주세요. 비우면 닳지 않아요.";
+          env3.render();
+          return true;
+        }
+        const wRaw = get("weight");
+        const weight = wRaw ? itemWeight(wRaw) : void 0;
+        const patch = { name, desc: get("desc"), effect: get("effect"), use, equip: get("equip"), ...weight !== void 0 ? { weight } : {}, ...get("pic") ? { icon: get("pic") } : {} };
+        if (value) {
+          await write((it, alive) => {
+            const cur = it.list.find((x) => x.id === value);
+            const next = updateItem(it, value, uses === void 0 ? { ...patch, uses: "" } : cur?.uses === void 0 ? { ...patch, uses: Math.max(1, uses) } : patch);
+            return uses !== void 0 ? setItemLeft(next, alive, value, uses) : next;
+          });
+        } else await write((it, alive) => addItem(it, alive, { ...patch, uses, from: "manual", anchor: "" }));
+        itemsUi.mode = "view";
+        itemsUi.notice = "";
+        itemsUi.info = value ? "고쳤어요." : "넣었어요.";
+        if (!value) itemsUi.open = "";
+        a

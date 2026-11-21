@@ -1,0 +1,4773 @@
+      },
+      제이: {
+        faction: "C00",
+        values: "자기를 사람 대접해 주는 이를 조용히 챙긴다. 회사 절차와 돈에는 무관심하다. 눈앞에서 사람을 해치려 들면 반말이 나온다. 도넛을 좋아한다.",
+        express: 0,
+        temper: {
+          open: 0.9,
+          grudge: 0.8
+        },
+        english: [
+          "Jay"
+        ]
+      },
+      조성춘: {
+        faction: "B00",
+        values: "끝까지 포기하지 않는 것과 전우애, 조직 충성을 중시한다. 관리국을 괴물 집단으로 경멸한다. 거짓말은 눈치채지만 그럴듯한 말엔 금방 넘어간다.",
+        express: 3,
+        temper: {
+          open: 1.2,
+          grudge: 1
+        },
+        english: [
+          "Cho Seong-choon"
+        ]
+      },
+      진나솔: {
+        faction: "C00",
+        values: "포인트, 정시 퇴근, 조용함. 수지가 맞는 한 믿을 만한 계약 상대다. 제대로 된 반론은 받아들이고 틀리면 사과한다. 지체와 소음을 싫어한다.",
+        express: 1,
+        temper: {
+          open: 0.7,
+          grudge: 1.1
+        },
+        english: [
+          "Jin Na-sol"
+        ]
+      },
+      차여진: {
+        faction: "협회",
+        values: "친분을 쌓아 계약으로 이어 가는 것이 영업이다. 절박한 사람의 신호를 읽는다. 계약서를 끝까지 읽는 손님, 수수료 표준화, 감사 시즌을 싫어한다.",
+        express: 2,
+        temper: {
+          open: 1.4,
+          grudge: 0.9
+        },
+        english: [
+          "Cha Yeo-jin"
+        ]
+      },
+      청달래: {
+        faction: "C00",
+        values: "쓸모 있는 것은 계약하고 계약한 것은 소유한다. 문구는 한 글자도 어기지 않는다. 사적 감정을 사업에 끼우는 것을 경멸하며 목소리를 높이지 않는다.",
+        express: 0,
+        temper: {
+          open: 0.6,
+          grudge: 1.2
+        },
+        english: [
+          "Cheong Dal-lae"
+        ]
+      },
+      콘쥬스: {
+        faction: "A00",
+        values: "정식 멤버로 인정받는 것을 가장 중시한다. 머리 위로 자기 얘기를 하거나 얼버무리는 어른을 싫어한다. 호칭은 상황 따라 바꾼다.",
+        express: 3,
+        temper: {
+          open: 1.4,
+          grudge: 0.8
+        },
+        english: [
+          "Konjyuce"
+        ]
+      },
+      큐라스: {
+        faction: "A00",
+        values: "쓸 만한 사람은 진압팀에 영입하려 한다. 무모한 민간인을 걱정하고 남의 재능을 진심으로 축하한다. 공포 앞에선 정직하게 질린다.",
+        express: 3,
+        temper: {
+          open: 1.5,
+          grudge: 0.6
+        },
+        english: [
+          "Kyuras"
+        ]
+      },
+      호유원: {
+        faction: "C00",
+        values: "약속은 글자 그대로 지키고 그 경계 안에서 착취를 설계한다. 호의와 고마움을 계산한다. 청달래에게만 존칭을 뺀다. 거절엔 상처받은 척한다.",
+        express: 1,
+        temper: {
+          open: 1,
+          grudge: 1.2
+        },
+        english: [
+          "Ho Yu-won"
+        ]
+      }
+    },
+    pairs: {
+      "쟈알디>잼트리": {
+        aff: 90,
+        src: "위키 쟈알디 「인간관계·잼트리」: 하루 n회 「잼트리, 어떻게 해 봐」, 블랙커피도 잼트리가 탐. 사무실 유지 보수를 맡김"
+      },
+      "잼트리>쟈알디": {
+        aff: 90,
+        src: "위키 잼트리 「인간관계·쟈알디」: 부장의 부탁을 대개 해냄. roster: 부장에게만 존댓말"
+      },
+      "쟈알디>스팡달": {
+        aff: 90,
+        src: "위키 쟈알디 「스팡달」: 블랙커피 파 동지, 장난이 신입을 살린다는 걸 알고 내버려 둠"
+      },
+      "스팡달>쟈알디": {
+        aff: 90,
+        src: "위키 스팡달 「쟈알디」: 블랙커피 파 동지, 「사무실에서 가장 조용한 3분」"
+      },
+      "쟈알디>에일린": {
+        aff: 150,
+        src: "위키 쟈알디 「에일린」: 실력을 가장 확실하게 인정하는 부하, 부재 시 지휘 대행"
+      },
+      "에일린>쟈알디": {
+        aff: 90,
+        src: "위키 에일린 「쟈알디」: 몇 마디로 끝나는 작전 회의, 「먹고 털어」에 먹긴 먹음"
+      },
+      "쟈알디>콘쥬스": {
+        aff: 90,
+        src: "위키 콘쥬스 「쟈알디」: 입사 반대했지만 회식 때 콘쥬스 고기를 직접 뒤집어 줌"
+      },
+      "콘쥬스>쟈알디": {
+        aff: 150,
+        src: "위키 콘쥬스 「쟈알디」: 부장 옆에 최대한 붙어 있으려 하고 브리핑실 문 앞에서 기다림"
+      },
+      "쟈알디>이도형": {
+        aff: -60,
+        src: "대사 JSON hostile. 위키 쟈알디 「이도형」: 과거 결정적으로 꺾인 상대, 이름만 나오면 냉정함이 깨짐"
+      },
+      "이도형>쟈알디": {
+        aff: -25,
+        src: "대사 JSON hostile. 위키 이도형 「쟈알디」: 이도형 쪽이 어떻게 기억하는지는 알려진 바 없음(이름도 기억 못 할 것)"
+      },
+      "쟈알디>게슈간": {
+        aff: 90,
+        src: "위키 게슈간 「쟈알디」: 남으라고 한 적 없는 사람, 목표·위치만 주고 방법은 맡김"
+      },
+      "게슈간>쟈알디": {
+        aff: 90,
+        src: "위키 게슈간 「쟈알디」: 지시에 토를 달지 않음(대개 맞기 때문)"
+      },
+      "잼트리>스팡달": {
+        aff: 150,
+        src: "대사 JSON close. 위키 잼트리 「스팡달」: 「스팡달, 입.」으로 멈출 수 있는 유일한 사람"
+      },
+      "스팡달>잼트리": {
+        aff: 150,
+        src: "대사 JSON close. 위키 스팡달 「잼트리」: 억울한 기색 없이 바로 멈춤, 블랙커피 받는 두 사람 중 하나"
+      },
+      "스팡달>데쥬레": {
+        aff: 90,
+        src: "위키 스팡달 「데쥬레」: 전출을 잊지 않고 죄책감을 속삭임. 「가장 심하게 놀리는 상대는 자기 사람」 해석에 따른 추정"
+      },
+      "데쥬레>스팡달": {
+        aff: -60,
+        src: "대사 JSON hostile. 위키 데쥬레 「스팡달」: 인생 최대 공포, 마주치면 무너짐"
+      },
+      "데쥬레>잼트리": {
+        aff: 150,
+        src: "대사 JSON close. 위키 데쥬레 「잼트리」: 생명줄 같은 존재, 위층에서 잼트리 옆에 바짝 붙어 있음"
+      },
+      "잼트리>데쥬레": {
+        aff: 90,
+        src: "위키 잼트리 「데쥬레」: 스팡달이 선을 넘으면 웃으며 입을 닫아 줌"
+      },
+      "고그니쟈>데쥬레": {
+        aff: 150,
+        src: "위키 고그니쟈 「데쥬레」: 실력을 누구보다 믿고 중요한 작업을 통째로 맡김, 가장 손발 맞는 팀"
+      },
+      "데쥬레>고그니쟈": {
+        aff: 150,
+        src: "위키 데쥬레 「고그니쟈」: 고함은 커도 악의 없고 놀리지 않아 그렇게 무서워하지 않음, 지하 생활에 만족"
+      },
+      "게슈간>데드폴": {
+        aff: 150,
+        src: "대사 JSON close. 위키 게슈간 「데드폴」: 독수리 타법을 지적 안 하는 유일한 사람, 노려보지 않음"
+      },
+      "데드폴>게슈간": {
+        aff: 150,
+        src: "대사 JSON close. 위키 데드폴 「게슈간」: 「그래. 미안.」을 완전한 합의로 받음, 타자 교습"
+      },
+      "게슈간>로제몬": {
+        aff: 150,
+        src: "대사 JSON close. 위키 게슈간 「로제몬」: 팔을 잡고 끌고 다녀도 받아들임(깊은 애정)"
+      },
+      "로제몬>게슈간": {
+        aff: 150,
+        src: "대사 JSON close. 위키 로제몬 「게슈간」: 위험한 곳에서 가장 많이 끌고 다니는 사람, 3인조 기본 연계"
+      },
+      "로제몬>데드폴": {
+        aff: 150,
+        src: "대사 JSON close. 위키 로제몬 「데드폴」: 되살아나면 가장 먼저 「어땠어?」, 팔을 붙잡고 끌고 감"
+      },
+      "데드폴>로제몬": {
+        aff: 150,
+        src: "대사 JSON close. 위키 데드폴 「로제몬」: 반말에 담긴 걱정을 정확히 알아들음"
+      },
+      "고르고디오>큐라스": {
+        aff: 150,
+        src: "대사 JSON close. 위키 고르고디오 「큐라스」: 고정 파트너, 상시 중화력 대응조"
+      },
+      "큐라스>고르고디오": {
+        aff: 150,
+        src: "대사 JSON close. 위키 큐라스 「고르고디오」: 형님이라 부름, 보고서 두 장이 형님 칭찬"
+      },
+      "큐라스>스팡달": {
+        aff: -25,
+        src: "위키 큐라스 「스팡달」: 유일한 천적, 다가오면 얼굴이 하얗게 질림(공포·기피)"
+      },
+      "콘쥬스>에일린": {
+        aff: 90,
+        src: "대사 JSON close. 위키 콘쥬스 「에일린」: 머리 위로 자기 얘기를 안 하는 반응을 은근히 좋아함"
+      },
+      "에일린>콘쥬스": {
+        aff: 90,
+        src: "위키 에일린 「콘쥬스」: 출발점이 닮아 현장에서 최대한 멀리 두려 함"
+      },
+      "콘쥬스>잼트리": {
+        aff: 90,
+        src: "대사 JSON close. 위키 콘쥬스 「팀의 어른들」: 잼트리가 「막내」라 부르며 우유를 타 줌"
+      },
+      "잼트리>콘쥬스": {
+        aff: 90,
+        src: "위키 콘쥬스 「팀의 어른들」: 「막내」라 부르며 연유 커피 대신 우유"
+      },
+      "에일린>데드폴": {
+        aff: 90,
+        src: "위키 에일린 「데드폴」: 데드폴의 죽음이 든 계획표는 다시 짜라고 돌려보냄"
+      },
+      "데드폴>에일린": {
+        aff: 90,
+        src: "위키 에일린 「데드폴」: 그 처우를 꽤 좋아하는 눈치"
+      },
+      "잼트리>에일린": {
+        aff: 90,
+        src: "위키 에일린 「잼트리」: 총 손질하는 손 옆에 커피를 내려놓고 그걸로 충분하다는 표정"
+      },
+      "에일린>잼트리": {
+        aff: 90,
+        src: "위키 에일린 「잼트리」: 고맙다는 말 없이 마심(둘 사이 대화는 그걸로 끝). 근거 약함"
+      },
+      "잼트리>데드폴": {
+        aff: 90,
+        src: "위키 데드폴 「사무실」: 남이 커피 타는 걸 허락하는 드문 예외라는 소문. 근거 약함"
+      },
+      "이도형>고영훈": {
+        aff: 90,
+        src: "위키 이도형 「고영훈」: 부대 운영을 통째로 넘김, 둘 다 그게 편함. 추정"
+      },
+      "고영훈>이도형": {
+        aff: 90,
+        src: "위키 고영훈 「이도형」: 고맙다는 말을 기다리지 않고 부대를 대신 굴림. 추정"
+      },
+      "노기균>윤병수": {
+        aff: 150,
+        src: "대사 JSON close. 위키 노기균 「윤병수」: 입사 동기, 정반대인데 손발이 기가 막히게 맞음"
+      },
+      "윤병수>노기균": {
+        aff: 150,
+        src: "대사 JSON close. 위키 윤병수 「노기균」: 입사 동기, 재능을 찾아 넘기는 분업을 당연하게 여김"
+      },
+      "노기균>송주익": {
+        aff: 90,
+        src: "위키 노기균 「송주익」: 막내를 꽤 아낌(대련에서 사정없이 쓰러뜨리는 방식)"
+      },
+      "송주익>노기균": {
+        aff: 90,
+        src: "위키 송주익 「노기균」: 신입을 넘겨받으면 눈을 반짝임, 패배 보고를 웃으며 받아 주는 선배"
+      },
+      "노기균>이도형": {
+        aff: 90,
+        src: "위키 노기균 「고영훈과 이도형」: 검사부대원의 숭배 + 이도형이 이름을 제대로 부르는 대원"
+      },
+      "이도형>노기균": {
+        aff: 90,
+        src: "위키 노기균: 이도형이 이름을 제대로 부르는 몇 안 되는 경우(간파를 깨친 대원으로 인식)"
+      },
+      "송주익>이도형": {
+        aff: 90,
+        src: "위키 송주익 「이도형」: 부대의 정점이자 존경의 대상, 햄스터를 정성껏 키움"
+      },
+      "송주익>고영훈": {
+        aff: 90,
+        src: "위키 송주익 「고영훈」: 회식 박수 세 번을 받은 날을 수첩에 적어 둠"
+      },
+      "곽성주>조성춘": {
+        aff: 150,
+        src: "대사 JSON close. 위키 곽성주 「조성춘」: 서로를 가장 잘 아는 동료, 탄막으로 옆을 덮어 줌"
+      },
+      "조성춘>곽성주": {
+        aff: 150,
+        src: "대사 JSON close. 위키 조성춘 「곽성주」: 2대 고함, 같은 작전이면 무전이 포화"
+      },
+      "곽성주>이기석": {
+        aff: 90,
+        src: "위키 이기석 「현장 부대들」: 곽성주가 「팔 하나 내놓고 아직도 뛰는 사람」이라며 높이 삼"
+      },
+      "이기석>곽성주": {
+        aff: 90,
+        src: "대사 JSON close. 위키 이기석: 둘 다 인류를 위해 목숨 내놓는 걸 믿는 사람"
+      },
+      "김성진>송진섭": {
+        aff: 150,
+        src: "대사 JSON close. 위키 김성진 「송진섭」: 룸메이트, 위험하면 제일 먼저 달려가 등을 지킴"
+      },
+      "송진섭>김성진": {
+        aff: 90,
+        src: "대사 JSON close. 위키 송진섭 「김성진」: 하나도 안 믿고 중요한 일은 안 맡기지만 등은 맡김"
+      },
+      "송진섭>곽성주": {
+        aff: 90,
+        src: "위키 송진섭 「평가」: 곽성주의 등 뒤에 숨어 레이더를 봄(진압부대 명물)"
+      },
+      "곽성주>송진섭": {
+        aff: 90,
+        src: "위키 송진섭 「평가」: 진압부대 고참들이 막내를 귀여워함, 등 뒤가 붐비는 걸 뿌듯해함. 추정"
+      },
+      "백석주>진나솔": {
+        aff: 150,
+        src: "대사 JSON close. 위키 백석주 「진나솔」: 아끼는 조원, 「우리 나솔이가」로 말을 시작"
+      },
+      "진나솔>백석주": {
+        aff: 90,
+        src: "위키 진나솔 「백석주」: 혀를 차지만 조언대로 일을 끝내 놓음, 효율 언어로 통함"
+      },
+      "백석주>이자헌": {
+        aff: -60,
+        src: "대사 JSON hostile. 위키 백석주 「이자헌」: 조원이 죽을 때 지켜보기만 한 악연, 연례행사처럼 밖으로 불러냄"
+      },
+      "이자헌>백석주": {
+        aff: -25,
+        src: "대사 JSON hostile. 위키 백석주 「이자헌」: 이자헌은 표정 없이 「알겠습니다」 하고 따라나섬(한쪽 원한)"
+      },
+      "이자헌>은하제": {
+        aff: 150,
+        src: "대사 JSON close. 위키 이자헌 「은하제」: 사실상 오른팔, 은하제가 읽고 이자헌이 뚫음"
+      },
+      "은하제>이자헌": {
+        aff: 90,
+        src: "위키 은하제 「이자헌」: 날 선 하십시오체에 한숨이 두 배지만 현장에서는 완벽한 짝"
+      },
+      "이자헌>박민성": {
+        aff: 90,
+        src: "위키 이자헌 「박민성」: D조 기본 대형(앞에서 뜯고 뒤에서 나름), 「오소리 님」"
+      },
+      "박민성>이자헌": {
+        aff: 150,
+        src: "위키 박민성 「이자헌」: 진심으로 따름, 「조장님 옆이 제일 안전해」"
+      },
+      "은하제>박민성": {
+        aff: 150,
+        src: "위키 은하제 「박민성」: 가장 많이 이름을 부르는 사람, 진짜 위험하면 제일 먼저 뛰어듦"
+      },
+      "박민성>은하제": {
+        aff: 150,
+        src: "대사 JSON close. 위키 박민성 「은하제」: 무서워하면서도 제일 의지함"
+      },
+      "이성해>진나솔": {
+        aff: 90,
+        src: "대사 JSON close. 위키 이성해 「진나솔」: 아주 좋아한다고 웃으며 말함(한쪽)"
+      },
+      "이성해>제이": {
+        aff: 90,
+        src: "대사 JSON close. 위키 이성해: 경비팀에 도넛·커피를 들고 가 수다, 제이가 도넛을 좋아함"
+      },
+      "고영은>백사헌": {
+        aff: -60,
+        src: "대사 JSON hostile. 위키 고영은 「백사헌」: 공공연한 앙숙, 대놓고 적대하고 비꼼"
+      },
+      "백사헌>고영은": {
+        aff: -25,
+        src: "대사 JSON hostile. 위키 백사헌 「고영은」: 앙숙이지만 필요하면 옆에서 같이 일함"
+      },
+      "고영은>강이학": {
+        aff: -25,
+        src: "대사 JSON hostile. 위키 강이학 「고영은」: 상극, 구조 우선순위로 꼭 한 번 부딪침"
+      },
+      "강이학>고영은": {
+        aff: -25,
+        src: "대사 JSON hostile. 위키 강이학 「고영은」: 계산해 보고 깔끔하게 물러섬(감정 없는 상극)"
+      },
+      "고영은>장허운": {
+        aff: 90,
+        src: "대사 JSON close. 위키 장허운 「고영은」: 사람으로 대하는 직원과 배치되면 장허운 생존율이 오름"
+      },
+      "장허운>고영은": {
+        aff: 150,
+        src: "대사 JSON close. 위키 장허운 「고영은」: 처음 「괜찮아요?」를 듣고 한참 답 못 함, 볼 때마다 먼저 고개 숙임"
+      },
+      "이연화>고영은": {
+        aff: 90,
+        src: "대사 JSON close. 위키 이연화 「고영은」: 사고 현장에서 말없이 붕대를 나눠 씀"
+      },
+      "고영은>이연화": {
+        aff: 90,
+        src: "위키 이연화 「고영은」: 연구1팀에 들르면 이연화 책상에 캔커피를 놓고 감"
+      },
+      "강이학>백사헌": {
+        aff: 90,
+        src: "위키 강이학 「백사헌」: 말이 통하는 몇 안 되는 상대, 「좋은 거래처」"
+      },
+      "백사헌>강이학": {
+        aff: 90,
+        src: "위키 백사헌 「강이학」: 몇 안 되게 말이 통하는 상대, 거래는 꼭 성사됨. 추정"
+      },
+      "청달래>호유원": {
+        aff: -60,
+        src: "대사 JSON hostile. 위키 청달래 「호유원」: 영구 냉전, 「애송이」라 노골적으로 경멸"
+      },
+      "호유원>청달래": {
+        aff: -60,
+        src: "대사 JSON hostile. 위키 호유원 「청달래」: 유일하게 존칭을 빼는 대상, 사적 감정"
+      },
+      "이병진>호유원": {
+        aff: 150,
+        src: "위키 이병진 「호유원」: 직속 줄, 「이 회사에서 제일 좋은 상사」라며 이름을 입에 달고 삼"
+      },
+      "호유원>이병진": {
+        aff: 90,
+        src: "위키 호유원 「이병진」: 알아서 인재를 물어 오는 충실한 창구"
+      },
+      "곽제강>이연화": {
+        aff: 90,
+        src: "위키 곽제강 「이연화」: 잔소리를 싫어하지 않고 오히려 재미있어함"
+      },
+      "곽제강>청달래": {
+        aff: -25,
+        src: "위키 곽제강 「청달래」: 측근들 앞에서 대놓고 무시, 「알 게 뭡니까」"
+      },
+      "진나솔>이병진": {
+        aff: -25,
+        src: "위키 이병진 「정예 조와 사무실 인맥」: 정예들이 대놓고 무시함"
+      },
+      "백석주>박민성": {
+        aff: 90,
+        src: "위키 박민성 「백석주」: 음료수를 받으며 「넌 착하다, 조를 잘못 골랐어」. 추정"
+      },
+      "블라렛>살라딘": {
+        aff: -60,
+        src: "대사 JSON hostile. 위키 블라렛 「살라딘」: 영원한 앙숙, 피의 원한을 개인적으로 실천"
+      },
+      "살라딘>블라렛": {
+        aff: -60,
+        src: "대사 JSON hostile. 위키 살라딘 「블라렛」: 같은 방에 있기만 해도 무기에 손이 감"
+      },
+      "서윤지>차여진": {
+        aff: -60,
+        src: "대사 JSON hostile. 위키 서윤지 「차여진」: 옆자리를 기록하며 협회 청렴성 낙제 분기로 셈, 같은 줄에 세우는 비유를 싫어함"
+      },
+      "차여진>서윤지": {
+        aff: -25,
+        src: "대사 JSON hostile. 위키 차여진 「서윤지」: 인생의 몇 안 되는 불편 요소, 감사 시즌에 옆자리를 흘끔거림"
+      },
+      "차여진>문혜란": {
+        aff: 90,
+        src: "대사 JSON close. 위키 차여진 「문혜란」: 프리랜서를 주고받으며 소개비를 챙기는 사이(지상·지하 친절 연합)"
+      },
+      "문혜란>차여진": {
+        aff: 90,
+        src: "대사 JSON close. 위키 문혜란 「차여진」: 양쪽으로 프리랜서를 주고받는 연합"
+      },
+      "고연지>윤지아": {
+        aff: 90,
+        src: "위키 고연지 「윤지아」: 조수를 계속 두고 사탕 재고를 따지지 않음. 추정"
+      },
+      "윤지아>고연지": {
+        aff: 90,
+        src: "위키 윤지아 「고연지」: 원장이 서운할 거라 생각해 짠해함, 질문 안 하는 조수로 신뢰받음"
+      }
+    },
+    orgs: {
+      "A00>A00": 0,
+      "A00>B00": -25,
+      "A00>C00": -25,
+      "A00>D00": 0,
+      "A00>E00": 0,
+      "B00>A00": -25,
+      "B00>B00": 0,
+      "B00>C00": -25,
+      "B00>D00": 0,
+      "B00>E00": -25,
+      "C00>A00": -25,
+      "C00>B00": -25,
+      "C00>C00": 0,
+      "C00>D00": 0,
+      "C00>E00": 0,
+      "협회>A00": 0,
+      "협회>B00": -25,
+      "협회>C00": 0,
+      "협회>D00": 0,
+      "협회>E00": 0,
+      "지하상가>A00": 0,
+      "지하상가>B00": 0,
+      "지하상가>C00": 0,
+      "지하상가>D00": 0,
+      "지하상가>E00": 0,
+      "교황청>A00": 0,
+      "교황청>B00": 0,
+      "교황청>C00": 0,
+      "교황청>D00": 0,
+      "교황청>E00": 0,
+      "십자군>A00": 0,
+      "십자군>B00": 0,
+      "십자군>C00": 0,
+      "십자군>D00": 0,
+      "십자군>E00": 0,
+      "독립>A00": 0,
+      "독립>B00": 0,
+      "독립>C00": 0,
+      "독립>D00": 0,
+      "독립>E00": 0
+    }
+  };
+
+  // src/data/people/aliases.json
+  var aliases_default = {
+    version: 1,
+    names: {
+      강이학: {
+        aliases: [
+          "강이학 사원",
+          "조랑말",
+          "Kang I-hak"
+        ],
+        titles: [
+          "사원"
+        ]
+      },
+      게슈간: {
+        aliases: [
+          "게슈간 요원",
+          "Geshugan"
+        ],
+        titles: [
+          "요원"
+        ]
+      },
+      고그니쟈: {
+        aliases: [
+          "고그니쟈 실장",
+          "고그니쟈 책임자",
+          "Gognija"
+        ],
+        titles: [
+          "연구 책임자",
+          "실장",
+          "책임자"
+        ]
+      },
+      고르고디오: {
+        aliases: [
+          "적합자 고르고디오",
+          "고르고디오 선배",
+          "Gorgodio"
+        ],
+        titles: [
+          "선임",
+          "선임 요원",
+          "선배",
+          "형님",
+          "적합자"
+        ]
+      },
+      고연지: {
+        aliases: [
+          "고연지 원장",
+          "연지",
+          "Go Yeon-ji"
+        ],
+        titles: [
+          "원장",
+          "원장님",
+          "의사",
+          "선생님"
+        ]
+      },
+      고영은: {
+        aliases: [
+          "고영은 사원",
+          "영은",
+          "영은 쌤",
+          "산양",
+          "Go Young-eun"
+        ],
+        titles: [
+          "사원"
+        ]
+      },
+      고영훈: {
+        aliases: [
+          "고영훈 차장",
+          "Go Young-hoon"
+        ],
+        titles: [
+          "차장"
+        ]
+      },
+      곽성주: {
+        aliases: [
+          "곽성주 과장",
+          "Kwak Seong-ju"
+        ],
+        titles: [
+          "과장",
+          "과장님"
+        ]
+      },
+      곽제강: {
+        aliases: [
+          "곽제강 과장",
+          "곽 과장",
+          "Kwak Je-gang"
+        ],
+        titles: [
+          "과장",
+          "과장님"
+        ]
+      },
+      김성진: {
+        aliases: [
+          "김성진 사원",
+          "Kim Seong-jin"
+        ],
+        titles: [
+          "사원"
+        ]
+      },
+      김조학: {
+        aliases: [
+          "김조학 과장",
+          "수석 심문관",
+          "Kim Jo-hak"
+        ],
+        titles: [
+          "과장",
+          "과장님",
+          "심문관"
+        ]
+      },
+      노기균: {
+        aliases: [
+          "노기균 대리",
+          "No Gi-gyun"
+        ],
+        titles: [
+          "대리",
+          "형님"
+        ]
+      },
+      데드폴: {
+        aliases: [
+          "데드폴 요원",
+          "데드폴 씨",
+          "Deadpole"
+        ],
+        titles: [
+          "요원"
+        ]
+      },
+      데쥬레: {
+        aliases: [
+          "데쥬레 연구원",
+          "Dejure"
+        ],
+        titles: [
+          "연구원"
+        ]
+      },
+      도필헌: {
+        aliases: [
+          "도필헌 국장",
+          "도 국장",
+          "Do Pil-heon"
+        ],
+        titles: [
+          "국장",
+          "국장님"
+        ]
+      },
+      로제몬: {
+        aliases: [
+          "로제몬 요원",
+          "Rojemon"
+        ],
+        titles: [
+          "요원",
+          "사무직"
+        ]
+      },
+      마덕희: {
+        aliases: [
+          "마덕희 사장",
+          "헐값매입 주인",
+          "Ma Deok-hee"
+        ],
+        titles: [
+          "주인"
+        ]
+      },
+      문혜란: {
+        aliases: [
+          "문혜란 사장",
+          "혜란",
+          "혜란 언니",
+          "Mun Hye-ran"
+        ],
+        titles: [
+          "사장",
+          "언니"
+        ]
+      },
+      박민성: {
+        aliases: [
+          "박민성 주임",
+          "민성",
+          "오소리",
+          "Park Min-seong"
+        ],
+        titles: [
+          "주임"
+        ]
+      },
+      백사헌: {
+        aliases: [
+          "백사헌 사원",
+          "독사",
+          "Baek Sa-heon"
+        ],
+        titles: [
+          "사원"
+        ]
+      },
+      백석주: {
+        aliases: [
+          "백석주 과장",
+          "백석주 조장",
+          "청둥오리",
+          "오리 조장",
+          "A조 조장",
+          "Baek Seok-ju"
+        ],
+        titles: [
+          "과장",
+          "과장님",
+          "조장",
+          "조장님"
+        ]
+      },
+      브라우니: {
+        aliases: [
+          "Brownie"
+        ],
+        titles: [
+          "진행자"
+        ]
+      },
+      블라렛: {
+        aliases: [
+          "블라렛 수녀",
+          "특급 수녀",
+          "Blaret"
+        ],
+        titles: [
+          "수녀",
+          "수녀님"
+        ]
+      },
+      사장: {
+        aliases: [
+          "사장님",
+          "Sa-jang"
+        ],
+        titles: [
+          "사장"
+        ]
+      },
+      살라딘: {
+        aliases: [
+          "살라딘 형님",
+          "Saladin"
+        ],
+        titles: [
+          "형님",
+          "대영웅"
+        ]
+      },
+      서윤지: {
+        aliases: [
+          "서윤지 조정관",
+          "서 조정관",
+          "Seo Yun-ji"
+        ],
+        titles: [
+          "조정관"
+        ]
+      },
+      송주익: {
+        aliases: [
+          "송주익 대리",
+          "주익",
+          "Song Ju-ik"
+        ],
+        titles: [
+          "대리",
+          "막내"
+        ]
+      },
+      송진섭: {
+        aliases: [
+          "송진섭 사원",
+          "진섭",
+          "Song Jin-seob"
+        ],
+        titles: [
+          "사원",
+          "막내"
+        ]
+      },
+      스팡달: {
+        aliases: [
+          "스팡달 선배",
+          "스팡달 선임",
+          "Spangdal"
+        ],
+        titles: [
+          "선임",
+          "선임 요원",
+          "선배"
+        ]
+      },
+      신유리: {
+        aliases: [
+          "신유리 사장",
+          "Shin Yuri"
+        ],
+        titles: [
+          "사채업자"
+        ]
+      },
+      에일린: {
+        aliases: [
+          "에일린 선임",
+          "Aileen",
+          "Eileen"
+        ],
+        titles: [
+          "선임",
+          "선임 요원",
+          "선배"
+        ]
+      },
+      윤병수: {
+        aliases: [
+          "윤병수 대리",
+          "병수",
+          "Yun Byeong-su"
+        ],
+        titles: [
+          "대리",
+          "팀장",
+          "교관"
+        ]
+      },
+      윤지아: {
+        aliases: [
+          "꼬마 조수",
+          "꼬마 선생님",
+          "지아",
+          "Yun Ji-a"
+        ],
+        titles: [
+          "조수",
+          "선생님"
+        ]
+      },
+      은하제: {
+        aliases: [
+          "은하제 대리",
+          "송골매",
+          "Eun Ha-je"
+        ],
+        titles: [
+          "대리"
+        ]
+      },
+      이기석: {
+        aliases: [
+          "이기석 과장",
+          "Lee Gi-seok"
+        ],
+        titles: [
+          "과장",
+          "과장님"
+        ]
+      },
+      이길환: {
+        aliases: [
+          "이길환 과장",
+          "튜토리얼 요정",
+          "Lee Gil-hwan"
+        ],
+        titles: [
+          "과장",
+          "과장님"
+        ]
+      },
+      이도형: {
+        aliases: [
+          "이도형 부장",
+          "이도형 부장님",
+          "흉백",
+          "Lee Do-hyeong"
+        ],
+        titles: [
+          "부장",
+          "부장님"
+        ]
+      },
+      이병진: {
+        aliases: [
+          "이병진 과장",
+          "이 과장",
+          "Lee Byeong-jin"
+        ],
+        titles: [
+          "과장",
+          "과장님"
+        ]
+      },
+      이성해: {
+        aliases: [
+          "이성해 주임",
+          "돌고래 가면",
+          "Lee Seong-hae"
+        ],
+        titles: [
+          "주임"
+        ]
+      },
+      이연화: {
+        aliases: [
+          "이연화 대리",
+          "Lee Yeon-hwa"
+        ],
+        titles: [
+          "대리"
+        ]
+      },
+      이자헌: {
+        aliases: [
+          "이자헌 과장",
+          "이자헌 조장",
+          "도마뱀 과장",
+          "D조 조장",
+          "Lee Ja-heon"
+        ],
+        titles: [
+          "과장",
+          "과장님",
+          "조장",
+          "조장님",
+          "도마뱀"
+        ]
+      },
+      장허운: {
+        aliases: [
+          "장허운 사원",
+          "소 가면",
+          "Jang Heo-un"
+        ],
+        titles: [
+          "사원"
+        ]
+      },
+      잼트리: {
+        aliases: [
+          "잼트리 선배",
+          "잼트리 요원",
+          "모두의 언니",
+          "Jaemtri"
+        ],
+        titles: [
+          "선임",
+          "선임 요원",
+          "선배",
+          "언니"
+        ]
+      },
+      쟈알디: {
+        aliases: [
+          "쟈알디 부장",
+          "쟈알디 부장님",
+          "Jyaldi"
+        ],
+        titles: [
+          "부장",
+          "부장님",
+          "팀장"
+        ]
+      },
+      제이: {
+        aliases: [
+          "J3",
+          "경비반장 제이",
+          "늑대 가면",
+          "Jay"
+        ],
+        titles: [
+          "경비반장",
+          "반장",
+          "반장님"
+        ]
+      },
+      조성춘: {
+        aliases: [
+          "조성춘 과장",
+          "Cho Seong-choon"
+        ],
+        titles: [
+          "과장",
+          "과장님"
+        ]
+      },
+      진나솔: {
+        aliases: [
+          "진나솔 대리",
+          "나솔",
+          "나비 가면",
+          "Jin Na-sol"
+        ],
+        titles: [
+          "대리"
+        ]
+      },
+      차여진: {
+        aliases: [
+          "차여진 조정관",
+          "차 조정관",
+          "Cha Yeo-jin"
+        ],
+        titles: [
+          "조정관"
+        ]
+      },
+      청달래: {
+        aliases: [
+          "청달래 전무",
+          "청 전무",
+          "청 전무님",
+          "Cheong Dal-lae"
+        ],
+        titles: [
+          "전무",
+          "전무님"
+        ]
+      },
+      콘쥬스: {
+        aliases: [
+          "콘쥬스 요원",
+          "Konjyuce"
+        ],
+        titles: [
+          "요원",
+          "막내"
+        ]
+      },
+      큐라스: {
+        aliases: [
+          "큐라스 선배",
+          "Kyuras"
+        ],
+        titles: [
+          "선임",
+          "선임 요원",
+          "선배"
+        ]
+      },
+      호유원: {
+        aliases: [
+          "호유원 이사",
+          "호 이사",
+          "호 이사님",
+          "Ho Yu-won"
+        ],
+        titles: [
+          "이사",
+          "이사님"
+        ]
+      }
+    },
+    ambiguous: {
+      경비반장: [
+        "제이"
+      ],
+      과장: [
+        "곽성주",
+        "곽제강",
+        "김조학",
+        "백석주",
+        "이기석",
+        "이길환",
+        "이병진",
+        "이자헌",
+        "조성춘"
+      ],
+      과장님: [
+        "곽성주",
+        "곽제강",
+        "김조학",
+        "백석주",
+        "이기석",
+        "이길환",
+        "이병진",
+        "이자헌",
+        "조성춘"
+      ],
+      교관: [
+        "윤병수"
+      ],
+      국장: [
+        "도필헌"
+      ],
+      국장님: [
+        "도필헌"
+      ],
+      대리: [
+        "노기균",
+        "송주익",
+        "윤병수",
+        "은하제",
+        "이연화",
+        "진나솔"
+      ],
+      대영웅: [
+        "살라딘"
+      ],
+      도마뱀: [
+        "이자헌"
+      ],
+      막내: [
+        "송주익",
+        "송진섭",
+        "콘쥬스"
+      ],
+      반장: [
+        "제이"
+      ],
+      반장님: [
+        "제이"
+      ],
+      부장: [
+        "이도형",
+        "쟈알디"
+      ],
+      부장님: [
+        "이도형",
+        "쟈알디"
+      ],
+      사무직: [
+        "로제몬"
+      ],
+      사원: [
+        "강이학",
+        "고영은",
+        "김성진",
+        "백사헌",
+        "송진섭",
+        "장허운"
+      ],
+      사장: [
+        "문혜란",
+        "사장"
+      ],
+      사채업자: [
+        "신유리"
+      ],
+      선배: [
+        "고르고디오",
+        "스팡달",
+        "에일린",
+        "잼트리",
+        "큐라스"
+      ],
+      선생님: [
+        "고연지",
+        "윤지아"
+      ],
+      선임: [
+        "고르고디오",
+        "스팡달",
+        "에일린",
+        "잼트리",
+        "큐라스"
+      ],
+      "선임 요원": [
+        "고르고디오",
+        "스팡달",
+        "에일린",
+        "잼트리",
+        "큐라스"
+      ],
+      수녀: [
+        "블라렛"
+      ],
+      수녀님: [
+        "블라렛"
+      ],
+      실장: [
+        "고그니쟈"
+      ],
+      심문관: [
+        "김조학"
+      ],
+      언니: [
+        "문혜란",
+        "잼트리"
+      ],
+      "연구 책임자": [
+        "고그니쟈"
+      ],
+      연구원: [
+        "데쥬레"
+      ],
+      요원: [
+        "게슈간",
+        "데드폴",
+        "로제몬",
+        "콘쥬스"
+      ],
+      원장: [
+        "고연지"
+      ],
+      원장님: [
+        "고연지"
+      ],
+      의사: [
+        "고연지"
+      ],
+      이사: [
+        "호유원"
+      ],
+      이사님: [
+        "호유원"
+      ],
+      적합자: [
+        "고르고디오"
+      ],
+      전무: [
+        "청달래"
+      ],
+      전무님: [
+        "청달래"
+      ],
+      조수: [
+        "윤지아"
+      ],
+      조장: [
+        "백석주",
+        "이자헌"
+      ],
+      조장님: [
+        "백석주",
+        "이자헌"
+      ],
+      조정관: [
+        "서윤지",
+        "차여진"
+      ],
+      주인: [
+        "마덕희"
+      ],
+      주임: [
+        "박민성",
+        "이성해"
+      ],
+      진행자: [
+        "브라우니"
+      ],
+      차장: [
+        "고영훈"
+      ],
+      책임자: [
+        "고그니쟈"
+      ],
+      팀장: [
+        "윤병수",
+        "쟈알디"
+      ],
+      형님: [
+        "고르고디오",
+        "노기균",
+        "살라딘"
+      ]
+    }
+  };
+
+  // src/data/people/address.json
+  var address_default = {
+    version: 1,
+    names: {
+      강이학: {
+        level: 1,
+        register: "존댓말",
+        self: "저",
+        up: "선배님",
+        peer: "동기님",
+        down: "신입님",
+        outsider: "고객님"
+      },
+      게슈간: {
+        level: 1,
+        register: "반말",
+        self: "나",
+        up: "선배",
+        peer: "너",
+        down: "신입",
+        outsider: "너"
+      },
+      고그니쟈: {
+        level: 2,
+        register: "하게체",
+        self: "나",
+        up: "부장",
+        peer: "자네",
+        down: "신입",
+        outsider: "손님"
+      },
+      고르고디오: {
+        level: 2,
+        register: "혼합",
+        self: "",
+        up: "부장님",
+        peer: "동기",
+        down: "막내",
+        outsider: "거기"
+      },
+      고연지: {
+        level: null,
+        register: "혼합",
+        self: "",
+        up: "선생님",
+        peer: "사장님",
+        down: "손님",
+        outsider: "환자분"
+      },
+      고영은: {
+        level: 1,
+        register: "반말",
+        self: "저",
+        up: "선배님",
+        peer: "동기",
+        down: "신입 씨",
+        outsider: "그쪽"
+      },
+      고영훈: {
+        level: 5,
+        register: "존댓말",
+        self: "나",
+        up: "부장님",
+        peer: "차장",
+        down: "대원",
+        outsider: "외부인"
+      },
+      곽성주: {
+        level: 4,
+        register: "반말",
+        self: "나",
+        up: "부장님",
+        peer: "과장",
+        down: "이놈아",
+        outsider: "거기"
+      },
+      곽제강: {
+        level: 4,
+        register: "존댓말",
+        self: "저",
+        up: "부장님",
+        peer: "과장님",
+        down: "요원님",
+        outsider: "손님"
+      },
+      김성진: {
+        level: 1,
+        register: "반말",
+        self: "",
+        up: "선배님",
+        peer: "동기",
+        down: "신입",
+        outsider: "너"
+      },
+      김조학: {
+        level: 4,
+        register: "반말",
+        self: "나",
+        up: "차장님",
+        peer: "과장",
+        down: "야",
+        outsider: "너"
+      },
+      노기균: {
+        level: 3,
+        register: "존댓말",
+        self: "",
+        up: "과장님",
+        peer: "대리",
+        down: "신입",
+        outsider: "너"
+      },
+      데드폴: {
+        level: 1,
+        register: "존댓말",
+        self: "저",
+        up: "선배님",
+        peer: "요원님",
+        down: "신입 요원님",
+        outsider: "그쪽 분"
+      },
+      데쥬레: {
+        level: 1,
+        register: "존댓말",
+        self: "저",
+        up: "선배님",
+        peer: "요원님",
+        down: "신입 요원님",
+        outsider: "외부 분"
+      },
+      도필헌: {
+        level: 7,
+        register: "하게체",
+        self: "나",
+        up: "사장님",
+        peer: "국장",
+        down: "자네",
+        outsider: "손님"
+      },
+      로제몬: {
+        level: 1,
+        register: "반말",
+        self: "나",
+        up: "선배",
+        peer: "너",
+        down: "신입",
+        outsider: "거기"
+      },
+      마덕희: {
+        level: null,
+        register: "존댓말",
+        self: "",
+        up: "사장님",
+        peer: "자기",
+        down: "자기",
+        outsider: "자기"
+      },
+      문혜란: {
+        level: null,
+        register: "반말",
+        self: "언니",
+        up: "사장님",
+        peer: "친구",
+        down: "친구",
+        outsider: "친구"
+      },
+      박민성: {
+        level: 2,
+        register: "혼합",
+        self: "",
+        up: "선배님",
+        peer: "동기",
+        down: "신입",
+        outsider: "그쪽"
+      },
+      백사헌: {
+        level: 1,
+        register: "혼합",
+        self: "",
+        up: "선배님",
+        peer: "동기님",
+        down: "신입",
+        outsider: "그쪽"
+      },
+      백석주: {
+        level: 4,
+        register: "혼합",
+        self: "",
+        up: "부장님",
+        peer: "과장님",
+        down: "막내",
+        outsider: "그쪽"
+      },
+      브라우니: {
+        level: null,
+        register: "존댓말",
+        self: "",
+        up: "친구",
+        peer: "친구",
+        down: "친구",
+        outsider: "친구"
+      },
+      블라렛: {
+        level: null,
+        register: "존댓말",
+        self: "저",
+        up: "신부님",
+        peer: "자매님",
+        down: "어린 양",
+        outsider: "손님"
+      },
+      사장: {
+        level: 9,
+        register: "존댓말",
+        self: "저",
+        up: "선생님",
+        peer: "그쪽",
+        down: "당신",
+        outsider: "당신"
+      },
+      살라딘: {
+        level: null,
+        register: "하오체",
+        self: "나",
+        up: "형제",
+        peer: "형제",
+        down: "형제",
+        outsider: "그대"
+      },
+      서윤지: {
+        level: null,
+        register: "존댓말",
+        self: "저",
+        up: "선임 조정관님",
+        peer: "조정관님",
+        down: "신입 조정관님",
+        outsider: "방문자님"
+      },
+      송주익: {
+        level: 3,
+        register: "존댓말",
+        self: "",
+        up: "과장님",
+        peer: "선배님",
+        down: "신입",
+        outsider: "너"
+      },
+      송진섭: {
+        level: 1,
+        register: "존댓말",
+        self: "",
+        up: "선배님",
+        peer: "형",
+        down: "후배",
+        outsider: "그쪽"
+      },
+      스팡달: {
+        level: 2,
+        register: "존댓말",
+        self: "",
+        up: "부장님",
+        peer: "동기",
+        down: "신입",
+        outsider: "너"
+      },
+      신유리: {
+        level: null,
+        register: "반말",
+        self: "",
+        up: "사장",
+        peer: "너",
+        down: "너",
+        outsider: "너"
+      },
+      에일린: {
+        level: 2,
+        register: "반말",
+        self: "",
+        up: "부장",
+        peer: "동기",
+        down: "신입",
+        outsider: "너"
+      },
+      윤병수: {
+        level: 3,
+        register: "반말",
+        self: "",
+        up: "과장님",
+        peer: "대리",
+        down: "너",
+        outsider: "너"
+      },
+      윤지아: {
+        level: null,
+        register: "존댓말",
+        self: "저",
+        up: "선생님",
+        peer: "사장님",
+        down: "손님",
+        outsider: "손님"
+      },
+      은하제: {
+        level: 3,
+        register: "혼합",
+        self: "",
+        up: "선배님",
+        peer: "동기",
+        down: "신입",
+        outsider: "댁"
+      },
+      이기석: {
+        level: 4,
+        register: "존댓말",
+        self: "저",
+        up: "차장님",
+        peer: "과장님",
+        down: "요원님",
+        outsider: "손님"
+      },
+      이길환: {
+        level: 4,
+        register: "존댓말",
+        self: "저",
+        up: "부장님",
+        peer: "과장님",
+        down: "요원님",
+        outsider: "선생님"
+      },
+      이도형: {
+        level: 6,
+        register: "반말",
+        self: "나",
+        up: "국장님",
+        peer: "부장",
+        down: "거기",
+        outsider: "너"
+      },
+      이병진: {
+        level: 4,
+        register: "혼합",
+        self: "",
+        up: "부장님",
+        peer: "과장님",
+        down: "자네",
+        outsider: "그쪽 분"
+      },
+      이성해: {
+        level: 2,
+        register: "존댓말",
+        self: "저",
+        up: "선배님",
+        peer: "선배님",
+        down: "신입님",
+        outsider: "손님"
+      },
+      이연화: {
+        level: 3,
+        register: "존댓말",
+        self: "",
+        up: "선배님",
+        peer: "선생님",
+        down: "신입 씨",
+        outsider: "그쪽 분"
+      },
+      이자헌: {
+        level: 4,
+        register: "존댓말",
+        self: "저",
+        up: "부장님",
+        peer: "조장님",
+        down: "신입 님",
+        outsider: "손님"
+      },
+      장허운: {
+        level: 1,
+        register: "존댓말",
+        self: "저",
+        up: "선배님",
+        peer: "동기분",
+        down: "후배님",
+        outsider: "선생님"
+      },
+      잼트리: {
+        level: 2,
+        register: "존댓말",
+        self: "언니",
+        up: "부장님",
+        peer: "동기",
+        down: "후배",
+        outsider: "손님"
+      },
+      쟈알디: {
+        level: 3,
+        register: "반말",
+        self: "나",
+        up: "선배",
+        peer: "자네",
+        down: "요원",
+        outsider: "그쪽"
+      },
+      제이: {
+        level: null,
+        register: "존댓말",
+        self: "저",
+        up: "높으신 분",
+        peer: "직원분",
+        down: "신입분",
+        outsider: "손님"
+      },
+      조성춘: {
+        level: 4,
+        register: "반말",
+        self: "나",
+        up: "부장님",
+        peer: "과장",
+        down: "이 자식아",
+        outsider: "너"
+      },
+      진나솔: {
+        level: 3,
+        register: "혼합",
+        self: "",
+        up: "선배님",
+        peer: "너",
+        down: "신입",
+        outsider: "거기"
+      },
+      차여진: {
+        level: null,
+        register: "반말",
+        self: "나",
+        up: "선배",
+        peer: "자기",
+        down: "신입",
+        outsider: "손님"
+      },
+      청달래: {
+        level: 8,
+        register: "하게체",
+        self: "",
+        up: "자네",
+        peer: "자네",
+        down: "자네",
+        outsider: "자네"
+      },
+      콘쥬스: {
+        level: 1,
+        register: "존댓말",
+        self: "저",
+        up: "선배님",
+        peer: "선배님",
+        down: "신입 선배님",
+        outsider: "아저씨"
+      },
+      큐라스: {
+        level: 2,
+        register: "존댓말",
+        self: "",
+        up: "부장님",
+        peer: "동기",
+        down: "신입",
+        outsider: "너"
+      },
+      호유원: {
+        level: 7,
+        register: "존댓말",
+        self: "저",
+        up: "전무님",
+        peer: "이사님",
+        down: "직원님",
+        outsider: "손님"
+      }
+    }
+  };
+
+  // src/core/people/identity.ts
+  var ORG_CODES = [
+    [/가짜\s*관리국|fake/i, "B00"],
+    [/관리국|management bureau|bureau/i, "A00"],
+    [/백일몽|daydream/i, "C00"],
+    [/민간|civilian|시민/i, "D00"],
+    [/프리랜서|freelancer|협회 등록/i, "E00"]
+  ];
+  function factionCode(org) {
+    const t = org.trim();
+    if (/^[A-Z]00$/.test(t)) return t;
+    for (const [re, code2] of ORG_CODES) if (re.test(t)) return code2;
+    return "";
+  }
+  function rankLevel(faction, rank3) {
+    const r = rank3.replace(/\s+/g, "");
+    if (!r || /^(-|없음|미정)$/.test(r)) return null;
+    if (/신입|교육생|인턴|수습|trainee|rookie/i.test(r)) return 0;
+    if (faction === "A00") {
+      if (/부장|팀장|chief/i.test(r)) return 3;
+      if (/선임|책임자|senior|lead/i.test(r)) return 2;
+      if (/요원|연구원|agent|researcher/i.test(r)) return 1;
+      return null;
+    }
+    if (faction === "B00" || faction === "C00") {
+      const table2 = [[/사장|ceo/i, 9], [/전무/, 8], [/국장|이사|director/i, 7], [/부장/, 6], [/차장/, 5], [/과장|manager/i, 4], [/대리/, 3], [/주임/, 2], [/사원|직원|staff/i, 1]];
+      for (const [re, n3] of table2) if (re.test(r)) return n3;
+      return null;
+    }
+    if (faction === "E00") {
+      if (/특급/.test(r)) return 5;
+      const m = /([1-5])\s*급/.exec(r);
+      if (m) return 5 - Number(m[1]);
+      if (/정예/.test(r)) return 4;
+      if (/선임/.test(r)) return 3;
+      if (/숙련/.test(r)) return 2;
+      if (/일반/.test(r)) return 1;
+      if (/임시/.test(r)) return 0;
+    }
+    return null;
+  }
+  function parseIdentity(text5, anchor, from = "status") {
+    const t = String(text5 ?? "").trim();
+    if (!t || t === "없음" || t === "-") return null;
+    const [org, ...rest] = t.split(/[\/|·,]/).map((x) => x.trim());
+    const rank3 = rest.join(" ").replace(/^-$/, "");
+    const faction = factionCode(org);
+    return { faction: faction || org, rank: rank3, level: rankLevel(faction, rank3), from, anchor };
+  }
+  var identityText = (id2) => id2 ? `${activeOrgName(id2.faction)}/${id2.rank || "-"}` : "";
+  function relativeRank(user, personFaction, personLevel) {
+    if (!user || !user.faction || user.faction !== personFaction) return "outsider";
+    const u = user.level ?? 0;
+    if (personLevel === null) return "peer";
+    return u > personLevel ? "up" : u < personLevel ? "down" : "peer";
+  }
+  function factionCodesIn(text5, extra2 = {}) {
+    const out2 = [];
+    let t = text5;
+    for (const [re, code2] of ORG_CODES) {
+      if (re.test(t)) {
+        out2.push(code2);
+        t = t.replace(new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g"), " ");
+      }
+    }
+    for (const [code2, name] of Object.entries(extra2)) if (!out2.includes(code2) && name && t.includes(name)) out2.push(code2);
+    return out2;
+  }
+
+  // src/core/people/base.ts
+  var RELATIONS = relations_base_default;
+  var ALIASES = aliases_default;
+  var ADDRESS = address_default;
+  function seedAddress(name, faction, user) {
+    const row8 = ADDRESS.names[name];
+    if (!row8) return void 0;
+    const rel = relativeRank(user, faction, row8.level);
+    const register = REGISTERS.includes(row8.register) ? row8.register : "존댓말";
+    return { toUser: row8[rel] || row8.outsider || "", register };
+  }
+  var rosterEnglish = (row8) => [row8.english, ...row8.legacyEnglish].map((x) => x.trim()).filter(Boolean);
+  function seedBaseFor(name, userFaction3, user, row8) {
+    const b = RELATIONS.people[name];
+    const fromRow = !b && row8 ? row8 : void 0;
+    const faction = b?.faction ?? (fromRow && !placeholderOrgs().has(fromRow.affiliation) ? fromRow.affiliation : "");
+    const alias = ALIASES.names[name];
+    const address = seedAddress(name, faction, user);
+    return {
+      faction,
+      ...b ? { express: b.express } : {},
+      affinityBase: userAffinityBase(faction, userFaction3),
+      aliases: [.../* @__PURE__ */ new Set([...alias?.aliases ?? [], ...b?.english ?? [], ...fromRow ? rosterEnglish(fromRow) : []])],
+      ...address ? { address } : {}
+    };
+  }
+  var valuesOf = (name) => RELATIONS.people[name]?.values ?? "";
+  var temperOf = (name) => RELATIONS.people[name]?.temper;
+  function userAffinityBase(personFaction, userFaction3) {
+    if (!personFaction || !userFaction3 || personFaction === userFaction3) return 0;
+    return STAGE_VALUE[relationStage(personFaction, userFaction3)];
+  }
+  var factionBase = (code2, userFaction3) => userAffinityBase(code2, userFaction3);
+  function allNames(roster = []) {
+    const out2 = new Map(Object.entries(ALIASES.names).map(([name, v]) => [name, { name, aliases: [.../* @__PURE__ */ new Set([...v.aliases ?? [], ...RELATIONS.people[name]?.english ?? []])], titles: v.titles ?? [] }]));
+    for (const row8 of roster) {
+      if (!row8.name) continue;
+      const cur = out2.get(row8.name);
+      if (cur) cur.aliases = [.../* @__PURE__ */ new Set([...cur.aliases, ...rosterEnglish(row8)])];
+      else out2.set(row8.name, { name: row8.name, aliases: [...new Set(rosterEnglish(row8))], titles: [] });
+    }
+    return [...out2.values()];
+  }
+  var extraNames2 = (roster = []) => Object.fromEntries(allNames(roster).map((e) => [e.name, { aliases: e.aliases, titles: e.titles }]));
+
+  // src/core/timing.ts
+  var TIME_SPEC = {
+    /** 모델 호출이 아무 응답도 없을 때(받는 중이면 마지막 조각부터) 실패로 보는 시간 */
+    modelIdle: { label: "모델 응답 대기", def: 5, lo: 1, hi: 60, unit: "분" },
+    /** 모델 일시 오류 뒤 같은 요청을 다시 보내기 전에 쉬는 시간 */
+    retryGap: { label: "재시도 간격", def: 1200, lo: 0, hi: 1e4, unit: "밀리초" },
+    /** 본편 응답을 기다리는 시간 (「사용」 잠금·대기 연출) */
+    mainWait: { label: "메인 응답 대기", def: 3, lo: 1, hi: 30, unit: "분" },
+    /** 그 시간이 다 됐는데 아직 만드는 중이면 다시 확인할 때까지 */
+    mainAgain: { label: "응답 다시 확인", def: 30, lo: 5, hi: 300, unit: "초" },
+    /** 응답 대기 중 「취소」를 한 번 더 눌러야 통과하는 시간 */
+    cancelTwice: { label: "취소 두 번 누르기", def: 5, lo: 1, hi: 30, unit: "초" },
+    /** 호출 진행 창이 본편 응답을 기다리다 실패로 닫는 시간 */
+    progWatch: { label: "진행 감시", def: 10, lo: 1, hi: 60, unit: "분" },
+    /** 호출 진행 창이 끝난 턴을 펼친 채 두는 시간 (성공 · 실패) */
+    progHideOk: { label: "진행 창 펼침 (성공)", def: 5, lo: 1, hi: 60, unit: "초" },
+    progHideFail: { label: "진행 창 펼침 (실패)", def: 10, lo: 1, hi: 120, unit: "초" }
+  };
+  var TIME_KEYS = Object.keys(TIME_SPEC);
+  var times = {};
+  function setTimes(raw) {
+    const o = raw && typeof raw === "object" ? raw : {};
+    const out2 = {};
+    for (const k of TIME_KEYS) {
+      const n3 = o[k];
+      const s8 = TIME_SPEC[k];
+      if (typeof n3 === "number" && Number.isInteger(n3) && n3 >= s8.lo && n3 <= s8.hi && n3 !== s8.def) out2[k] = n3;
+    }
+    times = out2;
+    return out2;
+  }
+  var timeOf = (k) => times[k] ?? TIME_SPEC[k].def;
+  var timeMs = (k) => {
+    const u = TIME_SPEC[k].unit;
+    return timeOf(k) * (u === "분" ? 6e4 : u === "초" ? 1e3 : 1);
+  };
+
+  // src/core/imgtag.ts
+  var TAG2 = /\s*<img=["']?([^_>"']+)_([^>"']+)["']?>\s*/g;
+  var ANY_TAG = /<img=.*?>/g;
+  var IMG_RECENT = { min: 1, max: 30, step: 1, def: 6 };
+  var imgRecent = (v) => {
+    const n3 = typeof v === "string" && v.trim() ? Number(v) : v;
+    return typeof n3 === "number" && Number.isInteger(n3) && (n3 === 0 || n3 >= IMG_RECENT.min && n3 <= IMG_RECENT.max) ? n3 : null;
+  };
+  var BASE_STYLE = "display:block;margin:auto;width:100%;max-width:32em;aspect-ratio:1/1;overflow:hidden;border-radius:20px;background-repeat:no-repeat;background-size:100% auto;background-position:center top";
+  function hasImgTag(text5) {
+    return text5.includes("<img=");
+  }
+  function imgTagNames(text5) {
+    return [...new Set([...text5.matchAll(TAG2)].map((m) => m[1].trim()).filter(Boolean))];
+  }
+  var SELF = "{{source::user}}";
+  var ADDED_EMOTIONS = ["suspicious", "worried", "relieved", "disgusted", "determined", "jealous", "pleading", "forced smiling", "indifferent", "guilty", "pouting", "angry smile", "expressionless", "tormented", "crazy smile"];
+  var EMOTIONS = /* @__PURE__ */ new Set([..."default angry annoyed bored confused contemptuous crying curious dumbfounded embarrassed excited exhausted happy laughing lovestruck lustful nervous proud sad scared serious shy smile smirk smug surprised thinking".split(" "), ...ADDED_EMOTIONS]);
+  var tagName2 = (who, expr, pick5, self) => {
+    const name = who.trim();
+    const e = expr.trim();
+    const want = `${name}_${e}`;
+    const spaced = e.includes("_") ? `${name}_${e.replace(/_/g, " ")}` : "";
+    const find = pick5 && (() => pick5(want) ?? (spaced ? pick5(spaced) : null));
+    if (self && name === self.trim()) return find?.() ?? SELF;
+    if (find) return find();
+    if (EMOTIONS.has(e.toLowerCase())) return want;
+    return spaced && EMOTIONS.has(e.replace(/_/g, " ").toLowerCase()) ? spaced : null;
+  };
+  function imgTagsKnown(text5, pick5, self) {
+    if (!pick5) return false;
+    const all = [...text5.matchAll(TAG2)];
+    return all.length > 0 && all.some((m) => !!tagName2(m[1], m[2], pick5, self));
+  }
+  function renderImgTags(text5, pick5, recent = IMG_RECENT.def, self) {
+    return text5.replace(TAG2, (_m, who, expr) => {
+      const name = tagName2(who, expr, pick5, self);
+      if (!name || name !== SELF && /[{}'"<>\\]/.test(name)) return "\n\n";
+      const url = name === SELF ? SELF : `{{raw::${name}}}`;
+      const box3 = `<div class="gim" style="${BASE_STYLE};background-image:url('${url}')" tabindex="0"></div>`;
+      return `
+
+${recent > 0 ? `{{#when {{greater_equal::{{chat_index}}::{{? {{lastmessageid}}-${recent - 1}}}}}}}${box3}{{/when}}` : box3}
+
+`;
+    });
+  }
+  var keepImgTagsInRequest = (assetOn, assetModel) => assetOn && assetModel === "main";
+  function stripOldImgTags(messages, recent = IMG_RECENT.def) {
+    if (recent <= 0) return messages;
+    let seen4 = 0;
+    let changed = false;
+    const out2 = [...messages];
+    for (let i = out2.length - 1; i >= 0; i--) {
+      const m = out2[i];
+      if (!m || m.role === "system") continue;
+      seen4++;
+      if (seen4 <= recent || typeof m.content !== "string" || !m.content.includes("<img=")) continue;
+      out2[i] = { ...m, content: m.content.replace(ANY_TAG, "") };
+      changed = true;
+    }
+    return changed ? out2 : messages;
+  }
+  var IMG_SIZE = { min: 30, max: 200, step: 1, def: 100 };
+  var IMG_FOLD = { min: 20, max: 100, step: 1, def: 68 };
+  var BASE_EM = 32;
+  var W = 832;
+  var H = 1216;
+  function pct(v, r) {
+    const n3 = typeof v === "string" && v.trim() ? Number(v) : v;
+    return typeof n3 === "number" && Number.isInteger(n3) && n3 >= r.min && n3 <= r.max ? n3 : null;
+  }
+  var imgSize = (v) => pct(v, IMG_SIZE);
+  var imgFold = (v) => pct(v, IMG_FOLD);
+  function imgCss(size = IMG_SIZE.def, fold = IMG_FOLD.def, hidden = false, lock = false) {
+    const g3 = ":is(.gim,.x-risu-gim,.ib-asset-hover,.x-risu-ib-asset-hover)";
+    if (hidden) return `${g3}{display:none!important}`;
+    const open3 = fold >= 100;
+    const folded = open3 ? `${W}/${H}` : `${W}/${Math.round(H * fold) / 100}`;
+    return `${g3}{display:block!important;box-sizing:border-box;margin:auto;width:100%;max-width:${Math.round(BASE_EM * size) / 100}em!important;aspect-ratio:${folded}!important;overflow:hidden;border-radius:20px;background-color:transparent;background-repeat:no-repeat;background-size:100% auto;background-position:center top;cursor:${open3 || lock ? "default" : "pointer"};outline:none;transition:aspect-ratio .45s ease;-webkit-mask-image:-webkit-radial-gradient(white,black)}` + (open3 || lock ? "" : `${g3}:hover,${g3}:focus{aspect-ratio:${W}/${H}!important}`);
+  }
+  var hiddenNow = false;
+  var imgHidden = () => hiddenNow;
+  function setImgHidden(v) {
+    if (v === hiddenNow) return false;
+    hiddenNow = v;
+    return true;
+  }
+
+  // src/core/settings.ts
+  var ST = {
+    assetOn: "$st_asset_on",
+    assetModel: "$st_asset_model",
+    assetPlayer: "$st_asset_player",
+    assetLimit: "$st_asset_limit",
+    agentLimit: "$st_agent_limit",
+    supportOn: "$st_support_on"
+  };
+  var AGENT_MAX = 20;
+  var BASIC_DEFAULTS = { anomalyOn: true, assetOn: true, assetModel: "main", assetPlayer: false, assetLimit: 2, agentLimit: 12, supportOn: true };
+  var WORLD_SPEC = [
+    ["추가 발생 여유분", "extra_cap", null, false],
+    ["미스틱 사이트 추가 여유분", "extra_ms_cap", null, false],
+    ["인시던트 추가 여유분", "extra_in_cap", null, false],
+    ["프리셋 괴이 상한", "preset_cap", null, false],
+    ["프리셋 괴이 발생 확률", "preset_p", 100, false],
+    ["랜덤 괴이 상한", "random_cap", null, false],
+    ["랜덤 괴이 발생 확률", "random_p", 100, false],
+    ["인시던트 상한", "incident_cap", null, false],
+    ["인시던트 발생 확률", "incident_p", 100, false],
+    ["미스틱 사이트 상한", "mystic_cap", null, false],
+    ["미스틱 사이트 발생 확률", "mystic_p", 100, false],
+    ["프리셋 자동 종료", "preset_expire", 1, false],
+    ["랜덤 괴이 자동 종료", "random_expire", 1, false],
+    ["인시던트 자동 종료", "incident_expire", 1, false],
+    ["미스틱 사이트 자동 종료", "mystic_expire", 1, false],
+    ["프리셋 괴이 RP 유지 시간", "preset_ttl", 8760, true],
+    ["랜덤 괴이 RP 유지 시간", "random_ttl", 8760, true],
+    ["인시던트 RP 유지 시간", "incident_ttl", 8760, true],
+    ["미스틱 사이트 RP 유지 시간", "mystic_ttl", 8760, true],
+    ["인시던트 중 거점 비율", "landmark_share", 100, false],
+    ["클리어 기록 상한", "cleared_cap", 1e3, false]
+  ].map(([label2, key, max, fraction]) => ({ key, label: label2, max, fraction }));
+  var wgKey = (key) => `$wg_${key}`;
+  function worldValue(f, v) {
+    const n3 = num2(v);
+    if (n3 === null || n3 < 0 || f.max !== null && n3 > f.max || !f.fraction && !Number.isInteger(n3)) return null;
+    return n3;
+  }
+  var cache5 = /* @__PURE__ */ new WeakMap();
+  var DIAG_KEEP_DEFAULT = { ok: 10, fail: 30 };
+  var DIAG_KEEP_RANGE = [1, 50];
+  var TRACE_KEEP_DEFAULT = 5;
+  var TRACE_KEEP_RANGE = [1, 20];
+  var CONSULT_KEEP_DEFAULT = { lines: 80, chats: 30 };
+  var CONSULT_LINES_RANGE = [20, 500];
+  var CONSULT_CHATS_RANGE = [1, 100];
+  var DIM_DEFAULT = 50;
+  var prefs = { basic: {}, world: {} };
+  var PREF_VAR = /^(\$ph_(model|auto|status|related|context|incoming|incoming_chance|group_invites|group_invite_chance|announcements|announcement_gap|announcement_history|announcement_page_size|all_contacts|anomaly_contacts|storage_(auto|limit)_(dm|group|notice))|\$lb_cfg_lb-(gn|gal|wpf|sm)\.[a-z_]+|\$(gn|gal|wpf|sm)_storage_(auto|limit)_dm|\$nw_(mode|model|length|refresh_previous|writing_request|context)|\$ph_context_(messages|announcements)|\$(ph|nw)_adv_[a-z_]+|\$hq_(adv_[a-z_]+|ui)|\$gen_[a-z_]+|\$pp_[a-z_]+|\$jr_[a-z_]+|\$st_col_(date|time|weather|temp|place|target|companions|deployed|identity|wallet|points)|\$st_wallet_(edit|sync|loose|recent|cap)|\$it_(on|slots|limit|push|auto|start|spent|state|detail|logturns|logcap|away_turns|list_cap|rules|left_words|off_words|scope|skip|act_gap_min|act_gap_max)|\$sh_[a-z_]+|\$(cos|bm|hs)_sh_[a-z_]+|\$hs_on|\$net_joint|\$ph_(habits|reactions|banter|banter_chance|banter_min|banter_max|view_(auto|preset|pov|speak|scope|size))|\$nw_(auto|footnotes|images)|\$it_(carry|edit|icon_alias|icon_pool)|\$(cos|bm)_roll_(on|genres|tiers|useful|gmode|tmode)|\$bm_desk_(on|axes|again|avoid|keep)|\$cos_(ready|truth|fixed)|\$hs_(say_host|say_flow|prev_keep|talk_keep|order_keep|log_keep|net|chat_min|chat_max|chat_gap|cue_min|cue_max|say_cue_min|say_cue_max|say_chat_min|say_chat_max|read|drop|drop_rate|drop_fast|drop_step|soon_at|end_lo|end_hi|main|main_kinds|main_tokens|main_turns|speed|hold|frame|fx_cut|fx_bulb|fx_tear|tear_p|fx_scan|fill_lo|fill_hi|fill_cool|rare_p|rare_cool|clips|scale_pc|scale_ph|next|turn|lock|left|call_lo|call_hi|aud_on|peek|say|barter|talk|tel|retry))$/;
+  function getPrefs() {
+    return prefs;
+  }
+  function isChatSettingVar(k) {
+    return PREF_VAR.test(k) || k === "$st_anomaly_on" || Object.values(ST).includes(k) || WORLD_SPEC.some((f) => wgKey(f.key) === k);
+  }
+  function chatSettingVars(ss) {
+    const out2 = {};
+    for (const [k, v] of Object.entries(ss ?? {})) if (isChatSettingVar(k) && v !== void 0 && v !== null && v !== "") out2[k] = String(v);
+    return out2;
+  }
+  function setPrefs(raw) {
+    const o = raw && typeof raw === "object" ? raw : {};
+    const b = o.basic && typeof o.basic === "object" ? o.basic : {};
+    const w = o.world && typeof o.world === "object" ? o.world : {};
+    const basic = {};
+    if (typeof b.anomalyOn === "boolean") basic.anomalyOn = b.anomalyOn;
+    if (typeof b.assetOn === "boolean") basic.assetOn = b.assetOn;
+    if (b.assetModel === "main" || b.assetModel === "aux") basic.assetModel = b.assetModel;
+    if (typeof b.assetPlayer === "boolean") basic.assetPlayer = b.assetPlayer;
+    const al = int2(b.assetLimit, 1, 4);
+    if (al !== null) basic.assetLimit = al;
+    const ag = int2(b.agentLimit, 0, AGENT_MAX);
+    if (ag !== null) basic.agentLimit = ag;
+    if (typeof b.supportOn === "boolean") basic.supportOn = b.supportOn;
+    const world2 = {};
+    for (const f of WORLD_SPEC) {
+      const n3 = worldValue(f, w[f.key]);
+      if (n3 !== null) world2[f.key] = n3;
+    }
+    const theme = o.theme === "light" || o.theme === "dark" || o.theme === "paper" ? o.theme : void 0;
+    const vars = {};
+    if (o.vars && typeof o.vars === "object") {
+      for (const [k, v] of Object.entries(o.vars)) if (PREF_VAR.test(k) && typeof v === "string") vars[k] = v;
+    }
+    const nav = o.nav === "right" ? "right" : void 0;
+    const look = typeof o.look === "string" && /^\d+\.\d+$/.test(o.look) ? o.look : void 0;
+    const wikiSide = o.wikiSide === "left" ? "left" : o.wikiSide === "right" ? "right" : void 0;
+    const agents = o.agents === "list" ? "list" : void 0;
+    const dim = int2(o.dim, 0, 100);
+    const status2 = o.status === "off" || o.status === "light" || o.status === "dark" || o.status === "paper" ? o.status : void 0;
+    const size = imgSize(o.imgSize);
+    const fold = imgFold(o.imgFold);
+    const imgFoldOn = o.imgFoldOn === false ? false : void 0;
+    const imgFoldLock = o.imgFoldLock === true ? true : void 0;
+    const imgNamesScene = o.imgNamesScene === true ? true : void 0;
+    const show = imgRecent(o.imgShow);
+    const send2 = imgRecent(o.imgSend);
+    const strList = (v, max, len) => Array.isArray(v) ? v.filter((x) => typeof x === "string" && !!x.trim()).map((x) => x.trim().slice(0, len)).slice(0, max) : [];
+    const imgPrompt = typeof o.imgPrompt === "string" && o.imgPrompt.trim() ? o.imgPrompt.slice(0, 6e3) : void 0;
+    const imgNamesOff = strList(o.imgNamesOff, 200, 40);
+    const imgNamesExtra = strList(o.imgNamesExtra, 60, 40);
+    const imgKeywords = strList(o.imgKeywords, 60, 24);
+    const editorWidth = int2(o.editorWidth, 50, 100);
+    const guides = {};
+    if (o.guides && typeof o.guides === "object") {
+      for (const [k, v] of Object.entries(o.guides)) if (isGuideName(k) && typeof v === "string" && v.trim()) guides[k] = v.slice(0, 12e4);
+    }
+    for (const k of GUIDE_NAMES) setGuideOverride(k, guides[k]);
+    const rules3 = [];
+    if (Array.isArray(o.rules)) {
+      for (const r of o.rules) {
+        if (!r || typeof r !== "object" || typeof r.id !== "string") continue;
+        const to = (Array.isArray(r.to) ? r.to : []).filter((t) => RULE_TARGETS.includes(String(t)));
+        rules3.push({ id: r.id.slice(0, 40), title: String(r.title ?? "").slice(0, 80), text: String(r.text ?? "").slice(0, 2e4), to, on: r.on !== false });
+        if (rules3.length >= 100) break;
+      }
+    }
+    setUserRules(rules3);
+    const relationsSym = o.relationsSym === false ? false : void 0;
+    const frame = o.frame === "none" || o.frame === "tactical" ? o.frame : void 0;
+    const walletStart = int2(o.walletStart, 0, 1e12);
+    const diagOk = int2(o.diagKeep, ...DIAG_KEEP_RANGE);
+    const diagFail = int2(o.diagFailKeep, ...DIAG_KEEP_RANGE);
+    const traceKeep = int2(o.traceKeep, ...TRACE_KEEP_RANGE);
+    const consultLines = int2(o.consultLines, ...CONSULT_LINES_RANGE);
+    const consultChats = int2(o.consultChats, ...CONSULT_CHATS_RANGE);
+    const times2 = setTimes(o.times);
+    const noticedReports = Array.isArray(o.noticedReports) ? [...new Set(o.noticedReports.filter((x) => typeof x === "string" && !!x.trim()).map((x) => x.slice(0, 80)))].slice(-50) : [];
+    prefs = { basic, world: world2, ...walletStart !== null ? { walletStart } : {}, ...diagOk !== null ? { diagKeep: diagOk } : {}, ...diagFail !== null ? { diagFailKeep: diagFail } : {}, ...traceKeep !== null ? { traceKeep } : {}, ...consultLines !== null ? { consultLines } : {}, ...consultChats !== null ? { consultChats } : {}, ...Object.keys(times2).length ? { times: times2 } : {}, ...frame ? { frame } : {}, ...editorWidth !== null ? { editorWidth } : {}, ...Object.keys(guides).length ? { guides } : {}, ...rules3.length ? { rules: rules3 } : {}, ...relationsSym === false ? { relationsSym } : {}, ...theme ? { theme } : {}, ...imgPrompt ? { imgPrompt } : {}, ...imgNamesOff.length ? { imgNamesOff } : {}, ...imgNamesExtra.length ? { imgNamesExtra } : {}, ...imgKeywords.length ? { imgKeywords } : {}, ...Object.keys(vars).length ? { vars } : {}, ...nav ? { nav } : {}, ...look ? { look } : {}, ...o.progress === false ? { progress: false } : {}, ...o.consultModel === "main" ? { consultModel: "main" } : {}, ...wikiSide ? { wikiSide } : {}, ...agents ? { agents } : {}, ...dim !== null ? { dim } : {}, ...status2 ? { status: status2 } : {}, ...size !== null ? { imgSize: size } : {}, ...fold !== null ? { imgFold: fold } : {}, ...imgFoldOn === false ? { imgFoldOn } : {}, ...imgFoldLock ? { imgFoldLock } : {}, ...imgNamesScene ? { imgNamesScene } : {}, ...show !== null ? { imgShow: show } : {}, ...send2 !== null ? { imgSend: send2 } : {}, ...noticedReports.length ? { noticedReports } : {} };
+    return prefs;
+  }
+  function readSettingsBook(lore) {
+    const list4 = lore ?? [];
+    const hit4 = cache5.get(list4);
+    if (hit4) return hit4;
+    let out2 = { basic: {}, world: {} };
+    for (const name of ["Settings", "통합설정"]) {
+      const books = list4.filter((e) => e.comment === name && typeof e.content === "string" && e.content.trim());
+      if (!books.length) continue;
+      const chosen = books.reduce((a, b) => Number(b.insertorder ?? b.insertion_order ?? 0) > Number(a.insertorder ?? a.insertion_order ?? 0) ? b : a);
+      try {
+        const data3 = JSON.parse(String(chosen.content).replace(/^﻿/, "").trim());
+        const obj9 = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
+        out2 = { basic: obj9(data3["기본설정"]), world: obj9(data3["괴이생성"]) };
+      } catch {
+      }
+      break;
+    }
+    cache5.set(list4, out2);
+    return out2;
+  }
+  function num2(v) {
+    if (typeof v === "boolean") return v ? 1 : 0;
+    const n3 = typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN;
+    return Number.isFinite(n3) ? n3 : null;
+  }
+  function int2(v, min, max) {
+    const n3 = num2(v);
+    return n3 !== null && Number.isInteger(n3) && n3 >= min && n3 <= max ? n3 : null;
+  }
+  function flag(v) {
+    if (v === true || v === "1" || v === 1 || v === "ON") return true;
+    if (v === false || v === "0" || v === 0 || v === "OFF") return false;
+    return null;
+  }
+  function model(v) {
+    if (v === "main" || v === "메인") return "main";
+    if (v === "aux" || v === "보조") return "aux";
+    return null;
+  }
+  function basicDefaults(lore) {
+    const b = readSettingsBook(lore).basic;
+    const book2 = {
+      anomalyOn: flag(b["상황판"] ?? b["통합관제"]) ?? BASIC_DEFAULTS.anomalyOn,
+      assetOn: flag(b["에셋 출력"]) ?? BASIC_DEFAULTS.assetOn,
+      assetModel: model(b["에셋 모델"]) ?? BASIC_DEFAULTS.assetModel,
+      assetPlayer: flag(b["주인공 에셋"]) ?? BASIC_DEFAULTS.assetPlayer,
+      assetLimit: int2(b["캐릭터당 이미지 수"], 1, 4) ?? BASIC_DEFAULTS.assetLimit,
+      agentLimit: int2(b["요원 표시 인원"], 0, AGENT_MAX) ?? BASIC_DEFAULTS.agentLimit,
+      supportOn: flag(b["지원 투입"]) ?? BASIC_DEFAULTS.supportOn
+    };
+    return { ...book2, ...prefs.basic };
+  }
+  function basicSettings(lore, ss) {
+    const d = basicDefaults(lore);
+    const v = ss ?? {};
+    return {
+      anomalyOn: v.$st_anomaly_on === void 0 ? d.anomalyOn : v.$st_anomaly_on === "1",
+      assetOn: flag(v[ST.assetOn]) ?? d.assetOn,
+      assetModel: model(v[ST.assetModel]) ?? d.assetModel,
+      assetPlayer: flag(v[ST.assetPlayer]) ?? d.assetPlayer,
+      assetLimit: int2(v[ST.assetLimit], 1, 4) ?? d.assetLimit,
+      agentLimit: int2(v[ST.agentLimit], 0, AGENT_MAX) ?? d.agentLimit,
+      supportOn: flag(v[ST.supportOn]) ?? d.supportOn
+    };
+  }
+  function basicVars(s8) {
+    return {
+      [ST.assetOn]: s8.assetOn ? "1" : "0",
+      [ST.assetModel]: s8.assetModel,
+      [ST.assetPlayer]: s8.assetPlayer ? "1" : "0",
+      [ST.assetLimit]: String(s8.assetLimit),
+      [ST.agentLimit]: String(s8.agentLimit),
+      [ST.supportOn]: s8.supportOn ? "1" : "0"
+    };
+  }
+  function missingBasicVars(lore, ss) {
+    const all = basicVars(basicSettings(lore, ss));
+    const v = ss ?? {};
+    const out2 = {};
+    for (const [k, val] of Object.entries(all)) if (v[k] === void 0 || v[k] === "" || v[k] === null || v[k] === "null") out2[k] = val;
+    return Object.keys(out2).length ? out2 : null;
+  }
+  function worldDefaults(lore) {
+    const w = readSettingsBook(lore).world;
+    const out2 = { ...DEFAULT_SETTINGS };
+    for (const f of WORLD_SPEC) {
+      const n3 = worldValue(f, w[f.label]);
+      if (n3 !== null) out2[f.key] = n3;
+    }
+    Object.assign(out2, prefs.world);
+    out2.agent_limit = basicDefaults(lore).agentLimit;
+    out2.trail_cap = journalSettings(prefs.vars).trailMax;
+    return out2;
+  }
+  function worldSettings(lore, ss) {
+    const out2 = worldDefaults(lore);
+    const v = ss ?? {};
+    for (const f of WORLD_SPEC) {
+      const n3 = worldValue(f, v[wgKey(f.key)]);
+      if (n3 !== null) out2[f.key] = n3;
+    }
+    out2.agent_limit = basicSettings(lore, ss).agentLimit;
+    out2.trail_cap = journalSettings(ss).trailMax;
+    return out2;
+  }
+  function worldVarsOf(w) {
+    const out2 = {};
+    for (const f of WORLD_SPEC) out2[wgKey(f.key)] = String(w[f.key]);
+    return out2;
+  }
+
+  // src/core/wallet.ts
+  var WALLET_VAR = "$st_wallet";
+  var WALLET_START_DEFAULT = 14e4;
+  var WALLET_MAX = 1e12;
+  var WALLET_EDIT_VAR = "$st_wallet_edit";
+  var WALLET_SYNC_VAR = "$st_wallet_sync";
+  var walletSyncOn = (vars) => vars?.[WALLET_SYNC_VAR] !== "0";
+  var WALLET_LOOSE_VAR = "$st_wallet_loose";
+  var walletLoose = (vars) => vars?.[WALLET_LOOSE_VAR] === "1";
+  var WALLET_RECENT_VAR = "$st_wallet_recent";
+  var WALLET_RECENT_MAX = 10;
+  var walletRecentN = (vars) => {
+    const n3 = Number(vars?.[WALLET_RECENT_VAR]);
+    return Number.isInteger(n3) && n3 >= 0 ? Math.min(WALLET_RECENT_MAX, n3) : 0;
+  };
+  function recentWalletLines(w, alive, n3) {
+    if (n3 <= 0) return [];
+    return liveWallet(w, alive).filter((e) => e.memo !== WALLET_SYNC_MEMO).slice(-n3).map((e) => guideTxt("Main", "STATUS.RECENT_CASH_LINE", { amount: `${e.amount > 0 ? "+" : ""}${e.amount.toLocaleString("en-US")}`, memo: e.memo }));
+  }
+  var walletEditable = (vars) => vars?.[WALLET_EDIT_VAR] === "1";
+  var walletStarted = (chat) => (chat.message ?? []).some((m) => m.role === "user");
+  var isEntry2 = (e) => {
+    const x = e;
+    return !!x && typeof x === "object" && typeof x.id === "string" && typeof x.anchor === "string" && Number.isSafeInteger(x.amount) && typeof x.memo === "string" && (x.src === "story" || x.src === "manual" || x.src === "field" || x.src === "store");
+  };
+  function readWallet(vars, defaultStart = 0) {
+    const raw = vars?.[WALLET_VAR];
+    const empty2 = { start: defaultStart, log: [] };
+    if (typeof raw !== "string" || !raw.trim()) return empty2;
+    try {
+      const o = JSON.parse(raw);
+      if (!o || typeof o !== "object") return empty2;
+      return { start: Number.isSafeInteger(o.start) ? o.start : defaultStart, log: Array.isArray(o.log) ? o.log.filter(isEntry2) : [] };
+    } catch {
+      return empty2;
+    }
+  }
+  var walletVars = (w) => ({ [WALLET_VAR]: JSON.stringify(w) });
+  function aliveAnchors(chat) {
+    return new Set((chat.message ?? []).map((m, i) => messageKey(m, i)));
+  }
+  function liveWallet(w, alive) {
+    return w.log.filter((e) => !e.anchor || alive.has(e.anchor));
+  }
+  function walletBalance(w, alive) {
+    return liveWallet(w, alive).reduce((n3, e) => n3 + e.amount, w.start);
+  }
+  var hash2 = (text5) => {
+    let h = 2166136261;
+    for (const ch of text5) {
+      h ^= ch.codePointAt(0);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0).toString(36);
+  };
+  var walletEntryId = (anchor, amount, memo2) => `w_${hash2(`${anchor}|${amount}|${memo2}`)}`;
+  function freshWalletId(w, base, anchor) {
+    const used = (id2) => w.log.some((x) => x.id === id2);
+    if (!used(base)) return base;
+    const b = anchor ? `${base}_${anchor}` : base;
+    if (!used(b)) return b;
+    let i = 2;
+    while (used(`${b}_${i}`)) i++;
+    return `${b}_${i}`;
+  }
+  var WALLET_CAP_VAR = "$st_wallet_cap";
+  var WALLET_CAP_DEFAULT = 400;
+  var WALLET_CAP_MIN = 100;
+  var WALLET_CAP_MAX = 2e3;
+  var walletCapOf = (vars) => {
+    const raw = vars?.[WALLET_CAP_VAR];
+    if (raw === void 0 || raw === null || raw === "") return WALLET_CAP_DEFAULT;
+    const n3 = Number(raw);
+    return Number.isInteger(n3) && n3 >= WALLET_CAP_MIN ? Math.min(WALLET_CAP_MAX, n3) : WALLET_CAP_DEFAULT;
+  };
+  var walletCap = WALLET_CAP_DEFAULT;
+  function setWalletCap(vars) {
+    walletCap = walletCapOf(vars);
+  }
+  function compactWallet(w, alive) {
+    let over = w.log.length - walletCap;
+    if (over <= 0 || !alive) return w;
+    const drop = /* @__PURE__ */ new Set();
+    let start3 = w.start;
+    const old = w.log.slice(0, -1);
+    for (const e of old) {
+      if (over <= 0) break;
+      if (e.anchor && !alive.has(e.anchor)) {
+        drop.add(e);
+        over--;
+      }
+    }
+    for (const e of old) {
+      if (over <= 0) break;
+      if (drop.has(e)) continue;
+      start3 += e.amount;
+      drop.add(e);
+      over--;
+    }
+    return drop.size ? { ...w, start: start3, log: w.log.filter((e) => !drop.has(e)) } : w;
+  }
+  function addWalletEntry(w, e, alive) {
+    if (!Number.isSafeInteger(e.amount) || e.amount === 0 || Math.abs(e.amount) > WALLET_MAX) return w;
+    const id2 = e.id ?? walletEntryId(e.anchor, e.amount, e.memo);
+    if (w.log.some((x) => x.id === id2)) return w;
+    return compactWallet({ ...w, log: [...w.log, { ...e, id: id2, memo: e.memo.slice(0, 30), at: e.at ?? (/* @__PURE__ */ new Date()).toISOString() }] }, alive);
+  }
+  function removeWalletEntry(w, id2) {
+    return { ...w, log: w.log.filter((e) => e.id !== id2) };
+  }
+  function adjustWallet(w, alive, target, memo2 = guideTxt("Main", "WALLET.MEMO.ADJUST")) {
+    const diff = Math.trunc(target) - walletBalance(w, alive);
+    if (!diff) return w;
+    return addWalletEntry(w, { anchor: "", amount: diff, memo: memo2, src: "manual", id: `m_${Date.now().toString(36)}_${w.log.length}` }, alive);
+  }
+  var WALLET_SYNC_MEMO = "상태창 잔고";
+  var syncId = (anchor) => `s_${anchor}`;
+  function syncWalletToStatus(w, chat) {
+    const msgs4 = chat.message ?? [];
+    let anchor = "";
+    let target = null;
+    let i = msgs4.length - 1;
+    while (i >= 0 && msgs4[i].role === "user") i--;
+    if (i >= 0) {
+      const m = msgs4[i];
+      const tags = findStatusTags(typeof m.data === "string" ? m.data : "");
+      for (let k = tags.length - 1; k >= 0; k--) {
+        const n3 = tags[k].wallet ? Number(tags[k].wallet) : NaN;
+        if (Number.isSafeInteger(n3) && Math.abs(n3) <= WALLET_MAX) {
+          target = n3;
+          anchor = messageKey(m, i);
+          break;
+        }
+      }
+    }
+    if (target === null) return null;
+    const id2 = syncId(anchor);
+    const base = removeWalletEntry(w, id2);
+    const alive = aliveAnchors(chat);
+    const t = typeof msgs4[i].time === "number" ? msgs4[i].time : NaN;
+    const later2 = (e) => e.src === "manual" && Number.isFinite(t) && Date.parse(e.at) > t;
+    const prior = { ...base, log: base.log.filter((e) => e.anchor !== anchor && !later2(e)) };
+    if (target === walletBalance(prior, alive)) return JSON.stringify(base) === JSON.stringify(w) ? null : base;
+    const before = { ...base, log: base.log.filter((e) => !(e.src === "store" && e.anchor === anchor) && !later2(e)) };
+    const diff = target - walletBalance(before, alive);
+    const next = diff === 0 ? base : addWalletEntry(base, { id: id2, anchor, amount: diff, memo: WALLET_SYNC_MEMO, src: "story" }, alive);
+    return JSON.stringify(next) === JSON.stringify(w) ? null : next;
+  }
+  function formatWon(n3) {
+    const abs = Math.abs(Math.trunc(n3)).toLocaleString("en-US");
+    return `${n3 < 0 ? "−" : ""}₩ ${abs}`;
+  }
+  function formatDelta(n3) {
+    if (!n3) return "";
+    return `${n3 > 0 ? "+" : "−"}${Math.abs(Math.trunc(n3)).toLocaleString("en-US")}`;
+  }
+  function parseWon(text5) {
+    const t = String(text5 ?? "").replace(/\s+/g, "");
+    if (!t) return null;
+    const u = t.replace(/^([-−+]?)₩/, "$1");
+    const sign = /^[-−]/.test(u) ? -1 : 1;
+    const body5 = u.replace(/^[-−+]/, "").replace(/(원|won|KRW)$/i, "");
+    if (/^\d[\d,]*$/.test(body5)) {
+      const n4 = Number(body5.replace(/,/g, ""));
+      return Number.isSafeInteger(n4) ? sign * n4 : null;
+    }
+    const m = /^(?:(\d+(?:\.\d+)?)?(억))?(?:(\d+(?:\.\d+)?)?(만))?(?:(\d+)?(천))?(?:(\d+)?(백))?(\d+)?$/.exec(body5.replace(/,/g, ""));
+    if (!m || m.slice(1).every((x) => x === void 0)) return null;
+    const unit = (num8, mark2, mul) => mark2 ? Number(num8 ?? 1) * mul : 0;
+    const n3 = Math.round(unit(m[1], m[2], 1e8) + unit(m[3], m[4], 1e4) + unit(m[5], m[6], 1e3) + unit(m[7], m[8], 100) + Number(m[9] ?? 0));
+    return Number.isSafeInteger(n3) && n3 > 0 ? sign * n3 : null;
+  }
+  function mentionsAmount(text5) {
+    return /(₩\s*\d|\d[\d,]*\s*(?:원|won|KRW)|\d+\s*(?:억|만|천)\s*(?:원)?)/i.test(text5);
+  }
+  function recordedPaid(w, keys) {
+    const set2 = new Set(keys.filter(Boolean));
+    return w.log.filter((e) => (e.src === "store" || e.src === "field") && set2.has(e.anchor)).map((e) => ({ amount: e.amount, memo: e.memo }));
+  }
+
+  // src/core/journal/build.ts
+  var text2 = (m) => typeof m?.data === "string" ? m.data : "";
+  var cut2 = (s8, n3) => s8.replace(/\s+/g, " ").trim().slice(0, n3);
+  var NONE2 = /^(?:없음|none|-|—|미정|n\/a)$/i;
+  function parseAgents(deploy, world2, c, faction) {
+    const names4 = codesToNames(deploy ?? "", c, faction).split(/[,，、/·]|\s+및\s+|\s+and\s+/i).map((n3) => n3.trim()).filter((n3) => n3 && !NONE2.test(n3));
+    const out2 = [];
+    for (const raw of names4) {
+      const name = raw.replace(/\s*[(（][^)）]*[)）]\s*$/, "").trim() || raw;
+      if (out2.some((a) => a.name === name)) continue;
+      const p2 = c.people.find((x) => x.name === name || !!x.english && x.english.toLowerCase() === name.toLowerCase());
+      const rec3 = p2 ? world2.agents[p2.id] : void 0;
+      const st = rec3 && rec3.st !== "미정" ? rec3.st : "";
+      out2.push({ id: p2?.id ?? "", name: p2?.name ?? name, st, ...rec3?.situation ? { situation: cut2(rec3.situation, 80) } : {} });
+      if (out2.length >= 8) break;
+    }
+    return out2;
+  }
+  var two = (n3) => String(n3).padStart(2, "0");
+  function mmdd(at, now2) {
+    const d = at === null ? new Date(now2) : new Date(at * 6e4);
+    return Number.isFinite(d.getTime()) ? `${two(d.getUTCMonth() + 1)}${two(d.getUTCDate())}` : "0000";
+  }
+  function peopleDelta(chat, from, to) {
+    const store3 = peopleStore(chat);
+    if (!store3.log.length) return [];
+    const live = liveness(chat);
+    const all = liveChanges(store3, live);
+    const ps = peopleSettings(chat.scriptstate);
+    const pos = (c) => live.at.get(c.anchor) ?? -1;
+    const span = all.filter((c) => c.kind === "cue" && c.pin === void 0 && !factionOfWho(c.who) && pos(c) >= from && pos(c) <= to);
+    const byWho = /* @__PURE__ */ new Map();
+    for (const c of span) (byWho.get(c.who) ?? byWho.set(c.who, []).get(c.who)).push(c);
+    const out2 = [];
+    for (const [who, list4] of byWho) {
+      const o = { temper: temperOf(who), speed: ps.speed, speedDown: ps.speedDown, turnCap: ps.turnCap };
+      const delta = sumCues(who, 0, list4, 0, -1e9, 1e9, o);
+      if (!delta) continue;
+      const top = [...list4].sort((a, b) => Math.abs(cueDelta(b, o)) - Math.abs(cueDelta(a, o)))[0];
+      const person = store3.people[who];
+      const stage2 = person ? stageOf(affinityOf(person, all.filter((c) => pos(c) <= to), store3.folded[who] ?? 0, o)).label : void 0;
+      out2.push({ who, delta, ...top?.cue ? { cue: top.cue } : {}, ...top?.quote || top?.reason ? { quote: cut2(top.quote || top.reason, 60) } : {}, ...stage2 ? { stage: stage2 } : {} });
+    }
+    return out2.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)).slice(0, journalSettings(chat.scriptstate).peopleMax);
+  }
+  function walletSpan(chat, from, to, start3) {
+    const w = readWallet(chat.scriptstate, start3 ?? getPrefs().walletStart ?? WALLET_START_DEFAULT);
+    const live = liveWallet(w, aliveAnchors(chat));
+    const at = anchorPositions(chat);
+    const pos = (anchor) => at.get(anchor) ?? -1;
+    const trades = live.filter((e) => e.anchor && pos(e.anchor) >= from && pos(e.anchor) <= to).slice(-journalSettings(chat.scriptstate).tradesMax).map((e) => ({ memo: e.memo, amount: e.amount, ...e.quote ? { quote: cut2(e.quote, 60) } : {} }));
+    const balance2 = live.filter((e) => !e.anchor || pos(e.anchor) <= to).reduce((n3, e) => n3 + e.amount, w.start);
+    return { trades, balance: balance2 };
+  }
+  function fillSpan(report, chat, from, to, walletStart) {
+    report.people = peopleDelta(chat, from, to);
+    const w = walletSpan(chat, from, to, walletStart);
+    report.wallet = w.trades;
+    report.balance = w.balance;
+  }
+  function snapshot(input3, ev, anchor, now2) {
+    const { chat, index, world: world2, catalog, faction } = input3;
+    const e = ev.entry;
+    const an = ev.kind === "an" ? e : null;
+    const name = (an ? an.presetName || an.name : e.name) || "이름 미확인";
+    const deploy = ev.kind === "ms" ? e.visitors : e.deploy ?? "";
+    const agents = parseAgents(deploy, world2, catalog, faction);
+    const steps = e.trail?.length ? e.trail : e.situation ? [{ m: e.since, e: ev.epoch, text: cut2(e.situation, 160) }] : [];
+    const max = input3.settings.trailMax;
+    const trail = steps.length > max ? [steps[0], ...steps.slice(-(max - 1))] : steps;
+    const lastText = trail.length ? trail[trail.length - 1].text : "";
+    const prefix = ev.cleared ? "클리어 · " : "";
+    const result = prefix + (lastText || "처리 완료");
+    const { from, to } = periodOf(chat, index, e);
+    const mine3 = isMine(chat, from, to, { name, presetName: an?.presetName || void 0, agentNames: agents.map((a) => a.name), touched: e.touched });
+    const id2 = journalHash(`${ev.kind}|${name}|${e.loc}|${e.born ?? ""}|${ev.epoch}`);
+    const tags = findStatusTags(text2(chat.message?.[index]));
+    const last2 = tags[tags.length - 1];
+    const at = ev.minute;
+    const grade = an?.grade || void 0;
+    const row8 = {
+      id: `j${id2}`,
+      kind: ev.kind,
+      name,
+      loc: e.loc,
+      ...grade ? { grade } : {},
+      at,
+      since: e.since,
+      born: e.born,
+      idx: index,
+      anchor,
+      mine: mine3,
+      cause: ev.cause,
+      agents: agents.map(({ id: aid, name: an2, st }) => ({ id: aid, name: an2, st })),
+      result: cut2(result, RESULT_ROW_MAX),
+      rpt: `r${id2}`,
+      ...ev.cleared ? { cleared: true } : {},
+      ...e.art ? { art: e.art.pics } : {}
+    };
+    const report = {
+      id: `r${id2}`,
+      no: "",
+      full: mine3,
+      mine: mine3,
+      kind: ev.kind,
+      cause: ev.cause,
+      head: { name, ...grade ? { grade } : {}, loc: e.loc, ...last2?.place ? { place: cut2(last2.place, 60) } : {}, born: e.born, since: e.since, at, duration: at !== null && e.since !== null ? Math.max(0, at - e.since) : null, ...ev.cleared ? { cleared: true } : {}, ...e.art ? { art: e.art.pics } : {} },
+      trail,
+      agents,
+      result: cut2(result, RESULT_REPORT_MAX),
+      idx: index,
+      anchor,
+      ...last2 ? { statusKey: last2.raw.trim() } : {},
+      savedAt: now2
+    };
+    if (mine3) {
+      const list4 = Array.isArray(chat.message) ? chat.message : [];
+      report.fromKey = list4[from] ? messageKey(list4[from], from) : `#${from + 1}`;
+      fillSpan(report, chat, from, to, input3.walletStart);
+    }
+    return { row: row8, report };
+  }
+  function buildClosures(input3) {
+    const { chat, index, closed, settings } = input3;
+    const now2 = input3.now ?? (/* @__PURE__ */ new Date()).toISOString();
+    const list4 = Array.isArray(chat.message) ? chat.message : [];
+    const m = list4[index];
+    const anchor = m ? messageKey(m, index) : `#${index + 1}`;
+    let journal = readJournal(chat);
+    let reports2 = readReports(chat);
+    const rows3 = [];
+    const added = [];
+    const have = new Set(journal.rows.map((r) => r.id));
+    for (const ev of closed) {
+      const { row: row8, report } = snapshot(input3, ev, anchor, now2);
+      if (have.has(row8.id)) continue;
+      have.add(row8.id);
+      const day = mmdd(report.head.at, now2);
+      const n3 = reports2.items.filter((r) => r.no.startsWith(`RPT-${day}-`)).length + added.filter((r) => r.no.startsWith(`RPT-${day}-`)).length + 1;
+      report.no = `RPT-${day}-${two(n3)}`;
+      rows3.push(row8);
+      added.push(report);
+    }
+    if (!rows3.length) return { journal, reports: reports2, rows: rows3, added };
+    journal = trimJournal({ v: 1, rows: [...journal.rows, ...rows3] }, settings.journalCap, new Set(reports2.items.filter((x) => x.pin).map((x) => x.id)));
+    const t = trimReports({ v: 1, items: [...reports2.items, ...added] }, journal, settings.reportCap);
+    journal = t.journal;
+    reports2 = t.reports;
+    return { journal, reports: reports2, rows: rows3, added };
+  }
+  function refreshClosures(chat, index, walletStart) {
+    const list4 = Array.isArray(chat.message) ? chat.message : [];
+    const m = list4[index];
+    if (!m) return null;
+    const key = messageKey(m, index);
+    const reports2 = readReports(chat);
+    const at = anchorPositions(chat);
+    let changed = false;
+    const items = reports2.items.map((r) => {
+      if (!r.mine || !r.fromKey || r.idx !== index || r.anchor !== key) return r;
+      const from = at.get(r.fromKey);
+      if (from === void 0) return r;
+      const next = { ...r };
+      fillSpan(next, chat, from, index, walletStart);
+      const same4 = JSON.stringify([r.people, r.wallet, r.balance]) === JSON.stringify([next.people, next.wallet, next.balance]);
+      if (same4) return r;
+      changed = true;
+      return next;
+    });
+    return changed ? reportVars({ v: 1, items }) : null;
+  }
+
+  // src/core/journal/line.ts
+  var two2 = (n3) => String(n3).padStart(2, "0");
+  function journalClock(at) {
+    if (at === null) return "시각 없음";
+    const d = new Date(at * 6e4);
+    return `${two2(d.getUTCMonth() + 1)}.${two2(d.getUTCDate())} ${two2(d.getUTCHours())}:${two2(d.getUTCMinutes())}`;
+  }
+  function durLabel(min) {
+    if (min === null || !Number.isFinite(min)) return "";
+    const h = Math.floor(min / 60);
+    const m = Math.round(min % 60);
+    return h ? `${h}시간${m ? ` ${m}분` : ""}` : `${m}분`;
+  }
+  function reportEndLabel(r) {
+    return `${JOURNAL_KIND_LABEL[r.kind]} · 종료${r.cause === "manual" ? " (직접 종료)" : r.cause === "ttl" ? " (시간 경과)" : ""}`;
+  }
+  var reportBadge = (r) => r.mine ? "내 사건" : "그 외";
+
+  // src/core/journal/png.ts
+  var PNG_W = 900;
+  var PNG_H = 1200;
+  var PAD = 48;
+  var W2 = PNG_W - PAD * 2;
+  var TRAIL_LINES = 6;
+  var two3 = (n3) => String(n3).padStart(2, "0");
+  var hhmm2 = (m) => m === null ? "--:--" : journalClock(m).slice(6);
+  var ymd = (m) => m === null ? "" : journalClock(m).slice(0, 5);
+  var WEEK = "일월화수목금토";
+  function dayText(m, savedAt) {
+    const d = m === null ? new Date(savedAt) : new Date(m * 6e4);
+    if (!Number.isFinite(d.getTime())) return "";
+    return `${d.getUTCFullYear()}.${two3(d.getUTCMonth() + 1)}.${two3(d.getUTCDate())} (${WEEK[d.getUTCDay()]})`;
+  }
+  function durShort(min) {
+    return durLabel(min) || "—";
+  }
+  var won = (n3) => formatWon(n3);
+  var signed = (n3) => `${n3 > 0 ? "+" : n3 < 0 ? "−" : ""}${Math.abs(n3).toLocaleString("en-US")}`;
+  function wrapText(g3, text5, maxWidth, maxLines) {
+    const src = text5.replace(/\s+/g, " ").trim();
+    if (!src) return [];
+    const lines3 = [];
+    let cur = "";
+    for (const ch of src) {
+      const next = cur + ch;
+      if (g3.measureText(next).width <= maxWidth || !cur) cur = next;
+      else {
+        lines3.push(cur);
+        cur = ch;
+        if (lines3.length === maxLines) break;
+      }
+    }
+    if (lines3.length < maxLines) {
+      if (cur) lines3.push(cur);
+      return lines3;
+    }
+    let last2 = lines3[maxLines - 1];
+    while (last2.length && g3.measureText(`${last2}…`).width > maxWidth) last2 = last2.slice(0, -1);
+    lines3[maxLines - 1] = `${last2}…`;
+    return lines3.slice(0, maxLines);
+  }
+  function roundRect(g3, x, y, w, h, r) {
+    const rr = Math.min(r, w / 2, h / 2);
+    g3.beginPath();
+    g3.moveTo(x + rr, y);
+    g3.lineTo(x + w - rr, y);
+    g3.quadraticCurveTo(x + w, y, x + w, y + rr);
+    g3.lineTo(x + w, y + h - rr);
+    g3.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+    g3.lineTo(x + rr, y + h);
+    g3.quadraticCurveTo(x, y + h, x, y + h - rr);
+    g3.lineTo(x, y + rr);
+    g3.quadraticCurveTo(x, y, x + rr, y);
+    g3.closePath();
+  }
+  function box(g3, c, x, y, w, h, r = 14, fill3 = c.panel) {
+    roundRect(g3, x, y, w, h, r);
+    g3.fillStyle = fill3;
+    g3.fill();
+    g3.strokeStyle = c.line;
+    g3.lineWidth = 1;
+    g3.stroke();
+  }
+  function text3(g3, s8, x, y, o) {
+    g3.font = `${o.weight ?? 400} ${o.size}px ${o.family}`;
+    g3.fillStyle = o.color;
+    g3.textAlign = o.align ?? "left";
+    g3.textBaseline = "top";
+    g3.fillText(s8, x, y);
+  }
+  function paintReport(g3, r, o) {
+    const c = o.colors;
+    const sans = o.sans;
+    const mono = o.mono;
+    const sections3 = [];
+    const h = r.head;
+    const kindLabel = JOURNAL_KIND_LABEL[r.kind] ?? r.kind;
+    const FOOT_H = 64;
+    const limit = PNG_H - PAD - FOOT_H;
+    const LH = 22;
+    g3.globalAlpha = 1;
+    g3.fillStyle = c.void;
+    g3.fillRect(0, 0, PNG_W, PNG_H);
+    sections3.push("bg");
+    let y = PAD;
+    if (o.brand) text3(g3, o.brand, PAD, y, { size: 22, weight: 700, color: c.signal, family: sans });
+    else {
+      let bx = PAD;
+      for (const [s8, weight, color, after] of [["괴이", 700, c.text, 6], ["ː", 300, c.signal, 6], ["ANOMALY", 700, c.signal, 0]]) {
+        text3(g3, s8, bx, y, { size: 22, weight, color, family: sans });
+        bx += g3.measureText(s8).width + after;
+      }
+    }
+    text3(g3, `INCIDENT REPORT · ${r.no}`, PNG_W - PAD, y + 2, { size: 14, weight: 500, color: c.dim, family: mono, align: "right" });
+    const day = dayText(h.at, r.savedAt);
+    text3(g3, [day, o.org].filter(Boolean).join("   "), PNG_W - PAD, y + 24, { size: 13, weight: 400, color: c.sub, family: sans, align: "right" });
+    text3(g3, "AFTER-ACTION", PAD, y + 28, { size: 12, weight: 500, color: c.dim, family: mono });
+    y += 52;
+    sections3.push("head");
+    const ART_H = 170;
+    roundRect(g3, PAD, y, W2, ART_H, 18);
+    g3.fillStyle = c.panel;
+    g3.fill();
+    if (o.art?.img && o.art.w > 0 && o.art.h > 0) {
+      g3.save();
+      roundRect(g3, PAD, y, W2, ART_H, 18);
+      g3.clip();
+      const s8 = Math.max(W2 / o.art.w, ART_H / o.art.h);
+      const dw = o.art.w * s8;
+      const dh = o.art.h * s8;
+      g3.drawImage(o.art.img, PAD + (W2 - dw) / 2, y + (ART_H - dh) / 2, dw, dh);
+      g3.restore();
+      sections3.push("art");
+    } else {
+      text3(g3, kindLabel, PNG_W / 2, y + ART_H / 2 - 10, { size: 16, weight: 500, color: c.dim, family: sans, align: "center" });
+      sections3.push("art-empty");
+    }
+    g3.strokeStyle = c.line;
+    g3.lineWidth = 1;
+    roundRect(g3, PAD, y, W2, ART_H, 18);
+    g3.stroke();
+    y += ART_H + 18;
+    const gradeColor = r.kind === "an" ? c.danger : r.kind === "in" ? c.amber : c.signal;
+    roundRect(g3, PAD, y, 56, 56, 14);
+    g3.fillStyle = c.panel;
+    g3.fill();
+    g3.strokeStyle = gradeColor;
+    g3.lineWidth = 2;
+    g3.stroke();
+    const mark2 = r.kind === "an" && h.grade && /^[A-Za-z]+$/.test(h.grade) ? h.grade.toUpperCase() : r.kind === "an" ? "?" : r.kind === "in" ? "!" : r.kind === "ms" ? "◇" : "▶";
+    text3(g3, mark2, PAD + 28, y + 14, { size: 26, weight: 700, color: gradeColor, family: mono, align: "center" });
+    const tx = PAD + 72;
+    const status2 = `${reportEndLabel(r)}${h.cleared ? " · 클리어" : ""}`;
+    text3(g3, status2, tx, y, { size: 13, weight: 500, color: c.dim, family: mono });
+    const badge3 = reportBadge(r);
+    g3.font = `500 13px ${mono}`;
+    const sw2 = g3.measureText(status2).width;
+    const bw = g3.measureText(badge3).width + 20;
+    roundRect(g3, tx + sw2 + 12, y - 4, bw, 24, 12);
+    g3.fillStyle = r.mine ? c.accentBg : c.panel;
+    g3.fill();
+    g3.strokeStyle = r.mine ? c.signal : c.line;
+    g3.lineWidth = 1;
+    g3.stroke();
+    text3(g3, badge3, tx + sw2 + 12 + bw / 2, y, { size: 13, weight: 500, color: r.mine ? c.signal : c.sub, family: mono, align: "center" });
+    g3.font = `700 32px ${sans}`;
+    const nameLines = wrapText(g3, h.name, W2 - 72, 1);
+    text3(g3, nameLines[0] ?? "", tx, y + 22, { size: 32, weight: 700, color: c.text, family: sans });
+    const place3 = [h.place, locName(h.loc) || h.loc].filter((x, i, a) => x && a.indexOf(x) === i).join(" · ");
+    g3.font = `400 15px ${sans}`;
+    text3(g3, wrapText(g3, place3, W2 - 72, 1)[0] ?? "", tx, y + 64, { size: 15, weight: 400, color: c.sub, family: sans });
+    y += 90;
+    sections3.push("title");
+    const tiles = [["발생", h.born !== null ? `${ymd(h.born)} ${hhmm2(h.born)}` : "—"], ["투입", h.since !== null ? hhmm2(h.since) : "—"], ["종료", h.at !== null ? hhmm2(h.at) : "—"], ["소요", durShort(h.duration)]];
+    const gap = 12;
+    const tw = (W2 - gap * 3) / 4;
+    tiles.forEach(([label2, val], i) => {
+      const x = PAD + i * (tw + gap);
+      box(g3, c, x, y, tw, 66, 14);
+      text3(g3, label2, x + 14, y + 12, { size: 12, weight: 500, color: c.dim, family: mono });
+      g3.font = `700 18px ${mono}`;
+      text3(g3, wrapText(g3, val, tw - 28, 1)[0] ?? val, x + 14, y + 32, { size: 18, weight: 700, color: i === 3 ? c.signal : c.text, family: mono });
+    });
+    y += 66 + 18;
+    sections3.push("tiles");
+    const heading = (title2, sub = "", x = PAD, w = W2) => {
+      text3(g3, title2, x, y, { size: 15, weight: 700, color: c.text, family: sans });
+      if (sub) text3(g3, sub, x + g3.measureText(title2).width + 10, y + 2, { size: 12, weight: 500, color: c.dim, family: mono });
+      g3.strokeStyle = c.line;
+      g3.lineWidth = 1;
+      g3.beginPath();
+      g3.moveTo(x, y + 24);
+      g3.lineTo(x + w, y + 24);
+      g3.stroke();
+    };
+    const HEAD_H = 32;
+    const room = (need) => y + need <= limit;
+    if (room(HEAD_H + LH)) {
+      heading("경과", "상황판 기록");
+      y += HEAD_H;
+      const show = r.trail.slice(0, TRAIL_LINES);
+      const rest = r.trail.length - show.length;
+      if (!show.length) {
+        text3(g3, "상황판 기록이 없어요.", PAD, y, { size: 14, color: c.dim, family: sans });
+        y += LH;
+      }
+      show.forEach((t, i) => {
+        if (!room(LH)) return;
+        text3(g3, hhmm2(t.m), PAD, y + 1, { size: 13, weight: 500, color: c.dim, family: mono });
+        g3.font = `500 12px ${sans}`;
+        const tag = i === 0 ? "발생" : "";
+        const tagW = tag ? g3.measureText(tag).width + 10 : 0;
+        g3.font = `400 14px ${sans}`;
+        const line2 = wrapText(g3, t.text, W2 - 70 - tagW, 1)[0] ?? "";
+        text3(g3, line2, PAD + 62, y, { size: 14, color: c.text, family: sans });
+        if (tag) {
+          const lw = g3.measureText(line2).width;
+          text3(g3, tag, PAD + 62 + lw + 10, y + 2, { size: 12, weight: 500, color: c.amber, family: sans });
+        }
+        y += LH;
+      });
+      if (rest > 0 && room(20)) {
+        text3(g3, `… 외 ${rest}건`, PAD + 62, y, { size: 13, color: c.dim, family: sans });
+        y += 20;
+      }
+      y += 8;
+      sections3.push("trail");
+    }
+    if (room(HEAD_H + 36)) {
+      heading("투입 요원");
+      y += HEAD_H;
+      if (!r.agents.length) {
+        text3(g3, "투입 기록이 없어요.", PAD, y, { size: 14, color: c.dim, family: sans });
+        y += LH;
+      } else {
+        const cols = 2;
+        const cw = (W2 - gap) / cols;
+        let rows3 = 0;
+        r.agents.slice(0, 8).forEach((a, i) => {
+          const col = i % cols;
+          const row8 = Math.floor(i / cols);
+          const yy = y + row8 * 44;
+          if (yy + 36 > limit) return;
+          rows3 = row8 + 1;
+          const x = PAD + col * (cw + gap);
+          box(g3, c, x, yy, cw, 36, 10);
+          roundRect(g3, x + 8, yy + 8, 20, 20, 10);
+          g3.fillStyle = c.accentBg;
+          g3.fill();
+          text3(g3, Array.from(a.name)[0] ?? "?", x + 18, yy + 11, { size: 12, weight: 700, color: c.signal, family: sans, align: "center" });
+          text3(g3, a.name, x + 36, yy + 9, { size: 14, weight: 600, color: c.text, family: sans });
+          const st = [a.st === "작전투입" ? "작전" : a.st, a.situation].filter(Boolean).join(" · ");
+          g3.font = `600 14px ${sans}`;
+          const nw = g3.measureText(a.name).width;
+          g3.font = `400 12px ${sans}`;
+          text3(g3, wrapText(g3, st, cw - 36 - nw - 24, 1)[0] ?? "", x + 36 + nw + 10, yy + 11, { size: 12, color: c.sub, family: sans });
+        });
+        y += rows3 * 44;
+      }
+      y += 8;
+      sections3.push("agents");
+    }
+    if (room(HEAD_H + LH)) {
+      heading("결과");
+      y += HEAD_H;
+      g3.font = `400 14px ${sans}`;
+      for (const line2 of wrapText(g3, r.result || "처리 완료", W2, 3)) {
+        if (!room(LH)) break;
+        text3(g3, line2, PAD, y, { size: 14, color: c.text, family: sans });
+        y += LH;
+      }
+      y += 8;
+      sections3.push("result");
+    }
+    if (r.full && room(HEAD_H + LH)) {
+      const cw = (W2 - 24) / 2;
+      const rx = PAD + cw + 24;
+      const top = y;
+      heading("인물 기록 변화", "종료 시점", PAD, cw);
+      heading("가계부", "이 사건 동안", rx, cw);
+      y += HEAD_H;
+      const people = r.people ?? [];
+      let ly = y;
+      if (!people.length) {
+        text3(g3, "호감이 움직인 인물이 없어요.", PAD, ly, { size: 13, color: c.dim, family: sans });
+        ly += LH;
+      }
+      for (const p2 of people.slice(0, 4)) {
+        if (ly + LH > limit) break;
+        text3(g3, p2.who, PAD, ly, { size: 14, weight: 600, color: c.text, family: sans });
+        const d = `${signed(p2.delta)}${p2.stage ? ` → ${p2.stage}` : ""}`;
+        text3(g3, d, PAD + cw, ly + 1, { size: 13, weight: 700, color: p2.delta < 0 ? c.danger : c.signal, family: mono, align: "right" });
+        if (p2.quote) {
+          g3.font = `600 14px ${sans}`;
+          const nw = g3.measureText(p2.who).width;
+          g3.font = `700 13px ${mono}`;
+          const dw = g3.measureText(d).width;
+          g3.font = `400 12px ${sans}`;
+          const q = wrapText(g3, p2.quote, cw - nw - dw - 30, 1)[0];
+          if (q) text3(g3, `“${q}”`, PAD + nw + 10, ly + 2, { size: 12, color: c.sub, family: sans });
+        }
+        ly += LH;
+      }
+      const trades = (r.wallet ?? []).slice(-4);
+      let ry = y;
+      if (!trades.length) {
+        text3(g3, "이 사건 동안 거래가 없어요.", rx, ry, { size: 13, color: c.dim, family: sans });
+        ry += LH;
+      }
+      for (const t of trades) {
+        if (ry + LH > limit) break;
+        g3.font = `400 14px ${sans}`;
+        text3(g3, wrapText(g3, t.memo || "(메모 없음)", cw - 110, 1)[0] ?? "", rx, ry, { size: 14, color: c.text, family: sans });
+        text3(g3, signed(t.amount), rx + cw, ry + 1, { size: 13, weight: 700, color: t.amount < 0 ? c.danger : c.signal, family: mono, align: "right" });
+        ry += LH;
+      }
+      if (r.balance !== void 0 && ry + LH <= limit) {
+        text3(g3, "종료 시점 잔고", rx, ry, { size: 13, weight: 500, color: c.dim, family: sans });
+        text3(g3, won(r.balance), rx + cw, ry + 1, { size: 13, weight: 700, color: c.text, family: mono, align: "right" });
+        ry += LH;
+      }
+      y = Math.max(ly, ry, top + HEAD_H) + 8;
+      sections3.push("people", "wallet");
+    }
+    const fy = PNG_H - PAD - 28;
+    g3.strokeStyle = c.line;
+    g3.lineWidth = 1;
+    g3.beginPath();
+    g3.moveTo(PAD, fy - 14);
+    g3.lineTo(PNG_W - PAD, fy - 14);
+    g3.stroke();
+    text3(g3, "ANOMALY SIMULATION 2.4", PAD, fy, { size: 12, weight: 500, color: c.dim, family: mono });
+    text3(g3, o.foot ?? "이 보고서는 상황판·인물 기록·가계부에서 자동으로 만들어졌어요", PNG_W - PAD, fy, { size: 12, color: c.dim, family: sans, align: "right" });
+    sections3.push("foot");
+    return { sections: sections3, bottom: y };
+  }
+
+  // src/core/people/faction.ts
+  function userFactionOf(store3, chat) {
+    const v = chat.scriptstate?.["$st_faction"] ?? chat.scriptstate?.["st_faction"];
+    return store3.identity?.faction || (typeof v === "string" ? v : "");
+  }
+  function knownFactionCodes(store3, names4 = {}) {
+    return [.../* @__PURE__ */ new Set([...Object.keys(worldOrgCodes()), ...Object.keys(store3.factions), ...Object.keys(names4)])];
+  }
+  var factionName = (code2, names4 = {}, store3) => names4[code2] || store3?.factions[code2]?.name || activeOrgName(code2);
+  function factionNow(store3, code2, changes, userFaction3, settings, names4 = {}) {
+    const base = factionBase(code2, userFaction3);
+    const v = factionView(code2, base, changes, store3.folded[factionWho(code2)] ?? 0, { speed: settings.speed, speedDown: settings.speedDown, turnCap: settings.turnCap }, settings.factionBounds);
+    const note2 = settings.factionQual ? [...changes].reverse().find((c) => c.who === factionWho(code2) && c.kind === "cue" && c.pin !== void 0)?.reason : void 0;
+    return { code: code2, name: factionName(code2, names4, store3), value: v.value, stage: v.stage, base, ...note2 ? { note: note2 } : {} };
+  }
+  function sceneFactionCodes(store3, people, texts, names4 = {}) {
+    const out2 = [];
+    const push3 = (c) => {
+      if (c && !out2.includes(c)) out2.push(c);
+    };
+    for (const n3 of people) push3(store3.people[n3]?.faction ?? "");
+    for (const t of texts) for (const c of factionCodesIn(t, names4)) push3(c);
+    return out2;
+  }
+  function factionsBlock(list4, user = "{{user}}") {
+    const lines3 = list4.filter((f) => f.stage.id !== "neutral").map((f) => `- ${f.name} → ${user}: ${guideTxt("Main", `FACTION.STAGE.${f.stage.id}`).replace(/\{\{user\}\}/g, () => user)}${f.note ? ` ${guideTxt("Main", "FACTION.WHY", { note: f.note })}` : ""}`);
+    if (!lines3.length) return "";
+    return [guideTxt("Main", "FACTION.HEAD", { user }), ...lines3].join("\n");
+  }
+  function stageMid(id2, bounds) {
+    const [a, b, c, d] = bounds;
+    const mid = (lo, hi) => Math.round((lo + hi) / 2);
+    return id2 === "friendly" ? mid(a, 100) : id2 === "favorable" ? mid(b, a - 1) : id2 === "neutral" ? mid(c, b - 1) : id2 === "wary" ? mid(d, c - 1) : mid(-100, d - 1);
+  }
+
+  // src/core/journal/chronicle.ts
+  var CHRON_KIND_LABEL = { event: "사건", person: "인물", faction: "세력", rank: "신분" };
+  var str6 = (v) => typeof v === "string" ? v : "";
+  function dayLabels(chat) {
+    const list4 = Array.isArray(chat.message) ? chat.message : [];
+    const days = [];
+    let last2 = "";
+    list4.forEach((m, i) => {
+      if (m.role === "char") {
+        const st = lastStatusFields([str6(m.data)]);
+        if (st?.date) last2 = st.date;
+      }
+      days[i] = last2;
+    });
+    return (pos) => pos < 0 || !days.length ? "" : days[Math.min(pos, days.length - 1)] ?? "";
+  }
+  var two4 = (n3) => String(n3).padStart(2, "0");
+  var dayOfMinute = (at) => {
+    if (at === null) return "";
+    const d = new Date(at * 6e4);
+    return `${d.getUTCFullYear()}.${two4(d.getUTCMonth() + 1)}.${two4(d.getUTCDate())}`;
+  };
+  var hhmm3 = (at) => {
+    if (at === null) return "";
+    const d = new Date(at * 6e4);
+    return `${two4(d.getUTCHours())}:${two4(d.getUTCMinutes())}`;
+  };
+  function factionNames2(lore) {
+    return Object.fromEntries(readDirectory(lore).orgs.filter((o) => o.faction).map((o) => [o.faction, o.name]));
+  }
+  function buildChronicle(chat, lore) {
+    const out2 = [];
+    const day = dayLabels(chat);
+    const live = liveness(chat);
+    for (const r of readJournal(chat).rows) {
+      if (!r.mine || r.kind === "fd") continue;
+      const dur2 = r.at !== null && r.since !== null ? Math.max(0, r.at - r.since) : null;
+      const durText2 = dur2 === null ? "" : `소요 ${durLabel(dur2)}`;
+      const how = r.cleared ? "클리어" : r.cause === "manual" ? "직접 종료" : r.cause === "ttl" ? "시간 경과로 종료" : "종료";
+      const kind = `${JOURNAL_KIND_LABEL[r.kind]}${r.grade ? ` ${r.grade}` : ""}`;
+      const p2 = live.at.get(r.anchor) ?? r.idx;
+      out2.push({
+        pos: p2,
+        seq: 0,
+        kind: "event",
+        day: day(p2) || dayOfMinute(r.at),
+        title: r.name,
+        jk: r.kind,
+        grade: r.grade,
+        rpt: r.rpt,
+        text: [kind, locName(r.loc) || r.loc, hhmm3(r.at), durText2, how].filter(Boolean).join(" · ")
+      });
+    }
+    const store3 = peopleStore(chat);
+    const changes = liveChanges(store3, live);
+    const s8 = peopleSettings(chat.scriptstate);
+    const uf = userFactionOf(store3, chat);
+    const names4 = factionNames2(lore);
+    const posOf = (c) => live.at.get(c.anchor) ?? -1;
+    const byWho = /* @__PURE__ */ new Map();
+    for (const c of changes) if (c.kind === "cue") (byWho.get(c.who) ?? byWho.set(c.who, []).get(c.who)).push(c);
+    for (const [who, list4] of byWho) {
+      const isFac = who.startsWith("세력:");
+      const code2 = isFac ? who.slice(3) : "";
+      if (isFac ? !code2 : !store3.people[who]) continue;
+      const base = isFac ? factionBase(code2, uf) : store3.people[who].affinity.base;
+      const folded = store3.folded[who] ?? 0;
+      const o = isFac ? { speed: s8.speed, speedDown: s8.speedDown, turnCap: s8.turnCap } : { temper: temperOf(who), speed: s8.speed, speedDown: s8.speedDown, turnCap: s8.turnCap };
+      const [min, max] = isFac ? [FACTION_MIN, FACTION_MAX] : [AFF_MIN, AFF_MAX];
+      const label2 = (v) => isFac ? factionStage(v, s8.factionBounds).label : stageOf(v).label;
+      let prev = label2(sumCues(who, base, [], folded, min, max, o));
+      for (let i = 0; i < list4.length; i++) {
+        if (i + 1 < list4.length && list4[i + 1].anchor === list4[i].anchor) continue;
+        const now2 = label2(sumCues(who, base, list4.slice(0, i + 1), folded, min, max, o));
+        if (now2 === prev) continue;
+        const c = list4[i];
+        const reason3 = [...list4.slice(0, i + 1)].reverse().find((x) => x.anchor === c.anchor && x.reason)?.reason ?? "";
+        out2.push({
+          pos: posOf(c),
+          seq: 1 + c.seq,
+          kind: isFac ? "faction" : "person",
+          day: day(posOf(c)),
+          title: isFac ? factionName(code2, names4, store3) : who,
+          text: `${isFac ? "평판" : "호감"} ${prev} → ${now2}${reason3 ? ` · ${reason3}` : ""}`,
+          ...isFac ? { faction: code2 } : { person: who }
+        });
+        prev = now2;
+      }
+    }
+    for (const c of changes) {
+      if (c.kind !== "identity") continue;
+      const what = [c.faction ? factionName(c.faction, names4, store3) : "", c.rank ?? ""].filter(Boolean).join(" · ");
+      if (!what) continue;
+      out2.push({ pos: posOf(c), seq: 1 + c.seq, kind: "rank", day: day(posOf(c)), title: "신분", text: `${what}${c.reason ? ` · ${c.reason}` : ""}` });
+    }
+    return out2.sort((a, b) => a.pos - b.pos || a.seq - b.seq);
+  }
+
+  // src/core/world/output.ts
+  var WORLD_KEY = "$goei_world";
+  var LAST_KEY = "$goei_last";
+  var PREV_KEY = "$goei_prev";
+  function readPrev(raw) {
+    if (typeof raw !== "string" || !raw) return null;
+    try {
+      const p2 = JSON.parse(raw);
+      return typeof p2?.i === "number" && typeof p2.world === "string" ? p2 : null;
+    } catch {
+      return null;
+    }
+  }
+  function worldOn(chat) {
+    return chat.scriptstate?.["$st_anomaly_on"] === "1";
+  }
+  function readWorld(chat) {
+    return parseWorld(chat.scriptstate?.[WORLD_KEY]);
+  }
+  function worldVars(w, c, s8, faction) {
+    const r = reports(w, c, s8, faction);
+    return {
+      ...c.factionVars,
+      [WORLD_KEY]: serializeWorld(w),
+      $st_anomaly_on: "1",
+      $an_report: r.an,
+      $in_report: r.in,
+      $ms_report: r.ms,
+      $ag_report: r.ag
+    };
+  }
+  function dropPendingVars(chat, lore) {
+    const w = readWorld(chat);
+    if (!w || !["an", "ms", "in"].some((k) => w.pending?.[k])) return null;
+    for (const k of ["an", "ms", "in"]) cancelMission(w, k);
+    try {
+      return worldVars(w, parseCatalog(lore), worldSettings(lore, chat.scriptstate), String(chat.scriptstate?.$st_faction ?? ""));
+    } catch {
+      return null;
+    }
+  }
+  function startWorldVars(c, s8, faction, rng, player = "") {
+    return worldVars(bootstrap(c, s8, rng, player), c, s8, faction);
+  }
+  function fingerprint2(index, text5) {
+    let h = 2166136261;
+    for (let i = 0; i < text5.length; i++) h = Math.imul(h ^ text5.charCodeAt(i), 16777619);
+    return `${index}:${text5.length}:${(h >>> 0).toString(36)}`;
+  }
+  function processOutput(chat, messageIndex, raw, c, s8, rng) {
+    if (!worldOn(chat)) return null;
+    const messages = chat.message ?? [];
+    let index = messageIndex;
+    if (messages[index]?.data !== raw) {
+      index = -1;
+      for (let i = messages.length - 1; i >= 0; i--) {
+        if (messages[i].role === "char" && messages[i].data === raw) {
+          index = i;
+          break;
+        }
+      }
+    }
+    const msg = messages[index];
+    if (!msg || msg.role !== "char") return null;
+    const state2 = chat.scriptstate ?? {};
+    const th = splitThoughts(raw);
+    const clean9 = th.head + cleanOutput(th.body);
+    if (!hasWorldTags(th.body) && state2[LAST_KEY] === fingerprint2(index, clean9)) return null;
+    const prev = readPrev(state2[PREV_KEY]);
+    const pk = index > 0 && messages[index - 1] ? messageKey(messages[index - 1], index - 1) : "";
+    const reroll = prev?.i === index && (prev.pk === void 0 || prev.pk === pk);
+    const before = reroll ? prev : {
+      i: index,
+      world: String(state2[WORLD_KEY] ?? ""),
+      faction: String(state2["$st_faction"] ?? ""),
+      pick: String(state2["$st_pick"] ?? ""),
+      aff: String(state2["$ib_affiliation"] ?? ""),
+      pk
+    };
+    const faction = before.faction;
+    const base = parseWorld(before.world);
+    const result = applyOutput(base, c, s8, faction, th.body, rng);
+    const now2 = result.faction ?? faction;
+    markStart(base, result.world, messageKey(msg, index));
+    const vars = {
+      ...worldVars(result.world, c, s8, now2),
+      [LAST_KEY]: fingerprint2(index, clean9)
+    };
+    if (reroll && !result.faction) {
+      vars.$st_faction = before.faction;
+      vars.$st_pick = before.pick;
+      vars.$ib_affiliation = before.aff;
+    }
+    if (result.faction) {
+      vars.$st_faction = result.faction;
+      vars.$st_pick = result.faction;
+      vars.$ib_affiliation = c.affiliations?.[result.faction] ?? findFaction(result.faction)?.affiliation ?? guideTxt("Main", "WORLD.AFFILIATION_UNKNOWN");
+    }
+    const message = messages.slice();
+    message[index] = { ...msg, data: clean9 };
+    const next = { ...chat, message, scriptstate: { ...state2, ...vars } };
+    const closed = result.world.closed ?? [];
+    let made = [];
+    if (reroll || closed.length) {
+      let journal = readJournal(state2);
+      let rec3 = readReports(state2);
+      let changed = false;
+      if (reroll) {
+        const r = rewindClosures(journal, rec3, before.made ?? index);
+        journal = r.journal;
+        rec3 = r.reports;
+        changed = r.changed;
+      }
+      if (closed.length) {
+        const built = buildClosures({ chat: { ...next, scriptstate: { ...next.scriptstate, ...recordVars(journal, rec3) } }, index, world: result.world, closed, catalog: c, faction: now2, settings: journalSettings(state2) });
+        if (built.rows.length) {
+          journal = built.journal;
+          rec3 = built.reports;
+          made = built.rows.map((r) => r.id);
+          changed = true;
+        }
+      }
+      if (changed) Object.assign(next.scriptstate, recordVars(journal, rec3));
+    }
+    next.scriptstate[PREV_KEY] = JSON.stringify({ ...before, made });
+    return next;
+  }
+  function markStart(before, after, key) {
+    const id2 = (kind, e) => `${kind}|${e.loc}|${e.name}|${e.born ?? ""}`;
+    const was = /* @__PURE__ */ new Set();
+    for (const e of before.an) if (e.state === "활성") was.add(id2("an", e));
+    for (const e of before.inc) if (e.state === "진행") was.add(id2("in", e));
+    for (const e of before.ms) if (e.state === "출현") was.add(id2("ms", e));
+    const mark2 = (kind, e, active3) => {
+      if (active3 && !e.startKey && !was.has(id2(kind, e))) e.startKey = key;
+    };
+    for (const e of after.an) mark2("an", e, e.state === "활성");
+    for (const e of after.inc) mark2("in", e, e.state === "진행");
+    for (const e of after.ms) mark2("ms", e, e.state === "출현");
+  }
+  function prevWorldVars(state2, change) {
+    const prev = readPrev(state2?.[PREV_KEY]);
+    if (!prev) return {};
+    const w = parseWorld(prev.world);
+    try {
+      change(w);
+    } catch {
+      return {};
+    }
+    return { [PREV_KEY]: JSON.stringify({ ...prev, world: serializeWorld(w) }) };
+  }
+
+  // src/core/fab.ts
+  var FAB_SIZE = 48;
+  var FAB_MARGIN = 8;
+  var DEFAULT_FAB_POS = { right: 16, bottom: 96 };
+  var DRAG_THRESHOLD = 6;
+  function inside(rect, x, y) {
+    if (!rect || typeof x !== "number" || typeof y !== "number") return false;
+    return x >= rect.left && x <= rect.left + rect.width && y >= rect.top && y <= rect.top + rect.height;
+  }
+  function clampPos(pos, viewW, viewH) {
+    const maxR = Math.max(FAB_MARGIN, viewW - FAB_SIZE - FAB_MARGIN);
+    const maxB = Math.max(FAB_MARGIN, viewH - FAB_SIZE - FAB_MARGIN);
+    const r = Number.isFinite(pos.right) ? pos.right : DEFAULT_FAB_POS.right;
+    const b = Number.isFinite(pos.bottom) ? pos.bottom : DEFAULT_FAB_POS.bottom;
+    return {
+      right: Math.round(Math.min(maxR, Math.max(FAB_MARGIN, r))),
+      bottom: Math.round(Math.min(maxB, Math.max(FAB_MARGIN, b)))
+    };
+  }
+  function dragTo(start3, dx, dy, viewW, viewH) {
+    return clampPos({ right: start3.right - dx, bottom: start3.bottom - dy }, viewW, viewH);
+  }
+  function parsePos(raw) {
+    try {
+      const p2 = JSON.parse(raw ?? "");
+      if (p2 && Number.isFinite(p2.right) && Number.isFinite(p2.bottom)) return { right: p2.right, bottom: p2.bottom };
+    } catch {
+    }
+    return { ...DEFAULT_FAB_POS };
+  }
+
+  // src/ui/icons.ts
+  var GHOST_ICON = '<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M11.5 2.5C7.8 2.5 5.5 5.2 5.5 8.8V10.3L3.9 9.1C2.2 7.9 .6 10.1 2 11.5L5.5 15C5.8 19.5 9.3 22 13.7 22C18.1 22 21 19.6 22 16.8C19.4 18.3 17.5 17.8 17.5 15.5V15L21 11.5C22.4 10.1 20.8 7.9 19.1 9.1L17.5 10.3V8.5C17.5 5 15.1 2.5 11.5 2.5ZM10.2 9A1.2 1.6 0 1 0 7.8 9A1.2 1.6 0 1 0 10.2 9ZM15.2 9A1.2 1.6 0 1 0 12.8 9A1.2 1.6 0 1 0 15.2 9ZM12.5 13A1 1.5 0 1 0 10.5 13A1 1.5 0 1 0 12.5 13Z"/></svg>';
+  var stroke = (d) => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  var ICONS = {
+    board: stroke('<rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/>'),
+    map: stroke('<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/>'),
+    mission: stroke('<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>'),
+    phone: stroke('<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>'),
+    gnet: stroke('<path d="M4 5h16v11H8l-4 4V5Z"/><path d="M8 9h8M8 12h5"/>'),
+    net: stroke('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"/>'),
+    wiki: stroke('<path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2V5Z"/><path d="M8 7h6M8 11h6"/>'),
+    settings: stroke('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
+    swap: stroke('<path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>'),
+    wallet: stroke('<path d="M4 7a2 2 0 0 1 2-2h11v4"/><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M16 14h2"/>'),
+    idcard: stroke('<rect x="5" y="3" width="14" height="18" rx="2.5"/><circle cx="12" cy="10" r="2.6"/><path d="M8.5 16.5c.7-1.7 2-2.5 3.5-2.5s2.8.8 3.5 2.5"/>'),
+    info: stroke('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'),
+    refresh: stroke('<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>'),
+    undo: stroke('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'),
+    group: stroke('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.5A6.5 6.5 0 0 1 21.5 20"/>'),
+    person: stroke('<circle cx="12" cy="8" r="3.6"/><path d="M5 20.5a7 7 0 0 1 14 0"/>'),
+    org: stroke('<rect x="4" y="3.5" width="10" height="17" rx="1.5"/><path d="M14 9.5h4.5a1.5 1.5 0 0 1 1.5 1.5v9.5H14M7.5 7.5h3M7.5 11h3M7.5 14.5h3M10 20.5v-2.5"/>'),
+    addUser: stroke('<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/>'),
+    pen: stroke('<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>'),
+    mail: stroke('<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/>'),
+    call: stroke('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/>'),
+    // 보내기: 굵은 위쪽 화살표 (메신저 전송 버튼)
+    send: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5.5M5.5 12 12 5.5 18.5 12"/></svg>',
+    plus: stroke('<path d="M12 5v14M5 12h14"/>'),
+    trash: stroke('<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'),
+    weight: stroke('<circle cx="12" cy="5.5" r="2.5"/><path d="M7 9h10l2.5 11h-15Z"/>'),
+    /** 기록 메뉴 (일지·보고서·인물·세력): 클립보드 */
+    bag: stroke('<path d="M5 8h14l-1 12H6Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>'),
+    records: stroke('<rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 4.5V3h6v1.5M8.5 10h7M8.5 13.5h7M8.5 17h4"/>'),
+    book: stroke('<path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2V5Z"/><path d="M8 7h6M8 11h6"/>'),
+    back: stroke('<path d="m15 5-7 7 7 7"/>'),
+    // 관찰형 게임 「관리국 순찰」: 게임패드
+    pad: stroke('<path d="M7.5 8h9a4.5 4.5 0 0 1 4.4 3.6l.9 4.6a2.4 2.4 0 0 1-4.1 2.1L15.6 16H8.4l-2.1 2.3a2.4 2.4 0 0 1-4.1-2.1l.9-4.6A4.5 4.5 0 0 1 7.5 8z"/><path d="M8 10.5v3M6.5 12h3"/><path d="M15.5 11.2h.01M17.3 13h.01"/>'),
+    star: stroke('<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.9Z"/>'),
+    tag: stroke('<path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3-8.7 8.7Z"/><circle cx="8" cy="8" r="1.4"/>'),
+    game: stroke('<path d="M7 8h10a4 4 0 0 1 4 4.5l-.6 3.6a2.4 2.4 0 0 1-4.2 1.1L14.5 15h-5l-1.7 2.2a2.4 2.4 0 0 1-4.2-1.1L3 12.5A4 4 0 0 1 7 8Z"/><path d="M8 11v3M6.5 12.5h3M15.5 12h.01M17.5 13.5h.01"/>'),
+    search: stroke('<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>'),
+    cctv: stroke('<rect x="2.5" y="4.5" width="19" height="13" rx="2"/><path d="M8 21h8M12 17.5V21"/><circle cx="7" cy="9" r="1.5" fill="currentColor" stroke="none"/>'),
+    grid: stroke('<rect x="3.5" y="4" width="7" height="7" rx="1.5"/><rect x="13.5" y="4" width="7" height="7" rx="1.5"/><rect x="3.5" y="14" width="7" height="7" rx="1.5"/><rect x="13.5" y="14" width="7" height="7" rx="1.5"/>'),
+    list: stroke('<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>'),
+    pin: stroke('<path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z"/><circle cx="12" cy="9.8" r="2.3"/>'),
+    // 상황 딱지 (v0.16.21): 사건은 경광등, 특수는 문어 모양 유령
+    siren: stroke('<path d="M6.5 17.5V12a5.5 5.5 0 0 1 11 0v5.5"/><path d="M4 17.5h16V21H4z"/><path d="M12 2v2.5M3.5 5.5l1.8 1.8M20.5 5.5l-1.8 1.8M12 10.5v3.5"/>'),
+    spook: '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2.5a7.5 7.5 0 0 0-7.5 7.5v10.6c0 .8.9 1.2 1.5.7l1.5-1.2 1.7 1.4c.4.3.9.3 1.3 0l1.5-1.4 1.5 1.4c.4.3.9.3 1.3 0l1.7-1.4 1.5 1.2c.6.5 1.5.1 1.5-.7V10A7.5 7.5 0 0 0 12 2.5ZM9.3 8.4a1.4 1.7 0 1 0 0 3.4a1.4 1.7 0 1 0 0-3.4Zm5.4 0a1.4 1.7 0 1 0 0 3.4a1.4 1.7 0 1 0 0-3.4Z"/></svg>',
+    expand: stroke('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>'),
+    /** 장착 빈 칸 기호: 손(손바닥) · 장비(방패). weapon(칼)은 옛 기호로 남김 (사용자 2026-11-14) */
+    hand: stroke('<path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.3l-3.6-3.6a2 2 0 0 1 2.8-2.8L7 15"/>'),
+    weapon: stroke('<path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m16 16 4 4"/><path d="m19 21 2-2"/>'),
+    gear: stroke('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>'),
+    close: stroke('<path d="M6 6l12 12M18 6 6 18"/>'),
+    copy: stroke('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>'),
+    check: stroke('<path d="m5 12.5 4.5 4.5L19 7.5"/>'),
+    up: stroke('<path d="m6 15 6-6 6 6"/>'),
+    down: stroke('<path d="m6 9 6 6 6-6"/>'),
+    /** 합치기: 두 갈래가 하나로 (소지품 합치기, 전수점검 눌러2-사소-19 — 새로고침 그림을 쓰던 것) */
+    merge: stroke('<path d="M6 3v3a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><path d="M12 12v9M8.5 17.5 12 21l3.5-3.5"/>'),
+    grip: '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>'
+  };
+
+  // src/ui/brand.ts
+  var BRAND = {
+    /** 창 머리·표지 이름 */
+    name: "괴이 ː ANOMALY",
+    /** 떠 있는 여는 버튼에 마우스를 올렸을 때 */
+    fab: "괴이 ː ANOMALY"
+  };
+  function brandHtml(text5, signal) {
+    return `<span style="color:${text5}">괴이</span><span style="color:${signal};font-weight:300;margin:0 .3em">ː</span><span style="color:${signal}">ANOMALY</span>`;
+  }
+
+  // src/ui/landing.ts
+  var MONO = "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
+  function title(p2) {
+    const line2 = brandHtml(p2.text, p2.signal);
+    const font = "font-size:2.1em;font-size:min(2.1em,11.2cqw);font-weight:800;letter-spacing:.08em;line-height:1.15;white-space:nowrap";
+    return `<div style="margin:6px 0 0;${font}">${line2}</div><div aria-hidden="true" style="${font};line-height:1;margin:-.06em 0 .02em;-webkit-mask-image:linear-gradient(to bottom,#000,transparent 60%);mask-image:linear-gradient(to bottom,#000,transparent 60%)"><div data-goei-part="mirror" style="transform:scaleY(-1);opacity:.3">${line2}</div></div>`;
+  }
+  function corner(pos, p2) {
+    const [v, h] = pos.split(" ");
+    return `<span aria-hidden="true" style="position:absolute;${v}:10px;${h}:10px;width:14px;height:14px;border-${v}:2px solid ${p2.accentLine};border-${h}:2px solid ${p2.accentLine};border-${v}-${h}-radius:4px;opacity:.9"></span>`;
+  }
+  function landingHtml(p2) {
+    const ghost = GHOST_ICON.replace('width="24" height="24"', 'width="92" height="92"');
+    return `<div data-goei-card="landing" style="container-type:inline-size;position:relative;overflow:hidden;box-sizing:border-box;max-width:23em;margin:18px auto;padding:30px 30px 22px;border-radius:20px;background:${p2.void};border:1px solid ${p2.line};color:${p2.text};line-height:1.6;font-size:15px;text-align:center;box-shadow:0 20px 40px -24px rgba(0,0,0,.45)"><span aria-hidden="true" data-goei-part="scan" style="position:absolute;left:0;right:0;top:0;height:40%;pointer-events:none;opacity:0;background:linear-gradient(to bottom,transparent,${p2.accentBg} 70%,transparent)"></span>` + corner("top left", p2) + corner("top right", p2) + corner("bottom left", p2) + corner("bottom right", p2) + `<span style="position:absolute;top:13px;right:34px;display:inline-flex;align-items:center;gap:6px;font-family:${MONO};font-size:10px;letter-spacing:.2em;color:${p2.sub}"><span data-goei-part="dot" style="width:6px;height:6px;border-radius:50%;background:${p2.signal}"></span>STANDBY</span><div data-goei-part="row" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:14px"><div data-goei-part="ghost" style="flex:0 0 auto;display:grid;place-items:center;width:96px;height:96px;color:${p2.signal};filter:drop-shadow(0 6px 14px ${p2.accentBg})">${ghost}</div><div data-goei-part="text" style="width:100%;min-width:0">` + title(p2) + `<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;padding-top:12px;border-top:1px dashed ${p2.line};color:${p2.sub};white-space:nowrap;font-size:min(1em,7cqw)"><span style="font-family:${MONO};color:${p2.signal}">▸</span><span data-goei-part="hint">유령 버튼을 눌러 시작하세요</span></div></div></div></div>`;
+  }
+  var LANDING_CSS = `
+[data-goei-card="landing"] { container-type: inline-size; }
+@keyframes goei-l-blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+@keyframes goei-l-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .3; transform: scale(.7); } }
+@keyframes goei-l-mirror {
+  0%, 100% { transform: scaleY(-1) skewX(0deg) translateX(0); opacity: .3; }
+  25% { transform: scaleY(-1.04) skewX(5deg) translateX(-2px); opacity: .22; }
+  50% { transform: scaleY(-.97) skewX(-3deg) translateX(2px); opacity: .34; }
+  75% { transform: scaleY(-1.02) skewX(4deg) translateX(-1px); opacity: .25; }
+}
+@keyframes goei-l-label {
+  0%, 86%, 100% { opacity: .9; transform: translateX(0); }
+  88% { opacity: .3; transform: translateX(2px); }
+  90% { opacity: 1; transform: translateX(-2px); }
+  92% { opacity: .5; transform: translateX(1px); }
+  94% { opacity: .95; transform: translateX(0); }
+}
+@keyframes goei-l-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes goei-l-scan { 0% { transform: translateY(-100%); opacity: 0; } 15% { opacity: .55; } 70% { opacity: .55; } 100% { transform: translateY(260%); opacity: 0; } }
+[data-goei-card="landing"] [data-goei-part="hint"] { animation: goei-l-blink 1.6s ease-in-out infinite; }
+[data-goei-card="landing"] [data-goei-part="dot"] { animation: goei-l-dot 1.6s ease-in-out infinite; }
+[data-goei-card="landing"] [data-goei-part="mirror"] { animation: goei-l-mirror 4.5s ease-in-out infinite; }
+[data-goei-card="landing"] [data-goei-part="label"] { display: inline-block; animation: goei-l-label 3.8s linear infinite; }
+[data-goei-card="landing"] [data-goei-part="ghost"] { animation: goei-l-float 3.2s ease-in-out infinite; }
+[data-goei-card="landing"] [data-goei-part="scan"] { animation: goei-l-scan 5s ease-in-out infinite; }
+/* 좁은 화면: 유령만 조금 작게 (인라인 style을 이겨야 해서 !important) */
+@container (max-width: 24em) {
+  [data-goei-card="landing"] [data-goei-part="ghost"] { width: 80px !important; height: 80px !important; }
+  [data-goei-card="landing"] [data-goei-part="ghost"] svg { width: 76px; height: 76px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-goei-card="landing"] [data-goei-part] { animation: none !important; }
+}
+`;
+
+  // src/ui/theme.ts
+  var PALETTES = {
+    dark: { void: "#1A2226", panel: "#232D32", line: "#37464D", text: "#E9F0EE", sub: "#BECBC8", signal: "#5EEAD4", accentBg: "#1D403A", accentLine: "#3F8879", scrim: "rgba(3, 7, 9, .9)" },
+    light: { void: "#F4F6F5", panel: "#FFFFFF", line: "#BCC9C5", text: "#13201D", sub: "#3B4B47", signal: "#0F8C7A", accentBg: "#DDF3EE", accentLine: "#8FCFC3", scrim: "rgba(236, 242, 240, .94)" },
+    paper: { void: "#EFE6D2", panel: "#FAF5E9", line: "#D3C29E", text: "#2B2418", sub: "#4A3F2C", signal: "#8A4B12", accentBg: "#F1DEC2", accentLine: "#C99A63", scrim: "rgba(239, 230, 210, .94)" }
+  };
+  function themeName(v, fallback = "dark") {
+    return v === "light" || v === "paper" || v === "dark" ? v : fallback;
+  }
+  var current = "dark";
+  var listeners = /* @__PURE__ */ new Set();
+  function currentTheme() {
+    return current;
+  }
+  function setCurrentTheme(t) {
+    if (t === current) return;
+    current = t;
+    for (const f of listeners) f(t);
+  }
+  function repaintTheme() {
+    for (const f of listeners) f(current);
+  }
+  function onThemeChange(f) {
+    listeners.add(f);
+    return () => listeners.delete(f);
+  }
+  var KEYS = Object.keys(PALETTES.dark);
+  function cardPalette(t) {
+    const p2 = PALETTES[t];
+    return Object.fromEntries(KEYS.map((k) => [k, `var(--goei-${k}, ${p2[k]})`]));
+  }
+  function cardVarsCss(t) {
+    const p2 = PALETTES[t];
+    return `[data-goei-card] { ${KEYS.map((k) => `--goei-${k}: ${p2[k]};`).join(" ")} }`;
+  }
+
+  // src/core/world/calendar.ts
+  var WEEK2 = ["일", "월", "화", "수", "목", "금", "토"];
+  var DAY = 864e5;
+  var SOLAR = {
+    "1-1": "신정",
+    "3-1": "삼일절",
+    "5-5": "어린이날",
+    "6-6": "현충일",
+    "8-15": "광복절",
+    "10-3": "개천절",
+    "10-9": "한글날",
+    "12-25": "성탄절"
+  };
+  var SUBST_FROM = {
+    설날: 2014,
+    추석: 2014,
+    어린이날: 2014,
+    삼일절: 2022,
+    광복절: 2021,
+    개천절: 2021,
+    한글날: 2021,
+    부처님오신날: 2023,
+    성탄절: 2023
+  };
+  var lunarFmt;
+  function lunar(t) {
+    if (lunarFmt === void 0) {
+      try {
+        lunarFmt = new Intl.DateTimeFormat("en-u-ca-dangi", { timeZone: "UTC", month: "numeric", day: "numeric" });
+        if (lunarFmt.resolvedOptions().calendar !== "dangi") lunarFmt = null;
+      } catch {
+        lunarFmt = null;
+      }
+    }
+    if (!lunarFmt) return null;
+    const hit4 = lunarMemo.get(t);
+    if (hit4 !== void 0) return hit4;
+    const parts = lunarFmt.formatToParts(new Date(t));
+    const month = parts.find((p2) => p2.type === "month")?.value ?? "";
+    const day = Number(parts.find((p2) => p2.type === "day")?.value);
+    const m = parseInt(month, 10);
+    const out2 = Number.isFinite(m) && Number.isFinite(day) ? { m, d: day, leap: /bis/.test(month) } : null;
+    if (lunarMemo.size >= 4096) lunarMemo.clear();
+    lunarMemo.set(t, out2);
+    return out2;
+  }
+  var lunarMemo = /* @__PURE__ */ new Map();
+  function baseHolidays(t) {
+    const dt = new Date(t);
+    const out2 = [];
+    const solar = SOLAR[`${dt.getUTCMonth() + 1}-${dt.getUTCDate()}`];
+    if (solar) out2.push(solar);
+    const l = lunar(t);
+    if (l && !l.leap) {
+      const next = lunar(t + DAY);
+      if (l.m === 1 && (l.d === 1 || l.d === 2) || next && !next.leap && next.m === 1 && next.d === 1) out2.push("설날");
+      if (l.m === 8 && l.d >= 14 && l.d <= 16) out2.push("추석");
+      if (l.m === 4 && l.d === 8) out2.push("부처님오신날");
+    }
+    return out2;
+  }
+  function isSubstitute(t) {
+    let owed = 0;
+    for (let x = t - 14 * DAY; x <= t; x += DAY) {
+      const names4 = baseHolidays(x);
+      const wd = new Date(x).getUTCDay();
+      if (!names4.length) {
+        if (wd !== 0 && wd !== 6 && owed > 0) {
+          if (x === t) return true;
+          owed--;
+        }
+        continue;
+      }
+      const year = new Date(x).getUTCFullYear();
+      const hit4 = names4.some((n3) => {
+        const from = SUBST_FROM[n3];
+        if (!from || year < from) return false;
+        const lunarGroup = n3 === "설날" || n3 === "추석";
+        return names4.length > 1 || wd === 0 || !lunarGroup && wd === 6;
+      });
+      if (hit4) owed++;
+    }
+    return false;
+  }
+  var DATE_RE2 = /(\d{3,4})\s*[.\-/년]\s*(\d{1,2})\s*[.\-/월]\s*(\d{1,2})\s*일?/;
+  var WEEK_RE = /\s*[(（]?\s*(?:[일월화수목금토](?:요일)?|sun|mon|tue|wed|thu|fri|sat)[a-z]*\.?\s*[)）]?\s*$/i;
+  function dayInfo(text5) {
+    const m = DATE_RE2.exec(text5 ?? "");
+    if (!m) return null;
+    const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+    const t = Date.UTC(y, mo - 1, d);
+    const dt = new Date(t);
+    if (dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
+    const date = text5.slice(0, m.index + m[0].length).trim() + text5.slice(m.index + m[0].length).replace(WEEK_RE, "");
+    const names4 = baseHolidays(t);
+    const holiday = names4.length ? [...new Set(names4)].join("·") : isSubstitute(t) ? "대체공휴일" : "";
+    const wd = dt.getUTCDay();
+    const l = lunar(t);
+    return { date: date.trim(), weekday: WEEK2[wd], holiday, red: wd === 0 || !!holiday, saturday: wd === 6, lunar: l ? `${l.leap ? "윤" : ""}${l.m}월 ${l.d}일` : "" };
+  }
+
+  // src/core/world/draft.ts
+  var same2 = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+  function minimalOverride(kind, name, full) {
+    const base = defaultRecord(kind, name);
+    if (!base) return full;
+    const out2 = {};
+    const fields3 = {};
+    for (const id2 of /* @__PURE__ */ new Set([...Object.keys(base.fields), ...Object.keys(full.fields)])) {
+      const a = base.fields[id2] ?? "";
+      const b = full.fields[id2] ?? "";
+      if (a !== b) fields3[id2] = b;
+    }
+    if (Object.keys(fields3).length) out2.fields = fields3;
+    if (!same2(base.extra, full.extra)) out2.extra = full.extra;
+    if (!same2(fieldOrder(kind, { ...full, order: base.order }), fieldOrder(kind, full))) out2.order = full.order ?? [];
+    if (!same2(base.variants, full.variants)) out2.variants = full.variants ?? {};
+    if ((base.keys ?? "") !== (full.keys ?? "")) out2.keys = full.keys ?? "";
+    if ((base.title ?? "") !== (full.title ?? "")) out2.title = full.title ?? "";
+    if (!same2(base.departments, full.departments)) out2.departments = full.departments ?? {};
+    if (!same2(base.roster_notes, full.roster_notes)) out2.roster_notes = full.roster_notes ?? [];
+    if (!!base.noSummary !== !!full.noSummary) out2.noSummary = !!full.noSummary;
+    if (!!base.rosterOff !== !!full.rosterOff) out2.rosterOff = !!full.rosterOff;
+    if (!!base.relOff !== !!full.relOff) out2.relOff = !!full.relOff;
+    return Object.keys(out2).length ? out2 : void 0;
+  }
+  function putRecord(over, kind, name, full) {
+    const next = { ...over, [kind]: { ...over[kind] ?? {} } };
+    const m = minimalOverride(kind, name, full);
+    const bucket = next[kind];
+    if (m) bucket[name] = m;
+    else delete bucket[name];
+    if (!Object.keys(bucket).length) delete next[kind];
+    return next;
+  }
+  function removeRecord(over, kind, name) {
+    const next = { ...over, [kind]: { ...over[kind] ?? {} } };
+    const bucket = next[kind];
+    if (defaultRecord(kind, name)) bucket[name] = { ...bucket[name] ?? {}, deleted: true };
+    else delete bucket[name];
+    if (!Object.keys(bucket).length) delete next[kind];
+    return next;
+  }
+  var emptyRecord = () => ({ fields: {}, extra: [] });
+  function recordText(kind, name, rec3, dir2, faction) {
+    if (kind === "agent") {
+      const a = dir2.agents.find((x) => x.lore === name);
+      if (a) return assembleAgent(rec3, a, dir2, faction);
+    } else if (kind === "anomaly" || kind === "site") {
+      const p2 = (kind === "anomaly" ? dir2.anomalies : dir2.sites).find((x) => x.lore === name);
+      if (p2) return kind === "anomaly" ? assembleAnomaly(rec3, p2, faction) : assembleSite(rec3, p2, faction);
+    } else if (kind === "org") {
+      const o = dir2.orgs.find((x) => x.name === name) ?? orgOf(dir2.orgs, name);
+      if (o) return assembleOrg(rec3, o, dir2, faction);
+    } else {
+      const r = dir2.appendices.find((x) => x.lore === name);
+      if (r) return assembleAppendix(rec3, r, faction);
+    }
+    return fieldOrder(kind, rec3).map((id2) => id2.startsWith("x:") ? rec3.extra.find((e) => `x:${e.name}` === id2)?.value ?? "" : rec3.fields[id2] ?? "").filter(Boolean).join("\n\n");
+  }
+  var SYN = {
+    agent: [
+      ["character", ["character", "personality", "성격", "인격"]],
+      ["voice", ["voice", "speech", "dialogue", "tone", "말투", "대사", "어투"]],
+      ["background", ["background", "history", "backstory", "past", "배경", "과거", "이력"]],
+      ["abilities", ["abilit", "skill", "power", "능력", "기술"]],
+      ["intro", ["roster", "소개", "summary"]]
+    ],
+    org: [
+      ["doctrine", ["doctrine", "method", "law", "policy", "교리", "방침", "신조"]],
+      ["hq", ["headquarter", "hq", "location", "site", "본부", "거점", "위치"]],
+      ["structure", ["structure", "division", "organization", "조직 구조", "구조", "편제"]],
+      ["hierarchy", ["hierarch", "rank", "계급", "직급"]],
+      ["recruitment", ["recruit", "contact", "orientation", "모집", "접촉", "채용"]],
+      ["assets", ["asset", "characteristic", "trait", "database", "reward", "classification", "자산", "특성"]],
+      ["personnel", ["personnel", "member", "worker", "participant", "freelancer", "people", "인원", "구성원"]],
+      ["intro", ["identity", "overview", "summary", "소개", "정체", "개요"]]
+    ],
+    anomaly: [
+      ["entry", ["entry", "entrance", "access", "arrival", "approach", "입장", "진입", "접근"]],
+      ["survival", ["surviv", "escape", "exit", "clear", "rescue", "resolution", "ending", "생존", "탈출", "클리어", "해결"]],
+      ["rules", ["rule", "etiquette", "guideline", "law", "penalt", "enforcement", "mechanic", "규칙", "규율", "벌"]],
+      ["entities", ["entit", "resident", "staff", "inhabitant", "creature", "monster", "guardian", "personnel", "개체", "존재", "주민", "괴물"]],
+      ["space", ["structure", "zone", "location", "layout", "floor", "room", "area", "district", "space", "map", "구조", "공간", "구역", "층", "지도"]],
+      ["notes", ["note", "misc", "exposure", "record", "file", "비고", "기록", "참고"]],
+      ["identity", ["identity", "overview", "summary", "nature", "정체", "개요", "소개"]]
+    ],
+    site: [
+      ["access", ["access", "contact", "entrance", "how to", "접근", "입장", "연락"]],
+      ["location", ["location", "appearance", "exterior", "위치", "외관", "모습"]],
+      ["environment", ["environment", "interior", "atmosphere", "환경", "내부", "분위기"]],
+      ["rules", ["rule", "trade", "service", "transaction", "currency", "price", "protocol", "etiquette", "inventory", "merchandise", "규칙", "거래", "대가", "가격", "이용"]],
+      ["keeper", ["keeper", "owner", "proprietor", "tattooist", "counselor", "dokkaebi", "personnel", "staff", "주인", "운영", "점주"]],
+      ["identity", ["identity", "overview", "origin", "nature", "summary", "정체", "개요", "소개"]]
+    ],
+    appendix: [["body", ["body", "본문"]]]
+  };
+  var LINE_SYN = {
+    identity: [["age", ["age", "나이", "연령"]], ["gender", ["gender", "sex", "성별"]], ["organization", ["organization", "affiliation", "faction", "소속", "조직"]], ["department_en", ["department", "team", "division", "부서", "소속팀"]], ["role", ["role", "position", "job", "역할", "직책", "직무"]]],
+    appearance: [["physique", ["physique", "build", "body", "체격", "체형"]], ["appearance", ["appearance", "looks", "face", "hair", "외모", "외형", "얼굴"]], ["outfit", ["outfit", "clothes", "clothing", "attire", "dress", "복장", "옷"]]]
+  };
+  var synHit = (t, w) => /^[a-z ]+$/.test(w) ? new RegExp(`(^|[^a-z])${w}`).test(t) : t.includes(w);
+  var matchSyn = (title2, table2) => {
+    const t = title2.toLowerCase();
+    return table2.find(([, words]) => words.some((w) => synHit(t, w)))?.[0];
+  };
+  function parseImport(kind, text5) {
+    const lines3 = text5.replace(/\r/g, "").split("\n");
+    const sections3 = [{ title: "", body: [] }];
+    const HEAD = /^(#{1,6})\s+(.+?)\s*#*$/;
+    const skip = /* @__PURE__ */ new Set();
+    let cut3 = 0;
+    if (kind !== "appendix") {
+      const heads = lines3.flatMap((l, i) => {
+        const m = HEAD.exec(l);
+        return m ? [{ i, d: m[1].length }] : [];
+      });
+      if (heads.length) {
+        const min = Math.min(...heads.map((h) => h.d));
+        const [first, next] = heads;
+        const docTitle = first.d === min && heads.filter((h) => h.d === min).length === 1 && heads.some((h) => h.d > min) && lines3.slice(first.i + 1, next.i).every((l) => !l.trim() || /^\[Affiliation code:[^\]]*\]\s*$/i.test(l));
+        if (docTitle) for (let i = first.i; i < next.i; i++) skip.add(i);
+        const rest = docTitle ? heads.slice(1) : heads;
+        cut3 = Math.min(...rest.map((h) => h.d));
+      }
+    }
+    lines3.forEach((line2, i) => {
+      if (skip.has(i)) return;
+      if (cut3) {
+        const m = HEAD.exec(line2);
+        if (m && m[1].length === cut3) sections3.push({ title: m[2].trim(), body: [] });
+        else sections3[sections3.length - 1].body.push(line2);
+        return;
+      }
+      const h = /^#{1,6}\s+(.+?)\s*#*$/.exec(line2) ?? /^\*\*([^*]{1,60})\*\*:?\s*$/.exec(line2) ?? /^\[([^\]]{1,40})\]\s*$/.exec(line2);
+      if (h) sections3.push({ title: h[1].trim(), body: [] });
+      else sections3[sections3.length - 1].body.push(line2);
+    });
+    const fields3 = {};
+    const extra2 = [];
+    const map = [];
+    const put = (id2, body5) => {
+      fields3[id2] = fields3[id2] ? `${fields3[id2]}
+
+${body5}` : body5;
+    };
+    const textFields = FIELDS[kind].filter((f) => f.type === "text").map((f) => f.id);
+    const firstText = textFields[0] ?? FIELDS[kind][0].id;
+    for (const sec3 of sections3) {
+      const body5 = sec3.body.join("\n").trim();
+      if (!sec3.title) {
+        if (body5) {
+          if (kind === "agent" && /^- /m.test(body5)) parseAgentLines(body5, "identity", fields3, extra2);
+          else put(firstText, body5);
+          map.push(["(앞글)", firstText]);
+        }
+        continue;
+      }
+      if (kind === "agent") {
+        const t = sec3.title.toLowerCase();
+        if (/identity|정체|기본|신상/.test(t)) {
+          parseAgentLines(body5, "identity", fields3, extra2);
+          map.push([sec3.title, "identity"]);
+          continue;
+        }
+        if (/appearance|외모|외형|looks/.test(t) && /^- /m.test(body5)) {
+          parseAgentLines(body5, "appearance", fields3, extra2);
+          map.push([sec3.title, "appearance"]);
+          continue;
+        }
+      }
+      if (kind === "appendix") {
+        put("body", body5 ? `##### ${sec3.title}
+${body5}` : `##### ${sec3.title}`);
+        map.push([sec3.title, "body"]);
+        continue;
+      }
+      const id2 = matchSyn(sec3.title, SYN[kind]);
+      if (id2) {
+        put(id2, body5);
+        map.push([sec3.title, id2]);
+      } else {
+        extra2.push({ name: sec3.title, value: body5, kind: "block" });
+        map.push([sec3.title, `x:${sec3.title}`]);
+      }
+    }
+    return { fields: fields3, extra: extra2, map };
+  }
+  function parseAgentLines(body5, sec3, fields3, extra2) {
+    let prev = "";
+    for (const raw of body5.split("\n")) {
+      const m = /^-?\s*\*{0,2}([^:*]{1,30})\*{0,2}\s*[:：]\s*(.*)$/.exec(raw.trim());
+      if (!m) {
+        if (raw.trim() && prev) fields3[prev] = `${fields3[prev]} ${raw.trim()}`;
+        continue;
+      }
+      const id2 = matchSyn(m[1], LINE_SYN[sec3]);
+      if (id2) {
+        fields3[id2] = m[2].trim();
+        prev = id2;
+      } else {
+        extra2.push({ name: m[1].trim(), value: m[2].trim(), kind: "line", sec: sec3, at: prev });
+      }
+    }
+  }
+  function moveField(kind, rec3, id2, dir2) {
+    const order2 = fieldOrder(kind, rec3);
+    const i = order2.indexOf(id2);
+    const j = i + dir2;
+    if (i < 0 || j < 0 || j >= order2.length) return order2;
+    [order2[i], order2[j]] = [order2[j], order2[i]];
+    return order2;
+  }
+  function moveFieldTo(kind, rec3, id2, before) {
+    const order2 = fieldOrder(kind, rec3).filter((x) => x !== id2);
+    const at = before ? order2.indexOf(before) : -1;
+    if (at < 0) order2.push(id2);
+    else order2.splice(at, 0, id2);
+    return order2;
+  }
+
+  // src/core/points.ts
+  var POINTS_VAR = "$st_points";
+  function readPoints(vars) {
+    const raw = vars?.[POINTS_VAR];
+    const empty2 = { start: 0, log: [] };
+    if (typeof raw !== "string" || !raw.trim()) return empty2;
+    try {
+      const o = JSON.parse(raw);
+      if (!o || typeof o !== "object") return empty2;
+      return { start: Number.isSafeInteger(o.start) ? o.start : 0, log: Array.isArray(o.log) ? o.log.filter((e) => !!e && typeof e === "object" && typeof e.id === "string" && typeof e.anchor === "string" && Number.isSafeInteger(e.amount) && typeof e.memo === "string") : [] };
+    } catch {
+      return empty2;
+    }
+  }
+  var pointsVars = (w) => ({ [POINTS_VAR]: JSON.stringify(w) });
+  function lastIdentity(chat) {
+    const msgs4 = chat.message ?? [];
+    for (let i = msgs4.length - 1; i >= 0; i--) {
+      const tags = findStatusTags(String(msgs4[i].data ?? ""));
+      for (let k = tags.length - 1; k >= 0; k--) if (tags[k].identity) return tags[k].identity;
+    }
+    return "";
+  }
+  function pointsFlagFor(chat, fallback = false) {
+    const id2 = lastIdentity(chat);
+    const on3 = id2 ? isPointsOrg(id2) : fallback;
+    const want = on3 ? "1" : "0";
+    return chat.scriptstate?.[POINTS_ON_VAR] === want ? null : want;
+  }
+  function pointsOn(chat) {
+    return colConfig(chat.scriptstate).points !== "off" || readPoints(chat.scriptstate).log.length > 0;
+  }
+  function recentPointLines(w, alive, n3) {
+    if (n3 <= 0) return [];
+    return liveWallet(w, alive).filter((e) => e.memo !== POINTS_SYNC_MEMO).slice(-n3).map((e) => guideTxt("Main", "STATUS.RECENT_POINT_LINE", { amount: `${e.amount > 0 ? "+" : ""}${e.amount.toLocaleString("en-US")}`, memo: e.memo }));
+  }
+  var POINTS_SYNC_MEMO = "상태창 포인트";
+  function dropDoubleSync(w, alive) {
+    const isSync = (e) => e.memo === POINTS_SYNC_MEMO && e.id.startsWith("ps_");
+    const live = (e) => !e.anchor || !alive || alive.has(e.anchor);
+    const drop = /* @__PURE__ */ new Set();
+    w.log.forEach((a, i) => {
+      if (!isSync(a) || drop.has(a.id) || !a.amount) return;
+      if (!w.log.some((e) => !isSync(e) && e.src === "story" && e.anchor === a.anchor && e.amount === a.amount)) return;
+      const cand = (e, k) => k > i && isSync(e) && !drop.has(e.id) && e.amount === -a.amount;
+      const back = w.log.find((e, k) => cand(e, k) && live(e) === live(a)) ?? w.log.find(cand);
+      if (back) {
+        drop.add(a.id);
+        drop.add(back.id);
+      }
+    });
+    return drop.size ? { ...w, log: w.log.filter((e) => !drop.has(e.id)) } : w;
+  }
+  function syncPointsToStatus(w0, chat) {
+    const alive = aliveAnchors(chat);
+    const w = dropDoubleSync(w0, alive);
+    const msgs4 = chat.message ?? [];
+    let i = msgs4.length - 1;
+    while (i >= 0 && msgs4[i].role === "user") i--;
+    if (i < 0) return null;
+    const m = msgs4[i];
+    const tags = findStatusTags(typeof m.data === "string" ? m.data : "");
+    let target = null;
+    for (let k = tags.length - 1; k >= 0; k--) {
+      const n3 = tags[k].points ? Number(tags[k].points) : NaN;
+      if (Number.isSafeInteger(n3) && Math.abs(n3) <= WALLET_MAX) {
+        target = n3;
+        break;
+      }
+    }
+    if (target === null) return null;
+    const anchor = messageKey(m, i);
+    const id2 = `ps_${anchor}`;
+    const base = removeWalletEntry(w, id2);
+    const t = typeof m.time === "number" ? m.time : NaN;
+    const later2 = (e) => e.src === "manual" && Number.isFinite(t) && Date.parse(e.at) > t;
+    const prior = { ...base, log: base.log.filter((e) => e.anchor !== anchor && !later2(e)) };
+    if (target === walletBalance(prior, alive)) return JSON.stringify(base) === JSON.stringify(w0) ? null : base;
+    const before = { ...base, log: base.log.filter((e) => !(e.src === "store" && e.anchor === anchor) && !later2(e)) };
+    const diff = target - walletBalance(before, alive);
+    const next = diff === 0 ? base : addWalletEntry(base, { id: id2, anchor, amount: diff, memo: POINTS_SYNC_MEMO, src: "story" }, alive);
+    return JSON.stringify(next) === JSON.stringify(w0) ? null : next;
+  }
+  function formatPoints(n3) {
+    return `${n3 < 0 ? "−" : ""}${Math.abs(Math.trunc(n3)).toLocaleString("en-US")} p`;
+  }
+  function parsePoints(text5) {
+    const t = String(text5 ?? "").replace(/\s+/g, "");
+    if (!t) return null;
+    const sign = /^[-−]/.test(t) ? -1 : 1;
+    const body5 = t.replace(/^[-−+]/, "").replace(/(p|P|포인트|points?)$/i, "").replace(/,/g, "");
+    if (/^\d+$/.test(body5)) {
+      const n4 = Number(body5);
+      return Number.isSafeInteger(n4) ? sign * n4 : null;
+    }
+    const m = /^(?:(\d+(?:\.\d+)?)억)?(?:(\d+(?:\.\d+)?)만)?(?:(\d+)천)?(?:(\d+)백)?(\d+)?$/.exec(body5);
+    if (!m || m.slice(1).every((x) => x === void 0)) return null;
+    const n3 = Math.round(Number(m[1] ?? 0) * 1e8 + Number(m[2] ?? 0) * 1e4 + Number(m[3] ?? 0) * 1e3 + Number(m[4] ?? 0) * 100 + Number(m[5] ?? 0));
+    return Number.isSafeInteger(n3) && n3 > 0 ? sign * n3 : null;
+  }
+  function mentionsPoints(text5) {
+    return /\d[\d,]*\s*(?:p\b|P\b|포인트|points?\b)|\d+\s*(?:억|만|천)\s*포인트/i.test(text5);
+  }
+
+  // src/ui/status.ts
+  var esc = (s8) => s8.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+  var AIM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.2"/></svg>';
+  var CASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M7 12h.01M17 12h.01"/></svg>';
+  var squash4 = (t) => t.replace(/\s+/g, "");
+  var LETTER = /[\p{L}\p{N}]/u;
+  var escRe2 = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  var looseTerm = (term) => /[가-힣]/.test(term) && [...squash4(term)].length >= 3;
+  var sameTerm = (t, name) => t.term === name || !!t.loose && squash4(t.term) === squash4(name);
+  function respacedOk(text5, at, end, hit4) {
+    if (LETTER.test(text5[at - 1] ?? "")) return false;
+    const run6 = /^[\p{L}\p{N}]*/u.exec(text5.slice(end))?.[0] ?? "";
+    if (!run6) return true;
+    const last2 = hit4.split(/[ \t]+/).pop() ?? "";
+    return [...last2].length > 1 && JOSA.includes(run6);
+  }
+  function linkTerms(text5, terms) {
+    if (!terms.length || !text5) return esc(text5);
+    const hits2 = [];
+    const put = (at, end) => {
+      if (!hits2.some((h) => at < h.end && end > h.at)) hits2.push({ at, end });
+    };
+    for (const { term, loose } of terms) {
+      let from = 0;
+      for (; ; ) {
+        const at = text5.indexOf(term, from);
+        if (at < 0) break;
+        const end = at + term.length;
+        put(at, end);
+        from = end;
+      }
+      if (!loose) continue;
+      const re = new RegExp([...squash4(term)].map(escRe2).join("[ \\t]*"), "gu");
+      for (let m = re.exec(text5); m; m = re.exec(text5)) {
+        const at = m.index;
+        const end = at + m[0].length;
+        if (m[0] !== term && respacedOk(text5, at, end, m[0])) put(at, end);
+        else re.lastIndex = at + 1;
+      }
+    }
+    if (!hits2.length) return esc(text5);
+    hits2.sort((a, b) => a.at - b.at);
+    let out2 = "";
+    let i = 0;
+    for (const h of hits2) {
+      out2 += esc(text5.slice(i, h.at)) + `<span class="gst-link" data-goei-wiki="1">${esc(text5.slice(h.at, h.end))}</span>`;
+      i = h.end;
+    }
+    return out2 + esc(text5.slice(i));
+  }
+  var kv = (rows3) => `<span class="gst-tip"><span class="gst-kv">${rows3.map(([k, v]) => `<span class="gst-k">${esc(k)}</span><span class="gst-v">${esc(v)}</span>`).join("")}</span></span>`;
+  function statusHtml(tag, ctx2) {
+    const hid = (id2) => !!ctx2.hide?.has(id2);
+    const now2 = statusMinute(tag.date, tag.time);
+    const day = hid("date") ? null : dayInfo(tag.date);
+    const rows3 = [];
+    const tl = ctx2.timeline;
+    const prev = tl?.prev.get(tag.raw.trim());
+    if (now2 !== null && prev !== void 0) rows3.push(["지난 장면", sceneLabel(prev, now2)], ["흐른 시간", elapsedLabel(prev, now2)]);
+    const start3 = ctx2.timeline?.start;
+    if (now2 !== null && start3 !== null && start3 !== void 0 && now2 >= start3) {
+      const s8 = new Date(start3 * 6e4);
+      rows3.push(["시작부터", `${storyDay(start3, now2)}일째 · ${s8.getUTCMonth() + 1}월 ${s8.getUTCDate()}일 시작`]);
+    }
+    const clock4 = tag.time && !hid("time") ? `<span class="gst-clock"${rows3.length ? ' data-gst-tip="1"' : ""}>${esc(tag.time)}${rows3.length ? kv(rows3) : ""}</span>` : "";
+    let date = "";
+    if (day) {
+      const cls = day.saturday ? " sat" : day.weekday === "일" ? " sun" : "";
+      const tip2 = [["음력", day.lunar], ...day.holiday ? day.holiday.split("·").map((h) => ["공휴일", h]) : []].filter(([, v]) => v);
+      date = `<span class="gst-date${day.holiday ? " hol" : ""}"><span class="gst-dd">${esc(day.date)}</span><span class="gst-wd${cls}"${tip2.length ? ' data-gst-tip="1"' : ""}>${day.weekday}${tip2.length ? kv(tip2) : ""}</span></span>`;
+    } else if (tag.date && !hid("date")) date = `<span class="gst-date"><span class="gst-dd">${esc(tag.date)}</span></span>`;
+    const wx = [hid("weather") ? "" : tag.weather, hid("temp") ? "" : tag.temp].filter(Boolean).join(" ");
+    const top = clock4 || date || wx ? `<div class="gst-top">${clock4}${date}${wx ? `<span class="gst-wx">${esc(wx)}</span>` : ""}</div>` : "";
+    const place3 = tag.place && !hid("place") ? `<div class="gst-ln gst-loc">${PIN}<span>${linkTerms(tag.place, ctx2.terms)}</span></div>` : "";
+    const target = tag.target && !hid("target") ? `<div class="gst-ln gst-tgt">${AIM}<span>${linkTerms(tag.target, ctx2.terms)}</span></div>` : "";
+    let cash = "";
+    if (tag.wallet && !hid("wallet")) {
+      const n3 = Number(tag.wallet);
+      const pw = tl?.prevWallet.get(tag.raw.trim());
+      const delta = pw === void 0 ? 0 : n3 - pw;
+      cash = `<div class="gst-ln gst-cash">${CASH}<span>${esc(formatWon(n3))}${delta ? `<small class="${delta > 0 ? "gst-up" : "gst-down"}">${esc(formatDelta(delta))}</small>` : ""}</span></div>`;
+    }
+    if (tag.points && !hid("points")) {
+      const n3 = Number(tag.points);
+      const pp2 = tl?.prevPoints?.get(tag.raw.trim());
+      const delta = pp2 === void 0 ? 0 : n3 - pp2;
+      const pts3 = `<span class="gst-pt">${esc(formatPoints(n3))}${delta ? `<small class="${delta > 0 ? "gst-up" : "gst-down"}">${esc(formatDelta(delta))}</small>` : ""}</span>`;
+      cash = cash ? cash.replace(/<\/div>$/, `${pts3}</div>`) : `<div class="gst-ln gst-cash">${CASH}${pts3}</div>`;
+    }
+    return `<div class="gst" data-goei-status="1">${top}${place3}${target}${cash}</div>`;
+  }
+  var VARS = {
+    dark: { panel: "#232D32", line: "#37464D", text: "#E9F0EE", sub: "#BECBC8", pin: "#5EEAD4", tgt: "#F2C46B", red: "#FF8F87", blue: "#8DB6FF", shadow: "rgba(0,0,0,.45)" },
+    light: { panel: "#FFFFFF", line: "#D5DDDA", text: "#13201D", sub: "#3B4B47", pin: "#0F8C7A", tgt: "#9A5A00", red: "#C62828", blue: "#1E5BB8", shadow: "rgba(20,40,35,.18)" },
+    paper: { panel: "#FAF5E9", line: "#D3C29E", text: "#2B2418", sub: "#4A3F2C", pin: "#2F6F62", tgt: "#8F5B00", red: "#B3261E", blue: "#2C5AA0", shadow: "rgba(60,40,10,.2)" }
+  };
+  function statusCss(style, theme) {
+    if (style === "off") return risuClasses(".gst{display:none!important}");
+    const v = VARS[style === "auto" ? theme : style];
+    return risuClasses(`.gst{${Object.entries(v).map(([k, c]) => `--gs-${k}:${c};`).join("")}}${STATUS_CSS}`);
+  }
+  function risuClasses(css) {
+    return css.replace(/\.(gst[\w-]*|sat|sun|hol)(?![\w-])/g, ":is(.$1,.x-risu-$1)");
+  }
+  var STATUS_CSS = `
+.chat-message-container:has(.gst) ~ .chat-message-container .gst,
+.default-chat-screen:has(.chat-message-container .gst) .risu-chat:not(.chat-message-container .risu-chat) .gst{display:none}
+.gst{box-sizing:border-box;width:fit-content;min-width:min(100%,420px);max-width:100%;margin:16px auto 0;padding:12px 16px;border:1px solid var(--gs-line);border-radius:14px;background:var(--gs-panel);color:var(--gs-text);font:14px/1.5 system-ui,-apple-system,'Noto Sans KR',sans-serif;box-shadow:0 6px 18px -12px var(--gs-shadow);display:flex;flex-direction:column;gap:7px;text-align:left}
+.gst-top{display:flex;align-items:baseline;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--gs-line)}
+.gst-top:last-child{padding-bottom:0;border-bottom:0}
+.gst-clock{position:relative;font-size:20px;font-weight:800;letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.gst-date{display:inline-flex;align-items:center;color:var(--gs-sub);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.gst-date.hol .gst-dd{color:var(--gs-red);font-weight:700}
+.gst-wd{position:relative;display:inline-grid;place-items:center;width:19px;height:19px;margin-left:6px;border-radius:6px;font-size:11px;font-weight:700;color:var(--gs-sub);box-shadow:inset 0 0 0 1px var(--gs-line)}
+.gst-wd.sat{color:var(--gs-blue);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gs-blue) 45%,transparent)}
+.gst-wd.sun{color:var(--gs-red);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gs-red) 45%,transparent)}
+.gst-date.hol .gst-wd{color:#fff;background:var(--gs-red);box-shadow:none}
+.gst-wx{margin-left:auto;color:var(--gs-sub);font-size:13px;white-space:nowrap}
+.gst-ln{display:flex;align-items:flex-start;gap:8px;min-width:0}
+.gst-ln svg{flex:none;width:16px;height:16px;margin-top:2px}
+.gst-ln>span{min-width:0;word-break:keep-all;overflow-wrap:anywhere}
+.gst-loc{font-weight:700}.gst-loc svg{color:var(--gs-pin)}
+.gst-tgt{font-weight:600;color:var(--gs-tgt)}
+.gst-cash{font-weight:600;color:var(--gs-sub);font-variant-numeric:tabular-nums}.gst-cash svg{color:var(--gs-sub)}
+.gst-cash small{margin-left:7px;font-size:12px;font-weight:700}.gst-cash>span+.gst-pt{margin-left:14px}.gst-up{color:var(--gs-blue)}.gst-down{color:var(--gs-red)}
+.gst-link{cursor:pointer;text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,currentColor 50%,transparent);text-underline-offset:3px}
+[data-gst-tip]{cursor:pointer}
+.gst-tip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);z-index:5;padding:6px 10px;border-radius:9px;border:1px solid var(--gs-line);background:var(--gs-panel);color:var(--gs-text);font-size:12px;font-weight:600;line-height:1.4;letter-spacing:0;white-space:nowrap;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s}
+.gst-tip::before{content:'';position:absolute;left:50%;top:100%;margin-left:-5px;width:8px;height:8px;margin-top:-4px;box-sizing:border-box;background:var(--gs-panel);border:solid var(--gs-line);border-width:0 1px 1px 0;transform:rotate(45deg)}
+.gst-clock .gst-tip{left:0;transform:none}.gst-clock .gst-tip::before{left:20px}
+.gst-kv{display:grid;grid-template-columns:auto auto;gap:2px 10px;align-items:baseline;text-align:left}
+.gst-kv .gst-k{font-size:11px;opacity:.7}.gst-kv .gst-v{font-weight:700}
+@media (hover:hover){[data-gst-tip]:hover>.gst-tip{opacity:1;visibility:visible}}
+[data-gst-tip].open>.gst-tip{opacity:1;visibility:visible}
+@media (max-width:450px){.gst{padding:11px 12px}.gst-clock{font-size:17px}.gst-top{gap:8px}}
+`;
+
+  // src/host/overlay.ts
+  var OPENING_CSS = '.default-chat-screen:has(.chat-message-container ~ .chat-message-container) [data-goei-card="opening"]{display:none!important}';
+  var chatCss = (t) => cardVarsCss(t) + LANDING_CSS + OPENING_CSS + statusCss(getPrefs().status ?? "auto", t) + imgCss(getPrefs().imgSize, getPrefs().imgFoldOn === false ? 100 : getPrefs().imgFold, imgHidden(), getPrefs().imgFoldLock === true);
+  function themeVars(sel) {
+    return Object.keys(PALETTES).map((t) => {
+      const p2 = PALETTES[t];
+      return `${sel}${t === "dark" ? "" : `[x-goei-theme="${t}"]`} { --g-void: ${p2.void}; --g-panel: ${p2.panel}; --g-line: ${p2.line}; --g-text: ${p2.text}; --g-sub: ${p2.sub}; --g-signal: ${p2.signal}; --g-acc: ${p2.accentBg}; --g-acc-line: ${p2.accentLine}; --g-scrim: ${p2.scrim}; }`;
+    }).join("\n");
+  }
+  var INTRO_MS = 2e3;
+  var FAB_CSS = `
+${themeVars("[x-goei-fab]")}
+[x-goei-fab] {
+  position: fixed; right: 16px; bottom: 96px; z-index: 45; /* 플러그인 창(49)·Risu 경고(50) 아래 */
+  display: none;
+}
+[x-goei-fab] button {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; padding: 0; box-sizing: border-box;
+  border: 1px solid var(--g-acc-line); border-radius: 14px; touch-action: none; user-select: none; -webkit-user-select: none;
+  background: var(--g-acc); color: var(--g-signal); cursor: pointer;
+  box-shadow: 0 6px 18px -6px rgba(0,0,0,.45);
+  transition: transform .15s ease, box-shadow .2s ease, background-color .15s ease, color .15s ease;
+}
+[x-goei-fab] button:hover {
+  transform: translateY(-3px) scale(1.08);
+  background: var(--g-signal); color: var(--g-acc); border-color: var(--g-signal);
+  box-shadow: 0 10px 24px -6px rgba(0,0,0,.5), 0 0 0 5px color-mix(in srgb, var(--g-signal) 28%, transparent), 0 0 22px 2px color-mix(in srgb, var(--g-signal) 45%, transparent);
+}
+[x-goei-fab] button:hover svg { transform: rotate(-8deg) scale(1.06); }
+[x-goei-fab] button svg { transition: transform .15s ease; }
+[x-goei-fab] button:active { transform: translateY(0) scale(.96); }
+[x-goei-fab][x-goei-drag="true"] button { cursor: grabbing; transform: scale(1.06); box-shadow: 0 10px 26px -6px rgba(0,0,0,.55), 0 0 0 4px color-mix(in srgb, var(--g-signal) 24%, transparent); }
+[x-goei-fab] button svg { width: 26px; height: 26px; pointer-events: none; }
+@keyframes goei-fab-glow {
+  0%, 100% { box-shadow: 0 6px 18px -6px rgba(0,0,0,.45), 0 0 0 0 transparent; }
+  50% { box-shadow: 0 6px 18px -6px rgba(0,0,0,.45), 0 0 0 7px color-mix(in srgb, var(--g-signal) 22%, transparent), 0 0 26px 6px color-mix(in srgb, var(--g-signal) 35%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { [x-goei-fab][x-goei-intro="true"] * { animation: none !important; } }
+
+/* 접속 효과 (v0.16.22, 사용자 설계): 위쪽 띠 대신 유령 버튼 자리에서. 버튼이 튀어나오며 고리가 퍼지고,
+   버튼 옆으로 「ANOMALY SIMULATION」 표가 잠깐 펼쳐졌다 사라진다.
+   v0.16.28 (사용자 요청): 표도 테마를 따른다. 다크는 네온 빛줄기와 글리치, 라이트는 맑은 빛줄기만, 페이퍼는 도장 찍듯 눌리는 잉크 */
+[x-goei-fab] [data-gr], [x-goei-fab] [data-gl] { display: none; }
+[x-goei-fab][x-goei-intro="true"] button { animation: goei-fab-pop 560ms cubic-bezier(.2,1.5,.4,1) both, goei-fab-glow 1.2s ease-in-out 560ms 1; }
+[x-goei-fab][x-goei-intro="true"] [data-gr] {
+  display: block; position: absolute; inset: 0; border-radius: 14px; pointer-events: none;
+  border: 2px solid var(--g-signal); opacity: 0; animation: goei-ring 1100ms ease-out 120ms both;
+}
+[x-goei-fab][x-goei-intro="true"] [data-gr] + [data-gr] { animation-delay: 480ms; }
+[x-goei-fab][x-goei-intro="true"] [data-gl] {
+  --gl-dx: 12px;
+  display: flex; align-items: center; gap: 8px; position: absolute; top: 50%; right: calc(100% + 12px);
+  height: 36px; padding: 0 16px; box-sizing: border-box; border-radius: 10px; overflow: hidden; white-space: nowrap; pointer-events: none;
+  background: color-mix(in srgb, var(--g-void) 94%, transparent); border: 1px solid color-mix(in srgb, var(--g-signal) 45%, transparent); box-shadow: 0 10px 26px -10px rgba(0,0,0,.65);
+  color: var(--g-text); font: 700 12.5px/1 'IBM Plex Sans KR', system-ui, -apple-system, "Noto Sans KR", sans-serif; letter-spacing: .2em;
+  transform-origin: right center; opacity: 0; animation: goei-label ${INTRO_MS}ms cubic-bezier(.2,.8,.2,1) 260ms both;
+}
+[x-goei-fab][x-goei-side="left"][x-goei-intro="true"] [data-gl] { --gl-dx: -12px; right: auto; left: calc(100% + 12px); transform-origin: left center; }
+[x-goei-fab] [data-gs] {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 45%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--g-signal) 28%, transparent), transparent);
+  animation: goei-in-sweep 800ms ease-out 420ms both;
+}
+[x-goei-fab] [data-gt] { position: relative; animation: goei-in-glitch 520ms steps(1) 480ms 1; }
+/* 라이트: 밝은 판, 글리치 없이 빛줄기만 */
+[x-goei-fab][x-goei-theme="light"][x-goei-intro="true"] [data-gl] { background: color-mix(in srgb, var(--g-panel) 96%, transparent); box-shadow: 0 10px 24px -12px rgba(15, 60, 52, .35); }
+[x-goei-fab][x-goei-theme="light"] [data-gt] { color: var(--g-signal); animation: none; }
+/* 페이퍼: 종이 판에 잉크 도장. 빛줄기·글리치 대신 한 번 눌렸다 번지듯 */
+[x-goei-fab][x-goei-theme="paper"][x-goei-intro="true"] [data-gl] {
+  background: var(--g-panel); border-color: color-mix(in srgb, var(--g-signal) 70%, transparent); box-shadow: 0 8px 20px -12px rgba(60, 40, 10, .45);
+}
+[x-goei-fab][x-goei-theme="paper"] [data-gs] { display: none; }
+[x-goei-fab][x-goei-theme="paper"] [data-gt] { color: var(--g-signal); animation: goei-in-stamp 620ms cubic-bezier(.3,1.4,.5,1) 380ms both; }
+@keyframes goei-in-stamp {
+  0% { opacity: 0; transform: scale(1.35); letter-spacing: .32em; filter: blur(1.5px); }
+  55% { opacity: 1; transform: scale(.96); filter: blur(0); }
+  100% { opacity: 1; transform: scale(1); letter-spacing: .2em; }
+}
+@keyframes goei-fab-pop {
+  0% { opacity: 0; transform: scale(.2) rotate(-25deg); }
+  60% { opacity: 1; transform: scale(1.18) rotate(6deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes goei-ring { 0% { opacity: .9; transform: scale(.7); } 100% { opacity: 0; transform: scale(2.6); } }
+@keyframes goei-label {
+  0% { opacity: 0; transform: translate(var(--gl-dx), -50%) scaleX(.5); }
+  16% { opacity: 1; transform: translate(0, -50%) scaleX(1); }
+  82% { opacity: 1; transform: translate(0, -50%) scaleX(1); }
+  100% { opacity: 0; transform: translate(0, -50%) scaleX(1); }
+}
+@keyframes goei-in-sweep { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+@keyframes goei-in-glitch {
+  0% { transform: translate(0); text-shadow: 2px 0 #ff5a7a, -2px 0 #4fe0ff; }
+  20% { transform: translate(-1px, 0); }
+  40% { transform: translate(1px, 0); text-shadow: -1px 0 #ff5a7a, 1px 0 #4fe0ff; }
+  60% { transform: translate(0); text-shadow: none; }
+  100% { transform: translate(0); }
+}
+`;
+  var FAB_HTML = (label2) => `<span data-gr></span><span data-gr></span>
+<span data-gl aria-hidden="true"><span data-gs></span><span data-gt>ANOMALY SIMULATION</span></span>
+<button type="button" aria-label="${label2}">${GHOST_ICON}</button>`;
+  async function body() {
+    const doc2 = await risuai.getRootDocument();
+    if (!doc2) return null;
+    const b = await doc2.querySelector("body");
+    return b ? { doc: doc2, body: b } : null;
+  }
+  var POS_KEY = "goei-plugin:fab-pos";
+  var fieldHidden = false;
+  var hiddenSubs = /* @__PURE__ */ new Set();
+  async function loadPos() {
+    try {
+      return parsePos(await risuai.safeLocalStorage.getItem(POS_KEY));
+    } catch {
+      return { ...DEFAULT_FAB_POS };
+    }
+  }
+  async function removeLeftovers(doc2) {
+    try {
+      const list4 = await risuai.unwarpSafeArray(await doc2.querySelectorAll("[x-goei-fab], [x-goei-intro]"));
+      for (const el of list4) await el.remove().catch(() => {
+      });
+    } catch {
+    }
+  }
+  async function createFab(onOpen) {
+    const root3 = await body();
+    if (!root3) throw new Error("Risu 화면 접근 권한이 없어요.");
+    const { doc: doc2 } = root3;
+    await removeLeftovers(doc2);
+    const host4 = await doc2.createElement("div");
+    await host4.setAttribute("x-goei-fab", "true");
+    await host4.setInnerHTML(FAB_HTML(`${BRAND.fab} 열기 (끌어서 옮기기)`));
+    const style = await doc2.createElement("style");
+    await style.setTextContent(FAB_CSS);
+    await host4.appendChild(style);
+    const cardStyle2 = await doc2.createElement("style");
+    await cardStyle2.setTextContent(chatCss("dark"));
+    await host4.appendChild(cardStyle2);
+    await root3.body.appendChild(host4);
+    const button = await host4.querySelector("button");
+    if (!button) throw new Error("여는 버튼을 만들지 못했어요.");
+    let pos = await loadPos();
+    const applyPos = async () => {
+      await host4.setStyle("right", `${pos.right}px`);
+      await host4.setStyle("bottom", `${pos.bottom}px`);
+    };
+    await applyPos();
+    let visible2 = false;
+    let shown6 = null;
+    let introTimer;
+    const endIntro = () => {
+      if (introTimer === void 0) return;
+      clearTimeout(introTimer);
+      introTimer = void 0;
+      void host4.setAttribute("x-goei-intro", "false").catch(() => {
+      });
+    };
+    let drag = null;
+    let moved = false;
+    let pending2 = null;
+    let loop = null;
+    const rect = async () => visible2 ? await button.getBoundingClientRect() : null;
+    const viewport = async () => {
+      const r = await root3.body.getBoundingClientRect();
+      return { vw: r.width, vh: r.height };
+    };
+    const savePos = async () => {
+      try {
+        await risuai.safeLocalStorage.setItem(POS_KEY, JSON.stringify(pos));
+      } catch {
+      }
+    };
+    const runDrag = async () => {
+      try {
+        while (pending2 && drag) {
+          const d = drag;
+          const p2 = pending2;
+          pending2 = null;
+          const hit4 = await d.hit;
+          if (drag !== d) continue;
+          if (!hit4) {
+            drag = null;
+            break;
+          }
+          const dx = p2.x - d.x;
+          const dy = p2.y - d.y;
+          if (!moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) continue;
+          if (!moved) {
+            moved = true;
+            await host4.setAttribute("x-goei-drag", "true");
+          }
+          pos = dragTo(d.start, dx, dy, hit4.vw, hit4.vh);
+          await applyPos();
+        }
+      } catch {
+        drag = null;
+      } finally {
+        loop = null;
+      }
+    };
+    const onDown = (ev) => {
+      drag = null;
+      pending2 = null;
+      moved = false;
+      if (!visible2 || typeof ev.clientX !== "number" || typeof ev.clientY !== "number") return;
+      if ((ev.buttons ?? 1) !== 1 && (ev.button ?? 0) !== 0) return;
+      const x = ev.clientX;
+      const y = ev.clientY;
+      drag = {
+        x,
+        y,
+        start: { ...pos },
+        hit: (async () => {
+          const r = await rect();
+          if (!inside(r, x, y)) return null;
+          return { rect: r, ...await viewport() };
+        })().catch(() => null)
+      };
+    };
+    const onMove = (ev) => {
+      if (!drag || typeof ev.clientX !== "number" || typeof ev.clientY !== "number") return;
+      if (ev.buttons !== void 0 && ev.buttons !== 1) {
+        drag = null;
+        return;
+      }
+      pending2 = { x: ev.clientX, y: ev.clientY };
+      loop ??= runDrag();
+    };
+    const onUp = () => {
+      const d = drag;
+      void (loop ?? Promise.resolve()).then(async () => {
+        if (drag === d) drag = null;
+        if (moved) {
+          await host4.setAttribute("x-goei-drag", "false");
+          await savePos();
+        }
+      });
+    };
+    const onClick = async (ev) => {
+      if (!visible2) return;
+      if (!inside(await rect(), ev.clientX, ev.clientY)) return;
+      await loop;
+      if (moved) return;
+      onOpen();
+    };
+    let ids = [];
+    const unbind = async () => {
+      const old = ids;
+      ids = [];
+      for (const { target, type, id: id2 } of old) await target.removeEventListener(type, id2).catch(() => {
+      });
+    };
+    const moveTarget = typeof doc2?.addEventListener === "function" ? doc2 : host4;
+    let binding = Promise.resolve();
+    const bind = () => binding = binding.catch(() => {
+    }).then(bindNow);
+    const bindNow = async () => {
+      await unbind();
+      for (const [target, type, fn2] of [
+        [host4, "pointerdown", onDown],
+        [moveTarget, "pointermove", onMove],
+        [moveTarget, "pointerup", onUp],
+        [moveTarget, "pointercancel", onUp],
+        [host4, "click", onClick]
+      ]) {
+        ids.push({ target, type, id: await target.addEventListener(type, fn2, { passive: true }) });
+      }
+    };
+    await bind();
+    const onHidden = (h) => {
+      if (h) drag = null;
+      void host4.setStyle("display", visible2 && !h ? "block" : "none").catch(() => {
+      });
+    };
+    hiddenSubs.add(onHidden);
+    return {
+      async setVisible(next, intro = false) {
+        if (shown6 === next && !intro) return;
+        const reappear = next && !shown6;
+        shown6 = next;
+        if (reappear) await bind().catch(() => {
+        });
+        visible2 = next;
+        if (!next) {
+          drag = null;
+          pending2 = null;
+        } else {
+          const { vw, vh } = await viewport();
+          pos = clampPos(pos, vw, vh);
+          await applyPos();
+        }
+        endIntro();
+        if (next && intro) {
+          const { vw } = await viewport();
+          await host4.setAttribute("x-goei-side", pos.right + FAB_SIZE / 2 > vw / 2 ? "left" : "right");
+          await host4.setAttribute("x-goei-intro", "true");
+          introTimer = setTimeout(endIntro, INTRO_MS + 400);
+        }
+        await host4.setStyle("display", next && !fieldHidden ? "block" : "none");
+      },
+      endIntro,
+      async setTheme(theme) {
+        await host4.setAttribute("x-goei-theme", theme);
+        await cardStyle2.setTextContent(chatCss(theme));
+      },
+      async chatScreenVisible() {
+        return !!await doc2.querySelector(".default-chat-screen");
+      },
+      async remove() {
+        hiddenSubs.delete(onHidden);
+        visible2 = false;
+        drag = null;
+        pending2 = null;
+        await host4.remove();
+        await unbind();
+      }
+    };
+  }
+
+  // src/host/chatclicks.ts
+  var handlers = /* @__PURE__ */ new Map();
+  var listening = false;
+  function onChatClick(name, run6) {
+    handlers.set(name, { run: run6, armed: handlers.get(name)?.armed ?? false });
+  }
+  function armChatClick(name) {
+    const h = handlers.get(name);
+    if (h) h.armed = true;
+    if (!listening) void listen();
+  }
+  async function listen() {
+    listening = true;
+    try {
+      const root3 = await body();
+      if (!root3) return void (listening = false);
+      await root3.body.addEventListener("click", ((ev) => void dispatch(root3.doc, ev.clientX ?? -1, ev.clientY ?? -1)), { passive: true });
+    } catch {
+      listening = false;
+    }
+  }
+  async function dispatch(doc2, x, y) {
+    for (const h of handlers.values()) {
+      if (!h.armed) continue;
+      try {
+        const r = await h.run(doc2, x, y);
+        if (r === "idle") h.armed = false;
+        else if (r) return;
+      } catch (error) {
+        console.log(`[goei] 채팅 클릭 처리 실패: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+  }
+  async function elements(doc2, selector) {
+    const got = await risuai.unwarpSafeArray(await doc2.querySelectorAll(selector)).catch(() => []);
+    if (Array.isArray(got)) return got;
+    const sa = got;
+    if (!sa || typeof sa.length !== "function" || typeof sa.at !== "function") return [];
+    const n3 = await sa.length();
+    const out2 = [];
+    for (let i = 0; i < n3; i++) out2.push(await sa.at(i));
+    return out2;
+  }
+  async function hit2(el, x, y) {
+    const r = await el.getBoundingClientRect().catch(() => null);
+    return !!r && r.width > 0 && x >= r.left && x <= r.left + r.width && y >= r.top && y <= r.top + r.height;
+  }
+
+  // src/core/iconmatch.ts
+  var normIcon = (s8) => String(s8 ?? "").toLowerCase().replace(/[^0-9a-z가-힣]+/g, " ").trim();
+  var ICON_KIND_LABEL = { wear: "옷", food: "음식", tool: "도구", device: "기기", medical: "의료", consumable: "소모품", charm: "부적", weapon: "무기", paper: "서류", valuable: "귀중품", key: "열쇠", seal: "봉인", anomaly: "괴이", adult: "성인", body: "신체", misc: "잡동사니" };
+  var ICON_KINDS_TEXT = Object.values(ICON_KIND_LABEL).join("·");
+  var KIND_OF = {};
+  for (const [k, v] of Object.entries(ICON_KIND_LABEL)) KIND_OF[v] = k, KIND_OF[k] = k;
+  KIND_OF["의류"] = "wear";
+  KIND_OF["음식물"] = "food";
+  KIND_OF["장비"] = "device";
+  KIND_OF["기계"] = "device";
+  KIND_OF["약"] = "medical";
+  KIND_OF["의약"] = "medical";
+  KIND_OF["의료품"] = "medical";
+  KIND_OF["문서"] = "paper";
+  KIND_OF["종이"] = "paper";
+  KIND_OF["보석"] = "valuable";
+  KIND_OF["귀중"] = "valuable";
+  KIND_OF["잡화"] = "misc";
+  KIND_OF["기타"] = "misc";
+  KIND_OF["clothes"] = "wear";
+  KIND_OF["clothing"] = "wear";
+  KIND_OF["medicine"] = "medical";
+  KIND_OF["gadget"] = "device";
+  KIND_OF["document"] = "paper";
+  KIND_OF["etc"] = "misc";
+  function splitIconWord(icon) {
+    const raw = String(icon ?? "").trim();
+    const words = (rest) => {
+      const ps = rest.split(/\s*[/／|｜]\s*/).map((x) => x.trim()).filter(Boolean);
+      const ko = ps.find((x) => /[가-힣]/.test(x));
+      const en2 = ps.find((x) => !/[가-힣]/.test(x));
+      return ko ? { word: ko, en: en2 ?? "" } : { word: en2 ?? "", en: "" };
+    };
+    const m = /^([^/／:：|｜]+?)\s*[/／:：|｜]\s*(.*)$/.exec(raw);
+    if (m) {
+      const k = KIND_OF[normIcon(m[1])];
+      if (k) return { kind: k, ...words(m[2]) };
+    }
+    const k1 = KIND_OF[normIcon(raw)];
+    if (k1) return { kind: k1, word: "", en: "" };
+    return { kind: "", ...words(raw) };
+  }
+  function parseIconAliases(text5) {
+    const out2 = {};
+    for (const line2 of String(text5 ?? "").split(/\r?\n/)) {
+      const m = /^\s*([^→=:>]+?)\s*(?:→|=>|->|=|:)\s*(.+?)\s*$/.exec(line2);
+      if (!m) continue;
+      const a = normIcon(m[1]);
+      const b = normIcon(m[2]);
+      if (a && b && a !== b) out2[a] = b;
+    }
+    return out2;
+  }
+  var ICON_ALIAS_DEFAULT = ["외투 → 코트", "점퍼 → 재킷", "안정수 → 안정제", "캡슐 → 알약", "영양 바 → 에너지바", "영양바 → 에너지바", "숙취해소제 → 숙취 음료", "택배 → 택배 상자", "소설책 → 책", "알 → 계란", "하이라이터 → 형광펜", "다마고치 → 게임기", "인라인 → 인라인 스케이트", "선스틱 → 선크림", "곱창밴드 → 머리끈", "렌즈케이스 → 콘택트렌즈 통", "콘택트렌즈 → 콘택트렌즈 통", "약상자 → 구급상자", "나이프 → 칼", "정원가위 → 원예 가위", "전지가위 → 원예 가위", "간식 → 과자", "온수매트 → 전기장판", "종이가방 → 쇼핑백", "여행가방 → 캐리어", "햇반 → 즉석밥", "링거팩 → 링거", "인슐린 → 인슐린 펜", "DVD → CD", "바 → 에너지바", "속옷 → 팬티", "내의 → 팬티"].join("\n");
+  var aliases = parseIconAliases(ICON_ALIAS_DEFAULT);
+  var poolOn = true;
+  var gen = 0;
+  var aliasText = ICON_ALIAS_DEFAULT;
+  var iconGen = () => gen;
+  function setIconPool(on3) {
+    if (poolOn === on3) return;
+    poolOn = on3;
+    gen++;
+  }
+  var iconPoolOn = () => poolOn;
+  function setIconAliases(text5) {
+    const t = text5 && text5.trim() ? text5 : ICON_ALIAS_DEFAULT;
+    if (t === aliasText) return;
+    aliasText = t;
+    aliases = parseIconAliases(t);
+    gen++;
+  }
+  var misses = [];
+  var ICON_MISS_MAX = 100;
+  var readIconMisses = () => misses.slice();
+  var quiet = 0;
+  function iconQuiet(f) {
+    quiet++;
+    try {
+      return f();
+    } finally {
+      quiet--;
+    }
+  }
+  function noteMiss(m) {
+    if (quiet) return;
+    if (misses.some((x) => x.name === m.name && x.icon === m.icon)) return;
+    misses.push(m);
+    if (misses.length > ICON_MISS_MAX) misses.splice(0, misses.length - ICON_MISS_MAX);
+  }
+  var isMod = (wd) => wd.length >= 2 && (wd.charCodeAt(wd.length - 1) - 44032) % 28 === 4;
+  var ICON_MIN = 0.7;
+  var A = 0.7;
+  var B = 0.3;
+  var NAME_W = 0.2;
+  var HEAD_MISS = 0.65;
+  var TAIL2 = 0.15;
+  var MOD_W = 0.5;
+  function iconFrags(s8) {
+    const out2 = /* @__PURE__ */ new Map();
+    const put = (f, m) => out2.set(f, Math.max(out2.get(f) ?? 0, m));
+    let tail2 = "";
+    let last2 = "";
+    for (const p2 of normIcon(s8).match(/[가-힣]+(?: +[가-힣]+)*|[0-9a-z]+/g) ?? []) {
+      if (/[가-힣]/.test(p2)) {
+        const words = p2.split(" ");
+        const c = words.join("");
+        const mult = [];
+        words.forEach((wd, i) => {
+          const m = i < words.length - 1 && isMod(wd) ? MOD_W : 1;
+          for (let j = 0; j < wd.length; j++) mult.push(m);
+        });
+        for (let i = 0; i < c.length; i++) {
+          put(c[i], mult[i]);
+          if (i + 1 < c.length) put(c.slice(i, i + 2), Math.max(mult[i], mult[i + 1]));
+        }
+        tail2 = c.length > 1 ? c.slice(-2) : c;
+        last2 = c.slice(-1);
+      } else {
+        const w = p2.length > 3 && p2.endsWith("s") && !p2.endsWith("ss") ? p2.slice(0, -1) : p2;
+        put(w, 1);
+        tail2 = w;
+        last2 = w;
+      }
+    }
+    return { set: out2, tail: tail2, last: last2 };
+  }
+  function makeFragIndex(rows3, reps, min = ICON_MIN) {
+    const df = /* @__PURE__ */ new Map();
+    const items = rows3.map((r) => {
+      const ps = [...new Set(r.phrases.map(normIcon).filter(Boolean))].map((t) => ({ t, ...iconFrags(t), w: 0 })).filter((p2) => p2.set.size);
+      const all = /* @__PURE__ */ new Set();
+      for (const p2 of ps) for (const f of p2.set.keys()) all.add(f);
+      for (const f of all) df.set(f, (df.get(f) ?? 0) + 1);
+      return { file: r.file, ps };
+    });
+    const N2 = items.length || 1;
+    const idf = (f) => Math.log(1 + N2 / (df.get(f) || 0.5));
+    const idfMax = Math.log(1 + N2 / 0.5);
+    const sum = (m) => {
+      let a = 0;
+      for (const [f, x] of m) a += idf(f) * x;
+      return a;
+    };
+    for (const it of items) for (const p2 of it.ps) p2.w = sum(p2.set);
+    const score2 = (q, it, isName) => {
+      let best = 0;
+      let by = "";
+      for (const p2 of it.ps) {
+        let c = 0;
+        for (const [f, x] of p2.set) {
+          const y = q.set.get(f);
+          if (y) c += idf(f) * Math.min(x, y);
+        }
+        if (!c) continue;
+        let s8 = c / (c + A * (q.w - c) + B * (p2.w - c));
+        if (isName) {
+          if (q.tail && q.tail === p2.tail) s8 += TAIL2 * idf(q.tail) / idfMax;
+          if (q.last && !p2.set.has(q.last)) s8 *= HEAD_MISS;
+        }
+        if (s8 > best) best = s8, by = p2.t;
+      }
+      return { s: best, by };
+    };
+    const query = (s8) => {
+      if (!s8) return null;
+      const q = iconFrags(s8);
+      return q.set.size ? { ...q, w: sum(q.set) } : null;
+    };
+    const none3 = { s: 0, by: "" };
+    const pick5 = (qn, qi) => {
+      let best = null;
+      for (const it of items) {
+        const a = qn ? score2(qn, it, true) : none3;
+        const b = qi ? score2(qi, it, false) : none3;
+        const top = qi ? b.s : a.s;
+        if (!top) continue;
+        const total = qi ? b.s + NAME_W * a.s : a.s;
+        const isRep = reps[a.by] === it.file || reps[b.by] === it.file ? 1 : 0;
+        if (!best || total > best.total + 1e-9 || Math.abs(total - best.total) <= 1e-9 && isRep > best.isRep) best = { file: it.file, total, score: top, isRep };
+      }
+      return best && best.score >= min ? { file: best.file, score: best.score } : null;
+    };
+    return (name, icon) => {
+      const qn = query(name);
+      const qi = query(icon);
+      return qi && pick5(qn, qi) || qn && pick5(qn, null) || null;
+    };
+  }
+  var HEAD_EXTRA = 1;
+  var Q_EXTRA = 0.05;
+  var stem = (w) => /^[a-z]+$/.test(w) && w.length > 3 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w;
+  var GENERIC = /* @__PURE__ */ new Set(["키트", "kit", "세트", "set", "장치", "device", "도구", "tool", "기계", "machine", "용품", "supply", "물품", "물건", "item", "패키지", "package", "묶음", "pack", "상자", "box"]);
+  var MACHINE = /* @__PURE__ */ new Set(["장치", "기계", "도구"]);
+  function headOf(s8) {
+    const words = normIcon(s8).split(" ").filter(Boolean).map(stem);
+    const grade = [];
+    while (words.length > 1) {
+      const w = words[words.length - 1];
+      if (/^\d+$/.test(w) || /^\d+[a-z]+$/.test(w)) words.pop();
+      else if (/^(?:[a-z]|\d+)(?:등급|급|형)?$/.test(w)) grade.unshift(words.pop());
+      else break;
+    }
+    words.unshift(...grade);
+    if (!words.length) return null;
+    const head3 = words[words.length - 1];
+    return { words, head: head3, mods: words.slice(0, -1), ko: /[가-힣]/.test(head3), joined: words.join("") };
+  }
+  function sameHead(q, p2, pre2 = false) {
+    if (q.head === p2.head) return { qPre: "", pPre: "" };
+    if (!q.ko || !p2.ko) return null;
+    if (GENERIC.has(p2.head)) return null;
+    if (p2.head.length >= 2 && q.head.endsWith(p2.head)) return { qPre: q.head.slice(0, -p2.head.length), pPre: "" };
+    if (q.head.length >= 2 && p2.head.endsWith(q.head)) return { qPre: "", pPre: p2.head.slice(0, -q.head.length) };
+    if (q.head.length >= 2 && p2.joined.endsWith(q.head) && p2.joined.length > q.head.length) return { qPre: "", pPre: p2.joined.slice(0, -q.head.length), whole: true };
+    if (pre2 && q.head.length >= 2 && p2.head.length > q.head.length && p2.head.startsWith(q.head)) return { qPre: "", pPre: "", pre: true };
+    return null;
+  }
+  function makeHeadIndex(rows3, reps, pre2 = false) {
+    const items = rows3.map((r) => {
+      const kws = new Set(r.keywords.map(normIcon).filter(Boolean));
+      const ps = [];
+      for (const t of new Set(r.phrases.map(normIcon).filter(Boolean))) {
+        const h = headOf(t);
+        if (h) ps.push({ t, kw: kws.has(t), ...h });
+      }
+      return { file: r.file, ps, name: ps[0]?.joined.length ?? 99, words: new Set(ps.flatMap((p2) => p2.words)) };
+    });
+    const df = /* @__PURE__ */ new Map();
+    for (const it of items) for (const w of new Set(it.ps.flatMap((p2) => p2.words))) df.set(w, (df.get(w) ?? 0) + 1);
+    const N2 = items.length || 1;
+    const wt = (w) => Math.log(1 + N2 / (df.get(w) || 0.5));
+    const modScore = (q, p2, h) => {
+      const pm = h.whole ? [h.pPre] : [...p2.mods, ...h.pPre ? [h.pPre] : []];
+      const qm = [...q.mods, ...h.qPre ? [h.qPre] : []];
+      const qj = qm.join("");
+      const pj = pm.join("");
+      let hit4 = 0;
+      let pOnly = 0;
+      let qOnly = 0;
+      const inQ = (w, whole) => qm.includes(w) || (w.length >= 2 ? /[가-힣]/.test(w) && qj.includes(w) : whole && qm.some((x) => x.startsWith(w)));
+      const inP = (w) => pm.includes(w) || w.length >= 2 && /[가-힣]/.test(w) && pj.includes(w) || pm.some((x) => x.length === 1 && w.startsWith(x));
+      pm.forEach((w, i) => inQ(w, !h.whole && i < p2.mods.length) ? hit4 += wt(w) : pOnly += wt(w));
+      for (const w of qm) if (!inP(w)) qOnly += (isMod(w) || !/[가-힣]/.test(w) ? 1 : HEAD_EXTRA / Q_EXTRA) * wt(w);
+      if (h.qPre && !pm.includes(h.qPre) && !pj.includes(h.qPre)) qOnly += HEAD_EXTRA / Q_EXTRA * wt(h.qPre);
+      return { s: hit4 - HEAD_EXTRA * pOnly - Q_EXTRA * qOnly, hit: hit4, plain: pm.length === 0 && p2.kw };
+    };
+    const find = (text5) => {
+      let q = headOf(text5);
+      if (q && q.ko && !GENERIC.has(q.head)) {
+        const g3 = [...GENERIC].find((x) => /[가-힣]/.test(x) && q.head.length > x.length && q.head.endsWith(x));
+        if (g3) {
+          const whole = findIn(q, false);
+          if (whole && whole.s >= 1e6) return whole;
+          q = headOf([...q.mods, q.head.slice(0, -g3.length), g3].join(" "));
+        }
+      }
+      if (q && GENERIC.has(q.head) && q.mods.length) {
+        const whole = findIn(q, false);
+        if (whole && whole.s >= 1e6) return whole;
+        const words = [...q.words];
+        while (words.length > 1 && GENERIC.has(words[words.length - 1])) words.pop();
+        if (words.length === q.words.length || GENERIC.has(words[words.length - 1])) return null;
+        const rest = findIn(headOf(words.join(" ")), true);
+        if (rest && (rest.hit || rest.plain)) return { ...rest, kw: false, loose: true };
+        if (MACHINE.has(q.head) && /[가-힣]$/.test(words[words.length - 1])) return { file: "", s: 0, hit: 0, plain: false, isRep: 0, name: 0, retry: [...words.slice(0, -1), words[words.length - 1] + "기"].join(" ") };
+        return null;
+      }
+      return findIn(q, true);
+    };
+    function findIn(q, useRep) {
+      if (!q) return null;
+      const r = reps[q.words.join(" ")];
+      if (r) return { file: r, s: 1e9, hit: 1, plain: true, isRep: 1, name: 0, kw: !!items.find((it) => it.file === r)?.ps.some((p2) => p2.kw && p2.joined === q.joined) };
+      let best = null;
+      for (const it of items) {
+        let top = null;
+        for (const p2 of it.ps) {
+          if (p2.joined === q.joined) {
+            top = { s: 1e6, hit: 1, plain: true, kw: p2.kw };
+            break;
+          }
+          const h = sameHead(q, p2, pre2);
+          if (!h) continue;
+          const m = modScore(q, p2, h);
+          const extra2 = [...q.mods, ...h.qPre ? [h.qPre] : []];
+          const m2 = !m.hit && extra2.some((w) => w.length >= 2 && it.words.has(w)) ? { ...m, s: m.s + 1, hit: 1e-3 } : m;
+          if (!top || m2.s > top.s) top = { ...m2, more: extra2.length > 0, ph: p2.head };
+        }
+        if (!top) continue;
+        const isRep = reps[q.head] === it.file || !!top.ph && reps[top.ph] === it.file ? 1 : 0;
+        const better = !best || top.s > best.s + 1e-9 || Math.abs(top.s - best.s) <= 1e-9 && (+!!top.kw > +!!best.kw || !!top.kw === !!best.kw && (isRep > best.isRep || isRep === best.isRep && it.name < best.name));
+        if (better) best = { file: it.file, ...top, isRep, name: it.name };
+      }
+      const repOf = () => useRep && !GENERIC.has(q.head) && reps[q.head] ? { file: reps[q.head], s: 0, hit: 0, plain: true, isRep: 1, name: 0 } : null;
+      if (!best) return repOf();
+      if (!best.hit && !best.plain && q.mods.length + (best.qPre ? 1 : 0) > 0) return repOf() ?? (useRep ? best : null);
+      return best;
+    }
+    return find;
+  }
+  function aliased(text5) {
+    const n3 = normIcon(text5);
+    if (!n3) return "";
+    if (aliases[n3]) return aliases[n3];
+    const q = headOf(n3);
+    if (!q) return n3;
+    let idx = q.words.length - 1;
+    while (idx > 0 && GENERIC.has(q.words[idx])) idx--;
+    if (idx > 0 && aliases[`${q.words[idx - 1]} ${q.words[idx]}`]) return [...q.words.slice(0, idx - 1), aliases[`${q.words[idx - 1]} ${q.words[idx]}`], ...q.words.slice(idx + 1)].join(" ");
+    if (aliases[q.words[idx]]) return [...q.words.slice(0, idx), aliases[q.words[idx]], ...q.words.slice(idx + 1)].join(" ");
+    return n3;
+  }
+  var SPECIAL_KIND = /* @__PURE__ */ new Set(["adult", "body"]);
+  var KIND_MIN = 0.25;
+  function makeIconIndex(rows3, rep = {}, opts = {}) {
+    const reps = {};
+    for (const [k, f] of Object.entries(rep)) reps[normIcon(k)] = f;
+    const plainRows = rows3.filter((r) => !SPECIAL_KIND.has(r.kind ?? ""));
+    const plainFiles = new Set(plainRows.map((r) => r.file));
+    const plainReps = Object.fromEntries(Object.entries(reps).filter(([, f]) => plainFiles.has(f)));
+    const special = /* @__PURE__ */ new Map();
+    const specialName = /* @__PURE__ */ new Map();
+    for (const r of rows3) {
+      if (!SPECIAL_KIND.has(r.kind ?? "")) continue;
+      for (const k of r.keywords ?? []) {
+        const j = normIcon(k).replace(/ /g, "");
+        if (j && !special.has(j)) special.set(j, r.file);
+      }
+      const n0 = normIcon((r.keywords ?? [])[0] ?? "").replace(/ /g, "");
+      if (n0 && !specialName.has(n0)) specialName.set(n0, r.file);
+      for (const k of r.phrases ?? []) {
+        if (/[가-힣]/.test(k)) continue;
+        const j = normIcon(k).replace(/ /g, "");
+        if (j.length < 3) continue;
+        if (!special.has(j)) special.set(j, r.file);
+        if (!specialName.has(j)) specialName.set(j, r.file);
+      }
+    }
+    const byName = /* @__PURE__ */ new Map();
+    for (const r of rows3) {
+      const n0 = normIcon((r.keywords ?? [])[0] ?? "").replace(/ /g, "");
+      if (!n0) continue;
+      const l = byName.get(n0) ?? [];
+      l.push({ file: r.file, kind: r.kind ?? "" });
+      byName.set(n0, l);
+    }
+    const exactName = (t, kind, same4 = false) => {
+      const l = t ? byName.get(normIcon(t).replace(/ /g, "")) : void 0;
+      if (!l) return null;
+      const own2 = l.find((x) => x.kind === kind);
+      if (!own2 && same4 && kind) return null;
+      return { file: (own2 ?? l[0]).file, score: 1 };
+    };
+    const headPlain = makeHeadIndex(plainRows, plainReps);
+    const head3 = (t, sp = true) => {
+      const h = headPlain(t);
+      if (h && h.s >= 1e6) return h;
+      const tj = normIcon(t).replace(/ /g, "");
+      const mp = sp ? special : specialName;
+      const f = mp.get(tj) ?? (/^[a-z0-9]+s$/.test(tj) ? mp.get(tj.replace(/s$/, "")) : void 0);
+      return f ? { file: f, s: 1e6, hit: 1, plain: true, isRep: 0, name: 0, kw: true } : h;
+    };
+    const frag = makeFragIndex(plainRows, plainReps);
+    const headPre = makeHeadIndex(plainRows, plainReps, true);
+    const pre2 = (t) => {
+      const h = t ? headPre(t) : null;
+      return h && h.file ? h : null;
+    };
+    const kinds = /* @__PURE__ */ new Map();
+    const kindIndex = (k) => {
+      let x = kinds.get(k);
+      if (!x) {
+        const sub = rows3.filter((r) => r.kind === k);
+        const files = new Set(sub.map((r) => r.file));
+        const subReps = Object.fromEntries(Object.entries(reps).filter(([, f]) => files.has(f)));
+        x = sub.length ? { head: makeHeadIndex(sub, subReps), frag: makeFragIndex(sub, subReps, KIND_MIN), files, special: SPECIAL_KIND.has(k) } : { head: () => null, frag: () => null, files, special: SPECIAL_KIND.has(k) };
+        kinds.set(k, x);
+      }
+      return x;
+    };
+    const rank3 = (h) => !h ? 0 : h.s >= 1e6 ? 3 : h.hit > 0 ? 2 : 1;
+    const hit4 = (h) => h ? { file: h.file, score: 1 } : null;
+    const core = (name, word, en2, K, strict) => {
+      const hi = word ? head3(word, !K) : null;
+      const he = en2 ? head3(en2, !K) : null;
+      const hn = name ? head3(name, !K) : null;
+      if (hi?.retry || hn?.retry) {
+        const ok = !hi?.retry && hi || !hn?.retry && hn;
+        if (ok) return hit4(ok);
+        return (hn?.retry ? core(hn.retry, "", en2, K, strict) : null) || (hi?.retry ? core(hi.retry, "", en2, K, strict) : null) || frag(name, word);
+      }
+      if (rank3(hn) === 3 && (!K || K.files.has(hn.file))) return hit4(hn);
+      if (K) {
+        const kh = (t) => {
+          const x = K.head(t);
+          return x && x.file ? x : null;
+        };
+        const ki = word ? kh(word) : null;
+        const ke = en2 ? kh(en2) : null;
+        const kn = name ? kh(name) : null;
+        const k = rank3(ki) >= 2 ? ki : rank3(ke) >= 2 ? ke : rank3(kn) >= 1 ? kn : ki || ke;
+        if (k && k === ke && rank3(ke) === 1 && !ki && !kn) {
+          const ko = (hi && hi.file ? hi : null) || (hn && hn.file ? hn : null) || (strict ? null : pre2(word) || pre2(name));
+          if (ko) return hit4(ko);
+          const kf = frag(name, word);
+          if (kf) return kf;
+        }
+        const lit = (h2, kx) => !!kx && (rank3(kx) < 3 && kx.hit === 0 && !!kx.more && rank3(h2) === 3 || !kx.kw && !!h2?.kw);
+        const same4 = lit(hi, ki) ? hi : lit(hn, kn) ? hn : lit(he, ke) ? he : null;
+        if (k && same4 && same4.file !== k.file && !K.special) return hit4(same4);
+        if (k) return hit4(k);
+        const g3 = rank3(hi) >= 2 ? hi : rank3(he) >= 2 ? he : hi || hn;
+        if (g3 

@@ -1,0 +1,3348 @@
+wait env3.refresh();
+        return true;
+      }
+      case "items-use": {
+        const it = liveOf(ctx2).find((x) => x.id === value);
+        if (!it) return true;
+        if (needsEquip(ctx2, it)) {
+          itemsUi.info = `${named2(it.name, "은", "는")} 장착해야 쓸 수 있어요.`;
+          env3.render();
+          return true;
+        }
+        if (lockedHere(ctx2)) {
+          itemsUi.info = WAIT_NOTE;
+          env3.render();
+          return true;
+        }
+        if (!await holdFirst(it)) return true;
+        const why = await queueUse(ctx2, (q) => addUse(q, it, leftOf(ctx2, it)), it.id);
+        if (why) {
+          itemsUi.info = useNote(why, it);
+          env3.render();
+          return true;
+        }
+        itemsUi.info = canUse(it) ? `${named2(it.name, "을", "를")} 다음 메시지에 같이 보내요.` : `${named2(it.name, "은", "는")} 지금 쓸 수 없어요.`;
+        await env3.refresh();
+        return true;
+      }
+      case "items-unuse": {
+        if (!value) return true;
+        if (!await dropFromUse(ctx2, value)) {
+          if (lockedHere(ctx2)) {
+            itemsUi.info = WAIT_UNUSE_NOTE;
+            env3.render();
+          }
+          return true;
+        }
+        itemsUi.info = "사용을 취소했어요.";
+        await env3.refresh();
+        return true;
+      }
+      case "items-equip":
+      case "items-unequip": {
+        if (!value) return true;
+        const was = liveOf(ctx2).find((x) => x.id === value);
+        let fullK = "";
+        await write((it, alive) => {
+          if (action !== "items-equip") return unequipItem(it, value);
+          const next = equipItem(it, alive, value);
+          const live = liveItems(next, alive);
+          const e = live.find((x) => x.id === value);
+          if (e && !isEquipped(e, live)) fullK = e.equip ?? "weapon";
+          return next;
+        });
+        if (action === "items-unequip" && (!was || useNeedsSeat(was))) await dropFromUse(ctx2, value);
+        if (fullK) itemsUi.info = fullText(fullK);
+        await env3.refresh();
+        return true;
+      }
+      case "items-dnd": {
+        const [id2, to = ""] = (value ?? "").split("|");
+        const it = liveOf(ctx2).find((x) => x.id === id2);
+        if (!it) return true;
+        if (to.startsWith("equip:")) {
+          const [, k, n3] = to.split(":");
+          if (k !== "weapon" && it.equip !== k) {
+            itemsUi.info = `${named2(it.name, "은", "는")} 입거나 차는 물건이 아니라 ${EQUIP_LABEL.gear} 칸에 들어가지 않아요.`;
+            env3.render();
+            return true;
+          }
+          let bumped = [];
+          await write((x, alive) => {
+            const next = equipItem(x, alive, id2, Number(n3), k === "weapon" ? "weapon" : "gear");
+            bumped = next === x ? [] : seatLost(liveItems(x, alive), liveItems(next, alive));
+            return next;
+          });
+          for (const b of bumped) await dropFromUse(ctx2, b);
+        } else if (to === "grid") {
+          if (!isEquipped(it, liveOf(ctx2))) return true;
+          await write((x) => unequipItem(x, id2));
+          if (useNeedsSeat(it)) await dropFromUse(ctx2, id2);
+        } else if (to === "auto") {
+          if (isEquipped(it, liveOf(ctx2))) return true;
+          if (!it.equip && canUse(it)) {
+            const why = await queueUse(ctx2, (q) => addUse(q, it, leftOf(ctx2, it)), it.id);
+            if (why) {
+              itemsUi.info = useNote(why, it);
+              env3.render();
+              return true;
+            }
+          } else {
+            const k = it.equip ?? "weapon";
+            if (!equippedOf(liveOf(ctx2))[k].some((x) => !x)) {
+              full(k);
+              return true;
+            }
+            await write((x, alive) => equipItem(x, alive, id2));
+          }
+        } else if (to === "use") {
+          if (!usableNow(ctx2, it)) {
+            itemsUi.info = needsEquip(ctx2, it) && canUse(it) ? `${named2(it.name, "은", "는")} 장착해야 쓸 수 있어요.` : it.state === "broken" ? `${named2(it.name, "은", "는")} 고장 나서 쓸 수 없어요.` : `${named2(it.name, "은", "는")} 쓰는 물건이 아니에요.`;
+            env3.render();
+            return true;
+          }
+          if (lockedHere(ctx2)) {
+            itemsUi.info = WAIT_NOTE;
+            env3.render();
+            return true;
+          }
+          if (!await holdFirst(it)) return true;
+          const why = await queueUse(ctx2, (q) => addUse(q, it, leftOf(ctx2, it)), it.id);
+          if (why) {
+            itemsUi.info = useNote(why, it);
+            env3.render();
+            return true;
+          }
+        } else if (to === "drop") {
+          itemsUi.open = id2;
+          itemsUi.mode = "drop";
+          itemsUi.dragDrop = true;
+          env3.render();
+          return true;
+        } else return true;
+        await env3.refresh();
+        return true;
+      }
+      default:
+        return false;
+    }
+  }
+  async function queueUse(ctx2, fn2, id2) {
+    let held = "";
+    await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+      held = lockedHere(ctx2) ? "wait" : useSending(chat, ctx2.charIndex, ctx2.chatIndex, id2) ? "sending" : "";
+      if (held) return null;
+      const vars = queueUseVars(chat, fn2);
+      return vars ? { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...vars } } : null;
+    });
+    if (held) return held;
+    void refreshUseBox(ctx2.charIndex, ctx2.chatIndex);
+    return "";
+  }
+  async function dropFromUse(ctx2, id2) {
+    let held = false;
+    await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+      if (chat.scriptstate?.[ITEM_USE_AT_VAR]) return null;
+      if (useSending(chat, ctx2.charIndex, ctx2.chatIndex, id2) || lockedHere(ctx2) && readItemUse(chat.scriptstate).some((u) => u.id === id2)) {
+        held = true;
+        return null;
+      }
+      const cur = readItemUse(chat.scriptstate);
+      const next = dropUse(cur, id2);
+      return next.length === cur.length ? null : { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...itemUseVars(next) } };
+    });
+    void refreshUseBox(ctx2.charIndex, ctx2.chatIndex);
+    return !held;
+  }
+  function itemsInput(root3, ctx2, v) {
+    itemsUi.q = v;
+    const box3 = root3.querySelector(".it-body");
+    if (box3) box3.innerHTML = itemsUi.view === "log" ? logList(ctx2) : gridHtml(ctx2);
+  }
+
+  // src/ui/hsplayer.ts
+  var esc16 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var KEEP_CHAT = 60;
+  var BULB_MS = 260;
+  var BULB_EVERY = 4;
+  var TEAR_MS = [200, 400];
+  var feed = null;
+  var hooks = { advance() {
+  }, redraw() {
+  } };
+  var iconMiss = false;
+  var resizing = false;
+  var extra = [];
+  var extraChat = [];
+  var shown3 = [];
+  var said = null;
+  var stage = null;
+  var canvas = null;
+  var cg = null;
+  var chatLog = null;
+  var run3 = null;
+  var showKey = "";
+  var parked2 = null;
+  var timer2 = null;
+  var tickAt = 0;
+  var idle = { A: idleState(), B: idleState() };
+  var icons = /* @__PURE__ */ new Map();
+  var scratch = null;
+  var now = () => performance.now();
+  var cutArt = (c) => c === "A" || c === "C" ? "A" : "B";
+  function freshRun(part) {
+    if (feed?.show.parts[part]?.out) {
+      const r = freshRunAt(part, 0);
+      r.flags.sold = true;
+      return r;
+    }
+    return freshRunAt(part, feed?.s.left ?? 30);
+  }
+  function freshRunAt(part, left) {
+    return { part, cue: -1, cueAt: 0, cueLen: 0, cut: "A", clip: null, frame: 0, frameAt: 0, talking: false, left, dropEnd: feed ? dropEnd(left, feed.s.drop) : 1, dropN: 0, dropWait: 0, flags: { price: false, rush: false, soon: false, sold: false, call: false, look: false }, tearUntil: 0, gapUntil: 0, chatAt: 0, chatIdx: 0, bulbStep: 0, bulbAt: 0 };
+  }
+  function setPlayerFeed(f, h) {
+    const key = f.show.loaded ? `${f.show.key}:${f.show.parts.map((p2) => p2.item.id).join(",")}` : "";
+    if (key !== showKey) playerFlush();
+    feed = f;
+    hooks = h;
+    if (key !== showKey) {
+      if (!key) {
+        if (showKey && run3) parked2 = { key: showKey, run: run3 };
+        showKey = "";
+        run3 = null;
+      } else if (parked2 && parked2.key === key) {
+        showKey = key;
+        run3 = parked2.run;
+        parked2 = null;
+      } else {
+        parked2 = null;
+        showKey = key;
+        run3 = null;
+        extra.length = 0;
+        extraChat.length = 0;
+        shown3.length = 0;
+        said = null;
+        if (chatLog) chatLog.innerHTML = "";
+      }
+    }
+    if (f.show.loaded && (!run3 || run3.part !== f.show.at)) run3 = freshRun(f.show.at);
+  }
+  function mountPlayer(root3) {
+    const slot = root3.querySelector('[data-hs-mount="stage"]');
+    const chatSlot = root3.querySelector('[data-hs-mount="chat"]');
+    if (!slot || !feed) return stopPlayer();
+    if (!stage) build3();
+    if (stage.parentElement !== slot) slot.appendChild(stage);
+    if (chatSlot && chatLog && chatLog.parentElement !== chatSlot) {
+      chatSlot.appendChild(chatLog);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+    layout();
+    if (!timer2) {
+      tickAt = 0;
+      timer2 = setInterval(tick2, 33);
+    }
+    if (!resizing) {
+      resizing = true;
+      window.addEventListener("resize", () => layout());
+    }
+    tick2();
+  }
+  function stopPlayer() {
+    if (timer2) clearInterval(timer2);
+    timer2 = null;
+    iconMemo = null;
+    playerFlush();
+  }
+  var LOG_FLUSH_MS = 3e4;
+  var seen2 = [];
+  var seenShow = null;
+  var seenAt = 0;
+  var seenDue = false;
+  function note(kind, nick, text5, me) {
+    if (!feed?.show.loaded) return;
+    if (seenShow && seenShow !== feed.show && (seenShow.key !== feed.show.key || seenShow.parts[0]?.item.id !== feed.show.parts[0]?.item.id)) playerFlush();
+    if (!seen2.length) seenAt = now();
+    seenShow = feed.show;
+    seen2.push({ k: kind, p: run3?.part ?? feed.show.at, who: nick, text: text5, ...me ? { me: 1 } : {} });
+    if (kind === "say" && !me && !extra.length && !extraChat.length) seenDue = true;
+  }
+  function playerFlush() {
+    seenDue = false;
+    if (!seen2.length || !seenShow) return;
+    const show = seenShow;
+    seenShow = null;
+    hooks.log?.(seen2.splice(0), show);
+  }
+  function build3() {
+    stage = document.createElement("div");
+    stage.className = "hs-scr";
+    canvas = document.createElement("canvas");
+    canvas.className = "hs-cv";
+    cg = document.createElement("div");
+    cg.className = "hs-cg";
+    const scan = document.createElement("div");
+    scan.className = "hs-scan";
+    stage.append(canvas, cg, scan);
+    chatLog = document.createElement("div");
+    chatLog.className = "hs-chlog";
+  }
+  function fitScale(w, h) {
+    const wrap = stage?.closest(".hs-wrap");
+    const page = stage?.closest(".hs");
+    if (!wrap || !page) return 1;
+    const phone3 = page.classList.contains("hs-m");
+    const cs = getComputedStyle(wrap);
+    const inner = wrap.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const roomW = (phone3 ? inner : inner - 274) - 2;
+    const roomH = (page.clientHeight || window.innerHeight) * (phone3 ? 0.5 : 0.6) - 36;
+    const fit2 = Math.max(0.25, Math.min(roomW / w, roomH / h));
+    return fit2 >= 2 ? 2 : fit2 >= 1 ? 1 : fit2;
+  }
+  function widthScale(w) {
+    const wrap = stage?.closest(".hs-wrap");
+    const page = stage?.closest(".hs");
+    if (!wrap || !page) return 1;
+    const phone3 = page.classList.contains("hs-m");
+    const cs = getComputedStyle(wrap);
+    const inner = wrap.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const roomW = (phone3 ? inner : inner - 274) - 2;
+    return Math.max(0.25, roomW / w);
+  }
+  function layout() {
+    if (!stage || !canvas || !feed) return;
+    const w = feed.art?.pack.w ?? 512;
+    const h = feed.art?.pack.h ?? 384;
+    const k = feed.scale > 0 ? feed.scale : feed.scale === -1 ? widthScale(w) : fitScale(w, h);
+    if (canvas.width !== w) canvas.width = w;
+    if (canvas.height !== h) canvas.height = h;
+    stage.style.width = `${w * k}px`;
+    stage.style.height = `${h * k}px`;
+    stage.style.fontFamily = `${HS_FONT}, monospace`;
+    const small = k < 0.65;
+    stage.classList.toggle("fit", !Number.isInteger(k) && k !== 0.5);
+    stage.classList.toggle("sm", small);
+    stage.classList.toggle("noscan", !feed.s.fx.scan);
+    cg.style.width = `${small ? w * k : w}px`;
+    cg.style.height = `${small ? h * k : h}px`;
+    cg.style.transform = small || k === 1 ? "" : `scale(${k})`;
+    if (small) stage.style.fontSize = "";
+  }
+  var iconMemo = null;
+  function iconOf(it) {
+    const key = `${it.id ?? ""}|${it.name}|${it.icon ?? ""}`;
+    let src = iconMemo?.key === key ? iconMemo.src : "";
+    if (!src) {
+      src = /src="([^"]+)"/.exec(itemPic(it))?.[1] ?? "";
+      if (src) iconMemo = { key, src };
+    }
+    if (!src) return null;
+    let im = icons.get(src) ?? null;
+    if (!im) {
+      im = new Image();
+      im.src = src;
+      icons.set(src, im);
+    }
+    return im.complete && im.naturalWidth ? im : null;
+  }
+  function tick2() {
+    if (!stage || !feed) return;
+    if (!stage.isConnected || !stage.offsetParent) return stopPlayer();
+    const f = feed;
+    const t = now();
+    if (seen2.length && (seenDue || t - seenAt >= LOG_FLUSH_MS)) playerFlush();
+    if (!f.art || !f.show.loaded) return void drawNote(f, t);
+    if (!run3) run3 = freshRun(f.show.at);
+    const r = run3;
+    const dt = tickAt ? t - tickAt : 0;
+    tickAt = t;
+    if (r.part >= f.show.parts.length) return void drawOff(f);
+    const part = f.show.parts[r.part];
+    const over = parseClipGroups(f.s.clipsText);
+    const clips = (c) => clipsOf(f.art.pack.cuts[cutArt(c)], cutArt(c), over);
+    const startCue = (i, own2) => {
+      if (!own2) r.cue = i;
+      r.cueAt = t;
+      const c = own2 ?? part.cues[i];
+      said = own2 ?? null;
+      r.cueLen = cueMs(c, f.s);
+      r.cut = f.s.fx.cut ? c.cut : "B";
+      if (c.ev === "call" && f.s.fx.cut) r.cut = "D";
+      applyEvent(r, c, f, t);
+      r.clip = moodClip(clips(r.cut), c.ev === "look" ? "stare" : moodName(c.mood, moodMap(f.art.pack)), idle[cutArt(r.cut)]);
+      r.frame = 0;
+      r.frameAt = t;
+      r.talking = true;
+      if (f.s.fx.tear && c.ev !== "tear" && Math.random() < f.s.fx.tearP) r.tearUntil = t + TEAR_MS[0] + Math.random() * (TEAR_MS[1] - TEAR_MS[0]);
+      pushChat(hsLogHost(), c.text, "host", own2 ? "say" : void 0);
+    };
+    const startIdle = () => {
+      r.clip = nextIdle(clips(r.cut), idle[cutArt(r.cut)], f.s.rules);
+      r.frame = 0;
+      r.frameAt = t;
+      r.talking = false;
+    };
+    const startRead = () => {
+      if (f.s.fx.cut) r.cut = "B";
+      r.flags.call = false;
+      const cs = clips(r.cut);
+      const base = cs.find((c) => c.group === "base") ?? null;
+      const name = f.s.read.length && readN % 2 === 0 ? moodName(f.s.read[readN / 2 % f.s.read.length], moodMap(f.art.pack)) : "";
+      r.clip = (name && cs.some((c) => c.name === name) ? pickVersion(cs, name, idle[cutArt(r.cut)]) : null) ?? base ?? r.clip;
+      readN++;
+      r.frame = 0;
+      r.frameAt = t;
+      r.talking = false;
+    };
+    if (r.cue < 0) startCue(0);
+    while (r.clip && t - r.frameAt >= f.s.frame) {
+      r.frameAt += f.s.frame;
+      r.frame++;
+      if (r.frame >= r.clip.frames) {
+        if (r.talking && t - r.cueAt < r.cueLen) {
+          r.clip = clips(r.cut).find((c) => c.group === "base") ?? r.clip;
+          r.frame = 0;
+        } else if (extra.length) {
+          extraChat.splice(0).forEach((c) => pushChat(c.nick, c.text, /^\?+$/.test(c.nick) ? "q" : "", "say"));
+          startCue(r.cue, extra.shift());
+        } else if (holding && r.cue < part.cues.length) {
+          reading = true;
+          startRead();
+        } else if (phone2 && r.cue < part.cues.length) {
+          reading = true;
+          startIdle();
+        } else if ((r.talking || reading) && r.cue + 1 < part.cues.length) {
+          reading = false;
+          startCue(r.cue + 1);
+        } else if ((r.talking || reading) && r.cue < part.cues.length) {
+          reading = false;
+          r.cue = part.cues.length;
+          r.gapUntil = f.s.next > 0 ? t + f.s.next * 1e3 : Infinity;
+          r.flags.call = false;
+          r.flags.look = false;
+          if (f.s.fx.cut) r.cut = "B";
+          startIdle();
+        } else if (t >= r.gapUntil && !holding && !phone2) {
+          const next = r.part + 1;
+          run3 = freshRun(next);
+          hooks.advance(next);
+          return;
+        } else if (holding) startRead();
+        else startIdle();
+      }
+    }
+    if (!r.clip) r.clip = clips(r.cut)[0] ?? null;
+    if (!iconOf(part.item)) iconMiss = true;
+    else if (iconMiss) {
+      iconMiss = false;
+      hooks.redraw();
+    }
+    if (t - r.bulbAt >= BULB_MS) {
+      r.bulbAt = t;
+      r.bulbStep++;
+    }
+    const lines3 = f.show.parts[r.part]?.chat?.length ? f.show.parts[r.part].chat : f.show.chat;
+    if (r.chatIdx < lines3.length && !r.flags.look && t - r.chatAt >= f.s.chatGap * 1e3 * (0.6 + Math.random() * 0.8)) {
+      r.chatAt = t;
+      const line2 = lines3[r.chatIdx];
+      r.chatIdx++;
+      pushChat(line2.nick, line2.text, /^\?+$/.test(line2.nick) ? "q" : "");
+    }
+    const d = f.s.drop;
+    if (d.on && !phone2 && !r.flags.sold && r.cue >= 0 && r.cue < part.cues.length) {
+      const fast = r.flags.price || r.flags.rush;
+      if (!r.dropN) {
+        const plan = nextDrop(r.left, r.dropEnd, dropRest(part.cues, r.cue, r.cueLen - (t - r.cueAt), fast, f.s), d);
+        if (plan) {
+          r.dropN = plan.n;
+          r.dropWait = plan.wait;
+        }
+      } else {
+        r.dropWait -= dt * (fast ? d.fast : 1);
+        if (r.dropWait <= 0) {
+          r.left = Math.min(r.left, Math.max(1, r.dropEnd, r.left - r.dropN));
+          r.dropN = 0;
+        }
+      }
+    }
+    if (d.on && d.soon > 0 && !r.flags.sold && r.left <= d.soon) r.flags.soon = true;
+    const tag = `${r.cut}:${r.clip?.name ?? ""}:${r.cue}`;
+    if (stage.dataset.clip !== tag) stage.dataset.clip = tag;
+    const waiting2 = r.cue >= part.cues.length && !extra.length ? "1" : "";
+    if ((stage.dataset.wait ?? "") !== waiting2) stage.dataset.wait = waiting2;
+    draw(f, r, t);
+    drawCg(f, r, t);
+  }
+  function applyEvent(r, c, f, t) {
+    r.flags.call = c.ev === "call";
+    r.flags.look = c.ev === "look";
+    if (c.ev === "tear" && f.s.fx.tear) r.tearUntil = t + TEAR_MS[0] + Math.random() * (TEAR_MS[1] - TEAR_MS[0]);
+    if (r.flags.sold) return;
+    if (c.ev === "price") r.flags.price = true;
+    if (c.ev === "rush") r.flags.rush = true;
+    if (c.ev === "soon") r.flags.soon = true;
+    if (c.ev === "left") r.left = Math.max(1, r.left - (c.n ?? 1));
+    if (c.ev === "sold" && !r.flags.sold) {
+      r.left = 0;
+      r.flags.sold = true;
+      const part = r.part;
+      setTimeout(() => hooks.soldOut ? hooks.soldOut(part) : hooks.redraw(), 0);
+    }
+  }
+  function pushChat(nick, text5, cls, kind) {
+    const k = kind ?? (cls === "host" ? "show" : cls === "me" ? "say" : cls === "sys" ? null : "chat");
+    if (k) note(k, nick, text5, cls === "me");
+    shown3.push({ nick, text: text5 });
+    if (shown3.length > KEEP_CHAT) shown3.splice(0, shown3.length - KEEP_CHAT);
+    if (!chatLog) return;
+    const p2 = document.createElement("p");
+    if (cls) p2.className = cls;
+    p2.innerHTML = `<span>${esc16(nick)}</span>${esc16(text5)}`;
+    const bottom = chatLog.scrollHeight - chatLog.scrollTop - chatLog.clientHeight < 40;
+    chatLog.appendChild(p2);
+    while (chatLog.childElementCount > KEEP_CHAT) chatLog.firstElementChild.remove();
+    if (bottom) chatLog.scrollTop = chatLog.scrollHeight;
+  }
+  function playerTake(n3) {
+    if (!run3 || !feed?.s.drop.on || run3.flags.sold) return;
+    run3.left = Math.max(1, run3.left - n3);
+  }
+  var playerSay = (nick, text5, cls = "me") => pushChat(nick, text5, cls);
+  function playerCut(cues, chat) {
+    extra.push(...cues.map((c) => c.ev === "sold" ? { ...c, ev: "" } : c));
+    extraChat.push(...chat);
+    if (!cues.length) extraChat.splice(0).forEach((c) => pushChat(c.nick, c.text, "", "say"));
+  }
+  function ctx2d(c) {
+    const g3 = c.getContext("2d");
+    if (g3) g3.imageSmoothingEnabled = false;
+    return g3;
+  }
+  function scene(g3, f, r, id2, clip2, frame) {
+    const pack4 = f.art.pack;
+    const a = pack4.cuts[id2];
+    const img = (name) => name ? f.art.img.get(name) : void 0;
+    const plate = img(a.plate);
+    if (plate) g3.drawImage(plate, 0, 0);
+    const off = img(a.off);
+    if (off && a.bulbs && f.s.fx.bulb) {
+      a.bulbs.forEach(([x, y, rad], i) => {
+        if ((i + r.bulbStep) % BULB_EVERY) return;
+        const d = rad * 2 + 4;
+        g3.drawImage(off, x - rad - 2, y - rad - 2, d, d, x - rad - 2, y - rad - 2, d, d);
+      });
+    }
+    const sheet = clip2 ? img(clip2.file) : void 0;
+    const host4 = img(a.host);
+    const mask = img(a.mask);
+    const rows3 = !mask && a.over !== void 0 ? Math.max(0, Math.min(pack4.box, a.over - a.y)) : pack4.box;
+    if (sheet && clip2) g3.drawImage(sheet, Math.min(frame, clip2.frames - 1) * pack4.box, 0, pack4.box, rows3, a.x, a.y, pack4.box, rows3);
+    else if (host4) g3.drawImage(host4, 0, 0, pack4.box, rows3, a.x, a.y, pack4.box, rows3);
+    if (mask) g3.drawImage(mask, 0, 0);
+    if (id2 === "A") {
+      const part = f.show.parts[r.part];
+      const ic2 = part ? iconOf(part.item) : null;
+      if (ic2) g3.drawImage(ic2, Math.round(pack4.w / 2 - ic2.naturalWidth / 2), TABLE_Y - ic2.naturalHeight);
+    }
+  }
+  var TABLE_Y = 302;
+  function draw(f, r, t) {
+    const g3 = canvas && ctx2d(canvas);
+    if (!g3) return;
+    const pack4 = f.art.pack;
+    const tearing = t < r.tearUntil;
+    if (r.cut === "C") {
+      scratch ??= document.createElement("canvas");
+      scratch.width = pack4.w;
+      scratch.height = pack4.h;
+      const sg = ctx2d(scratch);
+      if (!sg) return;
+      scene(sg, f, r, "A", r.clip, r.frame);
+      const sw2 = pack4.w / 2;
+      const sh = pack4.h / 2;
+      g3.drawImage(scratch, Math.round(pack4.w / 2 - sw2 / 2), Math.round(TABLE_Y - 30 - sh / 2), sw2, sh, 0, 0, pack4.w, pack4.h);
+    } else if (tearing) {
+      const b = clipsOf(pack4.cuts.B, "B", {}).find((c) => c.name === "gape") ?? r.clip;
+      scene(g3, f, r, "B", b, b ? Math.floor(b.frames / 2) : 0);
+      for (let i = 0; i < 6; i++) {
+        const y = Math.floor(Math.random() * pack4.h);
+        const hgt = 4 + Math.floor(Math.random() * 18);
+        const dx = Math.floor((Math.random() - 0.5) * 60);
+        g3.drawImage(canvas, 0, y, pack4.w, hgt, dx, y, pack4.w, hgt);
+      }
+    } else scene(g3, f, r, cutArt(r.cut), r.clip, r.frame);
+  }
+  function drawNote(f, t) {
+    const g3 = canvas && ctx2d(canvas);
+    if (!g3 || !canvas) return;
+    const w = canvas.width;
+    const h = canvas.height;
+    const bars = ["#c0c0c0", "#c0c000", "#00c0c0", "#00c000", "#c000c0", "#c00000", "#0000c0"];
+    bars.forEach((c, i) => {
+      g3.fillStyle = c;
+      g3.fillRect(Math.floor(i * w / bars.length), 0, Math.ceil(w / bars.length), h);
+    });
+    g3.fillStyle = "#0b0513";
+    g3.fillRect(0, Math.floor(h * 0.68), w, Math.ceil(h * 0.32));
+    for (let i = 0; i < 40; i++) {
+      g3.fillStyle = Math.random() < 0.5 ? "rgba(255,255,255,.18)" : "rgba(0,0,0,.25)";
+      g3.fillRect(0, Math.floor(Math.random() * h), w, 1);
+    }
+    void t;
+    if (cg) {
+      const html = `<div class="hs-note"><b>${esc16(f.note || "신호 없음")}</b></div>`;
+      if (cg.dataset.h !== html) {
+        cg.dataset.h = html;
+        cg.innerHTML = html;
+      }
+    }
+  }
+  function drawOff(f) {
+    const g3 = canvas && ctx2d(canvas);
+    const off = f.art?.img.get(f.art.pack.cuts.A.off ?? "");
+    if (g3 && off) g3.drawImage(off, 0, 0);
+    if (cg) {
+      const html = `<div class="hs-note"><b>오늘 방송은 끝났습니다</b></div>`;
+      if (cg.dataset.h !== html) {
+        cg.dataset.h = html;
+        cg.innerHTML = html;
+      }
+    }
+  }
+  function drawCg(f, r, t) {
+    if (!cg) return;
+    const part = f.show.parts[r.part];
+    if (!part) return;
+    const it = part.item;
+    const cue = said && r.talking ? said : r.talking && r.cue >= 0 && r.cue < part.cues.length ? part.cues[r.cue] : null;
+    const n3 = part.inst ?? 0;
+    const won3 = it.price > 0 ? guideTxt("Hs", "PAY_WON", { won: it.price.toLocaleString("en-US") }) : "";
+    const pay = hsPayText(part);
+    const art2 = cutArt(r.cut);
+    const board2 = r.flags.price && r.cut !== "C" && r.cut !== "D" ? `<div class="hs-board hs-b${art2}">${won3 ? `<span class="big">${esc16(won3)}</span>${n3 ? `<span class="sm">${esc16(guideTxt("Hs", "PAY_APPEAR"))}</span>` : ""}` : `<span class="big">${esc16(guideTxt("Hs", "PAY_APPEAR"))}</span>`}<span class="sm">오늘 방송에서만</span></div>` : "";
+    const tag = r.flags.sold ? "매진" : r.flags.rush ? CUE_EVENT_LABEL.rush : "";
+    const key = [r.part, r.cut, r.flags.price, r.flags.soon, r.flags.sold, r.flags.rush, r.flags.call, r.left, f.tel, stage?.classList.contains("sm")].join("|");
+    if (cg.dataset.h !== key) {
+      cg.dataset.h = key;
+      cg.innerHTML = `<div class="hs-lg"><b>${esc16(hsName())}</b><i>${r.part + 1}부</i></div>
+<div class="hs-live">LIVE</div>
+${r.flags.soon && !r.flags.sold ? '<div class="hs-soon">매진 임박</div>' : ""}
+${r.flags.sold ? '<div class="hs-soon sold">매진</div>' : `<div class="hs-left">남은 수량 ${r.left}</div>`}
+${board2}
+${r.flags.call ? '<div class="hs-call">☎ 전화 연결 중</div>' : ""}
+<div class="hs-band hs-k${r.cut}${tag ? " hs-t" : ""}">
+<div class="hs-sub"></div>
+<div class="hs-l3"><div class="nm">${tag ? `<span class="tag">${esc16(tag)}</span>` : ""}<div class="n">${esc16(it.name)}</div><div class="p2">${esc16(pay)}</div></div><div class="ph"><small>☎ 전화 주문</small><b>${esc16(f.tel)}</b></div></div>
+</div>`;
+    }
+    const sub = cg.querySelector(".hs-sub");
+    if (sub) {
+      const chars2 = cue ? Array.from(cue.text) : [];
+      const shown6 = cue ? chars2.slice(0, Math.max(0, Math.floor((t - r.cueAt) / 1e3 * f.s.speed))).join("") : "";
+      if (sub.textContent !== shown6) sub.textContent = shown6;
+      sub.classList.toggle("on", !!shown6);
+    }
+  }
+  var holding = false;
+  var reading = false;
+  var readN = 0;
+  var phone2 = false;
+  var playerPhone = (on3) => {
+    phone2 = on3;
+  };
+  var playerHold = (on3) => {
+    holding = on3;
+    if (on3) readN = 0;
+  };
+  var playerRecentChat = (n3) => shown3.slice(-n3);
+  var playerState = () => run3 ? { part: run3.part, cue: run3.cue, cut: run3.cut, clip: run3.clip?.name ?? "", left: run3.left, flags: { ...run3.flags } } : null;
+
+  // src/core/statusctx.ts
+  var statusHead = () => guideTxt("Main", "STATUS.HEAD");
+  var STATUS_HEAD = statusHead();
+  var fieldsLine = (cols) => cols?.length ? `${guideTxt("Main", "STATUS.FIELDS_LINE", { labels: colPromptLabels(cols) })}
+` : "";
+  function fieldsTold(messages, cols) {
+    if (!cols?.length) return false;
+    const rule = guideTxt("Main", "STATUS.RULE.FIELDS", { labels: colPromptLabels(cols) }).trim();
+    return !!rule && messages.some((m) => typeof m?.content === "string" && m.content.includes(rule));
+  }
+  function lastStatusLine(messages) {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m?.role !== "assistant" || typeof m.content !== "string") continue;
+      const tags = findStatusTags(m.content);
+      if (tags.length) return tags[tags.length - 1].raw.trim();
+    }
+    return null;
+  }
+  function stripStatusLines(messages) {
+    return messages.map((m) => {
+      if (m?.role !== "assistant" || typeof m.content !== "string") return m;
+      const tags = findStatusTags(m.content);
+      if (!tags.length) return m;
+      let c = m.content;
+      for (const t of tags) c = c.replace(t.raw, "");
+      return { ...m, content: c.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim() };
+    });
+  }
+  function statusBlock(line2, cols) {
+    return `${statusHead()}
+${line2}
+${fieldsLine(cols)}${guideTxt("Main", "STATUS.NOTE")}`;
+  }
+  function rebuildStatusLine(line2, cols, fill3 = {}) {
+    const t = findStatusTags(line2)[0];
+    if (!t || !t.date) return line2;
+    const values = {
+      date: t.date,
+      time: t.time,
+      weather: t.weather,
+      temp: t.temp,
+      place: t.place,
+      target: t.target,
+      companions: t.companions.join(","),
+      deployed: t.deployed ? "투입" : "",
+      identity: t.identity || fill3.identity || "",
+      wallet: fill3.wallet !== void 0 && fill3.wallet !== null ? walletCell(fill3.wallet) : t.wallet,
+      points: fill3.points !== void 0 && fill3.points !== null ? walletCell(fill3.points) : t.points
+    };
+    return formatStatusLine(values, cols);
+  }
+  function withIdentity(line2, identity) {
+    if (!identity) return line2;
+    const tags = findStatusTags(line2);
+    const t = tags[0];
+    if (!t || t.identity) return line2;
+    const cols = line2.replace(/^[[【［]\s*▣\s*[|｜]/, "").replace(/[\]】］]\s*$/, "").split(/[|｜]/).length;
+    if (cols !== 8) return line2;
+    return line2.replace(/[\]】］]\s*$/, `|${identity}]`);
+  }
+  function withStatusBlock(messages, identity = "", shape) {
+    const head3 = statusHead();
+    if (messages.some((m) => typeof m?.content === "string" && m.content.startsWith(head3))) return messages;
+    const line0 = lastStatusLine(messages);
+    const fieldCols = fieldsTold(messages, shape?.cols) ? void 0 : shape?.cols;
+    if (!line0) {
+      const starts = [
+        shape?.wallet !== void 0 && shape?.wallet !== null ? guideTxt("Main", "STATUS.START.WALLET", { n: walletCell(shape.wallet) }) : "",
+        shape?.points !== void 0 && shape?.points !== null ? guideTxt("Main", "STATUS.START.POINTS", { n: walletCell(shape.points) }) : ""
+      ].filter(Boolean);
+      if (!starts.length) return messages;
+      const first = guideTxt("Main", "STATUS.FIRST", { starts: starts.join(", "), fields: fieldsLine(fieldCols) });
+      const block6 = { role: "system", content: `${head3}
+${first}` };
+      const at2 = messages.map((m) => m?.role).lastIndexOf("user");
+      return at2 < 0 ? [...messages, block6] : [...messages.slice(0, at2), block6, ...messages.slice(at2)];
+    }
+    const line2 = shape ? rebuildStatusLine(line0, shape.cols, { identity, wallet: shape.wallet, points: shape.points }) : withIdentity(line0, identity);
+    const out2 = stripStatusLines(messages);
+    const at = out2.map((m) => m?.role).lastIndexOf("user");
+    const recent = (shape?.recent ?? []).filter(Boolean);
+    const recentP = (shape?.recentPoints ?? []).filter(Boolean);
+    const cash = recent.length ? `
+${guideTxt("Main", "STATUS.RECENT_CASH", { list: recent.join("; ") })}` : "";
+    const points = recentP.length ? `
+${guideTxt("Main", "STATUS.RECENT_POINT", { list: recentP.join("; ") })}` : "";
+    const block5 = { role: "system", content: `${statusBlock(line2, fieldCols)}${cash}${points}` };
+    return at < 0 ? [...out2, block5] : [...out2.slice(0, at), block5, ...out2.slice(at)];
+  }
+
+  // src/ui/shop.ts
+  var liveShop = (chat) => {
+    const st = currentShop(chat);
+    return st ? reviveShop(st, aliveAnchors(chat)) : null;
+  };
+  var pic = (name, icon) => itemPic({ name, icon });
+  var traitsOf2 = (x) => [x.equip ? EQUIP_LABEL[x.equip] : "", x.uses ? `소모 ${x.uses}` : x.use ? "사용" : ""].filter(Boolean).join(" · ");
+  var esc17 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var shopUi = {
+    open: false,
+    /** 채팅 카드에서 열었을 때: 창의 탭·본문 없이 상점만 (2026-11-07 사용자: 상황판이 배경으로 뜨면 안 됨). 닫으면 창도 닫는다 */
+    solo: false,
+    loading: "",
+    detail: "",
+    drawer: false,
+    chip: "",
+    /** 칩 종류: 문의(물건 이름) / 팔기(내 물건 이름) */
+    chipKind: "",
+    /** 진열대 자리에 내 소지품(팔 것 고르기) */
+    pick: false,
+    /** 팔기로 넘어갈 때 진열대 높이(px): 창이 늘었다 줄었다 하지 않게 팔기 화면에 그 높이를 준다 (2026-11-07 사용자) */
+    lockH: 0,
+    input: "",
+    notice: "",
+    info: "",
+    /** 실패한 응답 원문 (다시 받기 안내) */
+    failRaw: ""
+  };
+  function resetShop() {
+    Object.assign(shopUi, { open: false, solo: false, loading: "", detail: "", drawer: false, chip: "", chipKind: "", pick: false, lockH: 0, input: "", notice: "", info: "", failRaw: "" });
+  }
+  var pts = false;
+  var amt = (n3) => pts ? `${n3 < 0 ? "−" : ""}${Math.abs(Math.trunc(n3)).toLocaleString("en-US")}p` : shortWon(n3);
+  var obj7 = (name) => josa(name, "을", "를").slice(name.length);
+  var soldText = (name, price, p2) => `「${name}」${obj7(name)} ${p2 ? `${Math.trunc(price).toLocaleString("en-US")}p` : `${shortWon(price)}원`}에 팔았어요.`;
+  var ledgerOf2 = (vars, p2) => p2 ? readPoints(vars) : readWallet(vars, getPrefs().walletStart ?? WALLET_START_DEFAULT);
+  var ledgerVars = (w, p2) => p2 ? pointsVars(w) : walletVars(w);
+  var balanceOf = (ctx2) => walletBalance(ledgerOf2(ctx2.chat.scriptstate, pts), aliveAnchors(ctx2.chat));
+  var OWNER_TALL = 2;
+  function ownerFace(ctx2, owner) {
+    const key = owner.trim().toLowerCase();
+    if (!key) return null;
+    const a = readDirectory(ctx2.char.globalLore).agents.find((x) => [x.name, x.english, ...x.aliases].some((n3) => n3 && n3.trim().toLowerCase() === key));
+    if (!a) return null;
+    const pic3 = facePic(ctx2.char, a, true);
+    return pic3 ? imageUrl(ctx2.char, pic3.includes("#") ? `${pic3}~${OWNER_TALL}` : pic3) : null;
+  }
+  var shell3 = (inner, cls, action, keep2, label2) => `<div class="gx-agpop ${cls}" data-action="${action}" role="dialog" aria-label="${esc17(label2)}"><div class="gx-agpop-card it-card ${cls}-card" data-action="${keep2}">${inner}</div></div>`;
+  var costText = (it) => it.pay ? `${it.pay}${it.price ? ` + ${amt(it.price)}` : ""}` : amt(it.price);
+  function shopPopup(ctx2) {
+    if (!shopUi.open) return "";
+    const st = liveShop(ctx2.chat);
+    pts = !!st?.identity.points;
+    const phone3 = isPhone();
+    if (!st) {
+      return shell3(`<p class="sh-none">지금 열 수 있는 상점이 없어요. 가게 장면에서 응답 아래 「상점 열기」가 뜰 때 열 수 있어요.</p><div class="it-btns"><button class="gx-chip" data-action="shop-close">닫기</button></div>`, "sh-wrap", "shop-close", "shop-keep", "상점");
+    }
+    const bal = balanceOf(ctx2);
+    const tools = `<div class="gx-rec-tools gx-wt-tools it-tools sh-tools">
+    <span class="sh-name">${ICONS.bag}<b>${esc17(st.shop)}</b></span>
+    <span class="it-cnt sh-bal" title="${pts ? "포인트" : "잔고"}">${esc17(pts ? amt(bal) : formatWon(bal))}</span>
+    <span class="it-right">
+      ${phone3 ? "" : `<button class="it-act" data-action="shop-pick" ${st.closed || !st.loaded ? "disabled" : ""} aria-label="${shopUi.pick ? "구매" : "판매"}">${ICONS.swap}<span>${shopUi.pick ? "구매" : "판매"}</span></button>`}
+      <button class="it-act" data-action="shop-refresh" ${shopUi.loading || st.closed || shopUi.pick ? "disabled" : ""} aria-label="새로고침">${ICONS.refresh}<span>새로고침</span></button>
+      ${phone3 ? "" : `<button class="it-act sh-x" data-action="shop-close" aria-label="닫기">${ICONS.close}</button>`}
+    </span>
+  </div>`;
+    const lock = shopUi.pick && shopUi.lockH > 0 && !phone3 ? ` style="min-height:${Math.round(shopUi.lockH)}px"` : "";
+    const body5 = `<div class="sh-body"${lock}>${bodyHtml(ctx2, st, bal)}</div>`;
+    const note2 = toast("shop", shopUi.info, (t) => {
+      if (shopUi.info === t) shopUi.info = "";
+    });
+    const notice2 = shopUi.notice ? `<div class="gx-err sh-err" role="alert">${esc17(shopUi.notice)}${shopUi.failRaw ? ' <button class="gx-chip sh-raw" data-action="shop-raw">원문 보기</button>' : ""}</div>` : "";
+    let inner;
+    if (phone3) {
+      const foot = `<div class="sh-foot">
+      <button class="it-act" data-action="shop-pick" ${st.closed || !st.loaded ? "disabled" : ""} aria-label="${shopUi.pick ? "구매" : "판매"}">${ICONS.swap}<span>${shopUi.pick ? "구매" : "판매"}</span></button>
+      <button class="it-act${shopUi.drawer ? " on" : ""}" data-action="shop-drawer" aria-pressed="${shopUi.drawer}" aria-label="주인에게 말하기">${ICONS.person}<span>문의</span></button>
+      <button class="it-act sh-close" data-action="shop-close" aria-label="닫기">${ICONS.close}<span>닫기</span></button>
+    </div>`;
+      const drawer = shopUi.drawer ? `<div class="sh-dim" data-action="shop-drawer"></div><div class="sh-drawer" data-action="shop-keep"><button class="it-grip on" data-action="shop-drawer" aria-label="닫기"><i></i></button><button class="gx-agpop-x" data-action="shop-drawer" aria-label="닫기">${ICONS.close}</button>${ownerHtml(ctx2, st, true)}</div>` : "";
+      inner = `${tools}${notice2}${body5}${note2}${foot}${drawer}`;
+    } else {
+      inner = `${tools}${notice2}${body5}${note2}<div class="sh-owner">${ownerHtml(ctx2, st, false)}</div>`;
+    }
+    return shell3(inner, "sh-wrap", "shop-close", "shop-keep", st.shop) + detailHtml(ctx2, st, bal);
+  }
+  function bodyHtml(ctx2, st, bal) {
+    if (shopUi.loading === "shelf") return `<div class="sh-wait"><span class="sh-spin" aria-hidden="true"></span>${st.loaded ? "진열대를 다시 짜는 중…" : "가게를 둘러보는 중…"}</div>`;
+    if (shopUi.pick && !st.closed) return pickHtml(ctx2, st);
+    const list4 = shelfItems(st);
+    if (!list4.length) {
+      if (st.closed) return `<p class="gx-wt-empty">주인이 거래를 끊었어요.</p>`;
+      return `<p class="gx-wt-empty">${st.loaded ? "진열대가 비었어요. 새로고침으로 다시 받아 보세요." : "진열대를 아직 못 받았어요."}${shopUi.notice ? "" : ' <button class="gx-chip" data-action="shop-refresh">받기</button>'}</p>`;
+    }
+    const feature = shopSettings(ctx2.chat.scriptstate).feature;
+    const rare = feature ? list4.find((x) => x.tag === "rare") : void 0;
+    const sale = feature ? list4.filter((x) => x.tag === "sale" && x.was) : [];
+    const rest = list4.filter((x) => x !== rare && !sale.includes(x));
+    const grid = (xs) => `<div class="it-grid sh-grid">${xs.map((it) => cell2(it, bal, st.closed)).join("")}</div>`;
+    if (!rare && !sale.length) return `<div class="sh-shelf">${grid(rest)}</div>`;
+    const top = `<div class="sh-top">${rare ? rareHtml(rare, bal, st.closed) : ""}${sale.length ? `<section class="sh-zone sh-sale" style="--n:${sale.length}" aria-label="특가"><header class="sh-zh">${ICONS.tag}<b>특가</b><small>오늘만 내놓은 값</small></header>${grid(sale)}</section>` : ""}</div>`;
+    const main2 = rest.length ? `<section class="sh-zone sh-main" aria-label="판매 중"><header class="sh-zh"><b>판매 중</b><small>${rest.length}</small></header>${grid(rest)}</section>` : "";
+    return `<div class="sh-shelf">${top}${main2}</div>`;
+  }
+  function rareHtml(it, bal, closed) {
+    const poor = it.price > bal;
+    return `<button class="sh-zone sh-rare${poor ? " poor" : ""}${shopUi.detail === it.id ? " sel" : ""}" data-action="shop-detail" data-value="${esc17(it.id)}" aria-label="희귀 ${esc17(it.name)} ${esc17(costText(it))}${poor ? pts ? " (포인트 부족)" : " (잔고 부족)" : ""}" ${closed ? "disabled" : ""}>
+    <span class="sh-rare-ring" aria-hidden="true"></span>
+    <span class="sh-rare-pic"><span class="sh-rare-glow" aria-hidden="true"></span>${pic(it.name, it.icon)}</span>
+    <span class="sh-rare-tx">
+      <span class="sh-rare-lb">${ICONS.star}<b>희귀</b><small>단 하나</small></span>
+      <b class="sh-rare-nm">${esc17(it.name)}</b>
+      ${it.desc ? `<span class="sh-rare-ds">${esc17(it.desc)}</span>` : ""}
+      ${it.effect ? `<span class="sh-rare-ef">효과 · ${esc17(it.effect)}</span>` : ""}
+      <span class="sh-rare-pr${it.pay ? " pay" : ""}">${it.orig !== void 0 ? '<i title="흥정으로 바꾼 값">▾</i>' : ""}${esc17(costText(it))}</span>
+    </span>
+  </button>`;
+  }
+  function cell2(it, bal, closed) {
+    const poor = it.price > bal;
+    const sale = it.tag === "sale" && !!it.was && it.was > it.price;
+    const off = sale ? Math.max(1, Math.round((1 - it.price / it.was) * 100)) : 0;
+    const tip2 = `<span class="it-tip" aria-hidden="true"><b>${esc17(it.name)}</b>${traitsOf2(it) ? `<small>${esc17(traitsOf2(it))}</small>` : ""}${it.desc ? `<p>${esc17(it.desc)}</p>` : ""}${it.effect ? `<p class="ef">효과: ${esc17(it.effect)}</p>` : ""}<span class="sh-amt${it.pay ? " pay" : ""}">${esc17(costText(it))}</span></span>`;
+    return `<button class="it-c sh-c${sale ? " sale" : ""}${poor ? " poor" : ""}${shopUi.detail === it.id ? " sel" : ""}" data-action="shop-detail" data-value="${esc17(it.id)}" aria-label="${esc17(it.name)} ${esc17(costText(it))}${poor ? pts ? " (포인트 부족)" : " (잔고 부족)" : ""}" ${closed ? "disabled" : ""}>
+    ${sale ? `<span class="sh-off" aria-hidden="true">-${off}%</span>` : ""}<span class="it-ic">${pic(it.name, it.icon)}</span><span class="sh-nm"><b>${esc17(it.name)}</b></span><span class="sh-band${it.pay ? " pay" : ""}">${it.orig !== void 0 ? '<i title="흥정으로 바꾼 값">▾</i>' : ""}${sale ? `<s>${esc17(amt(it.was))}</s>` : ""}${esc17(costText(it))}</span>${tip2}</button>`;
+  }
+  function pickHtml(ctx2, st) {
+    const all = liveItemsOf(readItems(ctx2.chat.scriptstate), ctx2.chat);
+    const mine3 = gridItems(all);
+    const head3 = `<header class="sh-zh"><b>소지품</b><small>${all.length ? `${all.length} · 팔 물건을 고르세요` : ""}</small></header>`;
+    const inner = mine3.length ? `<div class="it-grid sh-grid">${mine3.map((it) => pickCell(it, st)).join("")}</div>` : `<p class="gx-wt-empty">${all.length ? "장착한 것 말고는 소지품이 없어요." : "팔 만한 소지품이 없어요."}</p>`;
+    return `<div class="sh-shelf sh-pick"><div class="sh-eq">${equipBox(ctx2, "sell", st.sell?.itemId ?? "")}</div><section class="sh-zone sh-main sh-mine" aria-label="소지품">${head3}${inner}</section></div>`;
+  }
+  function pickCell(it, st) {
+    const sel = st.sell?.itemId === it.id;
+    const tr = traitsOf2(it);
+    const tip2 = `<span class="it-tip" aria-hidden="true"><b>${esc17(it.name)}</b>${tr ? `<small>${esc17(tr)}</small>` : ""}${it.desc ? `<p>${esc17(it.desc)}</p>` : ""}${it.effect ? `<p class="ef">효과: ${esc17(it.effect)}</p>` : ""}${Number.isSafeInteger(it.price) ? `<span class="sh-amt">산 값 ${esc17(amt(it.price))}</span>` : ""}</span>`;
+    return `<button class="it-c sh-c${sel ? " sel" : ""}" data-action="shop-sell-pick" data-value="${esc17(it.id)}" aria-label="${esc17(it.name)} 판매" ${shopUi.loading ? "disabled" : ""}>
+    <span class="it-ic">${pic(it.name, it.icon)}</span><span class="sh-nm"><b>${esc17(it.name)}</b></span><span class="sh-band dim">${sel && typeof st.sell?.price === "number" ? `<i>▴</i>${esc17(amt(st.sell.price))}` : Number.isSafeInteger(it.price) ? `<small class="sh-band-lb">산 값</small>${esc17(amt(it.price))}` : "&nbsp;"}</span>${tip2}</button>`;
+  }
+  var SHADOW_FACE = '<svg class="sh-shadow" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><radialGradient id="shg" cx="50%" cy="100%" r="90%"><stop offset="0" stop-color="#232329"/><stop offset="1" stop-color="#070709"/></radialGradient><filter id="shf" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter></defs><rect width="100" height="100" fill="url(#shg)"/><g filter="url(#shf)" fill="#040405" opacity=".95"><ellipse cx="50" cy="40" rx="16" ry="18"/><path d="M10 100 C12 72 30 62 50 62 C70 62 88 72 90 100Z"/></g></svg>';
+  function ownerHtml(ctx2, st, drawer) {
+    const url = ownerFace(ctx2, st.owner);
+    const face3 = `<span class="sh-face${url ? "" : " none"}">${url ? `<img src="${esc17(url)}" alt="">` : SHADOW_FACE}</span>`;
+    const name = `<div class="sh-dlg-name">${esc17(st.owner || "주인")}<small>${esc17(st.shop)}</small></div>`;
+    const lines3 = st.talk.length ? st.talk.map((l) => l.who === "me" ? `<p class="me">${esc17(l.text)}</p>` : `<p>「${esc17(l.text)}」</p>`).join("") : `<p class="dim">${shopUi.loading === "shelf" ? "…" : st.loaded ? "" : "진열대를 받으면 주인이 말을 걸어요."}</p>`;
+    const box3 = `<div class="sh-dlg-box" data-sh-log>${lines3}${shopUi.loading === "talk" ? '<p class="dim">…</p>' : ""}</div>`;
+    const talk = talkbox(st);
+    if (drawer) return `<div class="sh-ov-head">${face3}${name}</div>${box3}${talk}`;
+    return `${face3}<div class="sh-dlg">${name}${box3}${talk}</div>`;
+  }
+  function talkbox(st) {
+    const off = st.closed || !!shopUi.loading || !st.loaded;
+    const sell = shopUi.chipKind === "sell";
+    const chip3 = shopUi.chip ? `<span class="sh-ref${sell ? " sell" : ""}"><span class="sh-ref-nm">${sell ? "판매" : "묻기"}: ${esc17(shopUi.chip)}</span><button type="button" class="sh-ref-x" data-action="shop-chip-x" aria-label="${esc17(shopUi.chip)} 빼기">×</button></span>` : "";
+    const ph = st.closed ? "거래가 끊겼어요" : sell ? typeof st.sell?.price === "number" ? "값을 다시 불러 보기" : "값을 부르거나 그냥 보내기" : shopUi.chip ? "이 물건에 대해 묻기" : "주인에게 말하기";
+    return `<div class="sh-talk" data-sh-talk="1">
+    <label class="sh-talk-in">${chip3}<input type="text" name="shop-say" data-input="shop-say" data-enter="shop-say" value="${esc17(shopUi.input)}" maxlength="300" placeholder="${ph}" aria-label="주인에게 말하기" ${off ? "disabled" : ""}></label>
+    <button type="button" class="sh-go" data-action="shop-say" data-take="shop-say" aria-label="보내기"${needAttr("shop-say", shopUi.input, off, sell && !!st.sell)}>↵</button>
+  </div>`;
+  }
+  function detailHtml(ctx2, st, bal) {
+    if (!shopUi.detail) return "";
+    if (shopUi.detail === "sell") return sellHtml(st, bal);
+    const it = st.items.find((x) => x.id === shopUi.detail);
+    if (!it) return "";
+    const left = bal - it.price;
+    const poor = left < 0;
+    const money2 = `<div class="sh-money">
+    <div><i>${pts ? "포인트" : "잔고"}</i><span class="sh-amt">${esc17(amt(bal))}</span></div>
+    ${it.pay && !it.price ? "" : `<div><i>값</i><span class="sh-amt">${it.orig !== void 0 && !it.pay ? `<s>${esc17(amt(it.orig))}</s> ` : ""}−${esc17(amt(it.price))}</span></div>`}
+    ${it.pay ? `<div class="pay"><i>대가</i><span class="sh-amt">${esc17(it.pay)}</span></div>` : ""}
+    <div class="sum${poor ? " bad" : ""}"><i>${poor ? "부족" : "잔액"}</i><span class="sh-amt">${esc17(amt(poor ? -left : left))}</span></div>
+  </div>`;
+    const inner = `<button class="gx-agpop-x" data-action="shop-detail-close" aria-label="닫기">${ICONS.close}</button>
+    <div class="it-ph sh-ph"><span class="it-ic">${pic(it.name, it.icon)}</span><div class="sh-phtx"><b>${esc17(it.name)}</b><span class="sh-meta">${it.tag === "rare" ? `<span class="sh-tag rare">${ICONS.star}희귀</span>` : ""}${it.tag === "sale" && it.was ? '<span class="sh-tag sale">특가</span>' : ""}${traitsOf2(it) ? `<span class="sh-tag">${esc17(traitsOf2(it))}</span>` : ""}${it.sold ? '<span class="sh-tag">산 물건</span>' : ""}</span><span class="sh-amt big${it.pay ? " pay" : ""}">${it.tag === "sale" && it.was ? `<s>${esc17(amt(it.was))}</s> ` : ""}${esc17(costText(it))}</span></div></div>
+    ${it.desc ? `<p>${esc17(it.desc)}</p>` : '<p class="dim">설명 없음</p>'}
+    ${it.effect ? `<p class="ef">효과: ${esc17(it.effect)}</p>` : ""}
+    ${it.sold ? "" : money2}
+    <div class="it-btns">
+      ${it.sold ? "" : `<button class="gx-chip on" data-action="shop-buy" data-value="${esc17(it.id)}" ${poor || st.closed || shopUi.loading ? "disabled" : ""}>구매</button>`}
+      <button class="gx-chip" data-action="shop-ask" data-value="${esc17(it.id)}" ${st.closed ? "disabled" : ""}>묻기</button>
+    </div>`;
+    return shell3(inner, "sh-det", "shop-detail-close", "shop-keep", it.name);
+  }
+  function sellHtml(st, bal) {
+    const o = st.sell;
+    if (!o) return "";
+    const offered = typeof o.price === "number";
+    const refused = o.price === null;
+    const money2 = offered ? `<div class="sh-money">
+    <div><i>${pts ? "포인트" : "잔고"}</i><span class="sh-amt">${esc17(amt(bal))}</span></div>
+    <div><i>주인이 부른 값</i><span class="sh-amt">${o.first !== void 0 ? `<s>${esc17(amt(o.first))}</s> ` : ""}+${esc17(amt(o.price))}</span></div>
+    <div class="sum"><i>잔액</i><span class="sh-amt">${esc17(amt(bal + o.price))}</span></div>
+  </div>` : refused ? '<p class="dim">주인이 이 물건은 사지 않겠대요.</p>' : '<p class="dim">아직 값을 묻지 않았어요.</p>';
+    const inner = `<button class="gx-agpop-x" data-action="shop-detail-close" aria-label="닫기">${ICONS.close}</button>
+    <div class="it-ph sh-ph"><span class="it-ic">${pic(o.name, o.icon)}</span><div class="sh-phtx"><b>${esc17(o.name)}</b><span class="sh-meta">${traitsOf2(o) ? `<span class="sh-tag">${esc17(traitsOf2(o))}</span>` : ""}<span>내 물건</span>${o.paid !== void 0 ? `<span>산 값 ${esc17(amt(o.paid))}</span>` : ""}</span>${offered ? `<span class="sh-amt big">+${esc17(amt(o.price))}</span>` : ""}</div></div>
+    ${o.desc ? `<p>${esc17(o.desc)}</p>` : '<p class="dim">설명 없음</p>'}
+    ${o.effect ? `<p class="ef">효과: ${esc17(o.effect)}</p>` : ""}
+    ${money2}
+    <div class="it-btns">
+      ${offered ? `<button class="gx-chip on" data-action="shop-sell" ${st.closed || shopUi.loading ? "disabled" : ""}>판매</button>` : ""}
+      ${refused ? "" : `<button class="gx-chip" data-action="shop-sell-haggle" ${st.closed ? "disabled" : ""}>${offered ? "흥정" : "값 묻기"}</button>`}
+      <button class="gx-chip" data-action="shop-sell-cancel">그만</button>
+    </div>`;
+    return shell3(inner, "sh-det", "shop-detail-close", "shop-keep", `${o.name} 판매`);
+  }
+  var chatKey4 = (ctx2) => `${ctx2.charIndex}:${ctx2.chatIndex}`;
+  function shopSource(ctx2, st, sh = shopSettings(ctx2.chat.scriptstate), give) {
+    const src = playerSource({ char: ctx2.char, chat: ctx2.chat, persona: personaText() });
+    const vars = ctx2.chat.scriptstate ?? {};
+    const limits = shopLimits(vars);
+    const story = storyText(recentTurns(ctx2.chat, give ? give.turns : sh.turns, genSettings(vars).userMessages));
+    const doc2 = findDoc(ctx2.chat, st.shop, ctx2.char.globalLore);
+    const extra2 = doc2 ? [{ source: guideTxt("Shop", "REFS_WIKI_SOURCE", { shop: st.shop }), content: innerBody(doc2.body).slice(0, limits.wiki) }] : [];
+    const text5 = `${st.shop}
+${st.owner}
+${story}`;
+    let rows3;
+    if (give) {
+      const registry2 = buildRegistry(src.char.globalLore);
+      const named3 = matchedBooks(registry2, `${st.shop}
+${st.owner}`);
+      rows3 = limitRefs(collectRefs(src, { scope: "gnet", text: text5, ...give.toggles, registry: registry2, extra: give.toggles.related ? extra2 : [] }), give.refs, { hard: true, first: (r) => r.sources.some((x) => named3.has(x.trim().toLowerCase())) });
+    } else {
+      rows3 = limitRefs(collectRefs(src, { scope: "gnet", text: text5, authors: false, persona: false, related: true, extra: extra2 }), sh.refs);
+    }
+    let status2 = "";
+    const msgs4 = ctx2.chat.message ?? [];
+    for (let i = msgs4.length - 1; i >= 0 && !status2; i--) {
+      if (msgs4[i].role === "user") continue;
+      const tags = findStatusTags(String(msgs4[i].data ?? ""));
+      if (tags.length) status2 = tags[tags.length - 1].raw.trim();
+    }
+    if (status2) status2 = rebuildStatusLine(status2, usedCols(colConfig(vars)).filter((c) => c !== "wallet" && c !== "points"));
+    const situation = ["$an_report", "$in_report"].map((k) => String(vars[k] ?? "").trim()).filter(Boolean).join("\n").slice(0, limits.report);
+    const identity = peopleSettings(vars).on ? identityText(peopleStore(ctx2.chat).identity) : "";
+    const talkMax = give ? { talkMax: give.talk } : {};
+    if (give && !give.context) return { st, refs: refText(rows3), story: "", status: "", situation: "", identity: "", language: genSettings(vars).language, ...talkMax };
+    return { st, refs: refText(rows3), story, status: status2, situation, identity, language: genSettings(vars).language, ...talkMax };
+  }
+  function saleDone(chat, shop, itemId4) {
+    const now2 = readShop(chat.scriptstate);
+    const o = now2?.sell;
+    if (!now2 || now2.shop !== shop || !o || o.itemId !== itemId4 || typeof o.price !== "number") return null;
+    const it0 = readItems(chat.scriptstate);
+    if (!liveItemsOf(it0, chat).some((x) => x.id === itemId4)) return null;
+    const p2 = !!now2.identity.points;
+    const l0 = ledgerOf2(chat.scriptstate, p2);
+    const w = addWalletEntry(l0, { id: freshWalletId(l0, `sl_${itemId4}_${now2.sales.length}`, now2.key), anchor: now2.key, amount: o.price, memo: o.name, src: "store" }, aliveAnchors(chat));
+    const items = sellItem(it0, itemId4, now2.key, `${now2.shop}에 팖`);
+    const nextShop = closeSale(now2, now2.key, shopLimits(chat.scriptstate));
+    if (!nextShop) return null;
+    const q = chat.scriptstate?.[ITEM_USE_AT_VAR] || useLocked() ? null : readItemUse(chat.scriptstate);
+    const use = q && q.some((u) => u.id === itemId4) ? itemUseVars(dropUse(q, itemId4)) : {};
+    return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...ledgerVars(w, p2), ...itemsVars(items), ...shopVars(nextShop), ...use } };
+  }
+  async function ask(ctx2, env3, kind, st0) {
+    const key = chatKey4(ctx2);
+    const s8 = shopSettings(ctx2.chat.scriptstate);
+    shopUi.loading = kind;
+    shopUi.notice = "";
+    shopUi.failRaw = "";
+    if (kind === "talk") await env3.refresh();
+    else env3.render();
+    try {
+      const src = shopSource(ctx2, st0, s8, shopGive(ctx2.chat.scriptstate, "shop", kind));
+      const g3 = genSettings(ctx2.chat.scriptstate);
+      const opts = { retries: g3.retries, retryModel: g3.retryModel, concurrent: g3.concurrent, state: ctx2.chat.scriptstate, label: kind === "shelf" ? "상점 진열" : "상점 대화" };
+      let deal = "";
+      let next;
+      if (kind === "shelf") {
+        const { value } = await generate(shelfPrompt(src, s8), s8.model, (raw) => parseShelf(raw, st0.loaded ? st0.identity : null), opts);
+        next = applyShelf(st0, value, s8);
+      } else {
+        const { value } = await generate(talkPrompt(src, s8), s8.model, parseTalk, opts);
+        next = applyTalk(st0, value, s8.kick, s8.talkStock, s8.shelf, s8.keep);
+        if (value.deal && next.sell && typeof next.sell.price === "number") deal = next.sell.itemId;
+      }
+      const cur = env3.current();
+      if (!cur || chatKey4(cur) !== key) return;
+      let sold = false;
+      const sale = next.sell;
+      let merged = next;
+      await updateChat(cur.charIndex, cur.chatIndex, (chat) => {
+        const now0 = readShop(chat.scriptstate);
+        if (!now0 || now0.shop !== next.shop) return null;
+        const now2 = reviveShop(now0, aliveAnchors(chat));
+        merged = mergeLate(now2, next, st0, s8.shelf);
+        if (st0.sell && !now2.sell) deal = "";
+        const saved = { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...shopVars({ ...merged, key: now0.key }) } };
+        const done3 = deal ? saleDone(saved, next.shop, deal) : null;
+        if (done3) sold = true;
+        return done3 ?? saved;
+      });
+      if (sold && sale && typeof sale.price === "number") {
+        shopUi.detail = "";
+        if (shopUi.chipKind === "sell") {
+          shopUi.chip = "";
+          shopUi.chipKind = "";
+        }
+        shopUi.info = soldText(sale.name, sale.price, !!next.identity.points);
+        void refreshUseBox(cur.charIndex, cur.chatIndex);
+      } else if (kind === "talk" && merged.closed && !st0.closed) shopUi.info = "주인이 거래를 끊었어요.";
+      else if (kind === "talk" && merged.sell && merged.sell.price !== void 0) {
+        shopUi.detail = "sell";
+        if (merged.sell.price !== null && shopUi.chipKind !== "sell") {
+          shopUi.chip = merged.sell.name;
+          shopUi.chipKind = "sell";
+        }
+      }
+    } catch (error) {
+      const cur = env3.current();
+      if (!cur || chatKey4(cur) !== key) return;
+      shopUi.notice = error instanceof Error ? error.message : String(error);
+      shopUi.failRaw = String(error.raw ?? "");
+      if (kind === "talk") {
+        await updateChat(cur.charIndex, cur.chatIndex, (chat) => {
+          const now2 = readShop(chat.scriptstate);
+          if (!now2 || now2.shop !== st0.shop) return null;
+          return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...shopVars({ ...now2, talk: now2.talk.filter((l, i) => !(i === now2.talk.length - 1 && l.who === "me")) }) } };
+        }).catch(() => null);
+      }
+    } finally {
+      shopUi.loading = "";
+    }
+    await env3.refresh();
+  }
+  async function shopAction(action, value, ctx2, env3) {
+    const st = liveShop(ctx2.chat);
+    pts = !!st?.identity.points;
+    switch (action) {
+      case "shop-open": {
+        if (!st || !shopOn(ctx2.chat.scriptstate)) {
+          shopUi.open = false;
+          shopUi.solo = false;
+          shopUi.info = "";
+          env3.render();
+          return true;
+        }
+        shopUi.open = true;
+        shopUi.detail = "";
+        shopUi.drawer = false;
+        shopUi.pick = false;
+        shopUi.notice = "";
+        if (st?.sell) {
+          shopUi.chip = st.sell.name;
+          shopUi.chipKind = "sell";
+        } else if (shopUi.chipKind === "sell") {
+          shopUi.chip = "";
+          shopUi.chipKind = "";
+        }
+        env3.render();
+        if (st && !st.loaded && !st.closed && !shopUi.loading) await ask(ctx2, env3, "shelf", st);
+        return true;
+      }
+      case "shop-keep":
+        return true;
+      case "shop-close":
+        shopUi.open = false;
+        shopUi.detail = "";
+        shopUi.drawer = false;
+        if (shopUi.solo) {
+          shopUi.solo = false;
+          await env3.closeApp?.();
+          return true;
+        }
+        env3.render();
+        return true;
+      case "shop-refresh":
+        if (!st || st.closed || shopUi.loading) return true;
+        shopUi.detail = "";
+        shopUi.pick = false;
+        await ask(ctx2, env3, "shelf", st);
+        return true;
+      case "shop-pick":
+        if (!st || st.closed || !st.loaded) return true;
+        if (!shopUi.pick) shopUi.lockH = document.querySelector(".sh-body")?.getBoundingClientRect().height ?? 0;
+        shopUi.pick = !shopUi.pick;
+        shopUi.detail = "";
+        env3.render();
+        if (shopUi.pick) requestAnimationFrame(() => {
+          const body5 = document.querySelector(".sh-body");
+          const cell3 = body5?.querySelector(".sh-mine .sh-grid > *");
+          if (!body5 || !cell3) return;
+          const over = cell3.getBoundingClientRect().bottom - body5.getBoundingClientRect().bottom;
+          if (over > 0) body5.scrollTop += over + 8;
+        });
+        return true;
+      case "shop-sell-pick": {
+        const mine3 = st ? liveItemsOf(readItems(ctx2.chat.scriptstate), ctx2.chat).find((x) => x.id === value) : null;
+        if (!st || !mine3 || st.closed || shopUi.loading) return true;
+        if (st.sell?.itemId === mine3.id) {
+          shopUi.detail = "sell";
+          env3.render();
+          return true;
+        }
+        const left = itemLeft(readItems(ctx2.chat.scriptstate), mine3, aliveAnchors(ctx2.chat));
+        const next = startSell(st, { itemId: mine3.id, name: mine3.name, desc: mine3.desc, effect: mine3.effect, ...mine3.truth ? { truth: mine3.truth } : {}, use: mine3.use, ...left !== void 0 ? { uses: left } : {}, ...mine3.equip ? { equip: mine3.equip } : {}, ...mine3.icon ? { icon: mine3.icon } : {}, ...Number.isSafeInteger(mine3.price) ? { paid: mine3.price } : {} });
+        await saveShop(ctx2, st, next);
+        shopUi.chip = mine3.name;
+        shopUi.chipKind = "sell";
+        shopUi.detail = "";
+        if (isPhone()) shopUi.drawer = true;
+        await env3.refresh();
+        document.querySelector('[data-input="shop-say"]')?.focus();
+        return true;
+      }
+      case "shop-sell-haggle":
+        if (!st?.sell) return true;
+        shopUi.chip = st.sell.name;
+        shopUi.chipKind = "sell";
+        shopUi.detail = "";
+        if (isPhone()) shopUi.drawer = true;
+        env3.render();
+        document.querySelector('[data-input="shop-say"]')?.focus();
+        return true;
+      case "shop-sell-cancel":
+        if (st?.sell) await saveShop(ctx2, st, cancelSell(st));
+        if (shopUi.chipKind === "sell") {
+          shopUi.chip = "";
+          shopUi.chipKind = "";
+        }
+        shopUi.detail = "";
+        await env3.refresh();
+        return true;
+      case "shop-sell": {
+        if (!st?.sell || typeof st.sell.price !== "number" || st.closed || shopUi.loading) return true;
+        const o = st.sell;
+        let sold = false;
+        await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+          const done3 = saleDone(chat, st.shop, o.itemId);
+          if (done3) sold = true;
+          return done3;
+        });
+        shopUi.detail = "";
+        if (shopUi.chipKind === "sell") {
+          shopUi.chip = "";
+          shopUi.chipKind = "";
+        }
+        shopUi.info = sold ? soldText(o.name, o.price, pts) : "팔 수 없는 상태예요 (물건이 없거나 값이 바뀌었어요).";
+        if (sold) void refreshUseBox(ctx2.charIndex, ctx2.chatIndex);
+        await env3.refresh();
+        return true;
+      }
+      case "shop-detail":
+        shopUi.detail = value ?? "";
+        env3.render();
+        return true;
+      case "shop-detail-close":
+        shopUi.detail = "";
+        env3.render();
+        return true;
+      case "shop-drawer":
+        shopUi.drawer = !shopUi.drawer;
+        env3.render();
+        return true;
+      case "shop-ask": {
+        const it = st?.items.find((x) => x.id === value);
+        if (!it) return true;
+        shopUi.chip = it.name;
+        shopUi.chipKind = "ask";
+        shopUi.detail = "";
+        if (isPhone()) shopUi.drawer = true;
+        env3.render();
+        document.querySelector('[data-input="shop-say"]')?.focus();
+        return true;
+      }
+      case "shop-chip-x":
+        if (shopUi.chipKind === "sell" && st?.sell && st.sell.price === void 0) await saveShop(ctx2, st, cancelSell(st));
+        shopUi.chip = "";
+        shopUi.chipKind = "";
+        await env3.refresh();
+        return true;
+      case "shop-raw":
+        if (shopUi.failRaw) shopUi.notice = `${shopUi.notice.split("\n")[0]}
+${shopUi.failRaw.slice(0, 1500)}`;
+        shopUi.failRaw = "";
+        env3.render();
+        return true;
+      case "shop-say": {
+        const sell = shopUi.chipKind === "sell" && !!st?.sell;
+        const said3 = (value ?? shopUi.input).trim();
+        const text5 = sell ? said3 ? guideTxt("Shop", "ASK_SELL", { item: st.sell.name, said: said3 }) : guideTxt("Shop", "ASK_SELL_BARE", { item: st.sell.name }) : (shopUi.chip ? guideTxt("Shop", "ASK_CHIP", { item: shopUi.chip, said: said3 }) : said3).trim();
+        if (!st || !text5 || !sell && !said3 || st.closed || shopUi.loading || !st.loaded) return true;
+        shopUi.input = "";
+        shopUi.chip = "";
+        shopUi.chipKind = "";
+        shopUi.pick = false;
+        const next = sayToOwner(st, text5, shopLimits(ctx2.chat.scriptstate));
+        const saved = await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+          const now2 = readShop(chat.scriptstate);
+          if (!now2 || now2.shop !== st.shop) return null;
+          return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...shopVars({ ...next, key: now2.key }) } };
+        });
+        if (!saved) return true;
+        await ask({ ...ctx2, chat: saved }, env3, "talk", next);
+        return true;
+      }
+      case "shop-buy": {
+        const it = st?.items.find((x) => x.id === value && !x.sold);
+        if (!st || !it || st.closed || shopUi.loading) return true;
+        const start3 = getPrefs().walletStart ?? WALLET_START_DEFAULT;
+        let bought = false;
+        await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+          const alive = aliveAnchors(chat);
+          const now0 = readShop(chat.scriptstate);
+          const now2 = now0 ? reviveShop(now0, alive) : null;
+          const target = now2?.items.find((x) => x.id === it.id && !x.sold);
+          if (!now2 || !target) return null;
+          const p2 = !!now2.identity.points;
+          const w0 = p2 ? readPoints(chat.scriptstate) : readWallet(chat.scriptstate, start3);
+          if (walletBalance(w0, alive) < target.price) return null;
+          const walletId = target.price > 0 ? freshWalletId(w0, `${p2 ? "sp" : "st"}_${target.id}`, now2.key) : "";
+          const w = walletId ? addWalletEntry(w0, { id: walletId, anchor: now2.key, amount: -target.price, memo: target.name, src: "store" }, alive) : w0;
+          const paid = p2 ? { paidWith: guideTxt("Main", "INVENTORY.SHOP.PAID_POINTS", { price: target.price.toLocaleString("en-US"), extra: target.pay ? ` ${guideTxt("Main", "MALL.PAID.EXTRA", { pay: target.pay })}` : "" }) } : { price: target.price, ...walletId ? { walletId } : {}, ...target.pay ? { paidWith: target.pay } : {} };
+          const items = addItem(readItems(chat.scriptstate), alive, { name: target.name, desc: target.desc, effect: target.effect, truth: target.truth, use: target.use, uses: target.uses, equip: target.equip, icon: target.icon, weight: target.weight, from: "store", store: "shop", anchor: now2.key, ...paid });
+          bought = true;
+          return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...p2 ? pointsVars(w) : walletVars(w), ...itemsVars(items), ...shopVars(markSold(now2, target.id, now2.key, storyStamp(chat))) } };
+        });
+        shopUi.detail = "";
+        shopUi.info = bought ? `「${it.name}」${obj7(it.name)} 샀어요. 소지품에 들어갔어요.` : pts ? "포인트가 모자라거나 이미 팔린 물건이에요." : "잔고가 모자라거나 이미 팔린 물건이에요.";
+        await env3.refresh();
+        return true;
+      }
+      default:
+        return false;
+    }
+  }
+  async function saveShop(ctx2, st, next) {
+    const r = await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+      const now2 = readShop(chat.scriptstate);
+      if (!now2 || now2.shop !== st.shop) return null;
+      return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...shopVars({ ...next, key: now2.key }) } };
+    });
+    return !!r;
+  }
+  function shopInput(v) {
+    shopUi.input = v;
+  }
+  function previewShopShelf(ctx2) {
+    const st = liveShop(ctx2.chat);
+    if (!st) return null;
+    const s8 = shopSettings(ctx2.chat.scriptstate);
+    return shelfPrompt(shopSource(ctx2, st, s8, shopGive(ctx2.chat.scriptstate, "shop", "shelf")), s8);
+  }
+
+  // src/ui/homeshop.ts
+  var esc18 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var fresh = () => ({ loading: false, notice: "", failRaw: "", page: "", retried: 0, pop: "", pay: "won", offer: [], opInput: "", calling: false, done: "", call: null, lifted: false, liftPid: "", peelFrom: 0, agree: false, audNo: "", input: "", saying: false, info: "", donePid: "" });
+  function homeshopInput(text5, which = "hs-say") {
+    if (which === "hs-op") ui.opInput = text5;
+    else ui.input = text5;
+  }
+  var ui = fresh();
+  var uiChat = "";
+  var liveEnv4 = null;
+  var chatKey5 = (ctx2) => `${ctx2.charIndex}:${ctx2.chatIndex}`;
+  function sync(ctx2) {
+    const k = chatKey5(ctx2);
+    if (k === uiChat) return;
+    uiChat = k;
+    ui = fresh();
+  }
+  function homeshopClosed() {
+    ui.pop = "";
+    ui.done = "";
+    ui.donePid = "";
+  }
+  function resetHomeshop() {
+    uiChat = "";
+    ui = fresh();
+    stopPlayer();
+  }
+  onHomeshopReady(() => liveEnv4?.render());
+  var telOf = (ctx2) => String(ctx2.chat.scriptstate?.[HS_TEL_KEY] ?? "").trim() || HS_TEL_DEFAULT;
+  var retryOf = (ctx2) => {
+    const n3 = Number(ctx2.chat.scriptstate?.[HS_RETRY_KEY] ?? 1);
+    return Number.isFinite(n3) ? Math.max(0, Math.min(3, Math.round(n3))) : 1;
+  };
+  function showSource(ctx2, show, s8, fn2 = "shelf") {
+    const st = { ...emptyShop({ raw: "", shop: hsName(), owner: hsHost() }, ""), loaded: true, identity: { sells: hsName(), never: "", prices: guideTxt("Hs", "IDENTITY_PRICES") }, prev: show.prev.concat(show.parts.map((p2) => p2.item.name)).slice(-s8.keep.prev) };
+    return shopSource({ ...ctx2, chat: { ...ctx2.chat, scriptstate: hsVars(ctx2.chat.scriptstate) } }, st, s8.shop, shopGive(ctx2.chat.scriptstate, "hs", fn2));
+  }
+  function cueWords() {
+    const art2 = homeshopArt();
+    const names4 = (cut3) => [...new Set((art2?.pack.cuts[cut3].clips ?? []).filter((c) => c.group !== "off" && c.group !== "base").map((c) => c.name))];
+    const a = names4("A");
+    const b = names4("B").filter((x) => !a.includes(x));
+    const words = Object.entries(CUE_EVENT_WORD);
+    return { cuts: Object.values(CUE_CUT_WORD).join(", "), moods: a.join(", ") || "talk", moods_b: b.join(", ") || "-", moods_all: [...a, ...b].join(", ") || "talk", events: words.map(([, w]) => w).join(", "), say_events: words.filter(([k]) => k !== "sold").map(([, w]) => w).join(", ") };
+  }
+  var range = (r) => r[0] === r[1] ? `${r[0]}` : guideTxt("Hs", "COUNT_RANGE", { lo: r[0], hi: r[1] });
+  function showPrompt(ctx2, show, s8) {
+    return programPrompt(showSource(ctx2, show, s8), s8.shop, { ...cueWords(), cue: range(s8.cue), chat: range(s8.chat) });
+  }
+  var jobs4 = /* @__PURE__ */ new Set();
+  async function ask2(ctx2, env3) {
+    const job = chatKey5(ctx2);
+    if (jobs4.has(job)) return;
+    jobs4.add(job);
+    ui.loading = true;
+    ui.notice = "";
+    ui.failRaw = "";
+    env3.render();
+    let failed4 = false;
+    try {
+      if (!homeshopArt() && !homeshopStatus().failed) {
+        await ensureHomeshop();
+        const now2 = env3.current();
+        if (!now2 || chatKey5(now2) !== job) return;
+        ctx2 = now2;
+      }
+      const s8 = hsSettings(ctx2.chat.scriptstate);
+      const show = readShow(ctx2.chat.scriptstate);
+      const g3 = genSettings(ctx2.chat.scriptstate);
+      const moods = moodMap(homeshopArt()?.pack ?? null);
+      const { value } = await generate(showPrompt(ctx2, show, s8), s8.shop.model, (raw) => parseShow(raw, moods), { retries: g3.retries, retryModel: g3.retryModel, concurrent: g3.concurrent, state: ctx2.chat.scriptstate, label: `${hsName()} 편성` });
+      const cur = env3.current();
+      if (!cur || chatKey5(cur) !== chatKey5(ctx2)) return;
+      const key = lastBot(cur.chat)?.key ?? "";
+      await updateChat(cur.charIndex, cur.chatIndex, (chat) => ({ ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...showVars({ ...applyShow(readShow(chat.scriptstate), value, key, hsSettings(chat.scriptstate).keep.prev), tk: turnKey(chat) }), [HS_AT_VAR]: turnKey(chat) } }));
+      ui.retried = 0;
+    } catch (error) {
+      failed4 = true;
+      ui.notice = error instanceof Error ? error.message : String(error);
+      ui.failRaw = String(error.raw ?? "").slice(0, 4e3);
+    } finally {
+      ui.loading = false;
+      jobs4.delete(job);
+    }
+    if (failed4 && ui.retried < retryOf(ctx2)) {
+      ui.retried++;
+      const cur = env3.current();
+      if (cur && chatKey5(cur) === chatKey5(ctx2)) return ask2(cur, env3);
+    }
+    await env3.refresh();
+  }
+  function homeshopOpenCheck(ctx2, env3) {
+    liveEnv4 = env3;
+    sync(ctx2);
+    ui.page = "";
+    const s8 = hsSettings(ctx2.chat.scriptstate);
+    if (!s8.on || ui.loading || !hsReach(ctx2.chat)) return;
+    const show = readShow(ctx2.chat.scriptstate);
+    const key = turnKey(ctx2.chat);
+    if (turnStep(show, s8.turn, key)) {
+      void updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+        const cur = readShow(chat.scriptstate);
+        if (!cur.loaded || cur.tk === turnKey(chat)) return null;
+        return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...showVars({ ...cur, at: Math.min(cur.at + 1, cur.parts.length), tk: turnKey(chat) }) } };
+      }).then(() => env3.refresh()).then(() => {
+        const c = env3.current();
+        if (c) homeshopOpenCheck(c, env3);
+      });
+      return;
+    }
+    if (s8.auto === "manual") return;
+    if (show.loaded && String(ctx2.chat.scriptstate?.[HS_AT_VAR] ?? "") === key) return;
+    if (show.loaded && show.at < show.parts.length) return;
+    void ask2(ctx2, env3);
+  }
+  async function homeshopAction(action, value, ctx2, env3) {
+    if (!action.startsWith("hs-")) return false;
+    liveEnv4 = env3;
+    sync(ctx2);
+    switch (action) {
+      case "hs-next": {
+        const now2 = readShow(ctx2.chat.scriptstate);
+        if (hsReach(ctx2.chat) && now2.loaded && now2.at < now2.parts.length) advance(now2.at + 1);
+        return true;
+      }
+      case "hs-refresh":
+        if (!hsReach(ctx2.chat) || ui.loading) return true;
+        ui.retried = 0;
+        await ask2(ctx2, env3);
+        return true;
+      case "hs-page":
+        ui.page = value === "sched" || value === "orders" ? value : "";
+        ui.pop = "";
+        env3.render();
+        return true;
+      case "hs-pop": {
+        ui.pop = (value === "call" || value === "peek" || value === "aud") && hsReach(ctx2.chat) ? value : "";
+        ui.done = "";
+        ui.info = "";
+        ui.lifted = false;
+        ui.peelFrom = 0;
+        ui.agree = false;
+        ui.audNo = "";
+        const { show, part, ordered: ordered2 } = nowPart(ctx2);
+        if (ui.call && ui.call.pid !== part?.item.id) ui.call = null;
+        if (ui.pop === "call" && part) {
+          const s8 = hsSettings(ctx2.chat.scriptstate);
+          if (!payOk(ctx2, part, s8, ui.pay)) ui.pay = firstPay(ctx2, part, s8);
+          if (!ui.call) {
+            ui.call = { pid: part.item.id, lines: show.ops?.hello ? [{ who: "op", text: show.ops.hello }] : [], terms: null, offered: [] };
+            if (!ordered2 && show.ops?.hello) saveLog(ctx2.charIndex, ctx2.chatIndex, [{ k: "aside", p: show.at, who: hsLogOperator(), text: show.ops.hello }], show);
+          }
+        }
+        env3.render();
+        return true;
+      }
+      case "hs-pay":
+        if (value === "won" || value === "appear" || value === "barter" || value === "talk") ui.pay = value;
+        env3.render();
+        return true;
+      case "hs-offer":
+        ui.offer = ui.offer.includes(value ?? "") ? ui.offer.filter((x) => x !== value) : [...ui.offer, value ?? ""].filter(Boolean);
+        env3.render();
+        return true;
+      case "hs-appraise":
+        await operatorAsk(ctx2, env3, "barter", ui.opInput.trim());
+        return true;
+      case "hs-op":
+        await operatorAsk(ctx2, env3, "talk", (value ?? ui.opInput).trim());
+        return true;
+      case "hs-lift": {
+        const pid = nowPart(ctx2).part?.item.id ?? "";
+        if (ui.lifted && ui.liftPid === pid) return true;
+        ui.lifted = true;
+        ui.liftPid = pid;
+        const from = Number(value);
+        ui.peelFrom = Number.isFinite(from) && from > 0 && from < 1 ? from : 0;
+        env3.render();
+        const { show, part } = nowPart(ctx2);
+        const frag = part && hsSettings(ctx2.chat.scriptstate).peek ? peeked : "";
+        if (frag) saveLog(ctx2.charIndex, ctx2.chatIndex, [{ k: "aside", p: show.at, who: hsLogSticker(), text: frag }], show);
+        return true;
+      }
+      case "hs-agree":
+        ui.agree = !ui.agree;
+        env3.render();
+        return true;
+      case "hs-order":
+        await order(ctx2, env3);
+        return true;
+      case "hs-aud":
+        await audience(ctx2, env3);
+        return true;
+      case "hs-say":
+        await say(ctx2, env3, (value ?? ui.input).trim());
+        return true;
+      case "hs-box-open":
+        await openBox(ctx2, env3, value ?? "");
+        return true;
+      case "hs-raw":
+        if (ui.failRaw) ui.notice = `${ui.notice.split("\n")[0]}
+${ui.failRaw.slice(0, 1500)}`;
+        ui.failRaw = "";
+        env3.render();
+        return true;
+      default:
+        return homeshopSettingsAction(action, value, ctx2, env3);
+    }
+  }
+  function advance(at) {
+    const env3 = liveEnv4;
+    const ctx2 = env3?.current();
+    if (!env3 || !ctx2) return;
+    playerFlush();
+    void updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+      const show = readShow(chat.scriptstate);
+      if (!show.loaded || show.at >= at) return null;
+      return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...showVars({ ...show, at: Math.min(at, show.parts.length) }) } };
+    }).then(() => env3.refresh());
+  }
+  function whenIdle2() {
+    if (!isWaiting()) return Promise.resolve();
+    return new Promise((resolve) => {
+      const off = onWaiting((w) => {
+        if (w) return;
+        off();
+        resolve();
+      });
+    });
+  }
+  function saveLog(charIndex, chatIndex, entries2, show) {
+    if (!entries2.length) return;
+    void whenIdle2().then(() => updateChat(charIndex, chatIndex, (chat) => {
+      const cur = readShow(chat.scriptstate);
+      if (!sameProgram(cur, show)) return null;
+      const vars = appendLog(chat.scriptstate, cur, entries2, turnKey(chat));
+      return Object.keys(vars).length ? { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...vars } } : null;
+    })).catch((error) => console.log(`[goei] ${hsName()} 시청 기록 저장 실패: ${error instanceof Error ? error.message : String(error)}`));
+  }
+  function nowPart(ctx2) {
+    const show = readShow(ctx2.chat.scriptstate);
+    const part = show.loaded && hsReach(ctx2.chat) ? show.parts[show.at] ?? null : null;
+    const ordered2 = part ? liveOrders2(ctx2.chat.scriptstate, aliveAnchors(ctx2.chat)).find((o) => o.id === `ho_${part.item.id}`) ?? null : null;
+    return { show, part, ordered: ordered2 };
+  }
+  var boxHeldIn = (items, chat, last2) => {
+    const live = new Set(liveItemsOf(items, chat).map((x) => x.id));
+    const recent = new Set(items.list.filter((x) => !!last2 && (x.soldAt === last2 || x.outAt === last2)).map((x) => x.id));
+    return (id2) => live.has(id2) || recent.has(id2);
+  };
+  var barterItems = (ctx2) => {
+    const alive = aliveAnchors(ctx2.chat);
+    return liveItemsOf(readItems(ctx2.chat.scriptstate), ctx2.chat).filter((x) => !boxOrder(ctx2.chat.scriptstate, x.id, alive));
+  };
+  var soldNow2 = (show) => {
+    if (show.parts[show.at]?.out) return true;
+    const st = playerState();
+    return !!st && st.part === show.at && st.flags.sold;
+  };
+  function soldOut(at) {
+    const env3 = liveEnv4;
+    const ctx2 = env3?.current();
+    if (!env3 || !ctx2) return;
+    env3.render();
+    const key = readShow(ctx2.chat.scriptstate).key;
+    void whenIdle2().then(() => updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+      const show = readShow(chat.scriptstate);
+      const part = show.parts[at];
+      if (!show.loaded || show.key !== key || !part || part.out) return null;
+      return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...showVars({ ...show, parts: show.parts.map((p2, i) => i === at ? { ...p2, out: true } : p2) }) } };
+    })).then(() => env3.refresh()).catch(() => void 0);
+  }
+  var walletOn2 = (ctx2) => {
+    const b = shopBlocked(ctx2.chat.scriptstate);
+    return b !== "wallet" && b !== "both";
+  };
+  var itemsOn = (ctx2) => {
+    const b = shopBlocked(ctx2.chat.scriptstate);
+    return b !== "items" && b !== "both";
+  };
+  var balance = (ctx2) => walletBalance(readWallet(ctx2.chat.scriptstate, getPrefs().walletStart ?? WALLET_START_DEFAULT), aliveAnchors(ctx2.chat));
+  function payOk(ctx2, part, s8, pay) {
+    if (pay === "won") return part.item.price > 0 && walletOn2(ctx2);
+    if (pay === "appear") return (part.inst ?? 0) > 0;
+    if (pay === "barter") return s8.barter && itemsOn(ctx2);
+    return s8.talk;
+  }
+  var PAYS = ["won", "barter", "talk", "appear"];
+  var firstPay = (ctx2, part, s8) => PAYS.find((p2) => payOk(ctx2, part, s8, p2)) ?? "won";
+  function termsFor(part, pay) {
+    if (pay === "won") return part.item.price > 0 ? { money: part.item.price, items: [], appear: 0, other: "" } : null;
+    if (pay === "appear") return part.inst ? { money: 0, items: [], appear: part.inst, other: "" } : null;
+    return ui.call?.pid === part.item.id ? ui.call.terms : null;
+  }
+  function termsBlock(ctx2, t) {
+    if (t.money > 0 && !walletOn2(ctx2)) return "가계부가 꺼져 있어 돈으로 낼 수 없습니다.";
+    if (t.money > 0 && balance(ctx2) < t.money) return "잔고가 모자랍니다.";
+    const mine3 = new Set(barterItems(ctx2).map((x) => x.id));
+    if (t.items.some((x) => !mine3.has(x.id))) return "내민 물건 가운데 이제 없는 것이 있습니다. 다시 감정을 받으세요.";
+    return "";
+  }
+  async function operatorAsk(ctx2, env3, mode2, said3) {
+    const s8 = hsSettings(ctx2.chat.scriptstate);
+    const { show, part, ordered: ordered2 } = nowPart(ctx2);
+    if (!part || ordered2 || ui.calling || soldNow2(show)) return;
+    if (mode2 === "talk" && (!s8.talk || !said3)) return;
+    if (mode2 === "barter" && (!s8.barter || !ui.offer.length)) return;
+    if (!ui.call || ui.call.pid !== part.item.id) ui.call = { pid: part.item.id, lines: show.ops?.hello ? [{ who: "op", text: show.ops.hello }] : [], terms: null, offered: [] };
+    const call = ui.call;
+    ui.info = "";
+    const mine3 = barterItems(ctx2);
+    const offered = (mode2 === "barter" ? ui.offer : call.offered).map((id2) => mine3.find((x) => x.id === id2)).filter((x) => !!x);
+    const meLine = mode2 === "barter" ? guideTxt("Hs", "CALL_OFFER", { names: offered.map((x) => x.name).join(", ") }) + (said3 ? ` ${said3}` : "") : said3;
+    call.lines.push({ who: "me", text: meLine.slice(0, 200) });
+    const offeredBefore = call.offered;
+    if (mode2 === "barter") call.offered = offered.map((x) => x.id);
+    ui.opInput = "";
+    ui.calling = true;
+    env3.render();
+    playerFlush();
+    try {
+      const items = readItems(ctx2.chat.scriptstate);
+      const alive = aliveAnchors(ctx2.chat);
+      const g3 = (k, v = {}) => guideTxt("Hs", k, v);
+      const offerText = offered.map((x) => {
+        const left = itemLeft(items, x, alive);
+        const state2 = g3(x.state === "damaged" ? "OFFERED_DAMAGED" : x.state === "broken" ? "OFFERED_BROKEN" : "OFFERED_INTACT");
+        const truth = x.truth && x.truth !== "?" ? `
+${g3("OFFERED_TRUTH", { truth: x.truth })}` : "";
+        return `${g3("OFFERED_LINE", { name: x.name, traits: traitsText(x) + (left !== void 0 ? ` (${left})` : ""), state: state2, desc: x.desc || "-", effect: x.effect || "-" })}${truth}`;
+      }).join("\n");
+      const src = showSource(ctx2, show, s8, "talk");
+      const keep2 = src.talkMax === void 0 ? call.lines : call.lines.slice(-Math.max(1, src.talkMax));
+      const body5 = [
+        g3("HEAD_ON_AIR", { name: part.item.name, pay: hsPayText(part) || "-", desc: part.item.desc || "-", effect: part.item.effect || "-" }),
+        `${g3("HEAD_OFFERED")}
+${offerText || "-"}`,
+        `${g3("HEAD_TERMS")}
+${call.terms ? termsText(call.terms) : g3("TERMS_NONE")}`,
+        `${g3("HEAD_CALL")}
+${keep2.map((l) => g3(l.who === "me" ? "CALL_LINE_ME" : "CALL_LINE_OP", { text: l.text })).join("\n")}`
+      ].join("\n\n");
+      const gs = genSettings(ctx2.chat.scriptstate);
+      const { value } = await generate(operatorPrompt(src, s8.shop, mode2, body5, !walletOn2(ctx2)), s8.shop.model, (raw) => parseOperator(raw, offered.map((x) => ({ id: x.id, name: x.name }))), { retries: gs.retries, retryModel: gs.retryModel, concurrent: gs.concurrent, state: ctx2.chat.scriptstate, label: `${hsName()} 상담원` });
+      if (ui.call !== call) return;
+      call.lines.push({ who: "op", text: value.line });
+      if (call.lines.length > s8.keep.talk) call.lines.splice(0, call.lines.length - s8.keep.talk);
+      call.terms = value.terms && !walletOn2(ctx2) ? value.terms.money > 0 ? null : value.terms : value.terms;
+      const buyer = userInfo().name || guideTxt("Hs", "SAY_ME_NICK");
+      saveLog(ctx2.charIndex, ctx2.chatIndex, [{ k: "aside", p: show.at, who: buyer, text: meLine, me: 1 }, { k: "aside", p: show.at, who: hsLogOperator(), text: value.line }], show);
+    } catch (error) {
+      if (ui.call === call) {
+        call.lines.pop();
+        call.offered = offeredBefore;
+        ui.opInput = said3;
+      }
+      ui.info = `상담원과 연결되지 않았어요. ${error instanceof Error ? error.message.split("\n")[0] : ""}`;
+    } finally {
+      ui.calling = false;
+      env3.render();
+    }
+  }
+  async function order(ctx2, env3) {
+    const s8 = hsSettings(ctx2.chat.scriptstate);
+    const pre2 = nowPart(ctx2);
+    if (!pre2.part || soldNow2(pre2.show)) return env3.render();
+    const pay = payOk(ctx2, pre2.part, s8, ui.pay) ? ui.pay : firstPay(ctx2, pre2.part, s8);
+    if (!payOk(ctx2, pre2.part, s8, pay)) return env3.render();
+    ui.pay = pay;
+    const terms = termsFor(pre2.part, pay);
+    if (!terms || termsBlock(ctx2, terms)) return env3.render();
+    let ok = false;
+    ui.info = "";
+    playerFlush();
+    const buyer = userInfo().name || guideTxt("Hs", "SAY_ME_NICK");
+    const start3 = getPrefs().walletStart ?? WALLET_START_DEFAULT;
+    await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+      const show = readShow(chat.scriptstate);
+      const part = show.loaded ? show.parts[show.at] : null;
+      if (!part || part.out || part.item.id !== pre2.part.item.id) return null;
+      const alive = aliveAnchors(chat);
+      if (liveOrders2(chat.scriptstate, alive).some((o2) => o2.id === `ho_${part.item.id}`)) return null;
+      let items = readItems(chat.scriptstate);
+      const anchor = lastBot(chat)?.key ?? "";
+      const live = liveItemsOf(items, chat);
+      if (terms.items.some((x) => !live.some((y) => y.id === x.id))) return null;
+      let wallet = {};
+      let walletId = "";
+      if (terms.money > 0) {
+        const w0 = readWallet(chat.scriptstate, start3);
+        if (walletBalance(w0, alive) < terms.money) return null;
+        walletId = freshWalletId(w0, `hs_${part.item.id}`, anchor);
+        wallet = walletVars(addWalletEntry(w0, { id: walletId, anchor, amount: -terms.money, memo: `${part.item.name} (${hsName()})`, src: "store" }, alive));
+      }
+      const o = newOrder(chat, part.item, pay, terms);
+      const barterNote = guideTxt("Hs", "ORDER_BARTER_NOTE");
+      for (const g3 of terms.items) items = anchor ? sellItem(items, g3.id, anchor, barterNote) : removeItem(items, g3.id, "sell", "store", "", { note: barterNote });
+      const mine3 = liveItemsOf(items, chat);
+      let name = HS_BOX.name(part.item.name);
+      for (let k = 2; k < 20 && mine3.some((x) => x.id === itemId3(anchor, name) || x.name === name); k++) name = `${HS_BOX.name(part.item.name).slice(0, 27)} ${k}`;
+      items = addItem(items, alive, { name, desc: HS_BOX.desc, icon: HS_BOX.icon, weight: part.item.weight, from: "store", store: "hs", anchor, paidWith: orderPaid(o, false) || hsName(), ...terms.money > 0 ? { price: terms.money, walletId } : {} });
+      o.boxId = itemId3(anchor, name);
+      ok = true;
+      const opSaid = show.ops?.done ?? "";
+      const bought = appendLog(chat.scriptstate, show, [{ k: "buy", p: show.at, who: buyer, text: guideTxt("Hs", "ORDER_LOG", { item: part.item.name, how: o.how }), ref: o.id }, ...opSaid ? [{ k: "aside", p: show.at, who: hsLogOperator(), text: opSaid }] : []], turnKey(chat));
+      return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...wallet, ...itemsVars(items), ...ordersVars2(pruneOrders2([...readOrders2(chat.scriptstate).filter((x) => x.id !== o.id), o], hsSettings(chat.scriptstate).keep.orders, { alive, turn: userTurns(chat), last: anchor, boxHeld: boxHeldIn(items, chat, anchor) })), ...bought } };
+    });
+    if (ok) {
+      const ops = readShow(ctx2.chat.scriptstate).ops;
+      ui.done = ops?.done || "주문이 접수되었습니다.";
+      ui.donePid = pre2.part.item.id;
+      ui.offer = [];
+      playerSay(guideTxt("Hs", "PLAYER_SYS_NICK"), guideTxt("Hs", "PLAYER_SYS_ORDER"), "sys");
+      playerTake(1);
+    } else ui.info = "주문이 되지 않았어요. 잔고나 내민 물건을 확인해 주세요.";
+    await env3.refresh();
+  }
+  async function openBox(ctx2, env3, boxId) {
+    await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+      const alive = aliveAnchors(chat);
+      const o = boxOrder(chat.scriptstate, boxId, alive);
+      if (!o) return null;
+      let items = readItems(chat.scriptstate);
+      const box3 = items.list.find((x) => x.id === boxId);
+      if (!box3) return null;
+      const anchor = lastBot(chat)?.key ?? "";
+      items = anchor ? addItemLog({ ...items, list: items.list.map((x) => x.id === boxId ? { ...x, soldAt: anchor } : x) }, { name: box3.name, item: boxId, ...box3.icon ? { icon: box3.icon } : {}, what: "use", by: "manual", anchor, note: "상자를 열었다" }) : removeItem(items, boxId, "use", "manual", "", { note: "상자를 열었다" });
+      const it = o.item;
+      items = addItem(items, alive, { name: it.name, desc: it.desc, effect: it.effect, truth: it.truth, use: it.use, uses: it.uses, equip: it.equip, icon: it.icon, weight: it.weight, from: "store", store: "hs", anchor, paidWith: orderPaid(o, true) || box3.paidWith || hsName(), ...box3.price !== void 0 ? { price: box3.price } : {}, ...box3.walletId ? { walletId: box3.walletId } : {} });
+      const s8 = hsSettings(chat.scriptstate);
+      const orders = readOrders2(chat.scriptstate).map((x) => x.id === o.id ? openOrder(chat, x, s8, anchor) : x);
+      return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...itemsVars(items), ...ordersVars2(orders) } };
+    });
+    await env3.refresh();
+  }
+  async function audience(ctx2, env3) {
+    if (!ui.agree || !hsSettings(ctx2.chat.scriptstate).aud || !hsReach(ctx2.chat)) return;
+    const no = String(1e3 + Math.floor(Math.random() * 9e3));
+    const name = userInfo().name || "";
+    await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => ({ ...chat, scriptstate: { ...chat.scriptstate ?? {}, [HS_AUD_VAR]: JSON.stringify({ anchor: lastBot(chat)?.key ?? "", no, name }) } }));
+    ui.audNo = no;
+    playerSay(guideTxt("Hs", "PLAYER_SYS_NICK"), guideTxt("Hs", "PLAYER_SYS_AUDIENCE", { no }), "sys");
+    await env3.refresh();
+  }
+  async function say(ctx2, env3, text5) {
+    const s8 = hsSettings(ctx2.chat.scriptstate);
+    const { show, part } = nowPart(ctx2);
+    if (!text5 || ui.saying || !s8.say || !part) return;
+    ui.info = "";
+    const nick = userInfo().name || guideTxt("Hs", "SAY_ME_NICK");
+    ui.input = "";
+    ui.saying = true;
+    playerHold(true);
+    playerSay(nick, text5.slice(0, 80), "me");
+    env3.render();
+    try {
+      if (!homeshopArt() && !homeshopStatus().failed) await ensureHomeshop();
+      const art2 = homeshopArt();
+      const g3 = guideSections("Hs");
+      const w = cueWords();
+      const system = [fillGuide(g3.COMMON ?? "", {}), fillGuide(g3.KNOWS ?? "", {}), fillGuide(g3.SAY ?? "", { say_cue: range(s8.sayCue), say_chat: range(s8.sayChat), cuts: w.cuts, moods: w.moods_all, events: w.say_events }), fillGuide(g3.HOST ?? "", {}), fillGuide(g3.VIEWERS ?? "", {}), genSettings(ctx2.chat.scriptstate).language ?? ""].filter(Boolean).join("\n\n");
+      const st = playerState();
+      const recent = part.cues.slice(Math.max(0, (st?.cue ?? 0) - (s8.sayHost - 1)), (st?.cue ?? 0) + 1).map((c) => guideTxt("Hs", "SAY_HOST_LINE", { text: c.text })).join("\n");
+      const flowed = playerRecentChat(s8.sayFlow).slice(0, -1).map((c) => guideTxt("Hs", "SAY_CHAT_LINE", { nick: c.nick, text: c.text })).join("\n");
+      const now2 = { title: show.title, part: show.at + 1, item: part.item.name, pay: hsPayText(part), desc: part.item.desc };
+      const user = guideTxt("Hs", "SAY_USER", {
+        material: broadcastMaterial(showSource(ctx2, show, s8, "say"), s8.shop),
+        now: guideTxt("Hs", show.title ? "SAY_NOW_TITLED" : "SAY_NOW", now2),
+        recent: recent || "-",
+        flowed: flowed ? `
+
+${guideTxt("Hs", "SAY_FLOWED", { flowed })}` : "",
+        said: guideTxt("Hs", "SAY_CHAT_LINE", { nick, text: text5.slice(0, 200) })
+      });
+      const gs = genSettings(ctx2.chat.scriptstate);
+      const moods = moodMap(art2?.pack ?? null);
+      const { value } = await generate([{ role: "system", content: system }, { role: "user", content: user }], s8.shop.model, (raw) => {
+        const cueText = /<cue[^>]*>([\s\S]*?)<\/cue\s*>/i.exec(raw)?.[1] ?? "";
+        const cues = cueText.split("\n").map((l) => parseCue(l, moods)).filter((c) => !!c).slice(0, s8.sayCue[1]);
+        const chat = (/<chat[^>]*>([\s\S]*?)<\/chat\s*>/i.exec(raw)?.[1] ?? "").split("\n").map((l) => {
+          const k = l.indexOf("|");
+          const nick2 = k >= 0 ? l.slice(0, k).trim().slice(0, 16) : "";
+          return { nick: nick2 || guideTxt("Hs", "CHAT_ANON_NICK"), text: (k >= 0 ? l.slice(k + 1) : l).trim().slice(0, 80) };
+        }).filter((c) => !!c.text).slice(0, s8.sayChat[1]);
+        if (!cues.length && !chat.length) throw new Error(guideTxt("Hs", "ERR_NO_SAY"));
+        return { cues, chat };
+      }, { retries: gs.retries, retryModel: gs.retryModel, concurrent: gs.concurrent, state: ctx2.chat.scriptstate, label: `${hsName()} 채팅` });
+      playerCut(value.cues, value.chat);
+    } catch (error) {
+      ui.info = `채팅이 전달되지 않았어요. ${error instanceof Error ? error.message.split("\n")[0] : ""}`;
+    } finally {
+      ui.saying = false;
+      playerHold(false);
+      playerFlush();
+    }
+    env3.render();
+  }
+  function scaleOf2(s8, phone3) {
+    const v = phone3 ? s8.scalePhone : s8.scalePc;
+    if (v === "fit") return -1;
+    if (v !== "auto") return Number(v);
+    void phone3;
+    return 0;
+  }
+  var failBox = () => ui.notice ? `<div class="hs-err" role="alert"><span>${esc18(ui.notice).replace(/\n/g, "<br>")}</span>${ui.failRaw ? '<button data-action="hs-raw">받은 글 보기</button>' : ""}<button data-action="hs-refresh">다시 연결</button></div>` : "";
+  function lineup(show, s8, col = false) {
+    return `<div class="hs-lu${col ? " col" : ""}">${show.parts.map((p2, i) => {
+      const past = i < show.at;
+      const now2 = i === show.at;
+      const open3 = past || now2;
+      const state2 = p2.out ? `<span class="st off">매진</span>` : now2 ? '<span class="st on">방송 중</span>' : past ? `<span class="st off">${s8.lock ? "판매 종료" : "방송 종료"}</span>` : '<span class="st">곧 방송</span>';
+      const pic3 = open3 ? itemPic(p2.item) : '<span class="q">?</span>';
+      const body5 = `<span class="pic">${pic3}</span><span class="tx"><small>${i + 1}부</small><b>${open3 ? esc18(p2.item.name) : "방송에서 공개"}</b>${open3 ? `<em>${esc18(hsPayText(p2))}</em>` : ""}${col && past ? `<i>${esc18(p2.item.desc)}</i>` : ""}</span>${state2}`;
+      return now2 && col ? `<button class="hs-lc now" data-action="hs-page" data-value="">${body5}</button>` : `<div class="hs-lc${now2 ? " now" : past ? " past" : " soon"}">${body5}</div>`;
+    }).join("")}</div>`;
+  }
+  function onAir(ctx2, show, s8, mobile) {
+    const { part, ordered: ordered2 } = nowPart(ctx2);
+    const ended2 = show.loaded && show.at >= show.parts.length;
+    const lost = s8.on && !hsReach(ctx2.chat);
+    const live = show.loaded && !ended2 && !lost && s8.on;
+    const bar = `<div class="hs-bar"><span class="hs-on${live ? "" : " off"}">${live ? "LIVE" : "OFF"}</span><b>${esc18(show.title || hsName())}</b>${part ? `<span class="hs-pt">${show.at + 1}부 <i>/ ${show.parts.length}부</i></span><button class="hs-nx" data-action="hs-next">${show.at + 1 < show.parts.length ? "다음 상품 ▶" : "방송 마치기 ■"}</button>` : ""}</div>`;
+    const tv = `<div class="hs-tv">${bar}<div class="hs-mount" data-hs-mount="stage"></div></div>`;
+    const refreshBtn = s8.on && !lost && !ui.loading && !ui.notice && (ended2 || !show.loaded) ? '<button class="hs-reload" data-action="hs-refresh">새로 고침</button>' : "";
+    const prod = part ? `<div class="hs-prod"><button class="hs-icon" data-action="hs-pop" data-value="peek" aria-label="상품 스티커 보기">${itemPic(part.item)}<span class="hs-stk" aria-hidden="true"></span></button>
+<div class="tx"><small>지금 방송 중 · ${show.at + 1}부</small><b>${esc18(part.item.name)}</b><p>${esc18(part.item.desc)}</p></div>
+<div class="pr"><small>오늘 방송에서만</small><b>${esc18(hsPayText(part))}</b></div></div>` : `<div class="hs-prod none"><div class="tx"><b>${!s8.on ? "방송이 없습니다" : ended2 ? "오늘 방송은 끝났습니다" : lost ? "신호가 없습니다" : "방송 준비 중입니다"}</b><p>${!s8.on ? "지금은 방송하지 않습니다." : ended2 ? "새 편성은 새로 고침으로 받아요." : lost ? "지금은 방송이 잡히지 않습니다." : ui.loading ? "잠시만 기다려 주세요." : "새로 고침으로 편성을 받아요."}</p>${refreshBtn}</div></div>`;
+    const sold = !!part && !ordered2 && soldNow2(show);
+    const ord = `<div class="hs-ord"><button class="call" data-action="hs-pop" data-value="call" ${part && !ordered2 && !sold ? "" : "disabled"}>☎ ${ordered2 ? "주문 완료" : sold ? "매진" : "전화 주문"}</button><button data-action="hs-pop" data-value="peek" ${part ? "" : "disabled"}>상품 스티커 보기</button>${s8.aud ? '<button class="aud" data-action="hs-pop" data-value="aud">★ 방청 신청</button>' : ""}</div>`;
+    const chatIn = s8.say ? `<div class="hs-in"><input name="hs-say" data-input="hs-say" data-enter="hs-say" value="${esc18(ui.input)}" maxlength="80" placeholder="${ui.saying ? "보내는 중…" : "채팅 보내기"}" aria-label="채팅 보내기"${ui.saying || !part ? " disabled" : ""}><button data-action="hs-say"${ui.saying || !part ? " disabled" : ""}>보내기</button></div>` : "";
+    const chat = `<aside class="hs-chat"><h5>실시간 채팅</h5><div class="hs-mount ch-b" data-hs-mount="chat"></div>${chatIn}</aside>`;
+    const sched = show.loaded ? `<section class="hs-sec"><h4>오늘 편성<small>지난 상품은 다시 주문할 수 없습니다 · 다음 상품은 방송에서 공개</small></h4>${lineup(show, s8)}</section>` : "";
+    const info = ui.info ? `<div class="hs-info" role="status">${esc18(ui.info)}</div>` : "";
+    return mobile ? `<div class="hs-main">${tv}${prod}${ord}</div>${info}${chat}${sched}` : `<div class="hs-bd"><div class="hs-main">${tv}${prod}${ord}</div>${chat}</div>${info}${sched}`;
+  }
+  function schedPage(show, s8) {
+    if (!show.loaded) return '<section class="hs-sec"><h4>편성표</h4><p class="hs-none">아직 받은 편성이 없습니다.</p></section>';
+    return `<section class="hs-sec"><h4>편성표<small>${esc18(show.title)}</small></h4>${lineup(show, s8, true)}</section>`;
+  }
+  function ordersPage(ctx2) {
+    const alive = aliveAnchors(ctx2.chat);
+    const list4 = liveOrders2(ctx2.chat.scriptstate, alive).slice().reverse();
+    const turn3 = userTurns(ctx2.chat);
+    const aud = readAudience(ctx2.chat.scriptstate);
+    const audRow = aud && (!aud.anchor || alive.has(aud.anchor)) ? `<div class="hs-audrow">★ 방청 신청 접수 · 접수번호 <b>${esc18(aud.no)}</b></div>` : "";
+    const debts = list4.filter((o) => o.n > 0 && orderOpened(o, alive));
+    const debtRows = debts.map((o) => {
+      const left = paidOf(o, turn3) < 1;
+      return `<li class="${left ? "" : "done"}"><span class="pic">${itemPic(o.item)}</span><span class="tx"><b>${esc18(o.item.name)}</b><small>${esc18(guideTxt("Hs", "PAY_APPEAR"))}</small></span><span class="st${left ? " on" : ""}">${left ? "대기" : "다녀옴"}</span></li>`;
+    }).join("");
+    const oweRows = list4.filter((o) => !!o.terms?.other && orderOpened(o, alive)).map((o) => {
+      const left = (o.owe ?? 0) > turn3;
+      return `<li class="${left ? "" : "done"}"><span class="pic">${itemPic(o.item)}</span><span class="tx"><b>${esc18(o.item.name)}</b><small>${esc18(o.terms?.other ?? "")}</small></span><span class="st${left ? " on" : ""}">${left ? "대기" : "받아 감"}</span></li>`;
+    }).join("");
+    const held = boxHeldIn(readItems(ctx2.chat.scriptstate), ctx2.chat, lastBot(ctx2.chat)?.key ?? "");
+    const shipRows = list4.map((o) => {
+      const opened2 = orderOpened(o, alive);
+      const gone = !opened2 && !!o.boxId && !held(o.boxId);
+      return `<li class="${gone ? "done" : ""}"><span class="pic">${itemPic(o.item)}</span><span class="tx"><b>${esc18(o.item.name)}</b><small>${esc18(o.how)}</small></span><span class="st${opened2 || gone ? "" : " on"}">${opened2 ? "수령 확인" : gone ? "상자 없음" : "배송 완료 · 미개봉"}</span></li>`;
+    }).join("");
+    return `<section class="hs-sec"><h4>주문 조회</h4>${audRow}
+<h5>시연 참여 내역</h5>${debtRows ? `<ul class="hs-ol">${debtRows}</ul>` : '<p class="hs-none">시연 참여 내역이 없습니다.</p>'}
+${oweRows ? `<h5>약조 내역</h5><ul class="hs-ol">${oweRows}</ul>` : ""}
+<h5>배송</h5>${shipRows ? `<ul class="hs-ol">${shipRows}</ul><p class="hs-tip">택배 상자는 소지품에서 「열기」로 엽니다.</p>` : '<p class="hs-none">주문 내역이 없습니다.</p>'}</section>`;
+  }
+  var popShell = (title2, body5, foot = "", cls = "") => `<div class="hs-dim"><button class="hs-dimx" data-action="hs-pop" data-value="" aria-label="닫기"></button><div class="hs-pop${cls ? ` ${cls}` : ""}" role="dialog" aria-label="${esc18(title2)}"><header><b>${esc18(title2)}</b><button data-action="hs-pop" data-value="" aria-label="닫기">✕</button></header><div class="pb">${body5}</div>${foot ? `<footer>${foot}</footer>` : ""}</div></div>`;
+  function payInfo(part, pay) {
+    if (pay === "won") {
+      const t = part.item.price > 0 ? `${part.item.price.toLocaleString("en-US")}원` : "돈으로 결제";
+      return { title: t, short: t, sub: "가계부에서 바로 결제" };
+    }
+    if (pay === "appear") return { title: guideTxt("Hs", "PAY_APPEAR"), short: "시연 참여", sub: "지금 내는 돈 없음 · 다음 방송에서 시연" };
+    if (pay === "barter") return { title: "물건 맞교환", short: "맞교환", sub: "가진 물건을 내밀고 감정" };
+    return { title: "상담원과 흥정", short: "흥정", sub: "조건을 말로 정하기" };
+  }
+  var termsCard = (t) => t ? `<div class="hs-terms"><small>상담원 조건</small><b>${esc18(termsText(t))}</b></div>` : "";
+  function callPop(ctx2, s8) {
+    const { show, part, ordered: ordered2 } = nowPart(ctx2);
+    if (!part) return "";
+    const mobile = isPhone();
+    const title2 = `☎ ${part.item.name}`;
+    const head3 = `<div class="hs-pi"><span class="pic">${itemPic(part.item)}</span><span class="tx"><b>${esc18(part.item.name)}</b><small>${esc18(hsPayText(part))}</small></span></div>`;
+    const op = (t) => t ? `<p class="hs-op"><i>상담원</i>${esc18(t)}</p>` : "";
+    if (ui.done && ui.donePid === part.item.id || ordered2) {
+      return popShell("☎ 전화 주문", `${head3}${op(ui.done || "주문이 접수되었습니다.")}<p class="hs-ok">택배 상자가 소지품에 도착했습니다.</p>`, '<button class="pri" data-action="hs-pop" data-value="">확인</button><button data-action="hs-page" data-value="orders">주문 조회</button>');
+    }
+    if (soldNow2(show)) return popShell("☎ 전화 주문", `${head3}<p class="hs-none">매진되어 더 이상 주문을 받지 않습니다.</p>`, '<button class="pri" data-action="hs-pop" data-value="">끊기</button>');
+    const call = ui.call?.pid === part.item.id ? ui.call : null;
+    const pay = payOk(ctx2, part, s8, ui.pay) ? ui.pay : firstPay(ctx2, part, s8);
+    const payWhy = (p2) => p2 === "won" ? part.item.price > 0 ? "가계부가 꺼져 있음" : "이 상품은 안 됨" : p2 === "barter" ? !s8.barter ? "설정에서 꺼 둠" : "소지품이 꺼져 있음" : p2 === "talk" ? "설정에서 꺼 둠" : "이 상품은 안 됨";
+    const btn = (p2) => {
+      const ok = payOk(ctx2, part, s8, p2);
+      const i = payInfo(part, p2);
+      const why = ok ? i.sub : payWhy(p2);
+      return mobile ? `<button class="${pay === p2 ? "on" : ""}" data-action="hs-pay" data-value="${p2}" aria-pressed="${pay === p2}" title="${esc18(why)}"${ok ? "" : " disabled"}>${esc18(i.short)}</button>` : `<button class="${pay === p2 ? "on" : ""}" data-action="hs-pay" data-value="${p2}" aria-pressed="${pay === p2}"${ok ? "" : " disabled"}><b>${esc18(i.title)}</b><small>${esc18(why)}</small></button>`;
+    };
+    const said3 = call?.lines.length ? call.lines : show.ops?.hello ? [{ who: "op", text: show.ops.hello }] : [];
+    const lines3 = said3.map((l) => l.who === "op" ? op(l.text) : `<p class="hs-me">${esc18(l.text)}</p>`).join("") + (ui.calling ? '<p class="hs-op wait"><i>상담원</i>…</p>' : "");
+    const dealPanel = pay === "barter" || pay === "talk";
+    const talkIn = dealPanel ? `<div class="hs-in op"><input name="hs-op" data-input="hs-op" data-enter="${pay === "barter" ? "hs-appraise" : "hs-op"}" value="${esc18(ui.opInput)}" maxlength="200" placeholder="${pay === "barter" ? "한마디 덧붙이기 (없어도 됨)" : "상담원에게 할 말"}" aria-label="상담원에게 할 말"${ui.calling ? " disabled" : ""}>${pay === "talk" ? `<button data-action="hs-op"${needAttr("hs-op", ui.opInput, ui.calling)}>말하기</button>` : ""}</div>` : "";
+    const mine3 = pay === "barter" ? barterItems(ctx2) : [];
+    const pick5 = pay === "barter" ? mine3.length ? `<div class="hs-pick">${mine3.map((x) => `<button class="${ui.offer.includes(x.id) ? "on" : ""}" data-action="hs-offer" data-value="${esc18(x.id)}" aria-pressed="${ui.offer.includes(x.id)}"><span class="pic">${itemPic(x)}</span><span class="nm">${esc18(x.name)}</span></button>`).join("")}</div><button class="hs-appraise" data-action="hs-appraise"${ui.calling || !ui.offer.length ? " disabled" : ""}>감정 받기</button>` : '<p class="hs-none">내밀 물건이 없습니다.</p>' : "";
+    const log = `<div class="hs-callog" aria-live="polite">${lines3}</div>`;
+    const terms = termsFor(part, pay);
+    const block5 = terms ? termsBlock(ctx2, terms) : "";
+    const label2 = pay === "won" ? `${part.item.price.toLocaleString("en-US")}원 결제` : pay === "appear" ? "시연 참여로 주문" : "이 조건으로 주문";
+    const orderBtn = `<button class="pri" data-action="hs-order"${terms && !block5 && !ui.calling ? "" : " disabled"}>${esc18(label2)}</button>`;
+    const warn = (block5 ? `<p class="hs-warn">${esc18(block5)}</p>` : "") + (ui.info ? `<p class="hs-warn" role="alert">${esc18(ui.info)}</p>` : "");
+    if (mobile) {
+      const off = PAYS.filter((p2) => !payOk(ctx2, part, s8, p2)).map((p2) => `${payInfo(part, p2).short}: ${payWhy(p2)}`).join(" · ");
+      const body5 = `<div class="hs-pays chips">${PAYS.map(btn).join("")}</div>${off ? `<p class="hs-payno">${esc18(off)}</p>` : ""}${pick5 ? `<div class="hs-offer">${pick5}</div>` : ""}${log}${talkIn}`;
+      return popShell(title2, body5, `${dealPanel ? termsCard(terms) : ""}${warn}<div class="hs-ft">${orderBtn}<button data-action="hs-pop" data-value="">끊기</button></div>`, "call m");
+    }
+    const side = `<div class="hs-side"><div class="sc">${head3}<div class="hs-pays list">${PAYS.map(btn).join("")}</div>${pick5 ? `<div class="hs-offer">${pick5}</div>` : ""}</div><div class="ft">${dealPanel ? termsCard(terms) || '<div class="hs-terms none"><small>상담원 조건</small><b>아직 없음</b></div>' : ""}${warn}<div class="hs-ft">${orderBtn}<button data-action="hs-pop" data-value="">끊기</button></div></div></div>`;
+    const line2 = `<div class="hs-line"><h5>상담원</h5>${log}${talkIn}</div>`;
+    return popShell(title2, `<div class="hs-split">${side}${line2}</div>`, "", "call");
+  }
+  function flapStyle(look) {
+    const { rx, ry } = look;
+    const right = look.corner === "br" || look.corner === "tr";
+    const bottom = look.corner === "br" || look.corner === "bl";
+    const q = rx * rx + ry * ry;
+    const pts3 = [[0.5, 0], [0, 0.5], [ry * ry / q, rx * rx / q]];
+    const at = ([u, v]) => [right ? 1 - u : u, bottom ? 1 - v : v];
+    const poly = pts3.map((p2) => at(p2).map((n3) => `${(n3 * 100).toFixed(2)}%`).join(" ")).join(", ");
+    const dx = (right ? -1 : 1) * ry;
+    const dy = (bottom ? -1 : 1) * rx;
+    const ang = Math.atan2(dx, -dy) * 180 / Math.PI;
+    const len = Math.hypot(dx, dy);
+    const ux = dx / len;
+    const uy = dy / len;
+    const L = Math.abs(2 * rx * ux) + Math.abs(2 * ry * uy);
+    const pos = (p2) => {
+      const [x, y] = at(p2);
+      return 0.5 + ((x - 0.5) * 2 * rx * ux + (y - 0.5) * 2 * ry * uy) / L;
+    };
+    const t0 = pos(pts3[0]);
+    const t1 = pos(pts3[2]);
+    const st = (k) => `${((t0 + (t1 - t0) * k) * 100).toFixed(1)}%`;
+    return `clip-path:polygon(${poly});background:linear-gradient(${ang.toFixed(1)}deg,#a89a52 ${st(0)},#e9dfa8 ${st(0.1)},#fffbe6 ${st(0.32)},#f4ecc2 ${st(0.7)},#d9cd8f ${st(1)})`;
+  }
+  function peekPop(ctx2, s8) {
+    const { part } = nowPart(ctx2);
+    if (!part) return "";
+    const it = part.item;
+    const mobile = isPhone();
+    const look = stickerLook(it.id);
+    const lifted = ui.lifted && ui.liftPid === it.id;
+    const truth = String(it.truth ?? "").replace(/\s+/g, " ").trim();
+    const emb = truth && truth !== "?" ? `<p class="emb">${Array.from(truth).map((ch) => `<i>${esc18(ch)}</i>`).join("")}</p>` : "";
+    const under = s8.peek ? `<div class="hs-und" aria-hidden="true">${emb}</div>` : "";
+    const corner2 = s8.peek ? `<span class="flapw" aria-hidden="true"><span class="flap" style="${flapStyle(look)}"></span></span><button class="corner" data-action="hs-lift" aria-label="스티커 모서리 들추기"${lifted ? " disabled" : ""}></button>` : "";
+    const cls = `hs-sticker c-${look.corner}${lifted ? " lifted anim" : ""}`;
+    const hint = s8.peek && !lifted ? `<p class="hs-peelhint">${mobile ? "스티커를 <i>눌러</i> 들춰 보세요" : "모서리를 <i>잡아 끌거나 눌러</i> 들춰 보세요"}</p>` : "";
+    const tap = mobile && s8.peek && !lifted ? ' data-action="hs-lift"' : "";
+    return popShell("상품 스티커", `<div class="${cls}"${tap} style="--from:${lifted && ui.peelFrom || 0.12};--lim:${look.lim};--tilt:${look.tilt}deg;--rx:${look.rx};--ry:${look.ry}">${under}<div class="face"><span class="pic">${itemPic(it)}</span><b>${esc18(it.name)}</b><p>${esc18(it.desc)}</p>${it.effect ? `<p class="ef">${esc18(it.effect)}</p>` : ""}</div>${corner2}</div>${hint}`);
+  }
+  var peeked = "";
+  function fitUnder(st) {
+    const emb = st.querySelector(".hs-und .emb");
+    peeked = "";
+    if (!emb) return;
+    const cells2 = [...emb.querySelectorAll("i")];
+    const W3 = emb.clientWidth;
+    const H2 = emb.clientHeight;
+    if (!cells2.length || !W3 || !H2) return;
+    let size = Math.max(14, Math.min(22, Math.floor(Math.sqrt(W3 * H2 / (cells2.length * 1.45)))));
+    emb.style.fontSize = `${size}px`;
+    while (size > 12 && emb.scrollHeight > H2) emb.style.fontSize = `${--size}px`;
+    if (!st.classList.contains("lifted")) return;
+    const cs = getComputedStyle(st);
+    const p2 = (parseFloat(cs.getPropertyValue("--pmax")) || 96) * (parseFloat(cs.getPropertyValue("--lim")) || 1);
+    const px = p2 * (parseFloat(cs.getPropertyValue("--rx")) || 1);
+    const py = p2 * (parseFloat(cs.getPropertyValue("--ry")) || 1);
+    const right = st.classList.contains("c-br") || st.classList.contains("c-tr");
+    const bottom = st.classList.contains("c-br") || st.classList.contains("c-bl");
+    const out2 = [];
+    let last2 = -2;
+    cells2.forEach((c, i) => {
+      const x = emb.offsetLeft + c.offsetLeft + c.offsetWidth / 2;
+      const y = emb.offsetTop + c.offsetTop + c.offsetHeight / 2;
+      const dx = right ? st.offsetWidth - x : x;
+      const dy = bottom ? st.offsetHeight - y : y;
+      if (dx / px + dy / py > 0.94 || !(c.textContent ?? "").trim()) return;
+      if (out2.length && i !== last2 + 1) out2.push(" … ");
+      out2.push(c.textContent ?? "");
+      last2 = i;
+    });
+    peeked = out2.join("").trim();
+  }
+  function audPop() {
+    if (ui.audNo) return popShell("★ 방청 신청", `<p class="hs-ok">접수되었습니다.</p><p class="hs-no">접수번호 <b>${esc18(ui.audNo)}</b></p>`, '<button class="pri" data-action="hs-pop" data-value="">확인</button>');
+    return popShell("★ 방청 신청", `<label class="hs-f"><span>이름</span><input value="${esc18(userInfo().name || "")}" readonly></label>
+<button class="hs-chk${ui.agree ? " on" : ""}" data-action="hs-agree" aria-pressed="${ui.agree}"><i></i>객석 규칙에 동의합니다</button>`, `<button class="pri" data-action="hs-aud" ${ui.agree ? "" : "disabled"}>신청</button><button data-action="hs-pop" data-value="">취소</button>`);
+  }
+  function homeshopTab(ctx2, env3) {
+    liveEnv4 = env3;
+    sync(ctx2);
+    const mobile = isPhone();
+    const reach = hsReach(ctx2.chat);
+    const s0 = hsSettings(ctx2.chat.scriptstate);
+    const s8 = reach ? s0 : { ...s0, aud: false };
+    const show0 = readShow(ctx2.chat.scriptstate);
+    const show = reach || !s0.on ? show0 : { ...show0, loaded: false };
+    const stt = homeshopStatus();
+    const art2 = homeshopArt();
+    const note2 = !s8.on ? "방송 없음" : !reach ? "신호 없음" : stt.failed ? "신호 없음" : !art2 ? stt.progress || "방송 준비 중" : ui.loading ? "방송 연결 중" : ui.notice ? "신호 없음" : show.loaded ? "" : "신호 없음";
+    setPlayerFeed({ art: art2, show: s8.on && !ui.loading ? show : { ...show, loaded: false }, s: s8, note: note2, scale: scaleOf2(s8, mobile), tel: telOf(ctx2) }, { advance, redraw: () => liveEnv4?.render(), log: (entries2, shown6) => saveLog(ctx2.charIndex, ctx2.chatIndex, entries2, shown6), soldOut });
+    playerPhone(ui.pop === "call");
+    const alive0 = aliveAnchors(ctx2.chat);
+    const held0 = boxHeldIn(readItems(ctx2.chat.scriptstate), ctx2.chat, lastBot(ctx2.chat)?.key ?? "");
+    const pending2 = liveOrders2(ctx2.chat.scriptstate, alive0).filter((o) => !orderOpened(o, alive0) && (!o.boxId || held0(o.boxId))).length;
+    const tabs2 = [["", "ON AIR"], ["sched", "편성표"], ["orders", `주문 조회${pending2 ? ` (${pending2})` : ""}`]];
+    const menu = `<nav class="hs-menu">${tabs2.map(([k, l]) => `<button class="${ui.page === k ? "on" : ""}" data-action="hs-page" data-value="${k}" aria-pressed="${ui.page === k}">${l}</button>`).join("")}${s8.aud ? '<button data-action="hs-pop" data-value="aud">방청 신청</button>' : ""}</nav>`;
+    const head3 = `<header class="hs-gnb"><span class="hs-logo">망상<i>홈쇼핑</i></span>${menu}<span class="hs-tel"><small>주문 전화</small>☎ ${esc18(telOf(ctx2))}</span></header>`;
+    const err = `${failBox()}${stt.failed ? `<div class="hs-err" role="alert"><span>방송 그림을 받지 못했어요. ${esc18(stt.failed)}</span></div>` : ""}`;
+    const page = ui.page === "sched" ? schedPage(show0, s8) : ui.page === "orders" ? ordersPage(ctx2) : onAir(ctx2, show, s8, mobile);
+    const pop = ui.pop === "call" ? callPop(ctx2, s8) : ui.pop === "peek" ? peekPop(ctx2, s8) : ui.pop === "aud" && s8.aud ? audPop() : "";
+    return `<div class="hs${mobile ? " hs-m" : ""}">${head3}<div class="hs-wrap">${err}${page}</div>${pop}</div>`;
+  }
+  function homeshopMounted(root3) {
+    if (root3.querySelector('[data-hs-mount="stage"]')) mountPlayer(root3);
+    else stopPlayer();
+    root3.querySelectorAll(".hs .hs-callog").forEach((el) => {
+      el.scrollTop = el.scrollHeight;
+    });
+    const stk = root3.querySelector(".hs .hs-sticker");
+    if (stk) fitUnder(stk);
+    const corner2 = root3.querySelector(".hs .hs-sticker .corner");
+    if (corner2 && !isPhone() && !corner2.dataset.drag) peelDrag(corner2);
+  }
+  function peelDrag(corner2) {
+    corner2.dataset.drag = "1";
+    const st = corner2.closest(".hs-sticker");
+    if (!st) return;
+    let start3 = null;
+    let peel = 0;
+    let moved = false;
+    corner2.addEventListener("pointerdown", (e) => {
+      if (corner2.disabled) return;
+      start3 = { x: e.clientX, y: e.clientY };
+      peel = 0;
+      moved = false;
+      corner2.setPointerCapture(e.pointerId);
+      st.classList.add("drag");
+    });
+    corner2.addEventListener("pointermove", (e) => {
+      if (!start3) return;
+      const sx = st.classList.contains("c-br") || st.classList.contains("c-tr") ? 1 : -1;
+      const sy = st.classList.contains("c-br") || st.classList.contains("c-bl") ? 1 : -1;
+      const d = (sx * (start3.x - e.clientX) + sy * (start3.y - e.clientY)) / Math.SQRT2;
+      if (Math.abs(d) > 4) moved = true;
+      const cs = getComputedStyle(st);
+      const max = (parseFloat(cs.getPropertyValue("--pmax")) || 96) * (parseFloat(cs.getPropertyValue("--lim")) || 1);
+      peel = Math.max(0.12, Math.min(1, 0.12 + d / max));
+      st.style.setProperty("--peel", String(peel));
+    });
+    const end = () => {
+      if (!start3) return;
+      start3 = null;
+      st.classList.remove("drag");
+      if (!moved) return;
+      if (peel >= 0.5) corner2.dataset.value = String(peel);
+      else {
+        st.style.removeProperty("--peel");
+        const eat = (ev) => {
+          ev.stopPropagation();
+          ev.preventDefault();
+        };
+        corner2.addEventListener("click", eat, { once: true, capture: true });
+        setTimeout(() => corner2.removeEventListener("click", eat, { capture: true }), 400);
+      }
+    };
+    corner2.addEventListener("pointerup", end);
+    corner2.addEventListener("pointercancel", end);
+  }
+  function boxButton(ctx2, itemIdOf) {
+    return boxOrder(ctx2.chat.scriptstate, itemIdOf, aliveAnchors(ctx2.chat)) ? `<button class="gx-chip" data-action="hs-box-open" data-value="${esc18(itemIdOf)}">열기</button>` : "";
+  }
+  function homeshopSettingsPane(ctx2) {
+    const vars = ctx2.chat.scriptstate;
+    const s8 = hsSettings(vars);
+    const art2 = homeshopArt();
+    const clipHelp = art2 ? ["A", "B"].map((c) => `${c === "A" ? "와이드" : "바스트"}: ${[...new Map(art2.pack.cuts[c].clips.map((k) => [k.name, `${k.ko}(${CLIP_GROUP_LABEL[k.group]})`])).values()].join(", ")}`).join("<br>") : "방송 그림을 받으면 동작 목록이 보여요.";
+    const b = (x) => x ? "1" : "0";
+    const n3 = (k) => {
+      const raw = vars?.[HS_NUM[k].key];
+      return raw === void 0 || raw === "" ? HS_NUM[k].def : Number(raw);
+    };
+    const vals = {
+      net: b(s8.net),
+      retry: String(retryOf(ctx2)),
+      say: b(s8.say),
+      turn: b(s8.turn),
+      lock: b(s8.lock),
+      drop: b(s8.drop.on),
+      barter: b(s8.barter),
+      talk: b(s8.talk),
+      peek: b(s8.peek),
+      aud: b(s8.aud),
+      clips: s8.clipsText,
+      cut: b(s8.fx.cut),
+      bulb: b(s8.fx.bulb),
+      tear: b(s8.fx.tear),
+      scan: b(s8.fx.scan),
+      scalePc: s8.scalePc,
+      scalePh: s8.scalePhone,
+      ...Object.fromEntries(Object.entries(HS_DEF_TEXT).map(([k, [name]]) => [k, String(vars?.[name] ?? "")]))
+    };
+    const wire = {
+      cur: (k) => vals[k] ?? String(n3(k)),
+      minmax: (k) => [n3(HS_PAIRS[k][0]), n3(HS_PAIRS[k][1])],
+      // 동작 분류에는 글로 된 기본값이 없다 (기본 분류는 방송 그림 팩에 있다): 칸은 비워 두고 적는 꼴은 설명에
+      help: { clips: () => `동작이 나오는 때를 바꿔요. 한 줄에 「컷:동작=분류」로 적어요(예: B:웃음=드물게). 컷은 A(와이드)·B(바스트), 분류는 기본·가끔·대사·드물게·안씀. 비워 두면 아래 분류 그대로예요.<br>${clipHelp}` }
+    };
+    const body5 = defGroups(HOMESHOP_SET, wire);
+    return `<div class="ph-form"><header class="ph-room-head"><div class="ph-room-title"><b>${esc18(hsName())} 설정</b></div></header><div class="ph-form-body ps">${body5}</div></div>`;
+  }
+  async function homeshopSettingsAction(action, value, ctx2, env3) {
+    if (!["hs-cfg", "hs-num", "hs-text", "hs-retry"].includes(action)) return false;
+    const set2 = async (vars) => {
+      await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => Object.entries(vars).every(([k2, v2]) => String(chat.scriptstate?.[k2] ?? "") === v2) ? null : { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...vars } });
+      await env3.refresh();
+      return true;
+    };
+    if (action === "hs-retry") {
+      const n3 = stepNext(value, retryOf(ctx2), 0, 3);
+      return n3 === null ? true : set2({ [HS_RETRY_KEY]: String(n3) });
+    }
+    const m = /^([\w:]+)=([\s\S]*)$/.exec(value ?? "");
+    if (!m) return true;
+    const [, k, v] = m;
+    if (action === "hs-cfg") {
+      if (k === "net") return set2({ [HS_KEY.net]: v === "0" ? "" : "1" });
+      if (HS_FLAG[k]) return set2({ [HS_FLAG[k]]: v === "0" ? "0" : "" });
+      if (k === "scalePc" || k === "scalePh") return ["auto", "fit", "0.5", "1", "2"].includes(v) ? set2({ [k === "scalePc" ? HS_KEY.scalePc : HS_KEY.scalePhone]: v }) : true;
+      return true;
+    }
+    if (action === "hs-num") {
+      const d = HS_NUM[k];
+      const n3 = Math.round(Number(v));
+      if (!d || !Number.isFinite(n3) || v.trim() === "") return env3.render(), true;
+      return set2(hsNumVars(ctx2.chat.scriptstate, k, n3, Object.values(HS_PAIRS).find((p2) => p2.includes(k))));
+    }
+    if (HS_DEF_TEXT[k]) {
+      const [name, def, max] = HS_DEF_TEXT[k];
+      return set2({ [name]: defStored(v.replace(/\s+/g, " "), def, void 0, max) });
+    }
+    if (k === "clips") return set2({ [HS_KEY.clips]: v.trim().slice(0, 2e3) });
+    return true;
+  }
+
+  // src/core/consult.ts
+  var C = (section3, vars) => guideTxt("Consult", section3, vars);
+  var onOff2 = (l) => l === "ON" ? C("LABEL.ON") : l === "OFF" ? C("LABEL.OFF") : l;
+  var oneLine = (s8) => s8.replace(/\r?\n/g, "\\n");
+  function consultLabel(item2, value) {
+    if (item2.kind === "text") return value === "" ? C("LABEL.EMPTY") : value;
+    if (item2.kind === "num" || item2.kind === "step") {
+      if (value.trim() === "") return item2.zero ?? C("LABEL.BLANK");
+      const n3 = Number(value) || 0;
+      return n3 === 0 && item2.zero ? item2.zero : `${n3}${item2.unit ?? ""}`;
+    }
+    const o = item2.opts?.find(([v]) => v === value);
+    return o ? onOff2(o[1]) : value;
+  }
+  var consultCan = (i) => i.kind !== "info" && !i.locked;
+  function choices(i) {
+    if (i.kind === "num") return C("CHOICE.NUM", { lo: i.lo ?? 0, hi: i.hi ?? 0, unit: i.unit ?? "" });
+    if (i.kind === "step") return C("CHOICE.STEP", { unit: i.unit ? ` ${C("CHOICE.STEP_UNIT", { unit: i.unit })}` : "", how: i.stride && i.stride > 1 ? C("CHOICE.STEP_STRIDE", { stride: i.stride }) : C("CHOICE.STEP_BUTTONS") });
+    if (i.kind === "text") return C("CHOICE.TEXT", { max: i.max ? ` ${C("CHOICE.TEXT_MAX", { max: i.max })}` : "", lines: C(i.multi ? "CHOICE.TEXT_MULTI" : "CHOICE.TEXT_SINGLE") });
+    return (i.opts ?? []).map(([, l]) => onOff2(l)).join(" / ");
+  }
+  function itemLine2(i) {
+    const name = `${i.group && i.group !== i.menu && i.group !== i.name ? `${i.group} · ` : ""}${i.name}`;
+    const help = i.help ? ` ${C("ITEM.HELP", { help: i.help })}` : "";
+    if (i.kind === "info") return C("ITEM.INFO", { id: i.id, name, help });
+    const cur = i.kind === "text" ? oneLine(consultLabel(i, i.cur)) : consultLabel(i, i.cur);
+    return C("ITEM.LINE", { id: i.id, name, cur, change: i.locked ? C("ITEM.LOCKED") : C("ITEM.CHOICES", { choices: choices(i) }), scope: i.scope ? ` ${C("ITEM.SCOPE", { scope: i.scope })}` : "", help });
+  }
+  var dropMax = (text5) => String(text5 ?? "").replace(/[^.\n(]*\{max\}[^.\n)]*\.?\s?/g, "");
+  function consultPrompt(src) {
+    const g3 = guideSections("Consult");
+    const system = [g3.COMMON, g3.KNOWLEDGE, g3.CHANGE, g3.OUTPUT].map((t) => fillGuide(dropMax(t), {})).filter(Boolean).join("\n\n");
+    const byId = new Map(src.all.map((i) => [i.id, i]));
+    const pending2 = src.pending.map((c) => {
+      const i = byId.get(c.id);
+      return i ? C("PENDING.LINE", { id: c.id, value: i.kind === "text" ? oneLine(consultLabel(i, c.value)) : consultLabel(i, c.value), menu: i.menu, name: i.name, cur: i.kind === "text" ? oneLine(consultLabel(i, i.cur)) : consultLabel(i, i.cur) }) : "";
+    }).filter(Boolean).join("\n");
+    const talk = src.talk.map((l) => C(l.who === "me" ? "TALK.ME" : "TALK.OP", { text: l.text })).join("\n");
+    const list4 = src.opened.map((o) => C("LIST.MENU", { menu: o.menu, items: o.items.map(itemLine2).join("\n") })).join("\n\n");
+    return [
+      { role: "system", content: system },
+      { role: "user", content: C("USER", { state: src.state, last: src.last, menus: src.menus, list: list4 || C("LIST.NONE"), pending: pending2 || C("PENDING.NONE"), talk }) }
+    ];
+  }
+  function parseConsult(raw) {
+    const block5 = (name) => new RegExp(`<${name}>([\\s\\S]*?)</${name}>`, "i").exec(raw)?.[1] ?? "";
+    const say2 = block5("say").trim();
+    const open3 = block5("open").split(/[,\n]/).map((s8) => s8.replace(/[「」\[\]]/g, "").trim()).filter(Boolean);
+    if (!say2 && !open3.length) throw new Error(C("ERR.NO_SAY"));
+    const set2 = block5("set").split("\n").map((l) => /^\s*\[?([^\s=\[\]]+)\]?\s*=\s?(.*?)\s*$/.exec(l)).filter((m) => !!m).map((m) => ({ id: m[1], raw: m[2] }));
+    return { say: say2, set: set2, apply: /<apply>\s*yes\s*<\/apply>/i.test(raw), open: open3, go: block5("go").replace(/[\[\]]/g, "").trim() };
+  }
+  var norm2 = (s8) => s8.replace(/[「」『』"'`()\s]/g, "").toLowerCase();
+  function consultValue(item2, raw) {
+    if (item2.kind === "info") return null;
+    if (item2.kind === "text") {
+      const t = raw === C("LABEL.EMPTY") ? "" : raw;
+      const text5 = (item2.multi ? t.replace(/\\n/g, "\n") : t.replace(/\\n|\r?\n/g, " ")).trim();
+      if (/[<>]/.test(text5)) return null;
+      if (item2.max && text5.length > item2.max) return null;
+      return text5;
+    }
+    if (item2.kind === "num" || item2.kind === "step") {
+      const t = raw.trim().replace(/(\d),(?=\d{3})/g, "$1");
+      const n3 = item2.zero && norm2(t) === norm2(item2.zero) ? 0 : /^-?\d+/.test(t) && /^-?\d+\s*\D{0,3}$/.test(t) ? Number.parseInt(t, 10) : NaN;
+      if (!Number.isInteger(n3)) return null;
+      if (item2.kind === "step") return (item2.lo === void 0 || n3 >= item2.lo) && (item2.hi === void 0 || n3 <= item2.hi) && (!item2.stride || (n3 - Number(item2.cur)) % item2.stride === 0) ? String(n3) : null;
+      return n3 >= (item2.lo ?? 0) && n3 <= (item2.hi ?? 0) ? String(n3) : null;
+    }
+    const want = norm2(raw);
+    const hit4 = (item2.opts ?? []).find(([v, l]) => norm2(onOff2(l)) === want || norm2(l) === want || v === raw.trim());
+    return hit4 ? hit4[0] : null;
+  }
+  function consultWhy(item2, raw) {
+    if (item2.kind === "info") return "상담에서 바꿀 수 없는 설정";
+    if (item2.locked) return "지금은 잠겨 있는 설정";
+    if (item2.kind === "text" && /[<>]/.test(raw)) return "글에 < > 는 쓸 수 없어요";
+    if (item2.kind === "text") return `글이 너무 길어요 (최대 ${item2.max}자)`;
+    return `고를 수 없는 값 「${raw.slice(0, 40)}」`;
+  }
+  function checkConsult(items, set2) {
+    const byId = new Map(items.map((i) => [i.id, i]));
+    const ok = /* @__PURE__ */ new Map();
+    const bad = [];
+    for (const s8 of set2) {
+      const item2 = byId.get(s8.id);
+      if (!item2) {
+        bad.push(`${s8.id}: 목록에 없는 설정`);
+        continue;
+      }
+      const value = consultCan(item2) ? consultValue(item2, s8.raw) : null;
+      if (value === null) {
+        bad.push(`${item2.name}: ${consultWhy(item2, s8.raw)}`);
+        continue;
+      }
+      ok.delete(s8.id);
+      if (value !== item2.cur) ok.set(s8.id, { id: s8.id, value });
+    }
+    return { ok: [...ok.values()], bad };
+  }
+  var consultKeep = () => ({ lines: getPrefs().consultLines ?? CONSULT_KEEP_DEFAULT.lines, chats: getPrefs().consultChats ?? CONSULT_KEEP_DEFAULT.chats });
+  function trimConsult(store3, keep2 = consultKeep()) {
+    const keys = Object.keys(store3).sort((a, b) => (store3[b].at ?? 0) - (store3[a].at ?? 0));
+    for (const k of keys.slice(keep2.chats)) delete store3[k];
+    for (const k of Object.keys(store3)) store3[k].lines = store3[k].lines.slice(-keep2.lines);
+  }
+
+  // src/core/asset.ts
+  var AssetError = class extends Error {
+  };
+  var ASSET_NOTE = "$goei_asset_note";
+  function withUser(d, self) {
+    const n3 = self?.trim() ?? "";
+    if (!n3 || n3.includes("_") || d.characters.includes(n3)) return { ...d, allowUser: true };
+    return { ...d, allowUser: true, characters: [...d.characters, n3], aliases: new Map(d.aliases).set(n3.toLowerCase(), n3) };
+  }
+  var fail3 = (field4, why) => new AssetError(`이미지 자료 오류 (${field4}): ${why}`);
+  function imageDataFrom(lore, characters, keywords) {
+    const d = { characters: [], keywords: [], keywordSet: /* @__PURE__ */ new Set(), aliases: /* @__PURE__ */ new Map() };
+    const alias = (term, target) => {
+      const k = term.trim().toLowerCase();
+      if (!k) return;
+      const cur = d.aliases.get(k);
+      d.aliases.set(k, cur !== void 0 && cur !== target ? false : target);
+    };
+    const agents = readDirectory(lore).agents.filter((x) => x.english);
+    const want = characters.length ? new Set(characters.map((c) => c.toLowerCase())) : null;
+    const seen4 = /* @__PURE__ */ new Set();
+    const add = (name) => {
+      const n3 = name.trim();
+      if (!n3 || /[<>"{}_]/.test(n3) || seen4.has(n3.toLowerCase())) return;
+      seen4.add(n3.toLowerCase());
+      d.characters.push(n3);
+      alias(n3, n3);
+    };
+    for (const x of agents) {
+      if (want && !want.has(x.english.toLowerCase())) continue;
+      add(x.english);
+      alias(x.name, x.english);
+      for (const al of x.aliases) alias(al, x.english);
+    }
+    for (const c of characters) if (!seen4.has(c.toLowerCase())) add(c);
+    if (!d.characters.length) throw fail3("characters", "출력 대상이 없습니다. 명부에 요원이 있는지, 설정에서 전부 끄지 않았는지 확인하세요.");
+    for (const k of keywords) {
+      const kw = k.trim();
+      if (kw && !d.keywordSet.has(kw)) {
+        d.keywordSet.add(kw);
+        d.keywords.push(kw);
+      }
+    }
+    if (!d.keywords.length) throw fail3("keywords", "표정 세트가 비어 있습니다.");
+    return d;
+  }
+  function stripImageTags(content) {
+    return content.replace(/\n\s*\n\s*<img\s*=[^>]*>\s*\n\s*\n/g, "\n\n").replace(/<img\s*=[^>]*>\s*/g, "");
+  }
+  function splitNarrative(content) {
+    const { head: leading, body: rest } = splitThoughts(content);
+    const cut3 = ["[▣|", "[◎|"].map((p2) => rest.indexOf(p2)).filter((i) => i >= 0);
+    const at = cut3.length ? Math.min(...cut3) : -1;
+    const narrative = at >= 0 ? rest.slice(0, at) : rest;
+    const trailing = at >= 0 ? rest.slice(at) : "";
+    return {
+      leading,
+      narrative: stripImageTags(stripThoughts(narrative).replace(/<!--[\s\S]*?-->/g, "")).trim(),
+      trailing,
+      raw: stripImageTags(narrative).trim()
+    };
+  }
+  function paragraphs2(text5) {
+    const out2 = [];
+    let cur = [];
+    for (const line2 of `${text5}
+`.split("\n").slice(0, -1)) {
+      if (/^\s*$/.test(line2)) {
+        if (cur.length) out2.push(cur.join("\n"));
+        cur = [];
+      } else cur.push(line2);
+    }
+    if (cur.length) out2.push(cur.join("\n"));
+    return out2;
+  }
+  function activeCharacters(narrative, d) {
+    return d.characters.filter((name) => [...d.aliases].some(([alias, target]) => target === name && termPresent(narrative, alias)));
+  }
+  function assetPrompt(active3, paras, d, limit) {
+    const first = active3[0] ?? guideTxt("Asset", "EXAMPLE_NAME");
+    const n3 = String(limit);
+    const aliasLines = active3.map((name) => {
+      const names4 = [...d.aliases].filter(([, t]) => t === name).map(([a]) => a).sort();
+      return names4.length ? guideTxt("Asset", "ALIASES_LINE", { name, aliases: names4.join(", ") }) : "";
+    }).filter(Boolean);
+    const noTag0 = d.allowUser ? guideTxt("Asset", "NO_TAG") : guideTxt("Asset", "NO_TAG_USER");
+    const noTag = d.userName?.trim() ? noTag0.replace(/\{\{user\}\}/g, () => d.userName.trim()) : noTag0;
+    const aliasHead = guideTxt("Asset", "ALIASES_HEAD");
+    const narrative = paras.map((p2, i) => guideTxt("Asset", "NARRATIVE_LINE", { n: i + 1, text: p2 })).join("\n\n");
+    return [{ role: "user", content: guideTxt("Asset", "PROMPT", {
+      no_tag_rule: noTag,
+      limit: n3,
+      plural: n3 === "1" ? "" : "s",
+      limit_x3: limit * 3,
+      names: active3.join(" | "),
+      aliases: aliasLines.length ? `${aliasHead}
+${aliasLines.join("\n")}
+
+` : "",
+      keywords: d.keywords.join(", "),
+      first,
+      narrative
+    }) }];
+  }
+  function parsePatches(raw) {
+    const text5 = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+    const s8 = text5.indexOf("[");
+    const e = text5.lastIndexOf("]");
+    if (s8 < 0 || e <= s8) return [];
+    let v;
+    try {
+      v = JSON.parse(text5.slice(s8, e + 1));
+    } catch {
+      try {
+        v = JSON.parse(text5.slice(s8, e + 1).replace(/,\s*([\]}])/g, "$1"));
+      } catch {
+        return [];
+      }
+    }
+    if (!Array.isArray(v)) return [];
+    return v.filter((p2) => !!p2 && typeof p2 === "object").map((p2) => ({ line: Number(p2.line), tag: typeof p2.tag === "string" ? p2.tag : "" }));
+  }
+  function placeTags(raw, paras, inserts) {
+    let out2 = "";
+    let at = 0;
+    for (let i = 0; i < paras.length; i++) {
+      const tag = inserts.get(i + 1);
+      if (!tag) continue;
+      let end = at;
+      for (const line2 of paras[i].split("\n")) {
+        const t = line2.trim();
+        if (!t) continue;
+        const found = raw.indexOf(t, end);
+        if (found < 0) return null;
+        end = found + t.length;
+      }
+      const nl = raw.indexOf("\n", end);
+      end = nl < 0 ? raw.length : nl;
+      out2 += `${raw.slice(at, end)}
+
+${tag}`;
+      at = end;
+    }
+    return out2 + (at < raw.length ? (raw.slice(at).startsWith("\n\n") ? "" : "\n") + raw.slice(at) : "");
+  }
+  function applyPatches(paras, patches, limit, d, raw) {
+    const sorted = [...d.characters].sort((a, b) => b.length - a.length);
+    const inserts = /* @__PURE__ */ new Map();
+    const count2 = /* @__PURE__ */ new Map();
+    for (const p2 of patches) {
+      const ln = p2.line;
+      if (!Number.isInteger(ln) || ln < 1 || ln > paras.length || inserts.has(ln)) continue;
+      const m = /<img\s*=\s*"([^"]+)"/.exec(p2.tag) ?? /<img\s*=\s*([^>]+)>/.exec(p2.tag);
+      const inner = m?.[1]?.trim();
+      if (!inner) continue;
+      const name = sorted.find((c) => inner.startsWith(`${c}_`));
+      const kw = name ? inner.slice(name.length + 1).trim() : "";
+      const kwFix = d.keywordSet.has(kw) ? kw : kw.replace(/_/g, " ");
+      if (!name || !d.keywordSet.has(kwFix)) continue;
+      const cur = count2.get(name) ?? 0;
+      if (cur >= limit) continue;
+      inserts.set(ln, `<img=${name}_${kwFix}>`);
+      count2.set(name, cur + 1);
+    }
+    const placed = raw ? placeTags(raw, paras, inserts) : null;
+    if (placed !== null) return placed;
+    const out2 = [];
+    paras.forEach((para, i) => {
+      out2.push(para);
+      const tag = inserts.get(i + 1);
+      if (tag) out2.push(tag);
+    });
+    return out2.join("\n\n");
+  }
+  function planAsset(content, d, limit, exclude = []) {
+    const { leading, narrative, trailing, raw } = splitNarrative(content);
+    if (!narrative) return null;
+    const active3 = activeCharacters(narrative, d).filter((name) => !exclude.includes(name));
+    if (!active3.length) return null;
+    const paras = paragraphs2(narrative);
+    if (!paras.length) return null;
+    return { original: content, paras, leading, trailing, raw, messages: assetPrompt(active3, paras, d, limit) };
+  }
+  function finishAsset(job, response, d, limit) {
+    const patches = parsePatches(response);
+    if (!patches.length) return null;
+    const body5 = applyPatches(job.paras, patches, limit, d, job.raw);
+    const out2 = job.trailing ? `${body5}
+${job.trailing}` : body5;
+    return (job.leading ?? "") + out2;
+  }
+
+  // src/core/aliasrows.ts
+  var ALIAS_TEXT_MAX = 2e3;
+  var ALIAS_WORD_MAX = 30;
+  var SEP2 = /→|=>|->|=|:/;
+  function aliasRows(text5) {
+    const out2 = [];
+    for (const line2 of String(text5 ?? "").split(/\r?\n/)) {
+      const m = SEP2.exec(line2);
+      if (!m) continue;
+      out2.push({ a: line2.slice(0, m.index).trim(), b: line2.slice(m.index + m[0].length).trim() });
+    }
+    return out2;
+  }
+  var aliasText2 = (rows3) => rows3.map((r) => `${r.a} → ${r.b}`).join("\n");
+  var aliasShown = (stored2) => {
+    const s8 = String(stored2 ?? "");
+    return aliasRows(s8.trim() ? s8 : ICON_ALIAS_DEFAULT);
+  };
+  var aliasChanged = (stored2) => {
+    const s8 = String(stored2 ?? "").trim();
+    return s8 !== "" && aliasText2(aliasRows(s8)) !== aliasText2(aliasRows(ICON_ALIAS_DEFAULT));
+  };
+  var aliasRowBad = (r) => !r.a ? "끝 말이 비어 있어 이 줄은 안 쓰여요." : !r.b ? "바꿀 말이 비어 있어 이 줄은 안 쓰여요." : r.a === r.b ? "두 말이 같아 이 줄은 안 쓰여요." : "";
+  var clean7 = (v) => v.replace(/→|=>|->|[=:\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, ALIAS_WORD_MAX);
+  var ALIAS_EMPTY = "-";
+  var store = (rows3) => {
+    const t = aliasText2(rows3);
+    return !rows3.length ? ALIAS_EMPTY : t === aliasText2(aliasRows(ICON_ALIAS_DEFAULT)) ? "" : t;
+  };
+  var aliasCanAdd = (stored2) => aliasText2(aliasShown(stored2)).length + 4 <= ALIAS_TEXT_MAX;
+  function aliasEdit(stored2, op, value = "") {
+    const cur = String(stored2 ?? "").trim();
+    const rows3 = aliasShown(cur);
+    let next;
+    if (op === "reset") next = "";
+    else if (op === "add") {
+      if (!aliasCanAdd(cur)) return null;
+      next = store([...rows3, { a: "", b: "" }]);
+    } else if (op === "del") {
+      const i = Number(value);
+      if (!/^\d+$/.test(value) || i >= rows3.length) return null;
+      next = store(rows3.filter((_, k) => k !== i));
+    } else {
+      const m = /^(\d+):(a|b)=([\s\S]*)$/.exec(value);
+      if (!m || Number(m[1]) >= rows3.length) return null;
+      next = store(rows3.map((r, k) => k === Number(m[1]) ? { ...r, [m[2]]: clean7(m[3]) } : r));
+      if (next.length > ALIAS_TEXT_MAX) return null;
+    }
+    return next === cur ? null : next;
+  }
+
+  // src/core/pairrows.ts
+  var clean8 = (v) => v.replace(/→|=>|->|[=:\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, ALIAS_WORD_MAX);
+  function pairTable(def) {
+    const defText = aliasText2(aliasRows(def));
+    const shown6 = (stored2) => {
+      const s8 = String(stored2 ?? "");
+      return aliasRows(s8.trim() ? s8 : def);
+    };
+    const store3 = (rows3) => {
+      const t = aliasText2(rows3);
+      return !rows3.length ? defText ? ALIAS_EMPTY : "" : t === defText ? "" : t;
+    };
+    const canAdd = (stored2) => aliasText2(shown6(stored2)).length + 4 <= ALIAS_TEXT_MAX;
+    return {
+      shown: shown6,
+      changed: (stored2) => {
+        const s8 = String(stored2 ?? "").trim();
+        return s8 !== "" && aliasText2(aliasRows(s8)) !== defText;
+      },
+      canAdd,
+      edit(stored2, op, value = "") {
+        const cur = String(stored2 ?? "").trim();
+        const rows3 = shown6(cur);
+        let next;
+        if (op === "reset") next = "";
+        else if (op === "add") {
+          if (!canAdd(cur)) return null;
+          next = store3([...rows3, { a: "", b: "" }]);
+        } else if (op === "del") {
+          const i = Number(value);
+          if (!/^\d+$/.test(value) || i >= rows3.length) return null;
+          next = store3(rows3.filter((_, k) => k !== i));
+        } else {
+          const m = /^(\d+):(a|b)=([\s\S]*)$/.exec(value);
+          if (!m || Number(m[1]) >= rows3.length) return null;
+          next = store3(rows3.map((r, k) => k === Number(m[1]) ? { ...r, [m[2]]: clean8(m[3]) } : r));
+          if (next.length > ALIAS_TEXT_MAX) return null;
+        }
+        return next === cur ? null : next;
+      }
+    };
+  }
+
+  // src/core/looks.ts
+  var LOOKS_PACK = { name: "goei-data-looks", label: "인물 모습", expect: expectOf(true ? '{"hash":"c006b617","sha256":"68a3d301a035c531538a2df52ccde11062c2af369e7eea1229c8ae1891e9dc42","length":1209720}' : void 0) };
+  var LOOK_KEY = "$st_look";
+  var LOOK_FRAME_SEC = 0.4;
+  var LOOK_GENDERS = ["남", "여"];
+  var LOOK_ACT_MIN_VAR = "$it_act_gap_min";
+  var LOOK_ACT_MAX_VAR = "$it_act_gap_max";
+  var LOOK_ACT_GAP_DEFAULT = [12, 24];
+  var LOOK_ACT_GAP_HI = 120;
+  var lookActGap = (vars) => {
+    const one2 = (key, def) => {
+      const raw = vars?.[key];
+      const n3 = raw === void 0 || raw === null || raw === "" ? NaN : Number(raw);
+      return Number.isInteger(n3) ? Math.min(LOOK_ACT_GAP_HI, Math.max(0, n3)) : def;
+    };
+    const hi = one2(LOOK_ACT_MAX_VAR, LOOK_ACT_GAP_DEFAULT[1]);
+    return [Math.min(one2(LOOK_ACT_MIN_VAR, LOOK_ACT_GAP_DEFAULT[0]), hi), hi];
+  };
+  var pickLookGap = ([lo, hi], rnd) => lo + rnd * (hi - lo);
+  var lookActsParts = (id2, parts) => Array.from({ length: parts }, (_, i) => `goei-look-${id2}.${i + 1}.txt`);
+  function parseLookActs(text5, id2) {
+    let j;
+    try {
+      j = JSON.parse(text5);
+    } catch {
+      throw new Error("아바타 동작이 JSON 이 아니에요.");
+    }
+    if (!obj8(j) || j.schema !== 1 || j.kind !== "look-acts" || j.id !== id2 || !Array.isArray(j.acts)) throw new Error("아바타 동작 형식이 달라요.");
+    const out2 = [];
+    for (const r of j.acts) {
+      if (!obj8(r) || typeof r.k !== "string" || typeof r.img !== "string" || !r.img) continue;
+      const n3 = num6(r.n), cw = num6(r.cw), ch = num6(r.ch), sec3 = num6(r.sec);
+      if (!(n3 >= 1 && cw > 0 && ch > 0 && sec3 > 0)) continue;
+      out2.push({ k: r.k, name: String(r.name ?? ""), n: n3, cw, ch, dx: num6(r.dx) || 0, dy: num6(r.dy) || 0, sec: sec3, img: r.img });
+    }
+    return out2;
+  }
+  function pickLookAct(acts, last2, rnd) {
+    const pool = acts.length > 1 ? acts.filter((a) => a.k !== last2) : acts;
+    return pool[Math.min(pool.length - 1, Math.floor(rnd * pool.length))];
+  }
+  var obj8 = (v) => !!v && typeof v === "object" && !Array.isArray(v);
+  var num6 = (v) => typeof v === "number" && Number.isFinite(v) ? v : NaN;
+  function parseLooksPack(text5) {
+    let j;
+    try {
+      j = JSON.parse(text5);
+    } catch {
+      throw new Error("인물 모습 팩이 JSON 이 아니에요.");
+    }
+    if (!obj8(j) || j.schema !== 1 || j.kind !== "looks" || !Array.isArray(j.looks)) throw new Error("인물 모습 팩 형식이 달라요.");
+    const out2 = [];
+    for (const r of j.looks) {
+      if (!obj8(r) || typeof r.id !== "string" || typeof r.img !== "string" || !r.img) continue;
+      const n3 = num6(r.n), cw = num6(r.cw), ch = num6(r.ch);
+      if (!(n3 >= 1 && cw > 0 && ch > 0)) continue;
+      const g3 = r.g === "남" || r.g === "여" ? r.g : "";
+      const a = obj8(r.acts) && num6(r.acts.parts) >= 1 && num6(r.acts.length) > 0 && typeof r.acts.hash === "string" ? { parts: num6(r.acts.parts), length: num6(r.acts.length), hash: r.acts.hash } : void 0;
+      out2.push({ id: r.id, name: String(r.name ?? ""), g: g3, unique: r.unique === true, n: n3, w: num6(r.w) || 128, h: num6(r.h) || 256, cw, ch, ox: num6(r.ox) || 0, oy: num6(r.oy) || 0, sec: num6(r.sec) > 0 ? num6(r.sec) : LOOK_FRAME_SEC, ...a ? { acts: a } : {}, img: r.img });
+    }
+    return out2;
+  }
+  var lookId = (state2) => {
+    const v = String(state2?.[LOOK_KEY] ?? "").trim();
+    return /^\d+\.\d+$/.test(v) ? v : "";
+  };
+  var looksOf = (rows3, g3) => rows3.filter((r) => !r.unique && r.g === g3);
+  var LOOK_FIRST = "페르소나여A";
+  function defaultLook(rows3, last2) {
+    if (last2 && rows3.some((r) => r.id === last2 && !r.unique && !!r.g)) return last2;
+    return rows3.find((r) => !r.unique && r.name === LOOK_FIRST)?.id ?? "";
+  }
+  function lookFor(rows3, state2, playerName) {
+    if (playerName) return rows3.find((r) => r.unique && r.name === playerName);
+    const id2 = lookId(state2);
+    return id2 ? rows3.find((r) => r.id === id2 && !r.unique) : void 0;
+  }
+
+  // src/ui/editor/askpop.ts
+  var esc19 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var askPopup = (msg, yes, no, label2 = "지우기") => {
+    const v = (b) => b.value !== void 0 ? ` data-value="${esc19(b.value)}"` : "";
+    return `<div class="gw-confirm"><div class="gw-confirm-box"><p>${esc19(msg)}</p><div class="gx-row-btns"><button class="gx-mini danger" data-action="${esc19(yes.action)}"${v(yes)}>${esc19(label2)}</button><button class="gx-mini" data-action="${esc19(no.action)}"${v(no)}>취소</button></div></div></div>`;
+  };
+
+  // src/ui/editor/start.ts
+  var esc20 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var stUi = {
+    /** 펼친 칸 코드 */
+    sel: "",
+    /** 묶음 지우기 확인 중인 코드 */
+    confirm: ""
+  };
+  var input = (key, value, label2, help = "", ph = "") => `<label class="dir-in"><span>${label2}</span><input data-input="dir" data-key="${esc20(key)}" value="${esc20(value)}" autocomplete="off"${ph ? ` placeholder="${esc20(ph)}"` : ""}>${help ? `<small>${help}</small>` : ""}</label>`;
+  var area = (key, value, label2, rows3 = 6, help = "", ph = "") => `<label class="dir-in"><span>${label2}</span><textarea data-input="dir" data-key="${esc20(key)}" rows="${rows3}"${ph ? ` placeholder="${esc20(ph)}"` : ""}>${esc20(value)}</textarea>${help ? `<small>${help}</small>` : ""}</label>`;
+  var seg = (action, value, on3, a, b) => `<div class="gx-segs gx-segs-sm"><button class="gx-seg${on3 ? " on" : ""}" data-action="${action}" data-value="${esc20(`1|${value}`)}">${a}</button><button class="gx-seg${!on3 ? " on" : ""}" data-action="${action}" data-value="${esc20(`0|${value}`)}">${b}</button></div>`;
+  function startConfirmPopup() {
+    const d = dirUi.draft;
+    if (stUi.confirm) {
+      const g3 = d?.startGroups.find((x) => x.code === stUi.confirm);
+      if (g3) return askPopup(`「${g3.name}」 묶음을 지울까요? 구성원 요원과 첫 장면 글은 남아요.`, { action: "dir-group-del", value: `yes|${g3.code}` }, { action: "dir-group-del", value: `no|${g3.code}` });
+    }
+    const [k, code2, fm] = dirUi.confirmDel.split("|");
+    if (k === "scene" && code2 && fm) return askPopup("이 장면을 지울까요? 지운 장면은 되돌릴 수 없어요.", { action: "dir-scene-del", value: `yes|${code2}|${fm}` }, { action: "dir-scene-del", value: `no|${code2}|${fm}` });
+    return "";
+  }
+  function slotRow(s8) {
+    const open3 = stUi.sel === s8.code;
+    const kind = s8.kind === "builtin" ? "기본 세력" : s8.kind === "group" ? "묶음" : "플레이 조직";
+    return `<div class="dir-row${open3 ? " open" : ""}" data-slot-row="${esc20(s8.code)}">
+    <div class="dir-head st-slot" data-action="dir-start-open" data-value="${esc20(s8.code)}" role="button" aria-expanded="${open3}">
+      <span class="gw-grip" data-drag-slot="${esc20(s8.code)}" title="끌어서 순서 바꾸기">${ICONS.grip}</span>
+      <span class="dir-name"><b>${esc20(s8.name)}</b><small>${kind} · ${esc20(s8.code)}${s8.count ? ` · ${s8.count}명` : ""}</small></span>
+      ${s8.kind === "extra" ? '<small class="st-always" title="플레이 조직은 숨길 수 없어요. 펼쳐서 「시작 칸에서 빼기」로 빼요.">늘 보임</small>' : seg("dir-start-show", s8.code, !s8.hidden, "보임", "숨김")}
+      <span class="st-caret">${open3 ? ICONS.up : ICONS.down}</span>
+    </div>
+  </div>`;
+  }
+  function scenesBlock(code2, d) {
+    const rows3 = factionScenes(code2, d.scenes);
+    const list4 = rows3.map((r) => {
+      const k = (f) => `scene:${code2}|${r.fm}|${f}`;
+      const keep2 = `st-scene:${code2}|${r.fm}`;
+      return `<details class="st-scene${r.hidden ? " off" : ""}" data-keep="${esc20(keep2)}"${keepOpen(keep2)}><summary><b>${esc20(r.label || `장면 ${r.fm}`)}</b><small>${r.custom ? "새 장면" : "기본 장면"} ${r.fm}${r.hidden ? " · 숨김" : ""}</small></summary>
+        <div class="dir-line"><span>${r.custom ? "새 장면" : "기본 장면"} ${r.fm}</span>
+          <span class="gx-row-btns">${seg("dir-scene-show", `${code2}|${r.fm}`, !r.hidden, "보임", "숨김")}${r.custom ? `<button class="gx-mini danger" data-action="dir-scene-del" data-value="${esc20(`ask|${code2}|${r.fm}`)}">${ICONS.trash}지우기</button>` : ""}</span></div>
+        ${input(k("label"), r.label, "이름")}
+        ${area(k("ko"), r.ko, "한국어", 6, r.hasDefault ? "비우면 기본 글로 돌아가요" : "")}
+        ${area(k("en"), r.en, "English", 6, r.hasDefault ? "비우면 기본 글로 돌아가요" : "")}
+      </details>`;
+    }).join("");
+    const tail2 = (BUILTIN.includes(code2) ? SCENARIOS.factions.find((f) => f.code === code2)?.scenarios ?? [] : []).filter((s8) => s8.kind !== "opening").map((s8) => s8.label);
+    return `<div class="dir-line"><span>첫 장면</span><button class="gx-mini" data-action="dir-scene-add" data-value="${esc20(code2)}">${ICONS.plus}장면 추가</button></div>
+    <p class="gx-muted">내 페르소나로 시작할 때 고르는 공용 장면이에요. 인물로 시작하면 그 인물의 첫 장면(요원 기록 · 묶음 구성원 칸)과 직접 입력·커스텀 임무만 보여요.${tail2.length ? ` 직접 입력·커스텀 임무는 늘 있어요.` : ""}</p>
+    ${list4 || '<p class="gx-muted">공용 장면이 없어요. 직접 입력·커스텀 임무로 시작해요.</p>'}`;
+  }
+  function agentSceneState(id2, d) {
+    const saved = agentSceneSaved(id2, d.scenes);
+    return saved?.ko || saved?.en || saved?.label ? "직접 고친 글" : agentScene(id2, void 0) ? "기본 글" : "첫 장면 없음";
+  }
+  function agentSceneFields(id2, d) {
+    const saved = agentSceneSaved(id2, d.scenes);
+    const def = agentScene(id2, void 0);
+    const hasDefault = !!def;
+    const k = (f) => `ascene:${id2}|${f}`;
+    return `${input(k("label"), saved?.label ?? def?.label ?? "", "제목", "시작 화면 첫 장면 칸에 보여요. 비우면 「○○의 첫 장면」")}
+    ${area(k("ko"), saved?.ko ?? def?.ko ?? "", "한국어", 10, hasDefault ? "기본 글(세계 자료)이에요. 고치면 고친 글로, 비우면 기본 글로 돌아가요" : "비우면 이 인물로 시작할 때 「○○의 첫 장면」 칸이 안 나와요")}
+    ${area(k("en"), saved?.en ?? def?.en ?? "", "English", 10, hasDefault ? "기본 글이에요. 고치면 고친 글로, 비우면 기본 글로 돌아가요" : "")}
+    ${input(k("lore"), (saved?.lore ?? def?.lore ?? []).join(", "), "시작 로어", "이 장면으로 시작할 때 첫 턴에 넣을 로어북 이름 (쉼표로). 첫 장면 글은 키워드로 불리지 않아요")}`;
+  }
+  function membersBlock(code2, d) {
+    const all = d.agents.filter((a) => /^P\d{3,}$/.test(a.id) && a.name);
+    const members = all.filter((a) => a.rosterFor.includes(code2));
+    const chips3 = all.map((a) => `<button class="gx-chip${a.rosterFor.includes(code2) ? " on" : ""}" data-action="dir-group-member" data-value="${esc20(`${code2}|${a.id}`)}" aria-pressed="${a.rosterFor.includes(code2)}">${esc20(a.name)}</button>`).join("");
+    const scenes = members.map((a) => `<details class="st-member" data-keep="${esc20(`st-member:${a.id}`)}"${keepOpen(`st-member:${a.id}`)}><summary><b>${esc20(a.name)}</b><small>${esc20(a.id)} · ${agentSceneState(a.id, d)}</small></summary>${agentSceneFields(a.id, d)}</details>`).join("");
+    return `<div class="dir-line"><span>구성원 ${members.length}명</span></div><div class="dir-chips">${chips3}</div>
+    <p class="gx-muted">묶음으로 시작하면 내 페르소나 없이 구성원 한 명을 골라 그 인물로 시작해요. 사원증·괴담톡 탭·소속은 그 인물의 원래 조직을 따르고, 묶음 이름은 모델에게 알리지 않아요.</p>
+    <div class="dir-line"><span>구성원별 첫 장면</span></div>${scenes || '<p class="gx-muted">구성원을 고르면 인물별 첫 장면을 고칠 수 있어요.</p>'}`;
+  }
+  function slotDetail(s8, ctx2, d) {
+    if (s8.kind === "group") {
+      const g3 = d.startGroups.find((x) => x.code === s8.code);
+      if (!g3) return "";
+      const k2 = (f) => `group:${f}|${g3.code}`;
+      const del = `<button class="gx-mini danger" data-action="dir-group-del" data-value="${esc20(`ask|${g3.code}`)}">${ICONS.trash}묶음 지우기</button>`;
+      return `<div class="dir-panel">
+      ${input(k2("name"), g3.name, "이름", "", "시작 화면 칸 이름")}
+      ${area(k2("blurb"), g3.blurb, "시작 화면 설명", 3, "", "이 칸을 고를 때 보이는 한두 줄 소개")}
+      ${input(k2("english"), g3.english, "영문명", "사진 이름(「영문명」 이미지)과 영어 응답에서 써요")}
+      ${photoBlock(`group:${g3.code}`, ctx2)}
+      ${membersBlock(g3.code, d)}
+      ${scenesBlock(g3.code, d)}
+      <div class="dir-line">${del}</div>
+    </div>`;
+    }
+    const o = s8.org;
+    if (!o) return "";
+    const k = (f) => `org:${f}|${o.name}`;
+    const off = s8.kind === "extra" ? `<div class="dir-line"><span>플레이 조직 <b class="dir-code">${esc20(s8.code)}</b></span><button class="gx-mini" data-action="dir-fac-play" data-value="${esc20(`0|${o.name}`)}">시작 칸에서 빼기</button></div>` : "";
+    return `<div class="dir-panel">
+    ${off}
+    ${input(k("title"), o.spec.title ?? "", "시작 화면 이름", s8.kind === "builtin" ? "비우면 원래 이름" : "비우면 조직 이름")}
+    ${area(k("blurb"), o.spec.blurb ?? "", "시작 화면 설명", 3, "", "이 칸을 고를 때 보이는 한두 줄 소개")}
+    ${photoBlock(`org:${o.name}`, ctx2)}
+    ${scenesBlock(s8.code, d)}
+    <p class="gx-muted">부르는 이름·괴담톡 탭·함께 넣을 로어북·모델용 설명은 조직 기록의 「기본 정보」에서 고쳐요.</p>
+  </div>`;
+  }
+  function startPage(ctx2) {
+    const d = directoryDraft(ctx2);
+    const slots = startSlots(d);
+    const sel = slots.find((s8) => s8.code === stUi.sel);
+    const idle2 = d.orgs.filter((o) => !o.faction && !(o.spec.playable && o.spec.code));
+    const addOrg = idle2.length ? `<div class="dir-line"><span>조직을 시작 칸으로</span></div><div class="dir-chips">${idle2.map((o) => `<button class="gx-chip" data-action="dir-fac-play" data-value="${esc20(`1|${o.name}`)}">${ICONS.plus} ${esc20(o.name)}</button>`).join("")}</div>` : "";
+    return `<div class="gw-page gw-startpage">
+    <header class="gw-head"><h2>시작 화면</h2><p class="gx-muted">새 채팅의 「어느 쪽에 설까요?」에 보이는 칸이에요. 순서와 보임을 정하고, 칸을 열어 이름·설명·사진·첫 장면을 고쳐요. 묶음은 조직이 아니라 여러 조직의 인물을 한 칸에 모은 거예요.</p></header>
+    <div class="dir-list st-slots">${slots.map((s8) => slotRow(s8)).join("")}</div>
+    <div class="st-addrow"><button class="gx-mini" data-action="dir-group-add">${ICONS.plus}묶음 추가</button></div>
+    ${addOrg}
+    ${sel ? `<h3 class="st-sel"><span>${esc20(sel.name)}</span><small>${esc20(sel.code)}</small></h3>${slotDetail(sel, ctx2, d)}` : ""}
+  </div>`;
+  }
+
+  // src/ui/directory.ts
+  var KINDS2 = ["anomaly", "site", "agent", "org", "base", "appendix"];
+  var isKind3 = (v) => KINDS2.includes(v);
+  var dirUi = {
+    kind: "anomaly",
+    q: "",
+    open: "",
+    /** 통합 검색에서 고른 항목: 다시 그린 뒤 그 줄로 스크롤 */
+    scrollTo: "",
+    draft: null,
+    base: "",
+    /** 초안을 만든 로어북 (카드가 바뀌면 새로 만든다) */
+    from: null,
+    busy: false,
+    notice: "",
+    done: "",
+    /** 다른 폴더 로어북을 발생 후보로 고르는 칸 */
+    adding: false,
+    addQ: "",
+    /** 명부 사용법 펼침 */
+    help: false,
+    /** 사진을 고르는 칸 「main>열쇠」·「face>열쇠」 */
+    pick: "",
+    pickQ: "",
+    /** 얼굴 틀을 맞추는 항목 (열쇠) */
+    crop: "",
+    /** 지우기 확인 중인 항목 「base|거점 이름」·「scene|칸 코드|장면 번호」 (전수검사 11-13, 사용자 승인: 묶음 지우기처럼 한 번 더 묻기) */
+    confirmDel: ""
+  };
+  function resetDirectory() {
+    Object.assign(dirUi, { kind: "anomaly", q: "", open: "", draft: null, base: "", from: null, busy: false, notice: "", done: "", adding: false, addQ: "", help: false, pick: "", pickQ: "", crop: "", confirmDel: "" });
+  }
+  var esc21 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var snapshot2 = (d) => JSON.stringify(directoryData(d));
+  function directoryDraft(ctx2) {
+    return draftOf2(ctx2);
+  }
+  function draftOf2(ctx2) {
+    const lore = ctx2.char.globalLore ?? [];
+    if (!dirUi.draft || dirUi.from !== lore && !dirty2()) {
+      dirUi.draft = structuredClone(readDirectory(lore));
+      dirUi.base = snapshot2(dirUi.draft);
+      dirUi.from = lore;
+    } else if (dirUi.from !== lore) {
+      const fresh3 = readDirectory(lore);
+      const d = dirUi.draft;
+      const add = (have, next, key) => {
+        const known = new Set(have.map(key));
+        for (const r of next) if (!known.has(key(r))) have.push(structuredClone(r));
+      };
+      add(d.anomalies, fresh3.anomalies, (r) => r.lore);
+      add(d.sites, fresh3.sites, (r) => r.lore);
+      add(d.agents, fresh3.agents, (r) => r.lore);
+      add(d.orgs, fresh3.orgs, (r) => r.name);
+      add(d.appendices, fresh3.appendices, (r) => r.lore);
+      dirUi.from = lore;
+    }
+    return dirUi.draft;
+  }
+  var dirty2 = () => !!dirUi.draft && snapshot2(dirUi.draft) !== dirUi.base;
+  var draftBases = () => dirty2() ? dirUi.draft.bases : null;
+  function rowsOf2(d, kind) {
+    return kind === "anomaly" ? d.anomalies : kind === "site" ? d.sites : d.agents;
+  }
+  var orgName = (d, names4, aff) => orgOf(d.orgs, aff)?.name ?? names4[aff] ?? aff;
+  function findRow2(d, lore) {
+    return rowsOf2(d, dirUi.kind).find((r) => r.lore === lore);
+  }
+  function matches3(r, q) {
+    if (!q) return true;
+    const a = r;
+    return [a.lore, a.label, a.name, a.english, a.rank, a.department, ...a.aliases ?? []].some((t) => t && t.toLowerCase().includes(q));
+  }
+  var input2 = (key, value, label2, help = "") => `<label class="dir-in"><span>${label2}</span><input data-input="dir" data-key="${esc21(key)}" value="${esc21(value)}" autocomplete="off">${help ? `<small>${help}</small>` : ""}</label>`;
+  var chip2 = (action, value, label2, on3) => `<button class="gx-chip${on3 ? " on" : ""}" data-action="${action}" data-value="${esc21(value)}" aria-pressed="${on3}">${esc21(label2)}</button>`;
+  var draftExtras = (d) => d.orgs.filter((o) => !o.faction && o.spec.playable && o.spec.code);
+  var codesOf = (d) => [...BUILTIN, ...draftExtras(d).map((o) => o.spec.code)];
+  function namesOf(d, lore) {
+    const out2 = factionDisplayNames(lore ?? []);
+    for (const f of BUILTIN) if (d.display.none?.[f]) out2[f] = d.display.none[f];
+    for (const o of draftExtras(d)) out2[o.spec.code] = o.name;
+    return out2;
+  }
+  var tabName = (o) => o.spec.tab || Array.from(o.name).slice(0, 2).join("");
+  function startSlots(d) {
+    const out2 = [];
+    const count2 = (code2) => d.agents.filter((a) => /^P\d{3,}$/.test(a.id) && a.name && a.rosterFor.includes(code2)).length;
+    for (const code2 of BUILTIN) {
+      const o = d.orgs.find((x) => x.faction === code2);
+      const base = SCENARIOS.factions.find((f) => f.code === code2);
+      out2.push({ code: code2, name: o?.spec.title || base?.name || code2, kind: "builtin", hidden: !!o?.spec.hidden, count: count2(code2), ...o ? { org: o } : {} });
+    }
+    for (const o of draftExtras(d)) out2.push({ code: o.spec.code, name: o.spec.title || o.name, kind: "extra", hidden: false, count: count2(o.spec.code), org: o });
+    for (const g3 of d.startGroups) if (!out2.some((x) => x.code === g3.code)) out2.push({ code: g3.code, name: g3.name, kind: "group", hidden: g3.hidden, count: count2(g3.code) });
+    const at = (c) => {
+      const i = d.startOrder.indexOf(c);
+      return i < 0 ? Number.MAX_SAFE_INTEGER : i;
+    };
+    return out2.map((x, i) => [x, i]).sort((a, b) => at(a[0].code) - at(b[0].code) || a[1] - b[1]).map(([x]) => x);
+  }
+  function tabsOf(d, lore) {
+    const tabs2 = d.phoneTabs.tabs.length ? d.phoneTabs.tabs.map((t) => ({ id: t.id, name: t.name, visibleFor: [...t.visible_for] })) : phoneTabs(lore ?? []).filter((t) => !/^T1\d\d$/.test(t.id));
+    for (const o of draftExtras(d)) tabs2.push({ id: extraTabId(o.spec.code), name: tabName(o), visibleFor: [o.spec.code] });
+    return tabs2;
+  }
+  var area2 = (key, value, label2, help = "", rows3 = 3) => `<label class="dir-in"><span>${label2}</span><textarea data-input="dir" data-key="${esc21(key)}" rows="${rows3}">${esc21(value)}</textarea>${help ? `<small>${help}</small>` : ""}</label>`;
+  var SEP3 = /^\s*-{2,}\s*(.*?)\s*-{2,}\s*$/;
+  var sourceCache = /* @__PURE__ */ new WeakMap();
+  function loreSources(lore) {
+    const books = lore ?? [];
+    const hit4 = sourceCache.get(books);
+    if (hit4) return hit4;
+    const folders = new Map(books.filter((e) => e.mode === "folder" && typeof e.key === "string").map((e) => [e.key, String(e.comment ?? "")]));
+    const out2 = /* @__PURE__ */ new Map();
+    const divider = /* @__PURE__ */ new Map();
+    for (const e of books) {
+      if (e.mode === "folder") continue;
+      const name = String(e.comment ?? "").trim();
+      const folder = folders.get(String(e.folder ?? "")) ?? "";
+      const sep = SEP3.exec(name);
+      if (sep) {
+        divider.set(folder, sep[1]);
+        continue;
+      }
+      if (name) out2.set(name, [folder, divider.get(folder)].filter(Boolean).join(" · "));
+    }
+    sourceCache.set(books, out2);
+    return out2;
+  }
+  var loreSourceOf = (ctx2, name) => loreSources(ctx2.char.globalLore).get(name) ?? "";
+  function directoryExtList(ctx2) {
+    const d = draftOf2(ctx2);
+    const rows3 = dirUi.kind === "anomaly" ? d.anomalies : d.sites;
+    const have = new Set(rows3.map((r) => r.lore));
+    const own2 = dirUi.kind === "anomaly" ? "괴이" : "파밍";
+    const q = dirUi.addQ.trim().toLowerCase();
+    const list4 = [...loreSources(ctx2.char.globalLore)].filter(([name, src]) => src && !have.has(name) && !/설정|부록/.test(src) && src.replace(/[^\p{L}\p{N}]/gu, "") !== own2 && (!q || name.toLowerCase().includes(q) || src.toLowerCase().includes(q))).slice(0, 60);
+    if (!list4.length) return '<p class="gx-muted dir-empty">고를 수 있는 로어북이 없어요.</p>';
+    return list4.map(([name, src]) => `<button class="dir-ext-item" data-action="dir-ext-add" data-value="${esc21(name)}"><b>${esc21(name)}</b><small>${esc21(src)}</small><span>＋ 후보로</span></button>`).join("");
+  }
+  function picOf(d, key) {
+    const put = (o) => (slot, v) => {
+      const f = slot === "main" ? "photo" : slot;
+      if (v) o[f] = v;
+      else delete o[f];
+    };
+    if (key.startsWith("org:")) {
+      const o = d.orgs.find((x) => x.name === key.slice(4));
+      if (!o) return null;
+      return { english: o.spec.english ?? "", photo: o.spec.photo, face: o.spec.face, crop: o.spec.crop, person: false, set: put(o.spec) };
+    }
+    if (key.startsWith("group:")) {
+      const g3 = d.startGroups.find((x) => x.code === key.slice(6));
+      if (!g3) return null;
+      return { english: g3.english, photo: g3.photo, face: g3.face, crop: g3.crop, person: false, set: put(g3) };
+    }
+    const r = findRow2(d, key);
+    if (!r) return null;
+    return { english: r.english, photo: r.photo, face: r.face, crop: r.crop, person: "rank" in r, set: put(r) };
+  }
+  var pickOf = (v) => {
+    const at = v.indexOf(">");
+    return { slot: v.slice(0, at) === "face" ? "face" : "main", key: v.slice(at + 1) };
+  };
+  function cropValue(key) {
+    const p2 = dirUi.draft ? picOf(dirUi.draft, key) : null;
+    return p2 ? personCrop(p2) : parseCrop(DEFAULT_CROP);
+  }
+  function setCrop(key, crop) {
+    const p2 = dirUi.draft ? picOf(dirUi.draft, key) : null;
+    if (!p2) return;
+    p2.set("crop", crop.map((n3) => Math.round(n3)).join(","));
+    dirUi.done = "";
+  }
+  function photoBlock(key, ctx2) {
+    const p2 = dirUi.draft ? picOf(dirUi.draft, key) : null;
+    if (!p2) return "";
+    const main2 = mainPic(ctx2.char, p2);
+    const face3 = facePic(ctx2.char, p2, p2.person);
+    const cut3 = !!main2 && splitPic(face3).crop !== null;
+    const line2 = (slot, label2, pic3, picked, why, extra2 = "") => {
+      const url = pic3 ? imageUrl(ctx2.char, pic3) : null;
+      const picking2 = dirUi.pick === `${slot}>${key}`;
+      return `<div class="dir-photo">
+      <span class="dir-pic-img">${url ? `<img src="${esc21(url)}" alt="">` : ICONS.spook}</span>
+      <span class="dir-photo-name"><b>${label2} · ${esc21(picked || "자동")}</b><small>${why}</small></span>
+      ${picked ? `<button class="gx-mini" data-action="dir-photo-set" data-value="${esc21(`|${slot}>${key}`)}">자동으로</button>` : ""}${extra2}
+      <button class="gx-mini" data-action="dir-photo-pick" data-value="${esc21(`${slot}>${key}`)}">${picking2 ? "닫기" : "고르기"}</button>
+    </div>`;
+    };
+    const mainWhy = p2.photo ? "직접 고름" : main2 ? `자동: 「${esc21(main2)}」 이미지` : "「영문명_default」·「영문명」 이미지가 없어요";
+    const faceWhy = p2.face ? "직접 고름" : cut3 ? "대표 사진에서 잘라요" : face3 ? `자동: 「${esc21(splitPic(face3).name)}」 이미지` : "「영문명」 이미지가 없어요";
+    const cropping = cut3 && dirUi.crop === key;
+    const cropBtn = cut3 ? `<button class="gx-mini" data-action="dir-crop" data-value="${esc21(key)}">${cropping ? "완료" : "틀 맞추기"}</button>` : "";
+    const picking = dirUi.pick ? pickOf(dirUi.pick) : null;
+    const list4 = picking?.key === key ? `<div class="dir-ext"><input class="gx-search" data-input="dir-photo-q" value="${esc21(dirUi.pickQ)}" placeholder="이미지 이름 검색" aria-label="이미지 이름 검색" autocomplete="off"><div class="dir-pics">${directoryPhotoList(ctx2)}</div></div>` : "";
+    return `<div class="dir-in"><span>사진</span>
+    ${line2("main", "대표", main2, p2.photo, mainWhy)}
+    ${line2("face", "얼굴", face3, p2.face, faceWhy, cropBtn)}
+    ${cropping ? cropBox(ctx2, key, main2) : ""}
+    ${list4}
+  </div>`;
+  }
+  function bindCropDrag(root3, done3) {
+    root3.addEventListener("pointerdown", (ev) => {
+      const box3 = ev.target.closest?.("[data-crop]");
+      const img = box3?.querySelector("img");
+      if (!box3 || !img) return;
+      ev.preventDefault();
+      const key = box3.dataset.crop ?? "";
+      const frame = box3.querySelector(".dir-crop-frame");
+      const move = (e) => {
+        const r = img.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        const w = cropValue(key)[2];
+        const half = w / 100 * r.width / 2;
+        const px = Math.max(Math.min(half, r.width / 2), Math.min(r.width - half, e.clientX - r.left));
+        const py = Math.max(Math.min(half, r.height / 2), Math.min(r.height - half, e.clientY - r.top));
+        const c = [px / r.width * 100, py / r.height * 100, w];
+        setCrop(key, c);
+        if (frame) Object.assign(frame.style, { left: `${c[0]}%`, top: `${c[1]}%` });
+      };
+      move(ev);
+      box3.setPointerCapture?.(ev.pointerId);
+      const up = () => {
+        box3.removeEventListener("pointermove", move);
+        box3.removeEventListener("pointerup", up);
+        box3.removeEventListener("pointercancel", up);
+        done3();
+      };
+      box3.addEventListener("pointermove", move);
+      box3.addEventListener("pointerup", up);
+      box3.addEventListener("pointercancel", up);
+    });
+  }
+  function cropBox(ctx2, key, main2) {
+    const url = imageUrl(ctx2.char, main2);
+    const [x, y, w] = cropValue(key);
+    return `<div class="dir-crop">
+    <div class="dir-crop-img" data-crop="${esc21(key)}">${url ? `<img src="${esc21(url)}" alt="" draggable="false"><span class="dir-crop-frame" style="left:${x}%;top:${y}%;width:${w}%"></span>` : ""}</div>
+    <label class="dir-crop-size"><span>크기</span><input type="range" min="10" max="100" step="1" value="${w}" data-input="dir-crop-size" data-key="${esc21(key)}" aria-label="얼굴 틀 크기"></label>
+  </div>`;
+  }
+  function directoryPhotoList(ctx2) {
+    const at = dirUi.pick ? pickOf(dirUi.pick) : null;
+    const p2 = at && dirUi.draft ? picOf(dirUi.draft, at.key) : null;
+    if (!at || !p2) return "";
+    const cur = at.slot === "face" ? p2.face : p2.photo;
+    const q = dirUi.pickQ.trim().toLowerCase();
+    const near = p2.english.toLowerCase();
+    const all = assetNames(ctx2.char);
+    const hits2 = q ? all.filter((n3) => n3.toLowerCase().includes(q)) : near ? all.filter((n3) => n3.toLowerCase().startsWith(near)) : [];
+    const list4 = [...hits2.filter((n3) => near && n3.toLowerCase().startsWith(near)), ...hits2.filter((n3) => !near || !n3.toLowerCase().startsWith(near))];
+    if (!list4.length) return `<p class="gx-muted dir-empty">${q ? "찾는 이름의 이미지가 없어요." : `이미지 ${all.length}장 중에서 이름으로 검색해 주세요.`}</p>`;
+    const more = list4.length > 30 ? `<p class="gx-muted dir-empty">${list4.length}장 중 30장만 보여요. 검색어를 더 적어 주세요.</p>` : "";
+    return list4.slice(0, 30).map((n3) => {
+      const url = imageUrl(ctx2.char, n3);
+      return `<button class="dir-pic${cur === n3 ? " on" : ""}" data-action="dir-photo-set" data-value="${esc21(`${n3}|${dirUi.pick}`)}" title="${esc21(n3)}"><span class="dir-pic-img">${url ? `<img src="${esc21(url)}" alt="" loading="lazy">` : ""}</span><small>${esc21(n3)}</small></button>`;
+    }).join("") + more;
+  }
+  function placePanel(p2, ctx2) {
+    const k = (f) => `${f}|${p2.lore}`;
+    return `<div class="dir-panel">
+    <div class="dir-line"><span>무작위 발생 후보</span>${switchHtml({ action: "dir-set", value: `preset|${p2.preset ? 0 : 1}|${p2.lore}`, on: !!p2.preset })}</div>
+    <p class="gx-muted">꺼져 있어도 직접 고르거나 대화에 나오면 상황판에 기록돼요.</p>
+    ${input2(k("label"), p2.label, "표시 이름", "상황판과 지도에 보이는 이름")}
+    ${input2(k("english"), p2.english, "영문명", "영어 응답에서도 이 이름을 알아봐요")}
+    ${input2(k("aliases"), p2.aliases.join(", "), "별칭", "쉼표로 나눠 적어요")}
+    ${photoBlock(p2.lore, ctx2)}
+    <p class="gx-muted">로어북: ${esc21(p2.lore)}${p2.inFolder ? "" : " (폴더 밖)"}</p>
+    ${p2.inFolder ? "" : `<button class="gx-mini danger" data-action="dir-ext-del" data-value="${esc21(p2.lore)}">후보 목록에서 빼기</button>`}
+  </div>`;
+  }
+  function agentPanel(a, ctx2, d) {
+    const lore = ctx2.char.globalLore ?? [];
+    const names4 = namesOf(d, lore);
+    const tabs2 = tabsOf(d, lore);
+    const k = (f) => `${f}|${a.lore}`;
+    const cur = orgOf(d.orgs, a.affiliation);
+    return `<div class="dir-panel">
+    <div class="dir-line"><span>소속 조직</span><div class="dir-chips">${d.orgs.map((o) => chip2("dir-org-pick", `${o.name}|${a.lore}`, o.name, cur === o)).join("")}${chip2("dir-org-pick", `|${a.lore}`, "미정", !a.affiliation)}</div></div>
+    <p class="gx-muted">조직을 고르면 아래 두 값이 그 조직 기준으로 채워져요. 새 조직은 「조직」 탭에서 만들어요.</p>
+    <div class="dir-line"><span>성별</span><div class="dir-chips">${["F", "M", "X"].map((x) => chip2("dir-gender", `${x}|${a.lore}`, { F: "여", M: "남", X: "미정" }[x], (agentGender(a, lore) || "X") === x)).join("")}</div></div>
+    <div class="dir-line"><span>요원 목록에 보일 세력</span><div class="dir-chips">${codesOf(d).map((f) => chip2("dir-toggle", `rosterFor|${f}|${a.lore}`, names4[f], a.rosterFor.includes(f))).join("")}</div></div>
+    <div class="dir-line"><span>괴담톡 연락처 탭</span><div class="dir-chips">${tabs2.map((t) => chip2("dir-toggle", `phoneTabs|${t.id}|${a.lore}`, t.name || t.id, a.phoneTabs.includes(t.id))).join("")}</div></div>
+    <div class="dir-grid">
+      ${input2(k("rank"), a.rank, "직급")}
+      ${input2(k("department"), a.department, "부서")}
+    </div>
+    ${input2(k("english"), a.english, "영문명", "영어 응답에서도 이 이름을 알아봐요")}
+    ${photoBlock(a.lore, ctx2)}
+    ${input2(k("aliases"), a.aliases.join(", "), "별칭", "쉼표로 나눠 적어요")}
+    ${input2(k("carry"), a.carry ? String(a.carry) : "", "소지 한도(kg)", "이 인물로 시작하면 이 무게가 소지 한도예요. 비우면 설정 「소지 한도」를 써요")}
+    ${area2(k("items"), startItemsText(a.startItems ?? []), "시작 소지품", `이 인물로 시작하면 소지품에 넣고 손에 드는 것은 손 칸, 장비는 장착해요. 한 줄에 하나: ${START_ITEM_COLUMNS}`, Math.max(3, (a.startItems?.length ?? 0) + 1))}
+    <p class="gx-muted">로어북: ${esc21(a.lore)} · ID ${esc21(a.id)}${a.inFolder ? "" : " (폴더 밖)"}</p>
+  </div>`;
+  }
+  function factionBlock(o, ctx2) {
+    const lore = ctx2.char.globalLore ?? [];
+    const k = (f) => `org:${f}|${o.name}`;
+    const start3 = `${input2(k("title"), o.spec.title ?? "", "시작 화면 이름", o.faction ? "비우면 원래 이름" : "비우면 조직 이름")}
+    ${area2(k("blurb"), o.spec.blurb ?? "", "시작 화면 설명")}`;
+    const link = (what) => `<div class="dir-line"><span>${what}</span><button class="gx-mini" data-action="ed-node" data-value="start">시작 화면에서 고치기</button></div>`;
+    if (o.faction) {
+      return `<div class="dir-fac">${link(o.spec.hidden ? "시작 화면: 숨김" : "시작 화면: 보임")}${start3}${builtinBlock(o.faction, dirUi.draft)}</div>`;
+    }
+    const on3 = !!o.spec.playable;
+    const ready = placeholdersReady(lore);
+    const head3 = link(on3 && o.spec.code ? `플레이 조직 <b class="dir-code">${esc21(o.spec.code)}</b>` : "시작 칸 아님");
+    if (!on3) return `<div class="dir-fac">${head3}<p class="gx-muted">시작 화면 페이지에서 이 조직을 시작 칸으로 켜면 이 조직으로 시작할 수 있어요.</p></div>`;
+    const patch = ready ? "" : `<div class="gx-hint">이 카드의 🏷️Tag 로어북에 새 세력 자리가 없어서 아직 시작 화면에 안 보여요. <button class="gx-mini" data-action="dir-fac-patch">로어북에 자리 넣기</button></div>`;
+    return `<div class="dir-fac">${head3}${patch}
+    <div class="dir-line"><span>유형</span><div class="dir-chips">${FACTION_TYPES.map((x) => chip2("dir-fac-type", `${x.id}|${o.name}`, x.label, (o.spec.type ?? "org") === x.id)).join("")}</div></div>
+    <p class="gx-muted">${esc21(FACTION_TYPES.find((x) => x.id === (o.spec.type ?? "org")).help)}</p>
+    ${start3}
+    ${input2(k("gm_name"), o.spec.gm_name ?? "", "모델용 영어 이름", "소속 변경 태그 목록과 세력 설명 제목에 써요. 비우면 조직 이름")}
+    ${area2(k("gm_desc"), o.spec.gm_desc ?? "", "모델용 세력 설명", "📜Faction 로어북 끝에 붙어요. 영어로 적으면 다른 세력 설명과 어울려요")}
+    ${input2(k("seed"), (o.spec.seed ?? [o.name]).join(", "), "시작 때 함께 넣을 로어북", "쉼표로 나눠 적어요. 첫 응답에 이 로어북들이 꼭 들어가요")}
+    ${input2(k("tab"), o.spec.tab ?? "", "괴담톡 전용 탭 이름", `비우면 「${esc21(tabName(o))}」`)}
+  </div>`;
+  }
+  function builtinBlock(code2, d) {
+    const viewers = [["none", "기본"], ...BUILTIN.map((f) => [f, `${d.display.none?.[f] || f} 소속`])];
+    const fallback = d.display.none?.[code2] ?? "";
+    const names4 = viewers.map(([v, label2]) => `<label class="dir-in"><span>${esc21(label2)}</span><input data-input="dir" data-key="${esc21(`disp:${v}|${code2}`)}" value="${esc21(d.display[v]?.[code2] ?? "")}" placeholder="${esc21(fallback)}" autocomplete="off"></label>`).join("");
+    const own2 = d.phoneTabs.tabs.find((t) => t.visible_for.length === 1 && t.visible_for[0] === code2);
+    const tab2 = own2 ? input2(`ptab:${own2.id}`, own2.name, "괴담톡 전용 탭 이름") : "";
+    const scenes = (SCENARIOS.factions.find((f) => f.code === code2)?.scenarios ?? []).map((sc) => input2(`seed:${code2}-${sc.fm}`, (d.seeds[`${code2}-${sc.fm}`] ?? []).join(", "), `${sc.fm}. ${esc21(sc.label)}`)).join("");
+    return `<div class="dir-line"><span>부르는 이름</span></div><div class="dir-grid names">${names4}</div>
+    ${tab2}
+    <div class="dir-line"><span>첫 장면에 함께 넣을 로어북</span></div><div class="dir-grid">${scenes}</div>`;
+  }
+  function orgPanel(o, ctx2, d) {
+    const lore = ctx2.char.globalLore ?? [];
+    const names4 = namesOf(d, lore);
+    const tabs2 = tabsOf(d, lore);
+    const members = d.agents.filter((a) => a.affiliation === orgAffiliation(o));
+    return `<div class="dir-panel">
+    ${input2(`org:english|${o.name}`, o.spec.english ?? "", "영문명")}
+    ${photoBlock(`org:${o.name}`, ctx2)}
+    ${factionBlock(o, ctx2)}
+    <div class="dir-line"><span>요원 목록에 보일 세력</span><div class="dir-chips">${codesOf(d).map((f) => chip2("dir-org-toggle", `rosterFor|${f}|${o.name}`, names4[f], o.rosterFor.includes(f))).join("")}</div></div>
+    <div class="dir-line"><span>괴담톡 연락처 탭</span><div class="dir-chips">${tabs2.map((t) => chip2("dir-org-toggle", `phoneTabs|${t.id}|${o.name}`, t.name || t.id, o.phoneTabs.includes(t.id))).join("")}</div></div>
+    <p class="gx-muted">바꾸면 이 조직 요원 ${members.length}명 모두에게 적용돼요. 한 사람만 다르게 하려면 요원 탭에서 바꿔요.</p>
+    ${o.faction ? "" : `<div class="dir-rename"><label class="dir-in"><span>조직 이름</span><input name="dir-org-name" value="${esc21(o.name)}" autocomplete="off" data-enter="dir-org-rename"></label>
+      <button class="gx-mini" data-action="dir-org-rename" data-take="dir-org-name">이름 바꾸기</button>
+      <button class="gx-mini danger" data-action="dir-org-del" data-value="${esc21(o.name)}" ${members.length ? 'disabled title="소속 요원이 있으면 지울 수 없어요"' : ""}>지우기</button></div>`}
+    ${members.length ? `<p class="gx-muted">소속: ${members.map((m) => esc21(m.name)).join(", ")}</p>` : ""}
+    <div class="dir-line"><span>거점</span><div class="dir-chips">${d.bases.filter((b) => b.org === o.name).map((b) => chip2("dir-base-goto", b.name, b.name, false)).join("")}<button class="gx-mini" data-action="dir-base-new" data-value="${esc21(o.name)}">${ICONS.plus}거점 추가</button></div></div>
+  </div>`;
+  }
+  function orgRow(o, ctx2, d, names4) {
+    const open3 = dirUi.open === o.name;
+    const n3 = d.agents.filter((a) => a.affiliation === orgAffiliation(o)).length;
+    const sub = o.rosterFor.length ? `${o.rosterFor.map((f) => names4[f] ?? f).join("·")} 플레이 때 보임` : "요원 목록에 안 보임";
+    const play = o.faction || o.spec.playable && o.spec.code;
+    return `<div class="dir-row${open3 ? " open" : ""}">
+    <button class="dir-head" data-action="dir-open" data-value="${esc21(o.name)}" aria-expanded="${open3}">
+      <span class="dir-name"><b>${esc21(o.name)}</b><small>${esc21(sub)}</small></span>
+      ${play ? `<span class="gx-badge live">플레이 ${esc21(o.faction || o.spec.code)}</span>` : ""}${o.spec.hidden ? '<span class="gx-badge">시작 화면 숨김</span>' : ""}<span class="gx-badge">${n3}명</span>
+    </button>${open3 ? orgPanel(o, ctx2, d) : ""}</div>`;
+  }
+  var REGIONS = MAP_CODES.filter((c) => c !== "01");
+  var baseMaps = {};
+  function baseMap(ctx2, code2, env3) {
+    const hit4 = baseMaps[code2];
+    if (hit4 === void 0 && env3) {
+      baseMaps[code2] = "loading";
+      void assetUrl(ctx2.char, `map${code2}`).then((url) => {
+        baseMaps[code2] = url;
+        env3.render();
+      });
+      return null;
+    }
+    return hit4 === "loading" || hit4 === void 0 ? null : hit4;
+  }
+  var mapEnv = null;
+  var baseWhere = (b) => placeWhere(b.sido, b.gu) || "위치 미정";
+  function basePanel(b, ctx2, d) {
+    const k = (f) => `base:${f}|${b.name}`;
+    const url = baseMap(ctx2, b.sido, mapEnv);
+    const sido = REGIONS.map((c) => `<option value="${c}"${c === b.sido ? " selected" : ""}>${esc21(regionName(c))}</option>`).join("");
+    const gus = `<option value=""${b.gu ? "" : " selected"}>시군구 선택 안 함</option>` + (SIGUN[b.sido] ?? []).map((g3) => `<option value="${esc21(g3)}"${g3 === b.gu ? " selected" : ""}>${esc21(g3)}</option>`).join("");
+    const map = url ? `<div class="dir-map" data-base-pick="${esc21(b.name)}"><img src="${esc21(url)}" alt="${esc21(regionName(b.sido))} 지도" draggable="false"><span class="dir-mappin" style="left:${b.x}%;top:${b.y}%"></span></div>` : `<div class="dir-map ph">지도 불러오는 중…</div>`;
+    return `<div class="dir-panel">
+    <div class="dir-line"><span>지도에 보이기</span><div class="gx-segs gx-segs-sm">
+      <button class="gx-seg${b.show ? " on" : ""}" data-action="dir-base-show" data-value="${esc21(`1|${b.name}`)}">보임</button>
+      <button class="gx-seg${!b.show ? " on" : ""}" data-action="dir-base-show" data-value="${esc21(`0|${b.name}`)}">숨김</button></div></div>
+    <div class="dir-line"><span>조직</span><div class="dir-chips">${d.orgs.map((o) => chip2("dir-base-org", `${o.name}|${b.name}`, o.name, b.org === o.name)).join("")}${chip2("dir-base-org", `|${b.name}`, "조직 없음", !b.org)}</div></div>
+    <div class="dir-grid">
+      <label class="dir-in"><span>지역</span><select class="gx-select" data-change="dir-base-sido" data-key="${esc21(b.name)}">${sido}</select></label>
+      <label class="dir-in"><span>시군구</span><select class="gx-select" data-change="dir-base-gu" data-key="${esc21(b.name)}">${gus}</select></label>
+    </div>
+    ${map}
+    ${input2(k("label"), b.label, "지도 표시명", "비우면 거점 이름")}
+    ${input2(k("lore"), b.lore, "위키 로어북", "이 거점을 설명하는 로어북 이름")}
+    ${input2(k("english"), b.english, "영문명", "영어 응답에서도 이 이름을 알아봐요")}
+    ${input2(k("aliases"), b.aliases.join(", "), "별칭", "쉼표로 나눠 적어요")}
+    <div class="dir-rename"><label class="dir-in"><span>거점 이름</span><input name="dir-base-name" value="${esc21(b.name)}" autocomplete="off" data-enter="dir-base-rename"></label>
+      <button class="gx-mini" data-action="dir-base-rename" data-take="dir-base-name">이름 바꾸기</button>
+      ${dirUi.confirmDel === `base|${b.name}` && !inEditor ? "" : `<button class="gx-mini danger" data-action="dir-base-del" data-value="${esc21(`ask|${b.name}`)}">${ICONS.trash}지우기</button>`}</div>
+    ${dirUi.confirmDel === `base|${b.name}` && !inEditor ? `<div class="gx-hint">「${esc21(b.name)}」 거점을 지울까요? <button class="gx-mini danger" data-action="dir-base-del" data-value="${esc21(`yes|${b.name}`)}">지우기</button><button class="gx-mini" data-action="dir-base-del" data-value="${esc21(`no|${b.name}`)}">취소</button></div>` : ""}
+  </div>`;
+  }
+  function baseRow(b, ctx2, d) {
+    const open3 = dirUi.open === b.name;
+    return `<div class="dir-row${open3 ? " open" : ""}">
+    <button class="dir-head" data-action="dir-open" data-value="${esc21(b.name)}" aria-expanded="${open3}">
+      <span class="dir-name"><b>${esc21(b.name)}</b><small>${esc21([b.org || "조직 없음", baseWhere(b)].join(" · "))}</small></span>
+      ${b.show ? "" : '<span class="gx-badge">숨김</span>'}
+    </button>${open3 ? basePanel(b, ctx2, d) : ""}</div>`;
+  }
+  function baseList(ctx2, d, q) {
+    const rows3 = d.bases.filter((b) => !q || [b.name, b.label, b.english, b.org, b.gu, ...b.aliases].some((t) => t && t.toLowerCase().includes(q)));
+    const order2 = [...d.orgs.map((o) => o.name), ""];
+    const rank3 = (b) => b.org ? order2.indexOf(b.org) : order2.length;
+    const sorted = [...rows3].sort((x, y) => rank3(x) - rank3(y));
+    return `    ${sorted.length ? sorted.map((b) => baseRow(b, ctx2, d)).join("") : '<p class="gx-muted dir-empty">맞는 거점이 없어요.</p>'}`;
+  }
+  function freeBaseName(d, want) {
+    let name = want;
+    for (let i = 2; d.bases.some((b) => b.name === name); i++) name = `${want} ${i}`;
+    return name;
+  }
+  function placeRow(p2, ctx2, src = "") {
+    const open3 = dirUi.open === p2.lore;
+    return `<div class="dir-row${open3 ? " open" : ""}">
+    <button class="dir-head" data-action="dir-open" data-value="${esc21(p2.lore)}" aria-expanded="${open3}">
+      <span class="dir-name"><b>${esc21(p2.label)}</b><small>${esc21(p2.english || "영문명 없음")}</small></span>
+      ${p2.inFolder ? "" : `<span class="gx-badge wait">${esc21(src || "폴더 밖")}</span>`}
+      <span class="gx-badge${p2.preset ? " live" : ""}">${p2.preset ? "발생 후보" : "숨김"}</span>
+    </button>${open3 ? placePanel(p2, ctx2) : ""}</div>`;
+  }
+  function agentRow(a, ctx2, d, names4, order2) {
+    const open3 = dirUi.open === a.lore;
+    const sub = [a.affiliation ? orgName(d, names4, a.affiliation) : "", a.department, a.rank].filter(Boolean).join(" · ");
+    const move = order2 ? `<span class="dir-move"><span class="dir-grip" data-drag-agent="${esc21(a.lore)}" title="끌어서 순서 바꾸기" aria-hidden="true">${ICONS.grip}</span><button class="dir-step" data-action="dir-move" data-value="up|${esc21(a.lore)}" aria-label="${esc21(a.name)} 위로" ${order2.first ? "disabled" : ""}>${ICONS.up}</button><button class="dir-step" data-action="dir-move" data-value="down|${esc21(a.lore)}" aria-label="${esc21(a.name)} 아래로" ${order2.last ? "disabled" : ""}>${ICONS.down}</button></span>` : "";
+    return `<div class="dir-row${open3 ? " open" : ""}"${order2 ? ` data-agent-row="${esc21(a.lore)}" data-agent-group="${esc21(agentGroup(a))}"` : ""}><div class="dir-headrow">
+    <button class="dir-head" data-action="dir-open" data-value="${esc21(a.lore)}" aria-expanded="${open3}">
+      ${picAvatar(ctx2.char, facePic(ctx2.char, a, true), a.name)}
+      <span class="dir-name"><b>${esc21(a.name)}</b><small>${esc21(sub || "소속 미정")}</small></span>
+      ${!a.affiliation ? '<span class="gx-badge hot">소속 미정</span>' : a.rosterFor.length ? "" : '<span class="gx-badge">목록 숨김</span>'}
+    </button>${move}</div>${open3 ? agentPanel(a, ctx2, d) : ""}</div>`;
+  }
+  var FOLDER_LABEL = { 세력: "세력", 조직: "세력", 파밍: "특수", 괴이: "괴이", 요원: "요원" };
+  function parentSlot(r, ctx2) {
+    const src = loreSources(ctx2.char.globalLore).get(r.parent) ?? "";
+    return r.parent ? FOLDER_LABEL[src.split(" · ")[0].replace(/[^\p{L}\p{N}]/gu, "")] ?? "" : "";
+  }
+  var unlockedHere = (ctx2) => new Set(readUnlocked(ctx2.chat.scriptstate));
+  function appendixWhen(r) {
+    return [r.keys ? "키" : "", r.withParent ? "본 항목과 같이" : "", r.target ? "목표" : "", r.places.length ? `위치 ${r.places.length}` : "", r.agents.length ? `요원 ${r.agents.length}` : ""].filter(Boolean).join(" · ") || "켜질 조건 없음";
+  }
+  function appendixRow(r, ctx2, d) {
+    const open3 = dirUi.open === r.lore;
+    const slot = parentSlot(r, ctx2);
+    const lock = r.unlock ? unlockedHere(ctx2).has(r.lore) ? '<span class="gx-badge live">해금됨</span>' : '<span class="gx-badge wait">잠김</span>' : "";
+    return `<div class="dir-row${open3 ? " open" : ""}">
+    <button class="dir-head" data-action="dir-open" data-value="${esc21(r.lore)}" aria-expanded="${open3}">
+      <span class="dir-name"><b>${esc21(r.lore)}</b><small>${esc21(appendixWhen(r))}</small></span>
+      ${slot ? "" : '<span class="gx-badge hot">본 항목 없음</span>'}${lock}
+    </button>${open3 ? appendixPanel(r, ctx2, d) : ""}</div>`;
+  }
+  function appendixPanel(r, ctx2, d) {
+    const k = (f) => `app:${f}|${r.lore}`;
+    const e = (ctx2.char.globalLore ?? []).find((x) => x.mode !== "folder" && String(x.comment ?? "") === r.lore);
+    const keys = String(e?.key ?? "").split(",").map((t) => t.trim()).filter(Boolean);
+    const slot = parentSlot(r, ctx2);
+    const toggle = (f, label2, on3) => chip2("dir-app-toggle", `${f}|${r.lore}`, label2, on3);
+    const bases = d.bases.map((b) => b.name).filter((n3) => !r.places.includes(n3));
+    const unlocked = unlockedHere(ctx2).has(r.lore);
+    return `<div class="dir-panel">
+    ${input2(k("parent"), r.parent, "본 항목", r.guess ? `이 부록이 붙는 원래 기록(이름 앞부분으로 찾음): ${esc21(r.guess)}` : "이 부록이 붙는 원래 기록(세력·괴이·파밍·요원)의 이름을 그대로 적어요")}
+    <p class="${slot ? "gx-muted" : "gx-hint"}">${slot ? `모델에게 보낼 때 본 항목(${slot}) 바로 뒤에 붙어요.` : "본 항목을 찾지 못했어요. 세력 기록 자리에 들어가요."}</p>
+    <div class="dir-line"><span>모델에게 보내는 조건</span><small>아래 중 하나라도 맞으면 이 부록을 다음 요청에 넣어요</small><div class="dir-chips">
+      ${toggle("keys", "호출 단어가 대화에 나오면", r.keys)}${toggle("withParent", "본 항목을 보낼 때 같이", r.withParent)}${toggle("target", "상태창 목표가 본 항목이면", r.target)}
+    </div></div>
+    <p class="gx-muted">호출 단어: ${keys.length ? esc21(keys.join(", ")) : "없음"} · 세계 편집기의 부록 기록에서 고쳐요.</p>
+    ${input2(k("places"), r.places.join(", "), "위치", "상태창의 「위치」 칸에 이 말이 들어 있으면 보내요(주인공이 그 장소에 있을 때). 쉼표로 나눠 적어요")}
+    ${bases.length ? `<div class="dir-line"><span>거점에서 넣기</span><small>등록된 거점(본부·지사 같은 장소) 이름을 위 「위치」 칸에 바로 넣는 버튼이에요</small><div class="dir-chips">${bases.slice(0, 24).map((n3) => chip2("dir-app-place", `${n3}|${r.lore}`, `＋ ${n3}`, false)).join("")}</div></div>` : ""}
+    ${input2(k("agents"), r.agents.join(", "), "동행·투입 요원", "적은 요원이 주인공과 동행 중이거나(상태창 동행 칸) 상황판에서 작전에 투입돼 있으면 보내요. 쉼표로 나눠 적어요")}
+    <div class="dir-line"><span>보내지 않는 조건</span><div class="dir-chips">${toggle("needParent", "본 항목을 보내지 않는 요청에는 이 부록도 빼기", r.needParent)}</div></div>
+    ${area2(k("unlock"), r.unlock, "해금 조건", "비우면 위 조건만 맞으면 바로 보내요. 적으면 해금 전에는 본문 대신 이 조건 한 줄만 모델에게 알리고, 이야기에서 조건이 이루어지면 모델이 응답 끝에 해금 표시를 남겨요. 그 다음 요청부터 본문이 들어가요")}
+    ${r.unlock ? `<div class="dir-line"><span>이 채팅</span><div class="dir-chips">${chip2("dir-app-unlock", r.lore, unlocked ? "해금됨 · 누르면 다시 잠금" : "잠김 · 누르면 해금", unlocked)}</div></div>` : ""}
+    <p class="gx-muted">로어북: ${esc21(r.lore)} · 약 ${tokens(String(e?.content ?? "")).toLocaleString()}토큰</p>
+  </div>`;
+  }
+  var appendixHit = (r, q) => !q || [r.lore, r.parent, ...r.places, ...r.agents].some((t) => t.toLowerCase().includes(q));
+  function appendixList(ctx2, d, q) {
+    const rows3 = d.appendices.filter((r) => appendixHit(r, q));
+    if (!rows3.length) {
+      return q ? '<p class="gx-muted dir-empty">맞는 부록이 없어요.</p>' : '<p class="gx-muted dir-empty">부록이 없어요. 로어북에 <code>📎부록</code> 폴더를 만들고 「본 항목 이름 · 설명」으로 항목을 넣으면 여기 들어와요.</p>';
+    }
+    const lost = rows3.filter((r) => !parentSlot(r, ctx2));
+    const parents = [...new Set(rows3.filter((r) => parentSlot(r, ctx2)).map((r) => r.parent))];
+    return `${lost.length ? `<h3 class="dir-group warn">본 항목 없음<small>${lost.length}</small></h3>${lost.map((r) => appendixRow(r, ctx2, d)).join("")}` : ""}
+    ${parents.map((p2) => {
+      const list4 = rows3.filter((r) => r.parent === p2 && parentSlot(r, ctx2));
+      return `<h3 class="dir-group">${esc21(p2)}<small>${list4.length}</small></h3>${list4.map((r) => appendixRow(r, ctx2, d)).join("")}`;
+    }).join("")}`;
+  }
+  function searchAll(ctx2, d, q, names4) {
+    const jump = (kind, html) => html.replace(/data-action="dir-open" data-value="([^"]*)" aria-expanded="[^"]*"/, (_m, key) => `data-action="dir-jump" data-value="${kind}|${key}"`);
+    const groups = [
+      ["anomaly", "괴이", d.anomalies.filter((r) => matches3(r, q)).map((r) => jump("anomaly", placeRow(r, ctx2)))],
+      ["site", "특수", d.sites.filter((r) => matches3(r, q)).map((r) => jump("site", placeRow(r, ctx2)))],
+      ["agent", "요원", d.agents.filter((r) => matches3(r, q)).map((r) => jump("agent", agentRow(r, ctx2, d, names4)))],
+      ["org", "조직", d.orgs.filter((o) => [o.name, o.spec.english].some((t) => t && t.toLowerCase().includes(q))).map((o) => jump("org", orgRow(o, ctx2, d, names4)))],
+      ["base", "거점", d.bases.filter((b) => [b.name, b.label, b.english, b.org, b.gu, ...b.aliases].some((t) => t && t.toLowerCase().includes(q))).map((b) => jump("base", baseRow(b, ctx2, d)))],
+      ["appendix", "부록", d.appendices.filter((r) => appendixHit(r, q)).map((r) => jump("appendix", appendixRow(r, ctx2, d)))]
+    ];
+    const hit4 = groups.filter(([, , rows3]) => rows3.length);
+    if (!hit4.length) return '<p class="gx-muted dir-empty">맞는 항목이 없어요.</p>';
+    return hit4.map(([, label2, rows3]) => `<h3 class="dir-group">${label2}<small>${rows3.length}</small></h3>${rows3.join("")}`).join("");
+  }
+  function directoryList(ctx2, scoped = false) {
+    const d = draftOf2(ctx2);
+    const q = dirUi.q.trim().toLowerCase();
+    const names4 = namesOf(d, ctx2.char.globalLore);
+    if (q && !scoped) return searchAll(ctx2, d, q, names4);
+    if (dirUi.kind === "base") return baseList(ctx2, d, q);
+    if (dirUi.kind === "appendix") return appendixList(ctx2, d, q);
+    if (dirUi.kind === "org") {
+      const rows4 = d.orgs.filter((o) => !q || o.name.toLowerCase().includes(q));
+      return `${rows4.map((o) => orgRow(o, ctx2, d, names4)).join("") || '<p class="gx-muted dir-empty">맞는 조직이 없어요.</p>'}`;
+    }
+    if (dirUi.kind !== "agent") {
+      const rows4 = (dirUi.kind === "anomaly" ? d.anomalies : d.sites).filter((r) => matches3(r, q));
+      const src = loreSources(ctx2.char.globalLore);
+      const inside2 = rows4.filter((r) => r.inFolder);
+      const outside = rows4.filter((r) => !r.inFolder);
+      const folder = dirUi.kind === "anomaly" ? "🚧괴이" : "🎁파밍";
+      return `${inside2.length ? `<h3 class="dir-group">${folder} 폴더<small>${inside2.length}</small></h3>${inside2.map((r) => placeRow(r, ctx2)).join("")}` : ""}
+      ${outside.length ? `<h3 class="dir-group">다른 폴더에서 온 후보<small>${outside.length}</small></h3><p class="gx-muted dir-group-help">조직·개체처럼 괴이 폴더 밖의 로어북이에요. 「발생 후보」로 두면 괴이처럼 발생해요.</p>${outside.map((r) => placeRow(r, ctx2, src.get(r.lore))).join("")}` : ""}
+      ${!rows4.length ? '<p class="gx-muted dir-empty">맞는 항목이 없어요.</p>' : ""}`;
+    }
+    const rows3 = d.agents.filter((r) => matches3(r, q));
+    if (!rows3.length) return '<p class="gx-muted dir-empty">맞는 사람이 없어요.</p>';
+    const key = (a) => a.affiliation ? orgName(d, names4, a.affiliation) : "";
+    const order2 = ["", ...d.orgs.map((o) => o.name)];
+    const groups = [...new Set(rows3.map(key))].sort((x, y) => order2.indexOf(x) - order2.indexOf(y));
+    return groups.map((g3) => {
+      const list4 = rows3.filter((r) => key(r) === g3);
+      const body5 = list4.map((r, i) => agentRow(r, ctx2, d, names4, q ? void 0 : { first: i === 0, last: i === list4.length - 1 })).join("");
+      return `<h3 class="dir-group${g3 ? "" : " warn"}">${esc21(g3 || "소속 미정")}<small>${list4.length}</small></h3>${body5}`;
+    }).join("");
+  }
+  var directoryDone = () => dirUi.done;
+  var directoryDoneClear = (text5) => {
+    if (dirUi.done === text5) dirUi.done = "";
+  };
+  var directorySearch = (scoped = false) => `<input class="dir-search" type="search" data-input="dir-q" value="${esc21(dirUi.q)}" placeholder="${scoped ? "거점 검색" : "명부 전체 검색 (괴이·특수·요원·조직·거점·부록)"}" aria-label="${scoped ? "거점 검색" : "명부 전체 검색"}" autocomplete="off">`;
+  var barButtons = (off) => `<button class="st-act save" data-action="set-bar" data-value="save" ${off ? "disabled" : ""}>${ICONS.pen}덮어쓰기</button><button class="st-act" data-action="set-bar" data-value="load" ${off ? "disabled" : ""}>${ICONS.refresh}불러오기</button>`;
+  function directoryBar() {
+    return barButtons(!dirty2() || dirUi.busy);
+  }
+  var inEditor = false;
+  function directoryConfirmPopup() {
+    const at = dirUi.confirmDel.indexOf("|");
+    if (dirUi.confirmDel.slice(0, at) !== "base") return "";
+    const name = dirUi.confirmDel.slice(at + 1);
+    return askPopup(`「${name}」 거점을 지울까요?`, { action: "dir-base-del", value: `yes|${name}` }, { action: "dir-base-del", value: `no|${name}` });
+  }
+  function directoryView(ctx2, scoped = false) {
+    inEditor = scoped;
+    const d = draftOf2(ctx2);
+    const kinds = [
+      ["anomaly", "괴이", d.anomalies.length],
+      ["site", "특수", d.sites.length],
+      ["agent", "요원", d.agents.length],
+      ["org", "조직", d.orgs.length],
+      ["base", "거점", d.bases.length],
+      ["appendix", "부록", d.appendices.length]
+    ];
+    return `<div class="dir">
+    <div class="gx-segs dir-kinds">${kinds.map(([k, label2, n3]) => `<button class="gx-seg${dirUi.kind === k ? " on" : ""}" data-action="dir-kind" data-value="${k}" aria-pressed="${dirUi.kind === k}">${label2} <small>${n3}</small></button>`).join("")}</div>
+    <div class="dir-tools">
+      <div class="dir-qbox">${directorySearch(scoped)}</div>
+      ${ADD_LABEL[dirUi.kind] ? `<button class="dir-tool${dirUi.adding ? " on" : ""}" data-action="dir-add-toggle" aria-expanded="${dirUi.adding}">${ICONS.plus}<span>${ADD_LABEL[dirUi.kind]}</span></button>` : ""}
+      <button class="dir-tool icon" data-action="dir-reload" aria-label="로어북 다시 읽기" title="로어북 다시 읽기">${ICONS.refresh}</button>
+      <button class="dir-tool icon${dirUi.help ? " on" : ""}" data-action="dir-help" aria-expanded="${dirUi.help}" aria-label="명부 사용법" title="명부 사용법">?</button>
+    </div>
+    ${dirUi.adding ? addPanel(ctx2) : ""}
+    ${dirUi.help ? `<div class="dir-help">
+      <ul>
+        <li>로어북 폴더 <code>🚧괴이</code> <code>🎁파밍</code> <code>🙂요원</code>에 넣은 항목이 각각 괴이·특수·요원 탭에 자동으로 들어와요.</li>
+        <li>새 요원은 「요원」 탭에서 소속 조직을 골라 주세요.</li>
+        <li>거점은 지도에 찍히는 장소예요. 「거점」 탭에서 추가하고 지도를 눌러 위치를 정해요.</li>
+        <li>긴 로어북의 세부는 <code>📎부록</code> 폴더에 「본 항목 이름 · 설명」으로 따로 넣어요. 본 항목과 같은 자리에 들어가고, 켜지는 조건(키·위치·동행·해금)은 「부록」 탭에서 정해요.</li>
+        <li>고친 값은 위의 「덮어쓰기」를 눌러야 카드에 남아요. 이 카드의 모든 채팅에 바로 적용되고, 카드를 공유하면 같이 가요.</li>
+      </ul>
+      ${d.folders ? "" : '<p class="gx-hint">이 카드에는 명부 폴더가 없어서 옛 목록(World catalog·Agent roster)을 보여 줘요.</p>'}
+    </div>` : ""}
+    ${dirUi.notice ? `<div class="gx-err" role="alert">${esc21(dirUi.notice)}</div>` : ""}
+    ${unassigned(d) ? `<button class="dir-alert" data-action="dir-kind" data-value="agent">소속을 정하지 않은 요원이 ${unassigned(d)}명 있어요</button>` : ""}
+    <div class="dir-list">${directoryList(ctx2, scoped)}</div>
+  </div>`;
+  }
+  var ADD_LABEL = { anomaly: "후보 추가", site: "후보 추가", agent: "", org: "조직 추가", base: "거점 추가", appendix: "" };
+  function addPanel(ctx2) {
+    if (dirUi.kind ==

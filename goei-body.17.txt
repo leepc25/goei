@@ -1,0 +1,2902 @@
+l>${selOff ? "관계 표·세력 지침·평판 시작값에서 빠져요 (민간인처럼 세력이 아닌 조직)." : "세력 지침(📜Faction)의 관계 표에 들어가요. 조직 기록에서도 켜고 끌 수 있어요."}</small></div>
+        <div class="ps-ctl">${switchHtml({ action: "ed-rel-org", value: sel, on: !selOff })}</div></div>
+    </div></section>`;
+    const stages = selOff ? "" : `<section class="ps-group"><h3>${esc33(sel)} → 다른 조직 <small>단계는 세력 평판 5단계와 같고 평판 시작값이 돼요. 설명 줄은 반대 방향.</small></h3><div class="ps-rows gw-rel-rows">${rows3 || '<p class="ps-note">관계도에 든 다른 조직이 없어요.</p>'}</div></section>`;
+    const rules3 = `<section class="ps-group"><h3>공통 규칙 <small>쌍 관계가 아닌 세력 전체 규칙. 세력 지침 끝에 그대로. {A00} 같은 자리표는 그 코드 조직의 이름으로.</small></h3><div class="ps-rows">
+      <div class="ps-row gw-copyto gw-copybox"><textarea class="gw-rules" data-input="ed-rules" rows="8">${esc33(rel.common)}</textarea>${copyBtn()}</div>
+      <div class="ps-row gw-rel-foot"><span class="gw-tokens">${tokenizerName() ? "" : "약 "}${tokens(rel.common).toLocaleString()}토큰</span></div>
+    </div></section>`;
+    return `<div class="gw-page split">
+    <div class="gw-list-pane"><div class="gw-list-tools"><select class="gw-list-pick" data-change="ed-rel-pick" aria-label="조직 고르기">${all.map((o) => `<option value="${esc33(o.name)}"${o.name === sel ? " selected" : ""}>${esc33(o.name)}${excluded.has(o.name) ? " (제외)" : ""}</option>`).join("")}</select><span class="gw-list-title">조직 ${included.length}${all.length > included.length ? ` <small>· 제외 ${all.length - included.length}</small>` : ""}</span></div><div class="gw-list gw-rel-list">${list4}</div></div>
+    <div class="gw-detail">
+      <header class="gw-head"><h2>${esc33(sel)}</h2>
+        <div class="gw-head-act"><span class="gw-tokens">세력 지침 ${tokenizerName() ? "" : "약 "}${tokens(fac).toLocaleString()}토큰</span>
+          <button class="gx-chip${sym() ? " on" : ""}" data-action="ed-rel-sym" aria-pressed="${sym()}">대칭</button>
+          <button class="gx-mini${relUi.preview ? " on" : ""}" data-action="ed-rel-preview">${ICONS.book}세력 지침 보기</button></div>
+        <p class="gx-muted">고른 조직이 다른 조직을 어떻게 보는지 한 줄씩 정해요. 「대칭」이 켜져 있으면 반대 방향도 같이 바뀌어요. 표 하나가 세력 지침에 들어가고, 메모를 쓴 줄만 표 아래 한 줄로 붙어요.</p></header>
+      ${relUi.preview ? `<div class="gw-copyto gw-copybox"><pre class="gw-preview">${esc33(fac)}</pre>${copyBtn("조립 글 복사")}</div>` : ""}
+      ${basic}
+      ${stages}
+      ${rules3}
+    </div>
+  </div>`;
+  }
+  function relationsInput(name, key, value, ctx2) {
+    void ctx2;
+    const over = edUi.over;
+    if (name === "ed-rules") {
+      const base = worldRelations().common;
+      const relations = { ...over.relations ?? {} };
+      if (value === base) delete relations.common;
+      else relations.common = value;
+      const next = { ...over, relations };
+      if (!Object.keys(relations).length) delete next.relations;
+      setOverrides(next);
+      return true;
+    }
+    if (name === "ed-rel-memo") {
+      const rel = worldRelations(over);
+      const stage2 = rel.pairs[key]?.stage ?? "neutral";
+      const cell3 = stage2 === "neutral" && !value.trim() ? null : { stage: stage2, ...value.trim() ? { memo: value } : {} };
+      setOverrides(setCell(over, key, cell3));
+      return true;
+    }
+    return false;
+  }
+  async function relationsAction(action, value, ctx2) {
+    void ctx2;
+    const over = edUi.over;
+    switch (action) {
+      case "ed-rel-pick":
+        relUi.org = value ?? "";
+        return true;
+      case "ed-rel-set": {
+        const at = (value ?? "").lastIndexOf(":");
+        if (at < 0) return true;
+        const key = value.slice(0, at);
+        const stage2 = value.slice(at + 1);
+        if (!key.includes(">") || !RELATION_STAGES.includes(stage2)) return true;
+        return setStage(over, key, stage2, worldRelations(over));
+      }
+      case "ed-rel-sym":
+        await savePrefs((p2) => ({ ...p2, relationsSym: sym() ? false : void 0 }));
+        return true;
+      case "ed-rel-preview":
+        relUi.preview = !relUi.preview;
+        return true;
+      case "ed-rel-org": {
+        const name = value || relUi.org;
+        if (!name) return false;
+        const rec3 = worldRecord("org", name, over) ?? emptyRecord();
+        setOverrides(putRecord(over, "org", name, { ...rec3, relOff: !rec3.relOff }));
+        return true;
+      }
+    }
+    return false;
+  }
+  function setStage(over, key, stage2, rel) {
+    const apply = (o, k) => {
+      const memo2 = rel.pairs[k]?.memo ?? "";
+      const cell3 = stage2 === "neutral" && !memo2 ? null : { stage: stage2, ...memo2 ? { memo: memo2 } : {} };
+      return setCell(o, k, cell3);
+    };
+    let next = apply(over, key);
+    if (sym()) {
+      const [a, b] = key.split(">");
+      next = apply(next, `${b}>${a}`);
+    }
+    setOverrides(next);
+    return true;
+  }
+
+  // src/ui/editor/guides.ts
+  var esc34 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var guideUi = { draft: {}, info: "" };
+  var drawn = {};
+  function partsNow(name) {
+    const text5 = guideUi.draft[name] ?? guideText(name);
+    const kept = drawn[name];
+    return kept && joinGuide(kept) === text5 ? kept : splitGuide(text5);
+  }
+  var GUIDE_MAX = 12e4;
+  var HELP2 = {
+    GNet: "괴담넷 게시판 글 생성 지침. 절마다 플러그인이 요청에 따라 골라 써요.",
+    Gal: "괴담갤 게시판 글 생성 지침. 절마다 플러그인이 요청에 따라 골라 써요.",
+    Wpf: "세정게 게시판 글 생성 지침. 절마다 플러그인이 요청에 따라 골라 써요.",
+    Salmon: "연어 마켓 거래 글 생성 지침. 절마다 플러그인이 요청에 따라 골라 써요.",
+    Hs: "망상홈쇼핑 지침: 편성(상품)·큐시트·채팅을 한 번에 짓는 글이에요. 방송 전용 절(COMMON·BROADCAST·HOST·VIEWERS 등)에 물건 줄 꼴·값 기준·지난 목록 절(SHELF·SHELF_PLAIN·PRICE_GUIDE·AVOID_PREV)은 상점 지침 기본 글을 옮겨 붙였어요. {cue}·{chat}·{cuts}·{moods}·{moods_b}·{events} 자리는 설정과 방송 그림에서 채워져요.",
+    Cos: "우주 쇼핑몰 지침: 물건 목록 짜기·운영자 문의 답. 절마다 플러그인이 요청에 따라 골라 써요. {size}·{line}·{price}·{prev} 자리는 플러그인이 채워요.",
+    Bm: "백일몽 포인트몰 지침: 물건 목록 짜기. 절마다 플러그인이 요청에 따라 골라 써요. {size}·{line}·{price}·{prev} 자리는 플러그인이 채워요.",
+    BmDesk: "백일몽 포인트몰 1:1 상담 지침: 상담사 만들기(MAKE)·복지몰 상담 매뉴얼(MANUAL, 작중 규정)·대화 규칙(TALK). 예시 대사·소재 목록을 넣으면 상담사들이 같은 말을 되풀이하니 규칙만 적어 주세요. 상담사 주사위 칸은 포인트몰 설정에 있어요.",
+    Consult: "설정 창의 AI 상담 지침: 답하는 태도(COMMON)·증상과 설정을 잇는 사실(KNOWLEDGE)·설정을 바꾸는 순서(CHANGE)·응답 꼴(OUTPUT). 메뉴와 줄, 지금 값, 호출 흐름, 지난 턴 기록은 플러그인이 설정 화면과 기록에서 뽑아 넣어요. <say>·<set>·<apply>·<open>·<go> 꼴은 그대로 두세요.",
+    Phone: "괴담톡(연락처·문자) 생성 지침. 절마다 플러그인이 요청에 따라 골라 써요.",
+    Wiki: "위키 문서 생성 지침. 절마다 플러그인이 요청에 따라 골라 써요.",
+    Directive: "요원 이동·커스텀 임무 때 모델에 주는 장면 지시문. COMMON·OPENING·CONTINUATION·CONTEXT·FORMAT(JSON) 절.",
+    RP: "카드 설명(description)에 있던 RP 지침(세계 설정·진행 원칙). 요청 맨 앞 로어 덩어리에 들어가요. 카드 설명에 「## RP Guidance」가 남아 있으면 넣지 않아요.",
+    Tag: "상황판 태그 지침(괴이·사건·거점 출력 규칙). 상태창 절은 「{status_section}」 자리에 설정 「상태창 → 칸」의 구성대로 자동으로 만들어져요(형식·규칙·예시). 그 자리표와 {{getvar::…}} 자리표는 그대로 두세요.",
+    Shop: "상점 지침: 진열대 짜기·주인 대화·판매 값·메인 응답의 상점 표식. 절마다 플러그인이 요청에 따라 골라 써요. {size}·{line}·{price}·{prev} 자리는 플러그인이 채워요. 상점 판단: SHOP_RULE 은 「지금 상점이 있나」 공용 기준이라 메인 모델 표식 지침(MAIN_TAG)과 갱신기가 같은 글을 읽어요(한 곳만 고치면 양쪽에 들어가요). OWN_SHOPS 는 설정 → 상점 「고유 상점」 표의 켜진 줄({list})이 있을 때 SHOP_RULE 의 {own} 자리에 붙어요. SHOP_JUDGE 는 상점 판단을 갱신기가 맡을 때 갱신기만 더 받는 판단 요령이에요.",
+    Updater: "인물 기록 갱신기(자세히판): 응답마다 보조 모델이 인물·사건·장소·세력·소지품 기록을 고칠 때 주는 지침. <<SECTION:이름>>…<<END:이름>> 표식은 설정에서 끈 기능의 절을 빼는 자리라 지우지 마세요.",
+    UpdaterCompact: "인물 기록 갱신기(간결판): 설정 「인물 → 갱신 → 지침」을 간결로 골랐을 때 쓰는 지침. 표식은 자세히판과 같아요.",
+    Director: "Director 기본 지침: 메인 요청 전에 보조 모델이 이번 턴 인물 자료를 정리할 때 주는 글. FACTS 절은 사실형·연출형 모두, SCENE 절은 연출형에만 붙어요. 기능별 절(APPLY.*)·검색(SEARCH·PASS2)·출력 형식(OUTPUT)·고침 요청(REPAIR)은 설정에 따라 플러그인이 골라 덧붙이고, MAIN_NOTE 는 메인 요청에 넣는 메모의 머리말이에요. {{LANG}}·{{LINES}} 자리는 그대로 두세요.",
+    Common: "여러 기능의 요청에 공통으로 붙는 글이에요: 인터넷·괴담톡 자동 확인을 한 번에 묶는 틀(JOINT.*), 형식이 틀렸을 때 다시 묻는 글(RETRY.*), 다시 보기(REITERATE), 생각 단계 머리말(THOUGHTS.*), 첨부 안내(ATTACH.*), 생성 언어 문장(LANGUAGE.*). {count}·{keys}·{reason} 같은 자리는 플러그인이 채워요.",
+    Main: "메인 요청에 플러그인이 붙이는 글이에요: 직전 상태창 안내(STATUS.NOTE·STATUS.FIRST), 상태창 칸 규칙(STATUS.RULE.*, 상황판 태그 지침의 상태창 절에 들어가요), 소지품 안내(INVENTORY.*), 잠긴 부록 안내(LORE.LOCKED), 인물 기록 머리말(PEOPLE.*·SEXUAL.POLICY), 세력·명부 머리말(FACTION.*·ROSTER.INTRO). {이름} 자리는 플러그인이 채워요.",
+    UpdaterExtra: "인물 기록 갱신기에 설정에 따라 덧붙는 글이에요: 기록 언어 영어(LANG_EN), 추적 인물(TRACKING_RULE), 태그 신호(SIGNAL_STATE), 상점 판단 칸(SHOP_KEY), 말투 다변화(SPEECH.*), 성적 프로필(SEXUAL.*). CONSOLIDATE 는 기록 정리 요청의 지침이에요. {이름} 자리는 플러그인이 채워요.",
+    Asset: "보조 모델이 완성된 본문에 캐릭터 이미지 태그를 넣을 때 주는 지침이에요 (설정 → 캐릭터 이미지에서 「보조 모델」 방식일 때). {limit}·{names}·{keywords}·{narrative} 같은 자리는 플러그인이 채워요. 메인 모델이 직접 넣는 방식의 지침은 「이미지(메인 모델)」 항목에 있어요. 출력 대상 캐릭터·표정 세트는 두 방식이 같이 쓰고, 「이미지(메인 모델)」 항목에서 고쳐요.",
+    Router: "Router 기본 지침: 메인 요청 전에 보조 모델이 장면에 필요한 인물을 고를 때 주는 글. ROLE(역할·입력)·RULES(고르는 규칙·출력) 절. {{MAX}} 자리(최대 인원)는 그대로 두세요."
+  };
+  function guidePage(name, crumb = "") {
+    const text5 = guideUi.draft[name] ?? guideText(name);
+    const parts = splitGuide(text5);
+    drawn[name] = parts.map((p2) => ({ ...p2 }));
+    const rows3 = parts.map((p2, i) => {
+      const md = /^(#{2,3}) /.exec(p2.head);
+      const fixed = !md && p2.head.trim() !== "";
+      const head3 = md ? `<input class="gw-gtitle" data-input="ed-guide-title" data-key="${name}|${i}" value="${esc34(p2.title)}" spellcheck="false" aria-label="절 제목">` : `<b>${esc34(p2.title)}</b>${fixed ? '<button class="gw-fhint" type="button" data-action="ed-hint" data-hint="이 이름은 플러그인이 요청마다 절을 골라 쓸 때 쓰는 이름표예요. 그래서 바꿀 수 없고, 본문만 고칠 수 있어요.">?</button>' : ""}`;
+      return `<div class="gw-field gw-copyto${md?.[1] === "###" ? " gw-sub" : ""}"><div class="gw-field-head">${head3}<span class="gw-ftok">${tokens(p2.body) ? `${tokens(p2.body).toLocaleString()}토큰` : blankUsesDefault(name, p2.title) ? "비우면 기본 글이 쓰여요" : ""}</span>${copyBtn()}</div>
+      <textarea data-input="ed-guide-sec" data-key="${name}|${i}" rows="${p2.body.trim() ? 3 : 1}" spellcheck="false">
+${esc34(p2.body)}</textarea></div>`;
+    }).join("");
+    const title2 = crumb ? `<h2>${esc34(GUIDE_LABEL[name])}<small>${esc34(crumb)} · 이 기기 공통${guideOverridden(name) ? " · 고침" : " · 기본값"} · ${parts.length}절</small></h2>` : `<h3>${esc34(GUIDE_LABEL[name])} 지침<small>이 기기 공통${guideOverridden(name) ? " · 고침" : " · 기본값"} · ${parts.length}절</small></h3>`;
+    return `<div class="gw-page${crumb ? " gw-set" : ""}"><header class="gw-head">${title2}
+      <div class="gw-head-act"><span class="gw-tokens">${tokenizerName() ? "" : "약 "}${tokens(text5).toLocaleString()}토큰</span></div>
+      <p class="gx-muted">${esc34(HELP2[name])}</p>${guideUi.info ? `<p class="gx-hint">${esc34(guideUi.info)}</p>` : ""}</header>
+    <div class="gw-fields gw-guide-secs">${rows3}</div>
+  </div>`;
+  }
+  var barTimer;
+  function guideBarSync(root3, name) {
+    if (!isGuideName(name)) return;
+    if (barTimer !== void 0) clearTimeout(barTimer);
+    barTimer = setTimeout(() => {
+      barTimer = void 0;
+      if (!root3.querySelector(`[data-key^="${name}|"]`)) return;
+      const text5 = guideUi.draft[name] ?? guideText(name);
+      const tok3 = root3.querySelector(".gw-head .gw-tokens");
+      if (tok3) tok3.textContent = `${tokenizerName() ? "" : "약 "}${tokens(text5).toLocaleString()}토큰`;
+    }, 300);
+  }
+  function guideInput(input3, key, value) {
+    if (input3 === "ed-guide-title") {
+      const at = key.lastIndexOf("|");
+      const name = key.slice(0, at);
+      const i = Number(key.slice(at + 1));
+      const parts = partsNow(name);
+      const md = parts[i] && /^(#{2,3}) /.exec(parts[i].head);
+      if (!md) return true;
+      const title2 = value.replace(/[\r\n]/g, " ").trim();
+      parts[i] = { ...parts[i], title: title2, head: `${md[1]} ${title2}
+` };
+      drawn[name] = parts;
+      guideUi.draft[name] = joinGuide(parts);
+      guideUi.info = "";
+      return true;
+    }
+    if (input3 === "ed-guide-sec") {
+      const at = key.lastIndexOf("|");
+      const name = key.slice(0, at);
+      const i = Number(key.slice(at + 1));
+      const parts = partsNow(name);
+      if (!parts[i]) return true;
+      parts[i] = { ...parts[i], body: value.replace(/\r/g, "") };
+      drawn[name] = parts;
+      guideUi.draft[name] = joinGuide(parts);
+      guideUi.info = "";
+      return true;
+    }
+    if (input3 !== "ed-guide") return false;
+    guideUi.draft[key] = value;
+    guideUi.info = "";
+    return true;
+  }
+  async function guideAction(action, value) {
+    const name = value;
+    if (!name) return false;
+    if (action === "ed-guide-save") {
+      const text5 = guideUi.draft[name];
+      if (text5 === void 0) return true;
+      if (text5.length > GUIDE_MAX) {
+        guideUi.info = `지침은 ${GUIDE_MAX.toLocaleString()}자까지예요 (지금 ${text5.length.toLocaleString()}자). 줄여 주세요.`;
+        return true;
+      }
+      const isDefault = text5.replace(/\r/g, "") === guideDefault(name);
+      setGuideOverride(name, isDefault ? "" : text5);
+      await savePrefs((p2) => {
+        const guides = { ...p2.guides ?? {} };
+        if (isDefault) delete guides[name];
+        else guides[name] = text5;
+        return { ...p2, guides };
+      });
+      if (guideUi.draft[name] === text5) delete guideUi.draft[name];
+      return true;
+    }
+    return false;
+  }
+
+  // src/ui/editor/rules.ts
+  var esc35 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var ruleUi = { confirmDel: "", info: "" };
+  var RULE_MAX = 100;
+  var RULE_TITLE_MAX = 80;
+  var RULE_TEXT_MAX = 2e4;
+  var isRuleNode = (n3) => n3.startsWith("rule:");
+  var uid = () => `r${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  async function saveRules(next) {
+    dropPending();
+    setUserRules(next);
+    await savePrefs((p2) => next.length ? { ...p2, rules: next } : (({ rules: _r, ...rest }) => rest)(p2));
+  }
+  var timer3 = null;
+  var pending = null;
+  function dropPending() {
+    if (timer3) clearTimeout(timer3);
+    timer3 = null;
+    pending = null;
+  }
+  function saveSoon(next) {
+    setUserRules(next);
+    pending = next;
+    if (timer3) clearTimeout(timer3);
+    timer3 = setTimeout(() => {
+      timer3 = null;
+      const p2 = pending;
+      pending = null;
+      if (p2) void saveRules(p2);
+    }, 400);
+  }
+  function ruleTreeItems() {
+    const n3 = getUserRules().length;
+    return [["rule:all", "추가 규칙", n3 ? `<i class="gw-tree-badge">${n3}</i>` : ""]];
+  }
+  function ruleConfirmPopup() {
+    if (!ruleUi.confirmDel) return "";
+    const r = getUserRules().find((x) => x.id === ruleUi.confirmDel);
+    if (!r) return "";
+    return askPopup(`이 추가 규칙(「${r.title.trim() || "제목 없음"}」)을 지울까요? 지운 규칙은 되돌릴 수 없어요.`, { action: "ed-rule-del-yes", value: r.id }, { action: "ed-rule-del-no" });
+  }
+  function ruleBox2(r) {
+    const chips3 = RULE_TARGETS.map((t) => `<button class="gx-chip${r.to.includes(t) ? " on" : ""}" data-action="ed-rule-to" data-value="${esc35(`${r.id}|${t}`)}" aria-pressed="${r.to.includes(t)}">${RULE_TARGET_LABEL[t]}</button>`).join("");
+    const del = `<button class="gx-mini danger" data-action="ed-rule-del" data-value="${esc35(r.id)}">${ICONS.trash}지우기</button>`;
+    const key = `rule-${r.id}`;
+    return `<details class="ps-adv gw-rule" data-keep="${esc35(key)}"${keepOpen(key)}><summary class="ps-adv-sum"><b>${esc35(r.title.trim() || "(제목 없음)")}</b><span class="adv-count">${r.to.map((t) => RULE_TARGET_LABEL[t]).join(" · ") || "붙일 곳 없음"} · ${tokenizerName() ? "" : "약 "}${tokens(r.text).toLocaleString()}토큰</span><span class="gw-state${r.on ? "" : " off"}">${r.on ? "켬" : "끔"}</span></summary><div class="ps-adv-body">
+    <div class="ps-rows">
+      <div class="ps-row"><div class="ps-label"><b>사용</b><small>끄면 어느 지침에도 붙지 않아요. 글은 남아요.</small></div><div class="ps-ctl">${switchHtml({ action: "ed-rule-on", value: r.id, on: r.on })}</div></div>
+      <div class="ps-row"><div class="ps-label"><b>제목</b><small>규칙 글 위에 작은 제목으로 들어가요.</small></div><div class="ps-ctl"><input class="gw-rule-title" data-input="ed-rule-title" data-key="${esc35(r.id)}" value="${esc35(r.title)}" placeholder="예: 대사 길이" autocomplete="off" maxlength="${RULE_TITLE_MAX}"></div></div>
+      <div class="ps-row"><div class="ps-label"><b>붙일 곳</b><small>RP = RP 지침 끝 · 이동·임무·괴담톡 = 그 지침의 공통 절 끝 · 괴담넷·괴담갤·세정게·연어 마켓 = 그 게시판 지침의 게시판 절 끝 · 위키 = 작성 안내 절 끝</small></div><div class="ps-ctl"><div class="dir-chips">${chips3}</div></div></div>
+      <div class="ps-row"><div class="ps-label"><b>본문</b><small>모델에게 그대로 가요. 지침 언어(영어)와 맞추면 더 잘 따라요.</small></div>
+        <div class="gw-copyto gw-copybox"><textarea data-input="ed-rule-text" data-key="${esc35(r.id)}" rows="6" placeholder="규칙 글" maxlength="${RULE_TEXT_MAX}">${esc35(r.text)}</textarea>${copyBtn()}</div></div>
+      <div class="ps-row gw-rel-foot">${del}</div>
+    </div></div></details>`;
+  }
+  function rulePage(_node) {
+    const rules3 = getUserRules();
+    return `<div class="gw-page gw-set"><header class="gw-head"><h2>추가 규칙<small>이 기기 공통</small></h2>
+      <div class="gw-head-act"><span class="gw-tokens">${rules3.length}/${RULE_MAX}</span><button class="gx-mini primary" data-action="ed-rule-new" ${rules3.length >= RULE_MAX ? "disabled" : ""}>${ICONS.plus}새 규칙</button></div>
+      ${ruleUi.info ? `<p class="gx-hint">${esc35(ruleUi.info)}</p>` : ""}<p class="gx-muted">기본 지침을 고치지 않고 내 규칙을 덧붙여요. 규칙마다 어느 지침에 붙일지 고르면, 그 지침의 늘 쓰이는 절 끝에 덧붙여져요. 이 기기의 모든 채팅에 적용돼요. 바꾸면 바로 저장돼요. 예) 「대사 길이」 규칙을 RP·괴담톡에 붙이기: "한 번에 한 사람이 세 문장 넘게 말하지 않는다."</p></header>
+    <div class="gx-settings gw-setbody">${rules3.length ? rules3.map(ruleBox2).join("") : '<p class="ps-note">아직 규칙이 없어요. 「새 규칙」을 눌러 하나 만들어요.</p>'}</div>
+  </div>`;
+  }
+  function ruleInput(name, key, value) {
+    if (name !== "ed-rule-title" && name !== "ed-rule-text") return false;
+    const next = getUserRules().map((r) => r.id === key ? { ...r, [name === "ed-rule-title" ? "title" : "text"]: value } : r);
+    saveSoon(next);
+    return true;
+  }
+  async function ruleAction(action, value) {
+    if (!action.startsWith("ed-rule-")) return false;
+    const rules3 = getUserRules();
+    switch (action) {
+      case "ed-rule-new": {
+        if (rules3.length >= RULE_MAX) {
+          ruleUi.info = `규칙은 ${RULE_MAX}개까지예요. 안 쓰는 규칙을 지우고 다시 추가해 주세요.`;
+          return true;
+        }
+        const r = { id: uid(), title: "", text: "", to: ["RP"], on: true };
+        await saveRules([...rules3, r]);
+        ruleUi.info = "";
+        markOpen(`rule-${r.id}`);
+        return "rule:all";
+      }
+      case "ed-rule-on":
+        await saveRules(rules3.map((r) => r.id === value ? { ...r, on: !r.on } : r));
+        return true;
+      case "ed-rule-to": {
+        const [id2, t] = (value ?? "").split("|");
+        if (!RULE_TARGETS.includes(t)) return true;
+        await saveRules(rules3.map((r) => r.id === id2 ? { ...r, to: r.to.includes(t) ? r.to.filter((x) => x !== t) : [...r.to, t] } : r));
+        return true;
+      }
+      case "ed-rule-del":
+        ruleUi.confirmDel = value ?? "";
+        return true;
+      case "ed-rule-del-no":
+        ruleUi.confirmDel = "";
+        return true;
+      case "ed-rule-del-yes": {
+        ruleUi.confirmDel = "";
+        await saveRules(rules3.filter((r) => r.id !== value));
+        return "rule:all";
+      }
+    }
+    return true;
+  }
+
+  // src/ui/editor/trace.ts
+  var tagTop = (tag) => tag && isPhone() ? `<em class="gw-flow-tag top">${esc36(tag)}</em><br>` : "";
+  var tagInline = (tag) => tag && !isPhone() ? ` <em class="gw-flow-tag">${esc36(tag)}</em>` : "";
+  var esc36 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var traceUi = {
+    turns: null,
+    /** 펼친 칸 (`턴id:칸번호`) */
+    open: /* @__PURE__ */ new Set(),
+    confirm: false
+  };
+  var p = (x) => String(x).padStart(2, "0");
+  var hms = (iso) => {
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? iso : `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  };
+  var ymd3 = (iso) => {
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? iso : `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())} ${hms(iso)}`;
+  };
+  var sec2 = (ms) => `${Math.round(ms / 100) / 10}초`;
+  var chars = (n3) => `${n3.toLocaleString("ko-KR")}자`;
+  var tok2 = (n3) => n3 === void 0 ? "" : ` ${n3.toLocaleString("ko-KR")}토큰`;
+  var modelName2 = (m) => m === "main" ? "메인" : m === "aux" ? "보조" : m;
+  function nodes(t) {
+    const out2 = [];
+    const call = (c, i) => ({
+      key: `${t.id}:c${i}`,
+      kind: "call",
+      title: c.label,
+      meta: `${modelName2(c.model)} · ${sec2(c.ms)} · ${hms(c.at)} · 요청 ${chars(c.requestChars)}${tok2(c.requestTokens)} → 응답 ${chars(c.responseChars)}${tok2(c.responseTokens)}`,
+      ok: c.ok,
+      ...c.error ? { error: c.error } : {},
+      body: () => `<div class="gw-flow-io gw-copyto"><b>요청 ${copyBtn()}</b><textarea readonly rows="8">${esc36(c.request)}</textarea></div><div class="gw-flow-io gw-copyto"><b>받은 값 ${copyBtn()}</b><textarea readonly rows="8">${esc36(c.response || (c.ok ? "" : "(없음)"))}</textarea></div>`
+    });
+    const before = t.calls.map((c, i) => [c, i]).filter(([c]) => c.phase === "before");
+    const after = t.calls.map((c, i) => [c, i]).filter(([c]) => c.phase === "after");
+    const manual = t.calls.map((c, i) => [c, i]).filter(([c]) => c.phase === "manual");
+    if (t.main) {
+      const m = t.main;
+      const roles = m.shape.reduce((a, r) => (a[r.role] = (a[r.role] ?? 0) + 1, a), {});
+      out2.push({
+        key: `${t.id}:main`,
+        kind: "main",
+        title: "메인 요청 조립",
+        meta: `Risu 메인 모델 · ${hms(m.at)} · 메시지 ${m.shape.length}개(${Object.entries(roles).map(([r, n3]) => `${r} ${n3}`).join(", ")}) · 보낸 것 전부 ${chars(m.totalChars)}${tok2(m.totalTokens)}${m.added === void 0 ? "" : ` (이 중 플러그인이 넣은 것 ${m.added.toLocaleString("ko-KR")}토큰)`}${m.failed.length ? ` · 건너뛴 단계 ${m.failed.join(", ")}` : ""}`,
+        ok: m.failed.length ? false : true,
+        // 메시지 전부 (11-09 사용자). 지난 판 기록은 마지막 셋만 있을 수 있다
+        body: () => `<div class="gw-flow-io"><b>${m.tail.length < m.shape.length ? `마지막 메시지 ${m.tail.length}개 (옛 기록)` : `메시지 ${m.tail.length}개 — 보낸 순서, 눌러서 펼치기`}</b>${m.tail.map((r, i) => `<details class="gw-flow-msg gw-copyto" data-keep="tr:${t.id}:${i}"${keepOpen(`tr:${t.id}:${i}`, false)}><summary>${tagTop(r.tag)}<small>[${esc36(r.role)}]</small>${tagInline(r.tag)} ${esc36(r.content.replace(/\s+/g, " ").trim().slice(0, 80))}${r.content.length > 80 ? "…" : ""} <i>${chars(r.content.length)}</i>${copyBtn()}</summary><textarea readonly rows="8">${esc36(r.content)}</textarea></details>`).join("")}</div>`
+      });
+    }
+    for (const [c, i] of before) out2.push(call(c, i));
+    const reply = t.reply;
+    if (reply) out2.push({ key: `${t.id}:reply`, kind: "reply", title: "메인 응답", meta: `${hms(reply.at)} · ${chars(reply.chars)}${tok2(reply.tokens)}`, ok: true, body: () => `<div class="gw-flow-io gw-copyto"><b>받은 글 ${copyBtn()}</b><textarea readonly rows="10">${esc36(reply.text)}</textarea></div>` });
+    else if (t.main) out2.push({ key: `${t.id}:reply`, kind: "reply", title: "메인 응답", meta: "아직 없음 (응답 전이거나 Risu 가 응답을 붙이지 않음)", ok: null, body: null });
+    for (const [c, i] of after) out2.push(call(c, i));
+    for (const [c, i] of manual) out2.push({ ...call(c, i), title: `${c.label} (수동)` });
+    return out2;
+  }
+  function nodeHtml(n3) {
+    const open3 = traceUi.open.has(n3.key);
+    const state2 = n3.ok === null ? "off" : n3.ok ? "" : "bad";
+    return `<li class="gw-flow-node k-${n3.kind}${open3 ? " open" : ""}">
+    <span class="gw-flow-dot ${state2}"></span>
+    <div class="gw-flow-card">
+      <div class="gw-flow-top"><b>${esc36(n3.title)}</b><span class="gw-state ${state2}">${n3.ok === null ? "대기" : n3.ok ? "성공" : "실패"}</span>${n3.body ? `<button class="gx-mini" data-action="man-trace-toggle" data-value="${esc36(n3.key)}" aria-expanded="${open3}">${open3 ? ICONS.up : ICONS.down}${open3 ? "접기" : "펼치기"}</button>` : ""}</div>
+      <small class="gw-flow-meta">${esc36(n3.meta)}</small>
+      ${n3.error ? `<small class="gw-flow-err">${esc36(n3.error)}</small>` : ""}
+      ${open3 && n3.body ? `<div class="gw-flow-body">${n3.body()}</div>` : ""}
+    </div></li>`;
+  }
+  function turnHtml(t, idx, total) {
+    const ns = nodes(t);
+    const fails = t.calls.filter((c) => !c.ok).length;
+    const title2 = t.main ? `턴 ${total - idx}` : "턴 밖 호출";
+    return `<section class="ps-group gw-flow-turn"><h3>${title2} <small>${esc36(ymd3(t.at))} · 보조 호출 ${t.calls.length}회${fails ? ` · 실패 ${fails}` : ""}</small></h3>
+    <ol class="gw-flow">${ns.map(nodeHtml).join("")}</ol></section>`;
+  }
+  function tracePage(head3, confirmRow) {
+    const list4 = traceUi.turns;
+    const body5 = list4 ? list4.length ? [...list4].reverse().map((t, i) => turnHtml(t, i, list4.length)).join("") : '<section class="ps-group"><div class="ps-rows"><p class="ps-note">아직 기록이 없어요. 메시지를 한 번 보내면 그 턴의 흐름이 여기 쌓여요.</p></div></section>' : '<section class="ps-group"><div class="ps-rows"><p class="ps-note">읽는 중…</p></div></section>';
+    return `<div class="gw-page gw-set">${head3("", "호출 기록", "최근 턴마다 플러그인이 모델을 어떤 순서로 불렀는지. 메인 요청 조립 → 메인 요청 전 보조 호출(라우터·디렉터) → 메인 응답 → 메인 응답 뒤 보조 호출(갱신기·괴담넷·괴담톡·위키…). 칸을 펼치면 요청과 받은 값 원문이에요(긴 글은 가운데를 줄여요). 시각은 이 기기 시간.")}
+    <div class="gx-settings gw-setbody">
+    <div class="ps-row gw-rel-foot gw-flow-tools">${list4?.length ? confirmRow : ""}</div>
+    ${body5}
+    </div></div>`;
+  }
+
+  // src/ui/editor/flow.ts
+  var flowTok = { key: "", map: null, pending: false, error: "" };
+  function tokKey(ctx2) {
+    let h = 2166136261;
+    const feed2 = (s8) => {
+      for (let i = 0; i < s8.length; i++) h = Math.imul(h ^ s8.charCodeAt(i), 16777619);
+      h = Math.imul(h ^ 255, 16777619);
+    };
+    feed2(String(ctx2.chatIndex));
+    for (const m of ctx2.chat.message ?? []) feed2(`${m.role}\0${m.data ?? ""}`);
+    feed2(JSON.stringify(ctx2.chat.scriptstate ?? {}));
+    for (const e of ctx2.char.globalLore ?? []) feed2(`${e.comment ?? ""}\0${e.key ?? ""}\0${e.content ?? ""}`);
+    feed2(JSON.stringify(getPrefs()));
+    return (h >>> 0).toString(36);
+  }
+  var count = (m) => m ? promptTokens({ messages: m }) : null;
+  var breathe = () => new Promise((r) => setTimeout(r, 0));
+  async function computeTokens(ctx2) {
+    const map = {};
+    const safe = async (name, f) => {
+      await breathe();
+      try {
+        map[name] = f();
+      } catch {
+        map[name] = null;
+      }
+    };
+    await breathe();
+    const pp2 = await previewPeopleCalls(ctx2).catch(() => ({ router: null, director: null, update: null }));
+    await safe("인물 Router", () => count(pp2.router));
+    await safe("인물 Director", () => count(pp2.director));
+    await safe("인물 갱신", () => count(pp2.update));
+    await safe("이미지 태그 보충", () => count(previewAsset(ctx2.char.globalLore, ctx2.chat)));
+    await safe("괴담톡 확인", () => count(previewPhoneRefresh(ctx2)));
+    for (const site of BOARD_SITES) await safe(`${BOARD_NAME[site]} 새로고침`, () => count(previewGnetRefresh(ctx2, site)));
+    await safe("관전", () => count(previewPhoneView(ctx2)));
+    await safe("위키 자동 작성", () => {
+      const w = previewWikiAuto(ctx2);
+      const a = count(w.article);
+      const t = count(w.title);
+      return a === null && t === null ? null : (a ?? 0) + (t ?? 0);
+    });
+    await safe("상점", () => count(previewShopShelf(ctx2)));
+    for (const site of ["cos", "bm"]) await safe(`${MALL_NAME[site]} 진열`, () => count(previewMallShelf(ctx2, site)));
+    return map;
+  }
+  function ensureFlow(ctx2, render3) {
+    const key = tokKey(ctx2);
+    if (flowTok.pending || flowTok.map && flowTok.key === key) return;
+    flowTok.pending = true;
+    flowTok.error = "";
+    void computeTokens(ctx2).then((map) => {
+      flowTok.map = map;
+      flowTok.key = key;
+    }).catch((e) => {
+      flowTok.error = e instanceof Error ? e.message : String(e);
+    }).finally(() => {
+      flowTok.pending = false;
+      render3();
+    });
+  }
+  var esc37 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var id = (v) => v ? `ID ${v.slice(0, 18)}` : "";
+  var mm2 = (m) => m === "main" ? "메인" : "보조";
+  function flowNodes(ctx2) {
+    const ss = ctx2.chat.scriptstate;
+    const basic = basicSettings(ctx2.char.globalLore, ss);
+    const pp2 = peopleSettings(ss);
+    const ph = phoneSettings(ss);
+    const vw = viewSettings(ss);
+    const gn = gnetSettings(ss);
+    const nw = wikiSettings(ss);
+    const ppModel = (st) => id(pp2.stageModelId[st]) || mm2(pp2.stageModel[st]);
+    const routerOn = pp2.on && pp2.router === "model";
+    const directorOn = pp2.on && (pp2.director === "scene" || pp2.director === "facts");
+    const updateOn = pp2.on && pp2.when === "turn";
+    const tidyOn = pp2.on && pp2.tidy === "separate";
+    const pre2 = [
+      { name: "로어북 고름", sub: "다음 요청에 넣을 로어북 선택", kind: "plain", on: true, calls: "호출 없음 (플러그인 코드 또는 Risu)", page: "set:lore", to: "r:로어북 보내기", sure: 0, maybe: 0 },
+      { name: "인물 Router", sub: "장면 인물 고르기", kind: "aux", on: routerOn, model: routerOn ? ppModel("router") : void 0, calls: routerOn ? "보조 1회" : pp2.on ? "호출 없음 (코드가 고름)" : "호출 없음 (인물 기록 끔)", page: "set:people", to: "r:Router", sure: routerOn ? 1 : 0, maybe: 0 },
+      { name: "인물 Director", sub: "이번 턴 연기 지시", kind: "aux", on: directorOn, model: directorOn ? ppModel("director") : void 0, calls: directorOn ? pp2.directorSearch ? "1회 (자료 부족 땐 2회)" : "1회" : pp2.director === "note" ? "호출 없음 (갱신에 얹음)" : "호출 없음", page: "set:people", to: "r:Director", sure: directorOn ? 1 : 0, maybe: directorOn && pp2.directorSearch ? 1 : 0 }
+    ];
+    const main2 = { name: "메인 응답", sub: "Risu 가 응답 생성", kind: "main", on: true, model: "메인", calls: "메인 1회", sure: 0, maybe: 0 };
+    const assetOn = basic.assetOn && basic.assetModel === "aux";
+    const phoneModel = id(featureModel(ss, "ph")) || mm2(ph.model);
+    const gnetModel = id(featureModel(ss, "gn")) || mm2(gn.model);
+    const tasks = autoTasks(ss);
+    const jointText = (kind) => {
+      const mates = jointMates(ss, kind);
+      if (mates.length) {
+        const first = jointGroups(ss).find((g3) => g3.some((t) => t.kind === kind))?.[0].kind === kind;
+        const names4 = mates.map((k) => JOINT_LABEL[k]).join("·");
+        return { calls: first ? `1회 (${names4}${wa(names4)} 한 요청으로 합침)` : `${JOINT_LABEL[mates[0]]}${wa(JOINT_LABEL[mates[0]])} 합쳐 0회 추가`, sure: first ? 1 : 0 };
+      }
+      const why = !jointOn(ss) ? " (한 번에 요청 꺼짐)" : tasks.length > 1 ? " (모델이 달라 따로)" : "";
+      return { calls: `1회${why}`, sure: 1 };
+    };
+    const wikiOn = nw.auto === "turn";
+    const post = [
+      { name: "인물 갱신", sub: "응답을 읽어 인물·세력·문서 기록", kind: "aux", on: updateOn, model: updateOn ? ppModel("update") : void 0, calls: updateOn ? `1회${pp2.tidy === "same" ? " (정리 얹음)" : ""}` : pp2.on ? "수동 (「새 응답 읽기」 때만)" : "호출 없음 (인물 기록 끔)", page: "set:people", to: "r:자동 호출", sure: updateOn ? 1 : 0, maybe: 0 },
+      // 상점 판단 (11-09 사용자): 누가 「지금 상점이 있나」를 보는지. 따로 호출하지 않는다 (메인 응답 표식 또는 인물 갱신에 얹음)
+      (() => {
+        const j = shopJudgeBy(ss);
+        const on3 = shopOn(ss);
+        const calls = !on3 ? "판단 안 함 (상점 꺼짐)" : j.by === "updater" ? "인물 갱신에 얹음 (추가 호출 없음)" : j.fallback ? "메인 모델이 대신 (갱신기가 매 턴 돌지 않음)" : "메인 모델이 응답 끝에 표식 (추가 호출 없음)";
+        return { name: "상점 판단", sub: `지금 장면에 상점이 있는지 · ${j.by === "updater" ? "갱신기" : "메인 모델"}`, kind: "aux", on: on3 && j.by === "updater", model: on3 && j.by === "updater" ? ppModel("update") : void 0, calls, page: "set:shop", to: "r:판단", sure: 0, maybe: 0 };
+      })(),
+      { name: "인물 정리", sub: "상한 넘긴 기록 합치기", kind: "aux", on: tidyOn, model: tidyOn ? ppModel("tidy") : void 0, calls: tidyOn ? "넘긴 인물마다 1회" : "호출 없음 (갱신에 얹음)", page: "set:people", to: "r:정리 방식", sure: 0, maybe: tidyOn ? 1 : 0 },
+      { name: "이미지 태그 보충", sub: "응답에 빠진 인물 이미지 태그 채우기", kind: "aux", on: assetOn, model: assetOn ? "보조" : void 0, calls: assetOn ? "1회" : basic.assetOn ? "호출 없음 (메인이 태그를 씀)" : "호출 없음 (이미지 끔)", page: "set:image", to: "r:모델", sure: assetOn ? 1 : 0, maybe: 0 },
+      { name: "괴담톡 확인", sub: "새 메시지·공지·초대", kind: "aux", on: ph.auto, model: ph.auto ? phoneModel : void 0, calls: ph.auto ? jointText("phone").calls : ph.autoOpen ? "괴담톡 열 때 1회" : "수동 (새로고침 때만)", page: "set:phone", to: "r:자동 호출", sure: ph.auto ? jointText("phone").sure : 0, maybe: 0 },
+      { name: `${BOARD_NAME.gn} 새로고침`, sub: "게시판 글·댓글·쪽지", kind: "aux", on: gn.auto, model: gn.auto ? gnetModel : void 0, calls: gn.auto ? jointText("gn").calls : gn.autoOpen ? "창 열 때 1회" : "수동 (새로고침 때만)", page: "set:net", to: "r:자동 호출", sure: gn.auto ? jointText("gn").sure : 0, maybe: 0 },
+      // 다른 게시판 셋·쇼핑몰 둘 (11-09 사용자: 괴담넷만 있고 통째로 빠져 있었다). 사이트마다 설정 변수가 따로라 그 사이트로 비춘 상태값으로 읽는다
+      ...["gal", "wpf", "sm"].map((site) => {
+        const sv = boardView(ctx2.chat, site).scriptstate;
+        const g3 = gnetSettings(sv);
+        const on3 = g3.enabled && g3.auto;
+        return { name: `${BOARD_NAME[site]} 새로고침`, sub: site === "sm" ? "매물·댓글·쪽지" : "게시판 글·댓글·쪽지", kind: "aux", on: on3, model: on3 ? id(featureModel(sv, "gn")) || mm2(g3.model) : void 0, calls: !g3.enabled ? "호출 없음 (사이트 끔)" : g3.auto ? jointText(site).calls : g3.autoOpen ? "창 열 때 1회" : "수동 (새로고침 때만)", page: "set:net", to: "r:자동 호출", sure: on3 ? jointText(site).sure : 0, maybe: 0 };
+      }),
+      { name: "관전", sub: `${VIEW_PRESETS[vw.preset]} 이어 쓰기`, kind: "aux", on: vw.auto === "turn", model: vw.auto === "turn" ? phoneModel : void 0, calls: vw.auto === "turn" ? "1회" : vw.auto === "open" ? "괴담톡 열 때 1회" : "수동 (「관전」 버튼)", page: "set:phone", to: "r:자동 호출@보기 전용 방", sure: vw.auto === "turn" ? 1 : 0, maybe: 0 },
+      { name: "위키 자동 작성", sub: "이번 턴 소재로 문서 한 편", kind: "aux", on: wikiOn, model: wikiOn ? id(featureModel(ss, "nw")) || mm2(nw.model) : void 0, calls: wikiOn ? "2회 (제목 고르기 + 본문)" : nw.auto === "open" ? "위키 열 때" : "수동", page: "set:wiki", to: "r:자동 호출", sure: wikiOn ? 2 : 0, maybe: 0 },
+      ...["cos", "bm"].map((site) => {
+        const m = mallSettings(ss, site);
+        const login = site !== "bm" || String(ss?.["$br_login"] ?? "") === "1";
+        const on3 = mallAutoTurn(ctx2.chat, site);
+        return { name: `${MALL_NAME[site]} 진열`, sub: "진열대 새로 받기", kind: "aux", on: on3, model: on3 ? mm2(m.model) : void 0, calls: !m.on ? "호출 없음 (소지품·가계부 끔)" : m.auto === "turn" ? !login ? "로그인했을 때 1회 (지금 로그아웃)" : on3 ? "1회" : "호출 없음" : m.auto === "open" ? "창 열 때 1회" : "수동 (새로고침 때만)", page: "set:shop", to: "r:자동 호출", sure: on3 ? 1 : 0, maybe: 0 };
+      })
+    ];
+    const manual = [
+      { name: "상점", sub: "진열대 받기·점원 대화", kind: "aux", on: false, model: mm2(shopSettings(ss).model), calls: "상점을 열 때·새로고침·말 걸 때", page: "set:shop", to: "r:사용", sure: 0, maybe: 0 },
+      { name: "게시판 글·댓글·쪽지", sub: "괴담넷·괴담갤·세정게·연어 마켓에서 내가 쓸 때", kind: "aux", on: false, model: "사이트별 설정", calls: "글 올리기·댓글·쪽지 보낼 때마다 1회", page: "set:net", to: "r:모델", sure: 0, maybe: 0 },
+      { name: `${MALL_NAME.cos} 문의`, sub: "운영자에게 질문", kind: "aux", on: false, model: mm2(mallSettings(ss, "cos").model), calls: "질문을 보낼 때마다 1회", page: "set:shop", to: "r:모델", sure: 0, maybe: 0 },
+      { name: "포인트몰 1:1 상담", sub: "상담사 연결·답", kind: "aux", on: false, model: mm2(mallSettings(ss, "bm").model), calls: "보낼 때마다 1회 (상담사 연결 1회 더)", page: "set:bm", to: "r:사용@1:1 상담", sure: 0, maybe: 0 },
+      // 망상홈쇼핑: 빠져 있어 그 설정 페이지 호출 줄·AI 상담 [지금 상태]에 없었다. 글은 호출 흐름 화면(flowpage.ts) 줄과 같게 (전수검사 11-13)
+      ...((hs) => [
+        { name: `${hsName()} 편성`, sub: "방송 편성 받기", kind: "aux", on: false, model: hs.on ? mm2(hs.shop.model) : void 0, calls: hs.on ? hs.auto === "open" ? "창을 열 때 1회" : "수동 (새로고침 때만)" : "호출 없음", page: "set:hs", to: "r:사용", sure: 0, maybe: 0 },
+        { name: `${hsName()} 채팅 보내기`, sub: "방송 채팅", kind: "aux", on: false, model: hs.on && hs.say ? mm2(hs.shop.model) : void 0, calls: hs.on && hs.say ? "보낼 때마다 1회" : "호출 없음", page: "set:hs", to: "r:채팅 보내기", sure: 0, maybe: 0 }
+      ])(hsSettings(ss)),
+      { name: "위키 수동", sub: "검색해서 없는 문서 쓰기", kind: "aux", on: false, model: mm2(nw.model), calls: "검색 결과가 없을 때 1회", page: "set:wiki", to: "r:모델", sure: 0, maybe: 0 },
+      { name: "괴담톡 답장", sub: "내가 보낸 메시지에 답", kind: "aux", on: false, model: phoneModel, calls: "보낼 때마다 1회", page: "set:phone", to: "r:모델", sure: 0, maybe: 0 }
+    ];
+    const map = flowTok.map;
+    if (map) {
+      for (const n3 of [...pre2, ...post, ...manual]) if (n3.name in map) n3.tok = map[n3.name];
+    }
+    const lastMain = [...traceUi.turns ?? []].reverse().find((t) => t.main?.totalTokens !== void 0)?.main;
+    if (lastMain?.totalTokens !== void 0) {
+      main2.tok = lastMain.totalTokens;
+      main2.sub = `Risu 가 응답 생성 · 마지막 요청 실측 ${lastMain.totalTokens.toLocaleString("ko-KR")}토큰`;
+    }
+    return { pre: pre2, main: main2, post, manual };
+  }
+  var flowTokState = () => ({ ready: !!flowTok.map, pending: flowTok.pending, error: flowTok.error });
+  function wa(word) {
+    const c = word.trim().slice(-1).charCodeAt(0);
+    return c >= 44032 && c <= 55203 && (c - 44032) % 28 ? "과" : "와";
+  }
+  var FLOW_BACK = '<button class="gx-mini" data-action="ed-node" data-value="manage:flow">호출 흐름 →</button>';
+  function callSummary(ctx2, page) {
+    if (page === "people") return `<p class="gw-calls">${FLOW_BACK}</p>`;
+    const { pre: pre2, post, manual } = flowNodes(ctx2);
+    if (page === "net") return "";
+    const mine3 = [...pre2, ...post, ...manual].filter((n3) => n3.page === `set:${page}`);
+    if (!mine3.length) return page === "cos" ? `<p class="gw-calls"><span class="gw-call-lead">이 기능의 호출 · 진열·문의 호출은 「상점」 페이지에서 정해요</span>${FLOW_BACK}</p>` : "";
+    const auto = mine3.filter((n3) => n3.on);
+    const sure = auto.reduce((s8, n3) => s8 + n3.sure, 0);
+    const maybe = auto.reduce((s8, n3) => s8 + n3.maybe, 0);
+    const lead = sure + maybe ? `매 턴 보조 <b>${sure}회</b>${maybe ? ` (조건에 따라 최대 ${sure + maybe}회)` : ""}` : "매 턴 자동 호출 없음";
+    const parts = mine3.map((n3) => `<span class="gw-call${n3.on && n3.sure + n3.maybe > 0 ? " on" : ""}">${esc37(n3.name)}<small>${esc37(n3.calls)}</small></span>`).join("");
+    return `<p class="gw-calls"><span class="gw-call-lead">이 기능의 호출 · ${lead}</span>${parts}${FLOW_BACK}</p>`;
+  }
+
+  // src/ui/famtable.ts
+  var esc38 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var ONOFF2 = [["1", "ON"], ["0", "OFF"]];
+  var THOUGHTS = [["off", "사용 안 함"], ["inner", "속으로만"], ["note", "적고 지움"]];
+  var text4 = (action, key, v, ph, max = 80, aria = "", busy6 = false) => `<input class="gx-search ps-text" data-change="${action}" data-key="${key}" value="${esc38(v)}" maxlength="${max}" placeholder="${esc38(ph)}"${aria ? ` aria-label="${esc38(aria)}"` : ""}${busy6 ? " disabled" : ""}>`;
+  var nm = (icon, name) => `<span class="mx-name">${icon}<span>${esc38(name)}</span></span>`;
+  var BOARD_PICK = {
+    lazy: ["1", "open", "0"],
+    mode: ["1", "2"],
+    context: ["0", "1"],
+    privacy: ["0", "1", "2", "3", "4"],
+    incoming: ["1", "0"],
+    sampling: ["1", "0"],
+    keyfigures: ["1", "0"],
+    keepown: ["1", "0"],
+    keepreplied: ["1", "0"],
+    joint: ["1", "0"],
+    storage: ["1", "0"],
+    ...Object.fromEntries(BOARD_REF_CFG.map((k) => [k, ["1", "0"]]))
+  };
+  var BOARD_TEXT = ["subject", "mood", "protagonist"];
+  function boardTable(state2, busy6 = false) {
+    const views2 = BOARD_SITES.map((s8) => boardState(state2, s8));
+    const cur = (st, k) => String(st?.[CFG(k)] ?? GN_DEFAULTS[k] ?? "");
+    const name = (s8) => nm(siteLogo(s8 === "gn" ? "gn" : s8), BOARD_NAME[s8]);
+    const L = BOARD_SITES.map(name);
+    const each = (f) => BOARD_SITES.map((site, i) => f(views2[i], site));
+    const PRIV = [["0", "이목집중"], ["1", "자율"], ["2", "약보호"], ["3", "강보호"], ["4", "언급금지"]];
+    const call = { title: "호출", groups: [
+      { name: "자동 호출", opts: ["수동", "창을 열 때", "매 턴"], kind: "one" },
+      { name: "모델", opts: ["메인", "보조"], kind: "one" },
+      { name: "메인 요청", opts: ["컨텍스트 포함"], kind: "check" }
+    ], marks: each((st) => {
+      const s8 = gnetSettings(st);
+      return [!s8.auto && !s8.autoOpen, s8.autoOpen, s8.auto, s8.model === "main", s8.model !== "main", s8.context];
+    }), acts: each((st, site) => {
+      const b = `b:${site}`;
+      return [`${b}:lazy=1`, `${b}:lazy=open`, `${b}:lazy=0`, `${b}:mode=1`, `${b}:mode=2`, `${b}:context=${gnetSettings(st).context ? "1" : "0"}`];
+    }), foot: "" };
+    const priv = {
+      title: "사생활",
+      groups: [{ name: "", opts: PRIV.map(([, l]) => l), kind: "one" }],
+      marks: each((st) => PRIV.map(([v]) => v === gnetSettings(st).privacy)),
+      acts: each((_, site) => PRIV.map(([v]) => `b:${site}:privacy=${v}`)),
+      foot: helpBox("사생활은 게시판 사람들이 「보호 대상」을 얼마나 입에 올리는지예요.", [
+        ["이목집중", "목격담과 소문이 자주 올라와요."],
+        ["자율", "아무도 못 본 사적인 일만 빼요. 큰 일의 여파는 가벼운 소문으로 나와요."],
+        ["약보호", "이미 유명한 경우에만 멀리서 본 정도로 나와요."],
+        ["강보호", "평범한 사람으로 다뤄요. 세상에서 손꼽히는 인물이 아니면 평범한 목격담은 안 나와요."],
+        ["언급금지", "본인 이야기는 전혀 없고 행동의 결과만 나와요."]
+      ])
+    };
+    const tx = (st, s8, k, aria) => {
+      const v = cur(st, k);
+      return text4("fam-text", `b:${s8}:${k}`, v === "-" ? "" : v, "", 200, `${BOARD_NAME[s8]} ${aria}`, busy6);
+    };
+    const texts = mxGrid([{ name: "주제" }, { name: "분위기·말투" }, { name: "보호 대상" }], BOARD_SITES.map((s8, i) => ({
+      label: name(s8),
+      cells: [tx(views2[i], s8, "subject", "주제"), tx(views2[i], s8, "mood", "분위기·말투"), tx(views2[i], s8, "protagonist", "보호 대상")]
+    })), helpBox("", [
+      ["주제", "올라올 글의 주제예요. 비우면 세계관에 맞는 여러 주제가 올라와요."],
+      ["분위기·말투", "글쓴이들의 말투예요. 비우면 그 게시판 지침의 기본 말투예요."],
+      ["보호 대상", "「사생활」이 지켜 줄 사람의 이름이에요. 비우면 주인공이에요."]
+    ]), "주제와 말투");
+    const cnt = (n3, k) => ({ n: n3, lo: COUNT_RANGE[k][0], hi: COUNT_RANGE[k][1] });
+    const amount = {
+      title: "생성량",
+      groups: [
+        { name: "게시글 수", opts: ["최소", "최대"], kind: "num" },
+        { name: "새 글 댓글 수", opts: ["최소", "최대"], kind: "num" },
+        { name: "활동 댓글 수", opts: ["최소", "최대"], kind: "num" },
+        { name: "선쪽지", opts: ["받기", "확률(%)"], kind: "check" }
+      ],
+      marks: each((st) => {
+        const s8 = gnetSettings(st);
+        const c = s8.counts;
+        return [cnt(c.post[0], "post"), cnt(c.post[1], "post"), cnt(c.cmt[0], "cmt"), cnt(c.cmt[1], "cmt"), cnt(c.act[0], "act"), cnt(c.act[1], "act"), s8.incoming, s8.incoming ? { n: s8.incomingChance, lo: 0, hi: 100 } : null];
+      }),
+      acts: each((st, site) => {
+        const b = `b:${site}`;
+        return [`${b}:post_min`, `${b}:post_max`, `${b}:cmt_min`, `${b}:cmt_max`, `${b}:act_min`, `${b}:act_max`, `${b}:incoming=${gnetSettings(st).incoming ? "0" : "1"}`, `${b}:incoming_chance`];
+      }),
+      foot: helpBox("", [
+        ["게시글 수", "새로고침 한 번에 새로 만드는 글의 수예요. 많을수록 토큰을 더 써요."],
+        ["새 글 댓글 수", "새로 만드는 글마다 달리는 댓글의 수예요."],
+        ["활동 댓글 수", "글 쓰기·댓글 달기·글 하나 새로고침 때 지난 글에 새로 붙는 댓글의 수예요."],
+        ["선쪽지 받기", "켜면 게시판 사람이 먼저 쪽지를 보낼 수 있어요."],
+        ["선쪽지 확률", "새로고침 한 번에 선쪽지가 올 확률이에요."]
+      ])
+    };
+    const refs = {
+      title: "넘길 내용",
+      groups: [{ name: "", opts: refChipLabels("gn"), kind: "check" }],
+      marks: each((st) => REF_CHIP_KEYS.map((k) => advValue(st, "gn", k) === "1")),
+      acts: each((st, site) => REF_CHIP_KEYS.map((k) => `b:${site}:adv_${k}=${advValue(st, "gn", k) === "1" ? "0" : "1"}`)),
+      foot: helpBox("", [
+        ["상시 로어북", "조건 없이 늘 넘기는 로어북이에요."],
+        ["관련 로어북", "지금 하는 작업과 최근 챗로그에 이름이 나온 로어북이에요. 토큰을 더 써요."],
+        ["2차 참조", "관련 로어북의 글 안에 이름이 나온 다른 로어북이에요. 토큰을 더 써요."]
+      ])
+    };
+    const byFn = fnGrids("gn", views2[0], {
+      refs: helpBox("게시판 표와 기능 표에서 모두 켠 것만 넘겨요."),
+      amount: helpBox("요청 토큰 상한을 넘으면 2차 참조, 관련 로어북, 오래된 챗로그 순으로 줄여요.", [
+        ["챗로그", "0이면 안 봐요."],
+        ["지난 기록", "그 요청을 보낼 때 모델에 보여 주는 최근 기록의 수예요. 새로고침과 글 쓰기는 글, 댓글은 댓글, 쪽지는 쪽지예요."],
+        ["요청 토큰 상한", "0이면 생성 공통 값을 따라요."]
+      ])
+    }, busy6);
+    const st0 = views2[0];
+    const N2 = (k) => advCtl("gn", k, st0);
+    const set2 = numSet;
+    const SW = (k) => setSeg("adv-set", `gn:${k}`, advValue(st0, "gn", k) === "1" ? "1" : "0", ONOFF2, busy6);
+    const C3 = (k, on3) => setSeg("fam-set", `b:gn:${k}`, on3 ? "1" : "0", ONOFF2, busy6);
+    const R = (label2, ctl, lead = "", items = []) => setRow(label2, ctl, lead || items.length ? helpBox(lead, items) : "");
+    const ret = gnetRetention(st0);
+    const s0 = gnetSettings(st0);
+    const write = setGroup("모델이 쓰는 방식", [
+      R("한 번에 요청", setSeg("fam-set", "b:gn:joint", jointOn(state2) ? "1" : "0", ONOFF2, busy6), "켜면 자동 호출이 「매 턴」이고 모델이 같은 게시판과 괴담톡을 한 요청으로 묶어요. 괴담톡 설정의 같은 줄과 한 값이에요."),
+      R("생각 단계", advCtl("gn", "thoughts", st0), "모델이 결과를 쓰기 전에 상황을 먼저 정리하게 해요.", [
+        ["속으로만", "정리하되 적지 않게 해요."],
+        ["적고 지움", "짧게 적게 한 뒤 플러그인이 지워요. 응답이 느려져요."]
+      ]),
+      R("다양성 강화", C3("sampling", s0.sampling), "켜면 모델이 게시판 두 벌을 쓰고 플러그인이 덜 흔한 벌을 써요. 토큰을 더 써요."),
+      R("비망록", SW("memo"), "켜면 모델 거부를 줄이는 긴 앞글을 요청마다 붙여요. 토큰을 더 써요."),
+      R("다시 보기", N2("reiterate"), "첫 응답 뒤 모델에게 지침과 형식을 지켰는지 다시 보게 하는 횟수예요. 1회마다 호출이 1회 늘어요."),
+      R("한 번에 받을 답글", set2([["최소", N2("replies_min")], ["최대", N2("replies")]]), "내 글이나 댓글에 한 번에 달리는 답글의 수예요."),
+      R("지난 글 활동", SW("activity"), "켜면 글 쓰기·댓글·글 하나 새로고침 요청에 게시판의 지난 글을 같이 넘겨 새 댓글과 조회·추천을 받아요. 끄면 넘기지 않아 토큰을 덜 써요.")
+    ].join(""));
+    const limit = setGroup("길이 상한", [
+      R("모델이 쓰는 글", set2([["글 본문", N2("post_tokens")], ["글 제목", N2("title_tokens")], ["댓글", N2("comment_tokens")], ["쪽지", N2("dm_tokens")]])),
+      R("쪽지에 같이 넘기는 글", set2([["붙는 글", N2("origin_tokens")], ["붙는 댓글", N2("quote_tokens")], ["이전 쪽지 한 통", N2("history_tokens")]]), "글이나 댓글을 보고 쪽지를 보낼 때 같이 넘기는 글 하나의 길이 상한이에요."),
+      R("답장에 참조할 공개 글", set2([["글", N2("dm_public")], ["글마다 댓글", N2("dm_public_comments")], ["전체 길이", N2("dm_public_chars")]]), "쪽지 답장 요청에 참고로 같이 넘기는 게시판 글의 수예요. 0이면 넘기지 않아요.", [
+        ["글마다 댓글", "글마다 같이 넘기는 최근 댓글의 수예요. 0이면 댓글은 넘기지 않아요."],
+        ["전체 길이", "글과 댓글을 모두 합친 길이의 상한이에요. 넘으면 오래된 댓글부터 빼고, 그래도 넘는 글은 넣지 않아요. 괴담톡 답장에 넣는 괴담넷 글에도 같이 적용돼요."]
+      ])
+    ].join(""));
+    const keep2 = setGroup("게시판에 남기는 것", [
+      R("주요 인물 닉네임 보존", C3("keyfigures", s0.keyFigures), "켜면 주요 인물이 쓰던 닉네임을 다음 새로고침에도 그대로 써요."),
+      R("보존할 닉네임 수", N2("keyfig_keep"), "주요 인물 닉네임을 이 수만큼 기억해요. 넘으면 오래된 것부터 지워요."),
+      R("새로고침 때 내 글 유지", C3("keepown", s0.keepOwn), "켜면 새로고침으로 글이 바뀔 때 내가 쓴 글은 남겨요."),
+      R("내 댓글 있는 글 유지", C3("keepreplied", s0.keepReplied), "켜면 내가 댓글을 단 남의 글도 남겨요."),
+      R("쪽지 자동 정리", `${setSeg("fam-set", "b:gn:storage", ret.auto ? "1" : "0", ONOFF2, busy6)}${ret.auto ? numCtl("b:gn:dmkeep", { n: ret.limit, lo: 1, hi: STORAGE_MAX }, "남길 쪽지", "통", busy6) : ""}`, "켜면 상대마다 최근 쪽지를 이 수만큼만 남기고 오래된 것은 지워요."),
+      R("선쪽지 뒤 쉬는 턴", N2("cooldown"), "선쪽지를 받은 뒤 새 선쪽지가 오지 않는 턴의 수예요."),
+      R("선쪽지에 참조할 받은 쪽지", N2("incoming_prev"), "같은 쪽지가 또 오지 않게 선쪽지 요청에 같이 넘기는 받은 쪽지의 수예요. 0이면 전부 넘겨요.")
+    ].join(""));
+    const attach = setGroup("메인 요청에 붙이는 것", [
+      R("붙일 것", advChipsCtl("gn", ["ctx_posts", "ctx_dms", "ctx_own"], st0), "「내가 쓴 것만」을 켜면 내가 쓴 글과 내가 댓글을 단 글만 붙여요. 위 격자에서 「컨텍스트 포함」을 켠 게시판에만 붙어요."),
+      R("장면에 나온 것만 고르기", SW("ctx_focus"), "켜면 아래 「늘 붙일 최근 것」은 늘 붙이고, 나머지는 지금 장면에 이름이 나온 것만 붙여요."),
+      R("늘 붙일 최근 것", set2([["게시글", N2("ctx_recent_posts")], ["쪽지", N2("ctx_recent_dms")]]), "「장면에 나온 것만 고르기」를 켰을 때 장면과 상관없이 붙이는 가장 새 글과 쪽지의 수예요."),
+      R("최대 양", set2([["게시글", N2("ctx_post_count")], ["글마다 댓글", N2("ctx_comment_count")], ["쪽지", N2("ctx_dm_count")], ["토큰 상한", N2("ctx_tokens")]]), "토큰 상한을 넘는 것은 빼요.")
+    ].join(""));
+    return `<h2 class="fam-h">게시판마다 따로 정하는 값</h2>${ckWide([call, priv], L, busy6)}${texts}${ckWide([amount], L, busy6)}${ckWide([refs], L, busy6)}<h2 class="fam-h">기능마다 따로 정하는 값</h2>${byFn}<h2 class="fam-h">네 게시판이 같이 쓰는 값</h2>${write}${limit}${keep2}${attach}`;
+  }
+  async function famAction(action, value, env3) {
+    if (action !== "fam-set" && action !== "fam-num" && action !== "fam-text") return false;
+    const m = /^([bs]):([a-z]+):([a-zA-Z_]+)=([\s\S]*)$/.exec(value ?? "");
+    if (!m) return env3.render(), true;
+    const [, fam, who, key, raw] = m;
+    if (fam === "s") return isShopCol(who) ? env3.shop(who, key, action === "fam-text" ? raw : raw.trim()) : (env3.render(), true);
+    if (!isBoardSite(who)) return env3.render(), true;
+    if (action === "fam-text") return BOARD_TEXT.includes(key) ? env3.board("gn-text", `${key}=${raw}`, who) : (env3.render(), true);
+    if (action === "fam-set") return BOARD_PICK[key]?.includes(raw) ? env3.board("gn-cfg", `${key}=${raw}`, who) : (env3.render(), true);
+    const n3 = Math.round(Number(raw));
+    if (raw.trim() === "" || !Number.isFinite(n3)) return env3.render(), true;
+    if (/^(post|cmt|act)_(min|max)$/.test(key)) return env3.board("gn-count", `${key}=${n3}`, who);
+    if (key === "incoming_chance") return env3.board("gn-chance", String(Math.max(0, Math.min(100, n3))), who);
+    if (key === "dmkeep") return env3.board("gn-keep", String(Math.max(1, Math.min(STORAGE_MAX, n3))), who);
+    return env3.render(), true;
+  }
+  var shopRows = () => [
+    { id: "shop", name: "기본 상점", icon: ICONS.swap },
+    { id: "cos", name: MALL_NAME.cos, icon: siteLogo("cos") },
+    { id: "bm", name: MALL_NAME.bm, icon: siteLogo("bm") },
+    { id: "hs", name: hsName(), icon: siteLogo("hs") }
+  ];
+  var SHOP_COLS = ["shop", "cos", "bm", "hs"];
+  var isShopCol = (v) => SHOP_COLS.includes(v);
+  function shopTable(vars, busy6 = false) {
+    const v = vars;
+    const rows3 = shopRows();
+    const hsN = hsName();
+    const hs = hsSettings(v);
+    const set2 = { shop: shopSettings(v), cos: mallSettings(v, "cos"), bm: mallSettings(v, "bm"), hs: hs.shop };
+    const blocked2 = shopBlocked(v);
+    const autoOf = { cos: mallSettings(v, "cos").auto, bm: mallSettings(v, "bm").auto, hs: hs.auto };
+    const L = rows3.map(({ name, icon }) => nm(icon, name));
+    const each = (f) => rows3.map(({ id: id2 }) => f(id2, set2[id2]));
+    const size = (n3) => ({ n: n3, lo: SHOP_SIZE_LO, hi: SHOP_SIZE_HI });
+    const call = { title: "호출", groups: [
+      { name: "사용", opts: ["켬"], kind: "check" },
+      { name: "자동 호출", opts: ["수동", "창을 열 때", "매 턴"], kind: "one" },
+      { name: "모델", opts: ["메인", "보조"], kind: "one" }
+    ], marks: each((id2, s8) => {
+      const a = autoOf[id2];
+      return [
+        // 기본 상점은 소지품·가계부가 꺼지면 같이 꺼진다 (그때는 꺼진 채 잠긴 칸)
+        id2 === "shop" ? blocked2 ? false : s8.on : id2 === "hs" ? hs.on : null,
+        id2 === "shop" ? null : a === "manual",
+        id2 === "shop" ? null : a === "open",
+        id2 === "shop" || id2 === "hs" ? null : a === "turn",
+        s8.model === "main",
+        s8.model !== "main"
+      ];
+    }), acts: each((id2, s8) => {
+      const b = `s:${id2}`;
+      return [
+        id2 === "shop" && blocked2 ? null : `${b}:on=${(id2 === "hs" ? hs.on : s8.on) ? "0" : "1"}`,
+        `${b}:auto=manual`,
+        `${b}:auto=open`,
+        `${b}:auto=turn`,
+        `${b}:model=main`,
+        `${b}:model=aux`
+      ];
+    }), foot: "" };
+    const shelf2 = {
+      title: "진열대",
+      groups: [
+        { name: "상품 수", opts: ["최소", "최대"], kind: "num" },
+        { name: "구획", opts: ["켬"], kind: "check" }
+      ],
+      marks: each((id2, s8) => [size(s8.size[0]), size(s8.size[1]), id2 === "hs" ? null : s8.feature]),
+      acts: each((id2, s8) => [`s:${id2}:min`, `s:${id2}:max`, `s:${id2}:feature=${s8.feature ? "0" : "1"}`]),
+      foot: helpBox(`「–」는 그곳에 없는 값이에요. 쇼핑몰 둘은 소지품과 가계부가 켜져 있으면 늘 열리고, 기본 상점은 아래 「열리는 조건」을 따라요.${blocked2 ? ` 지금은 ${blocked2 === "both" ? "소지품과 가계부가" : blocked2 === "items" ? "소지품이" : "가계부가"} 꺼져 있어 기본 상점도 꺼져 있어요.` : ""}`, [
+        ["상품 수", "한 번에 받는 물건의 수예요. 망상홈쇼핑은 한 편성의 상품 수예요."],
+        ["구획", "켜면 눈에 띄는 물건을 따로 받아 딱지를 붙여 보여 줘요."]
+      ])
+    };
+    const price = mxGrid(
+      [{ name: "모델에 알려 줄 말" }],
+      rows3.map(({ id: id2, name, icon }) => ({ label: nm(icon, name), cells: [text4("fam-text", `s:${id2}:price`, set2[id2].price, "", 80, `${name} 값 기준`, busy6)] })),
+      helpBox("물건값을 매길 때 모델이 따를 기준이에요. 비우면 그곳에 어울리는 값으로 매겨요."),
+      "값 기준"
+    );
+    const places = rows3.filter((r) => SHOP_PLACES.includes(r.id));
+    const hsRow = rows3.find((r) => r.id === "hs");
+    const hm = hsMainSettings(v);
+    const HS_EXTRA = [["show", "방송 내용"], ["chat", "시청자 채팅"], ["say", "내 채팅"], ["aside", "스티커·상담원"]];
+    const hsCell = (k) => hm.kinds.includes(k);
+    const hsAct = (k) => hm.on ? `s:hs:main_hs_${k}=${hsCell(k) ? "0" : "1"}` : null;
+    const attach = {
+      title: "메인 요청에 붙이는 것",
+      groups: [
+        { name: "메인 요청", opts: ["컨텍스트 포함"], kind: "check" },
+        { name: "붙일 것", opts: [...SHOP_MAIN_ALL.map((k) => SHOP_MAIN_LABEL[k]), ...HS_EXTRA.map(([, l]) => l)], kind: "check" }
+      ],
+      marks: [
+        ...places.map(({ id: id2 }) => {
+          const m = shopMain(v, id2);
+          return [m.on, ...SHOP_MAIN_ALL.map((k) => SHOP_MAIN_KINDS[id2].includes(k) ? m.kinds[k] : null), ...HS_EXTRA.map(() => null)];
+        }),
+        [hm.on, ...SHOP_MAIN_ALL.map((k) => k === "buy" ? hsCell("buy") : null), ...HS_EXTRA.map(([k]) => hsCell(k))]
+      ],
+      acts: [
+        ...places.map(({ id: id2 }) => {
+          const m = shopMain(v, id2);
+          return [`s:${id2}:main=${m.on ? "0" : "1"}`, ...SHOP_MAIN_ALL.map((k) => m.on && SHOP_MAIN_KINDS[id2].includes(k) ? `s:${id2}:main_${k}=${m.kinds[k] ? "0" : "1"}` : null), ...HS_EXTRA.map(() => null)];
+        }),
+        [`s:hs:main=${hm.on ? "0" : "1"}`, ...SHOP_MAIN_ALL.map((k) => k === "buy" ? hsAct("buy") : null), ...HS_EXTRA.map(([k]) => hsAct(k))]
+      ],
+      foot: helpBox("켜면 그 상점에서 한 일을 다음 메인 요청에 한 번 붙여요. 망상홈쇼핑은 다음 편성을 받기 전까지 본 방송 기록을 메인 요청마다 붙여요. 본문을 상점 모델에 넘기는 「맥락 반영」과는 방향이 반대예요.", [
+        ["문의", "주인이나 운영자와 나눈 말이에요. 기본 상점은 거래가 끊긴 일도, 우주 쇼핑몰은 문의 창에서 물건을 판 일도 여기에 들어요."],
+        ["맞춤 주문", "주문한 일, 완성된 일, 받은 물건이에요. 완성된 일은 우주 쇼핑몰 설정의 「완성 알림」이 「카드 + 메인 요청」일 때만 붙어요."],
+        ["방송 내용", "망상홈쇼핑에서 본 편성 제목, 상품, 진행자 대사예요."],
+        ["내 채팅", "방송 채팅에 내가 친 말과 거기에 돌아온 반응이에요."],
+        ["스티커·상담원", "망상홈쇼핑에서 들춰 본 스티커 밑 글과 전화 주문 상담원의 말이에요."],
+        ["진열", "사지 않은 물건까지 진열대 전체와, 진열과 함께 온 주인의 말이나 쇼핑몰 공지예요. 쇼핑몰은 진열을 받은 턴에만 붙어요."]
+      ])
+    };
+    const numBox2 = (key, n3, lo, hi, unit, label2) => `<div class="st-step adv-step${stepSize(hi, unit, "제한 없음")}"><button class="gx-step" data-action="fam-num" data-value="${key}=${Math.max(lo, n3 - stepOf(hi))}" ${n3 <= lo || busy6 ? "disabled" : ""} aria-label="최대 양 ${label2} 줄이기">−</button><input class="adv-val" ${numType(hi)} min="${lo}" max="${hi}" step="${stepOf(hi)}" data-change="fam-num" data-key="${key}" value="${n3 === 0 ? "" : numTxt(n3, hi)}" placeholder="제한 없음" aria-label="최대 양 ${label2}"${busy6 ? " disabled" : ""}>${n3 === 0 ? "" : `<span>${unit}</span>`}<button class="gx-step" data-action="fam-num" data-value="${key}=${Math.min(hi, n3 + stepOf(hi))}" ${n3 >= hi || busy6 ? "disabled" : ""} aria-label="최대 양 ${label2} 늘리기">+</button></div>`;
+    const HT = HS_MAIN_SET.tokens;
+    const HU = HS_MAIN_SET.turns;
+    const attachMax = setGroup("", setRow("최대 양", numSet([["대화", numBox2("s:shop:main_lines", shopMainLines(v), SHOP_MAIN_LINES.min, SHOP_MAIN_LINES.max, "줄", "대화")], [hsN, numBox2("s:hs:main_tokens", hm.tokens, HT.lo, HT.hi, HT.unit, hsN)], ["시청 기록", numBox2("s:hs:main_turns", hm.turns, HU.lo, HU.hi, HU.unit, "시청 기록")]]), helpBox("", [
+      ["대화", "「문의」와 「1:1 상담」으로 붙이는 대화의 줄 수예요. 넘으면 최근 줄만 붙여요."],
+      [hsN, "망상홈쇼핑에서 붙이는 것의 토큰 상한이에요. 넘으면 오래된 시청자 채팅부터 빼요."],
+      ["시청 기록", "망상홈쇼핑 방송을 마지막으로 본 턴부터 몇 턴 동안 붙일지예요. 비우면 다음 편성을 받을 때까지 붙여요."]
+    ])));
+    const GIVE_OPTS = ["봇 설명", "작가 노트", "페르소나", "상시 로어북", "관련 로어북", "2차 참조", "맥락 반영"];
+    const giveRows = rows3.filter((r) => GIVE_SHOPS.includes(r.id));
+    const giveShop = {
+      title: "넘길 내용",
+      groups: [{ name: "", opts: GIVE_OPTS, kind: "check" }],
+      marks: giveRows.map((r) => SHOP_GIVE_KEYS.map((k) => shopGiveOn(v, r.id, k))),
+      acts: giveRows.map((r) => SHOP_GIVE_KEYS.map((k) => `s:${r.id}:${k === "ctx" ? "ctx" : `give_${k}`}=${shopGiveOn(v, r.id, k) ? "0" : "1"}`)),
+      foot: helpBox("가게 표와 기능 표에서 모두 켠 것만 넘겨요.", [
+        ["상시 로어북", "조건 없이 늘 넘기는 로어북이에요."],
+        ["관련 로어북", "가게 이름과 최근 챗로그에 이름이 나온 로어북이에요. 토큰을 더 써요."],
+        ["2차 참조", "관련 로어북의 글 안에 이름이 나온 다른 로어북이에요. 토큰을 더 써요."],
+        ["맥락 반영", "켜면 최근 챗로그, 상태창, 진행 중인 괴이, 신분을 같이 넘겨 지금 상황에 맞는 물건이 나와요."]
+      ])
+    };
+    const FL = SHOP_FNS.map((f) => nm("", f.label));
+    const giveFn = {
+      title: "넘길 내용",
+      groups: [{ name: "", opts: GIVE_OPTS, kind: "check" }],
+      marks: SHOP_FNS.map((f) => SHOP_GIVE_KEYS.map((k) => shopFnOn(v, f.key, k))),
+      acts: SHOP_FNS.map((f) => SHOP_GIVE_KEYS.map((k) => `s:shop:fn_${f.key}_${k}=${shopFnOn(v, f.key, k) ? "0" : "1"}`)),
+      foot: helpBox("가게 표와 기능 표에서 모두 켠 것만 넘겨요.")
+    };
+    const AMT = ["turns", "refs", "talk"];
+    const amountFn = {
+      title: "넘길 양",
+      groups: AMT.map((k) => ({ name: SHOP_AMOUNTS[k].label, opts: [SHOP_AMOUNTS[k].unit], kind: "num" })),
+      marks: SHOP_FNS.map((f) => AMT.map((k) => shopAmountNone(f.key, k) ? null : { n: shopFnNum(v, f.key, k), lo: SHOP_AMOUNTS[k].min, hi: SHOP_AMOUNTS[k].max })),
+      acts: SHOP_FNS.map((f) => AMT.map((k) => shopAmountNone(f.key, k) ? null : `s:shop:fn_${f.key}_${k}`)),
+      foot: helpBox("", [
+        ["챗로그", "맥락 반영이 켜져 있을 때 넘기는 최근 턴의 수예요. 꺼져 있어도 관련 로어북을 고를 때는 이만큼 읽어요."],
+        ["참조 로어북", "관련 로어북과 2차 참조 가운데 넘기는 수예요."],
+        ["지난 대화", "진열을 새로 받거나 문의할 때 같이 넘기는 지난 문의 대화의 줄 수예요. 넘으면 최근 줄만 넘겨요."]
+      ])
+    };
+    const fnPart = `<h2 class="fam-h">기능마다 따로 정하는 값</h2><div class="fam-wide">${ckWide([giveFn], FL, busy6)}${ckWide([amountFn], FL, busy6)}</div>`;
+    const s0 = set2.shop;
+    const R = (label2, ctl, lead = "", items = []) => setRow(label2, ctl, lead || items.length ? helpBox(lead, items) : "");
+    const sw2 = (k, on3) => setSeg("fam-set", `s:shop:${k}`, on3 ? "1" : "0", ONOFF2, busy6);
+    const write = setGroup("모델이 쓰는 방식", [
+      R("생각 단계", setSeg("fam-set", "s:shop:thoughts", s0.thoughts, THOUGHTS, busy6), "모델이 결과를 쓰기 전에 상황을 먼저 정리하게 해요.", [
+        ["속으로만", "정리하되 적지 않게 해요."],
+        ["적고 지움", "짧게 적게 한 뒤 플러그인이 지워요. 응답이 느려져요."]
+      ]),
+      R("다양성 강화", sw2("diverse", s0.diverse), "켜면 싼 것, 비싼 것, 흔한 것, 특이한 것을 섞어 받아요."),
+      R("지난 목록 피하기", sw2("prev", s0.avoidPrev), "켜면 지난번에 나온 물건을 다시 내지 않게 해요."),
+      R("문의로 물건 바꾸기", sw2("talkstock", s0.talkStock), "끄면 주인이나 운영자가 말로 물건을 더하거나 진열을 새로 짜지 않아요. 문의 요청에서 진열 규칙이 빠져 요청이 짧아져요. 값 흥정은 그대로 돼요."),
+      R("진열대 물건 수", numCtl("s:shop:shelf", { n: s0.shelf, lo: SHOP_SHELF_LO, hi: SHOP_SHELF_HI }, "진열대 물건 수", "개", busy6), "진열대에 남기는 물건 수예요. 파는 물건과 산 물건을 따로 이 수만큼 남겨요.")
+    ].join(""));
+    const lim = shopLimits(v);
+    const limBox = (k, label2) => {
+      const l = SHOP_LIMITS[k];
+      return [label2, numCtl(`s:shop:limit_${k}`, { n: lim[k], lo: l.min, hi: l.max }, label2, l.unit, busy6)];
+    };
+    const ordBox = (id2, n3) => {
+      const name = rows3.find((r) => r.id === id2).name;
+      return [name, numCtl(`s:${id2}:keep_orders`, { n: n3, lo: ORDERS_KEEP_RANGE.min, hi: ORDERS_KEEP_RANGE.max }, `${name} 주문 기록`, "건", busy6)];
+    };
+    const keepPart = setGroup("보관하는 양", [
+      R("기록", numSet([limBox("prev", "지난 목록"), limBox("sales", "판매 기록"), limBox("notes", "견적·정보"), limBox("talk", "문의 대화")]), `기본 상점과 쇼핑몰 둘이 상점마다 남겨 두는 기록의 수예요. 넘으면 오래된 것부터 지워요. ${hsN}에는 닿지 않아요. 거기는 ${hsN} 설정의 「기억하는 지난 상품 수」·「통화 기록 줄 수」를 따로 써요.`, [
+        ["지난 목록", "「지난 목록 피하기」에 쓰는 지난 물건 이름의 수예요."],
+        ["판매 기록", "내가 가게에 판 물건의 기록이에요."],
+        ["견적·정보", "맞춤 주문 견적과 산 정보를 각각 이만큼 남겨요."],
+        ["문의 대화", "주인이나 운영자와 나눈 대화의 줄 수예요. 「지난 대화」로 넘기는 양은 이 수를 넘지 못해요."]
+      ]),
+      R("주문 기록", numSet([ordBox("cos", cosOrdersKeep(v)), ordBox("bm", bmOrdersKeep(v))]), "「주문 조회」에 남겨 두는 주문의 수예요. 넘으면 이미 받은 주문부터 지우고, 아직 받지 않은 주문은 지우지 않아요."),
+      R("참고 글 길이", numSet([limBox("wiki", "위키 문서"), limBox("report", "사건 보고")]), "상점 모델에 넘기는 참고 글의 길이예요. 넘는 부분은 잘라요. 길수록 토큰을 더 써요.", [
+        ["위키 문서", "가게 이름과 같은 위키 문서예요."],
+        ["사건 보고", "진행 중인 괴이와 사건의 보고예요. 「맥락 반영」이 켜져 있을 때 넘겨요."]
+      ])
+    ].join(""));
+    const note2 = blocked2 ? `<p class="gx-hint">${blocked2 === "both" ? "소지품과 가계부가" : blocked2 === "items" ? "소지품이" : "가계부가"} 꺼져 있어 기본 상점과 쇼핑몰 둘을 쓸 수 없어요. 산 물건은 소지품에, 돈은 가계부로 오가서 둘 다 켜져 있어야 해요.</p>` : "";
+    const own2 = s0.on ? `<h2 class="fam-h">기본 상점에만 있는 값</h2>${setGroup("", R("거래 끊음", sw2("kick", s0.kick), "켜면 주인이 모욕이나 끝없는 흥정에 거래를 끊을 수 있어요."))}` : "";
+    return `${note2}<h2 class="fam-h">상점마다 따로 정하는 값</h2><div class="fam-wide">${ckWide([call, shelf2], L, busy6)}${price}${ckWide([giveShop], giveRows.map(({ name, icon }) => nm(icon, name)), busy6)}${ckWide([attach], [...places, hsRow].map(({ name, icon }) => nm(icon, name)), busy6)}${attachMax}</div>${fnPart}<h2 class="fam-h">네 곳이 같이 쓰는 값</h2>${write}${keepPart}${own2}`;
+  }
+
+  // src/ui/editor/flowpage.ts
+  var esc39 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var ONOFF3 = [["1", "ON"], ["0", "OFF"]];
+  var MODEL2 = [["main", "메인 모델"], ["aux", "보조 모델"]];
+  var MODEL3 = [["same", "갱신과 같게"], ["main", "메인 모델"], ["aux", "보조 모델"]];
+  var fmt2 = (v) => v.toLocaleString("ko-KR");
+  var FLOW_DO = "fl-do";
+  var pick4 = (id2, label2, cur, opts, to, hide = false) => ({ id: id2, label: label2, kind: "pick", cur, opts, act: (v) => [to(v)], hide });
+  var sw = (id2, label2, on3, to) => pick4(id2, label2, on3 ? "1" : "0", ONOFF3, to);
+  var doBtn = (cls, a, on3, text5, more = "") => `<button class="${cls}${on3 ? " on" : ""}" data-action="${FLOW_DO}" data-value="${esc39(a)}" aria-pressed="${on3}"${more}>${text5}</button>`;
+  function ctlHtml(c, aria) {
+    if (c.kind === "step") {
+      const n3 = Number(c.cur) || 0;
+      const hi = c.hi ?? n3;
+      const b = (to, sign, word, off) => `<button class="gx-step" data-action="${FLOW_DO}" data-value="${esc39(c.act(String(to))[0] ?? "")}" ${off ? "disabled" : ""} aria-label="${esc39(aria)} ${word}">${sign}</button>`;
+      const mid = c.inp ? `<input class="adv-val" ${numType(hi)} min="${c.lo ?? 0}" max="${hi}" step="${stepOf(hi)}" data-change="${FLOW_DO}" data-key="${esc39(c.inp)}" value="${n3 === 0 && c.zero ? "" : numTxt(n3, hi)}"${c.zero ? ` placeholder="${esc39(c.zero)}"` : ""} aria-label="${esc39(aria)}">${c.unit && !(n3 === 0 && c.zero) ? `<span>${esc39(c.unit)}</span>` : ""}` : `<b>${esc39(n3 === 0 && c.zero ? c.zero : `${n3}${c.unit ?? ""}`)}</b>`;
+      return `<div class="st-step${c.inp ? ` adv-step${stepSize(hi, c.unit ?? "", c.zero ?? "")}` : stepSizeText(`${hi}${c.unit ?? ""}`, c.zero ?? "")}">${b(Math.max(c.lo ?? 0, n3 - stepOf(hi)), "−", "줄이기", n3 <= (c.lo ?? 0))}${mid}${b(Math.min(hi, n3 + stepOf(hi)), "+", "늘리기", n3 >= hi)}</div>`;
+    }
+    const opts = c.opts ?? [];
+    if (isOnOff(opts)) {
+      const on3 = c.cur === "1";
+      return switchHtml({ action: FLOW_DO, value: c.act(on3 ? "0" : "1")[0], on: on3, label: aria });
+    }
+    return `<div class="gx-segs gx-segs-sm">${opts.map(([v, l]) => doBtn("gx-seg", c.act(v)[0], c.cur === v, esc39(l))).join("")}</div>`;
+  }
+  var go2 = (g3) => g3 ? `<button class="gx-mini fl-go" data-action="ed-flow-go" data-value="${esc39(g3[0])}|${esc39(g3[1])}">설정 →</button>` : "";
+  function lastTurn() {
+    return [...traceUi.turns ?? []].reverse().find((t) => t.main || t.calls.some((c) => c.phase !== "manual"));
+  }
+  function real(match) {
+    const t = lastTurn();
+    if (!t) return "";
+    const cs = t.calls.filter((c) => c.phase !== "manual" && match(baseLabel(c.label)));
+    if (!cs.length) return "";
+    const sent2 = cs.reduce((s8, c) => s8 + (c.requestTokens ?? 0), 0);
+    return cs.some((c) => !c.ok) ? `<em class="fl-fail" title="실패">${fmt2(sent2)}</em>` : fmt2(sent2);
+  }
+  var is = (...labels) => (l) => labels.includes(l);
+  var shown4 = (r) => r.ctls.filter((c) => !c.hide);
+  var WIDE_PX = 198;
+  var optPx = (l) => [...l].reduce((n3, ch) => n3 + (ch === " " ? 3.6 : /[0-9,.()]/.test(ch) ? 8 : 12.4), 19);
+  function wide2(c) {
+    const label2 = c.label ? optPx(c.label) - 19 + 8 : 0;
+    if (c.kind === "step") return label2 + 206 > WIDE_PX;
+    const opts = c.opts ?? [];
+    if (isOnOff(opts)) return label2 + 64 > WIDE_PX;
+    return label2 + opts.reduce((n3, [, l]) => n3 + optPx(l), 8) > WIDE_PX;
+  }
+  var pairs = (r) => shown4(r).map((c) => `<span class="fl-pair${wide2(c) ? " wide" : ""}">${c.label ? `<span class="fl-l">${esc39(c.label)}</span>` : ""}${ctlHtml(c, c.label ? `${r.name} ${c.label}` : r.name)}</span>`).join("");
+  var stat = (v) => `<div class="fl-st">${v || ""}</div>`;
+  function saidParts(calls) {
+    const m = /^(.*?)\s*\((.*)\)\s*$/.exec(calls);
+    let main2 = (m ? m[1] : calls).trim();
+    let note2 = m ? m[2].trim() : "";
+    const n3 = /^(.+?)\s+(\d+회)$/.exec(main2);
+    if (n3 && n3[1] !== "메인") {
+      main2 = n3[2];
+      note2 = [n3[1], note2].filter(Boolean).join(", ");
+    }
+    if (/호출 없음/.test(note2) && !/호출 없음/.test(main2)) {
+      note2 = main2;
+      main2 = "호출 없음";
+    }
+    return { main: main2, note: note2, none: /^(호출 없음|수동)/.test(main2) };
+  }
+  var said2 = (r) => {
+    if (!r.calls) return '<div class="fl-said"></div>';
+    const p2 = saidParts(r.calls);
+    return `<div class="fl-said${r.on && !p2.none ? " on" : ""}${p2.none ? " none" : ""}"><b>${esc39(p2.main)}</b>${p2.note ? `<small>${esc39(p2.note)}</small>` : ""}</div>`;
+  };
+  function cells(r, cols) {
+    return cols.map((g3, gi) => g3.opts.map((o, i) => {
+      const c = r.grid?.[gi];
+      const opt = c?.opts?.find(([, l]) => l === o);
+      const inner = c && opt ? doBtn("ck-m round", c.act(opt[0])[0], c.cur === opt[0], "", ` aria-label="${esc39(`${r.name} ${g3.group} ${o}`)}"`) : "";
+      return `<span class="ck-cell${i === 0 ? " ck-first" : ""}">${inner}</span>`;
+    }).join("")).join("");
+  }
+  function pcRow(r, cols) {
+    const ctl = cols ? `${cells(r, cols)}<span></span>` : `<div class="fl-ctl">${pairs(r)}</div>`;
+    const help = !cols && r.help ? `<small class="fl-help">${esc39(r.help)}</small>` : "";
+    return `<div class="fl-line fl-row${cols ? "" : " fl-plain"}${help ? " has-help" : ""}${r.on ? " on" : ""}${r.sub ? " sub" : ""}"><b class="fl-name">${esc39(r.name)}</b>${ctl}${said2(r)}${stat(r.est)}${stat(r.real)}${go2(r.go) || '<span class="fl-go"></span>'}${help}</div>`;
+  }
+  function pcHead(cols) {
+    const opts = cols.flatMap((g3) => g3.opts.map((o, i) => ({ o, first: i === 0 })));
+    const tail2 = "<span></span><span></span><span></span><span></span><span></span><span></span>";
+    return `<div class="fl-line fl-h1"><span></span>${cols.map((g3) => `<b class="ck-first" style="grid-column: span ${g3.opts.length}">${esc39(g3.group)}</b>`).join("")}${tail2}</div>
+    <div class="fl-line fl-h2"><span></span>${opts.map((c) => `<span class="${c.first ? "ck-first" : ""}">${esc39(c.o)}</span>`).join("")}${tail2}</div>`;
+  }
+  function card2(r, cols) {
+    const list4 = cols ? cols.flatMap((g3, gi) => {
+      const c = r.grid?.[gi];
+      return c ? [[g3.group === "모델" ? g3.group : "", c]] : [];
+    }) : shown4(r).map((c) => [c.label, c]);
+    const isSw = (c) => c.kind !== "step" && isOnOff(c.opts ?? []);
+    const html = ([l, c]) => ctlHtml(c, cols ? `${r.name} ${l || cols[0].group}` : l ? `${r.name} ${l}` : r.name);
+    const own2 = list4.findIndex(([l, c]) => !l && isSw(c));
+    const sw2 = own2 >= 0 ? `<span class="flc-sw">${html(list4[own2])}</span>` : "";
+    const rest = list4.filter((_, i) => i !== own2);
+    const ctl = (x) => `<div class="flc-c">${x[0] ? `<span class="flc-l">${esc39(x[0])}</span>` : ""}${html(x)}</div>`;
+    const body5 = (rest.length ? `<div class="flc-side${cols ? " row" : ""}">${rest.map(ctl).join("")}</div>` : "") + (!cols && r.help ? `<small class="fl-help">${esc39(r.help)}</small>` : "");
+    const nums = r.est || r.real ? `<div class="flc-num">예상 <b>${r.est || "–"}</b> · 지난 턴 <b>${r.real || "–"}</b></div>` : "";
+    const calls = r.calls ? `<small class="flc-calls">${esc39(r.calls)}</small>` : "";
+    return `<div class="flc${r.on ? " on" : ""}${r.sub ? " sub" : ""}"><div class="flc-top"><span class="flc-nm"><b class="fl-name">${esc39(r.name)}</b>${calls}</span>${sw2}${go2(r.go) || '<span class="fl-go"></span>'}</div>${nums}${body5}</div>`;
+  }
+  function split2(t) {
+    if (!t.cols) return { grid: [], below: t.rows, notes: [] };
+    const below = [...t.leads ?? [], ...t.rows.flatMap((r) => (r.after ?? []).map((a) => ({ ...a, sub: false, name: `${r.name} ${a.name}` })))];
+    return { grid: t.rows, below, notes: t.rows.filter((r) => r.help).map((r) => [r.name, r.help]) };
+  }
+  function table(t) {
+    const cols = t.cols ?? null;
+    const { grid, below, notes } = split2(t);
+    const hasNum = [...grid, ...below].some((r) => r.est || r.real);
+    const note2 = notes.map(([n3, h]) => `<p class="fl-gnote"><b>${esc39(n3)}</b>${esc39(h)}</p>`).join("");
+    return sameStep(`<section class="ps-group fl${cols ? ` fl-grid fl-g${cols.reduce((n3, g3) => n3 + g3.opts.length, 0)}` : ""}">${t.title ? `<h3>${esc39(t.title)}</h3>` : ""}
+    <div class="ps-rows fl-pc${hasNum ? "" : " no-num"}">${cols ? `<div class="fl-gbox">${pcHead(cols)}${grid.map((r) => pcRow(r, cols)).join("")}${note2}</div>` : ""}${below.map((r) => pcRow(r, null)).join("")}</div>
+    <div class="ps-rows fl-ph">${cols ? grid.map((r) => card2(r, cols)).join("") + note2 : ""}${below.map((r) => card2(r, null)).join("")}</div></section>`);
+  }
+  function flowView(ctx2, started) {
+    const feat = ctx2.chat.scriptstate ?? {};
+    if (started) return { feat, scope: feat, ctx: ctx2 };
+    const scope = { ...basicVars(basicDefaults(ctx2.char.globalLore)), ...getPrefs().vars ?? {} };
+    return { feat, scope, ctx: { ...ctx2, chat: { ...ctx2.chat, scriptstate: { ...scope, ...feat } } } };
+  }
+  function flowSections(real0, started) {
+    const view2 = flowView(real0, started);
+    const ctx2 = view2.ctx;
+    const fs = view2.feat;
+    const ds = view2.scope;
+    const ps = ctx2.chat.scriptstate;
+    const nodes2 = flowNodes(ctx2);
+    const { pre: pre2, post, manual, main: main2 } = nodes2;
+    const all = [...pre2, ...post];
+    const node = (name) => [...all, ...manual].find((x) => x.name === name);
+    const same4 = (t) => t.replace(/^(창|괴담톡) 열 때 1회$/, "창을 열 때 1회").replace(/^위키 열 때$/, "창을 열 때 1회");
+    const calls = (name) => same4(node(name)?.calls ?? "");
+    const est = (name) => {
+      const x = node(name);
+      return x && x.on && typeof x.tok === "number" ? fmt2(x.tok) : "";
+    };
+    const pp2 = peopleSettings(fs);
+    const pv = (k) => ppValue(fs, k);
+    const ph = phoneSettings(fs);
+    const vw = viewSettings(fs);
+    const nw = wikiSettings(fs);
+    const basic = basicSettings(ctx2.char.globalLore, ds);
+    const shop = shopSettings(ds);
+    const hs = hsSettings(ds);
+    const hsF = hsSettings(fs);
+    const desk = deskSettings(fs);
+    const gen2 = genSettings(ds);
+    const walletUsed = colConfig(ds).wallet !== "off";
+    const boards = BOARD_SITES.map((site) => ({ site, g: gnetSettings(boardView(real0.chat, site).scriptstate) }));
+    const P = (k) => (v) => `pp-set|${k}=${v}`;
+    const routerOn = pp2.on && pp2.router === "model";
+    const dirOn = pp2.on && (pp2.director === "scene" || pp2.director === "facts");
+    const updOn = pp2.on && pp2.when === "turn";
+    const tidySep = pp2.tidy === "separate";
+    const peoplePre = [
+      { name: "사용", on: pp2.on, ctls: [sw("pp.on", "", pp2.on, P("on"))], help: "응답을 읽어 인물·세력·문서 기록을 쓰는 기능이에요. 끄면 Router·Director와 메인 응답 뒤의 갱신기·정리를 모두 부르지 않아요.", go: ["set:people", "r:사용"] },
+      { name: "Router", on: routerOn, call: true, ctls: [pick4("pp.router", "방식", pp2.router, [["code", "코드가 고름"], ["model", "모델이 고름"]], P("router")), pick4("pp.model_router", "모델", pv("model_router"), MODEL3, P("model_router"), !routerOn)], calls: routerOn ? "1회" : pp2.on ? "호출 없음" : "호출 없음 (인물 기록 끔)", help: "장면에 나오는 인물을 고르는 단계예요. 모델이 고르면 호출이 1회 늘어요.", est: est("인물 Router"), real: real(is("라우터")), go: ["set:people", "r:Router"] },
+      { name: "Director", on: dirOn, call: true, ctls: [pick4("pp.director", "방식", pp2.director, [["off", "사용 안 함"], ["note", "메모형(뒤)"], ["facts", "사실형(앞)"], ["scene", "연출형(앞)"]], P("director")), pick4("pp.model_director", "모델", pv("model_director"), MODEL3, P("model_director"), !dirOn)], calls: calls("인물 Director"), help: "이번 턴에 인물이 어떻게 연기할지 지시를 만드는 단계예요. 메모형은 갱신 호출에 얹고(호출 없음), 사실형·연출형은 메인 요청 전에 따로 불러요(1회).", est: est("인물 Director"), real: real(is("디렉터")), go: ["set:people", "r:Director"] },
+      ...dirOn ? [
+        { name: "재사용", sub: true, on: pp2.directorReuse, ctls: [sw("pp.director_reuse", "", pp2.directorReuse, P("director_reuse"))], help: "장면이 그대로면 지난 지시를 다시 써요 (호출 없음).", go: ["set:people", "r:재사용"] },
+        { name: "2차 검색", sub: true, on: pp2.directorSearch, ctls: [sw("pp.director_search", "", pp2.directorSearch, P("director_search"))], help: "자료가 모자라면 Director가 채팅·로어북·위키 검색을 요청하고, 코드가 찾아 한 번 더 불러요 (그 턴만 1회 추가)", go: ["set:people", "r:2차 검색"] }
+      ] : []
+    ];
+    const mainTok = lastTurn()?.main?.totalTokens;
+    const mainRow = { name: "메인 모델", on: true, call: true, ctls: [], calls: main2.calls, est: "", real: mainTok ? fmt2(mainTok) : "", go: null };
+    const capOpts = [["5000", "5,000"], ["10000", "10,000"], ["20000", "20,000"]];
+    const cap = String(pp2.personCap);
+    const peoplePost = [
+      { name: "갱신기", on: updOn, call: true, ctls: [pick4("pp.when", "자동 호출", pp2.when, [["manual", "수동"], ["turn", "매 턴"]], P("when")), pick4("pp.model", "모델", pp2.stageModel.update, MODEL2, P("model"))], calls: calls("인물 갱신").replace(" (정리 얹음)", ""), help: "응답을 읽고 기록을 쓰는 단계예요.", est: est("인물 갱신"), real: real(is("갱신기")), go: ["set:people", "r:자동 호출"] },
+      { name: "상점 판단", sub: true, on: shopOn(ps), ctls: [pick4("shop.judge", "", shop.judge, [["auto", "자동"], ["main", "메인 모델"], ["updater", "갱신기"]], (v) => `set-shop-judge|${v}`)], calls: calls("상점 판단"), help: "지금 장면에 상점이 있는지 누가 볼지예요. 어느 쪽이어도 호출은 늘지 않아요.", go: ["set:shop", "r:판단"] },
+      { name: "정리", on: pp2.on && tidySep, call: true, ctls: [pick4("pp.tidy", "정리 방식", pp2.tidy, [["same", "같은 호출에 얹기"], ["separate", "별도 호출"]], P("tidy")), pick4("pp.model_tidy", "모델", pv("model_tidy"), MODEL3, P("model_tidy"), !tidySep)], calls: pp2.on && tidySep ? "넘긴 인물마다 1회" : "호출 없음", help: "저장 상한을 넘긴 인물의 기록을 합쳐요. 별도 호출이면 넘긴 인물마다 호출이 1회 늘어요.", est: "", real: real(is("정리")), go: ["set:people", "r:정리 방식"] },
+      { name: "인물당 저장 상한", sub: true, on: pp2.on, ctls: [pick4("pp.person_cap", "", cap, capOpts.some(([v]) => v === cap) ? capOpts : [...capOpts, [cap, fmt2(pp2.personCap)]], P("person_cap"))], help: "한 인물의 기록 글자 수예요. 넘으면 정리로 합쳐요.", go: ["set:people", "r:인물당 저장 상한"] }
+    ];
+    const imgOn = basic.assetOn && basic.assetModel === "aux";
+    const image = { name: "이미지 태그", on: imgOn, call: true, ctls: [sw("img.on", "", basic.assetOn, (v) => `set-asset|${v}`), pick4("img.model", "모델", basic.assetModel, MODEL2, (v) => `set-asset-model|${v}`)], calls: imgOn ? "1회" : basic.assetOn ? "호출 없음" : "호출 없음 (이미지 끔)", help: "본문에 등장하는 캐릭터의 등록 이미지를 표시하도록 이미지 태그를 적어요. 메인 모델은 본문과 함께 적고, 보조 모델은 응답이 끝난 뒤 한 번 더 불러 태그를 보충해요.", est: est("이미지 태그 보충"), real: real(is("이미지 태그 보충")), go: ["set:image", "r:사용"] };
+    const joint = { name: "한 번에 요청", on: jointOn(fs), ctls: [sw("net.joint", "", jointOn(fs), (v) => `fam-set|b:gn:joint=${v}`)], help: "켜면 자동 호출이 「매 턴」이고 모델이 같은 게시판과 괴담톡을 한 요청으로 묶어요.", go: ["set:net", "r:한 번에 요청"] };
+    const COLS = [{ group: "자동 호출", opts: ["수동", "창을 열 때", "매 턴"] }, { group: "모델", opts: ["메인", "보조"] }];
+    const auto3 = (id2, cur, vals, to) => pick4(id2, "자동 호출", cur, COLS[0].opts.map((o, i) => [vals[i], o]), to);
+    const model2 = (id2, cur, vals, to) => pick4(id2, "모델", cur, COLS[1].opts.map((o, i) => [vals[i], o]), to);
+    const jointFirst = (name) => (l) => l.endsWith(" 통합") && l.split(" ")[0].split("+")[0] === name;
+    const wikiOn = nw.auto === "turn";
+    const grid = [
+      {
+        name: "괴담톡",
+        on: ph.auto,
+        call: true,
+        ctls: [],
+        grid: [auto3("ph.auto", ph.auto ? "1" : ph.autoOpen ? "open" : "0", ["0", "open", "1"], (v) => `ph-cfg|auto=${v}`), model2("ph.model", ph.model === "main" ? "main" : "aux", ["main", "aux"], (v) => `ph-cfg|model=${v}`)],
+        calls: calls("괴담톡 확인"),
+        est: est("괴담톡 확인"),
+        real: real((l) => l === "괴담톡 확인" || l === "괴담톡 답장" || l === JOINT_LABEL.phone || jointFirst(JOINT_LABEL.phone)(l)),
+        go: ["set:phone", "r:자동 호출"],
+        after: [{ name: "선톡·초대", on: ph.auto && (ph.incoming || ph.invites), ctls: [sw("ph.incoming", "선톡 받기", ph.incoming, (v) => `ph-cfg|incoming=${v}`), sw("ph.group_invites", "단톡방 초대 받기", ph.invites, (v) => `ph-cfg|group_invites=${v}`)], help: "인물이 먼저 보내는 메시지와 단톡방 초대를 받을지예요. 둘 다 끄면, 확인할 방이 없는 턴에는 괴담톡 호출을 건너뛰어요.", go: ["set:phone", "r:선톡 받기"] }]
+      },
+      ...boards.map(({ site, g: g3 }) => ({ name: BOARD_NAME[site], on: g3.enabled && g3.auto, call: true, ctls: [], grid: [auto3(`board.${site}.auto`, g3.auto ? "0" : g3.autoOpen ? "open" : "1", ["1", "open", "0"], (v) => `fam-set|b:${site}:lazy=${v}`), model2(`board.${site}.model`, g3.model === "main" ? "1" : "2", ["1", "2"], (v) => `fam-set|b:${site}:mode=${v}`)], calls: calls(`${BOARD_NAME[site]} 새로고침`), est: est(`${BOARD_NAME[site]} 새로고침`), real: real((l) => l === BOARD_NAME[site] || jointFirst(BOARD_NAME[site])(l)), go: ["set:net", "r:자동 호출"] })),
+      /** 관전은 모델 설정이 따로 없다 (괴담톡 모델을 씀, flow.ts 관전 줄) */
+      { name: "관전", on: vw.auto === "turn", call: true, ctls: [], grid: [auto3("view.auto", vw.auto, ["manual", "open", "turn"], (v) => `ph-cfg|view_auto=${v}`), null], calls: calls("관전"), help: "메인 응답에 안 나온 대화나 속마음을 보기 전용 방으로 만들어요.", est: est("관전"), real: real(is("관전")), go: ["set:phone", "r:자동 호출@보기 전용 방"] },
+      { name: "위키", on: wikiOn, call: true, ctls: [], grid: [auto3("wiki.auto", nw.auto, ["0", "open", "turn"], (v) => `wiki-auto|${v}`), model2("wiki.model", nw.model === "main" ? "main" : "aux", ["main", "aux"], (v) => `wiki-model|${v}`)], calls: calls("위키 자동 작성"), est: est("위키 자동 작성"), real: real(is("위키 글", "위키 제목")), go: ["set:wiki", "r:자동 호출"] }
+    ];
+    const mallLeads = [
+      { name: "가계부", on: walletUsed, ctls: [sw("wallet.on", "", walletUsed, (v) => `set-wallet-on|${v}`)], go: ["set:items", "r:사용@가계부"] },
+      { name: "소지품", on: invOn(ds), ctls: [sw("items.on", "", invOn(ds), (v) => `set-inv-on|${v}`)], help: "가계부나 소지품을 끄면 쇼핑몰과 상점을 부르지 않아요.", go: ["set:items", "r:사용"] }
+    ];
+    const malls = ["cos", "bm"].map((site) => {
+      const m = mallSettings(ds, site);
+      const n3 = node(`${MALL_NAME[site]} 진열`);
+      return { name: MALL_NAME[site], on: !!n3?.on, call: true, ctls: [], grid: [auto3(`mall.${site}.auto`, m.auto, ["manual", "open", "turn"], (v) => `fam-set|s:${site}:auto=${v}`), model2(`mall.${site}.model`, m.model === "main" ? "main" : "aux", ["main", "aux"], (v) => `fam-set|s:${site}:model=${v}`)], calls: same4(n3?.calls ?? ""), est: est(`${MALL_NAME[site]} 진열`), real: real((l) => l.startsWith(`${MALL_NAME[site]} `) && !l.includes("1:1 상담")), go: ["set:shop", "r:자동 호출"] };
+    });
+    const retry2 = Math.max(HS_RETRY[0], Math.min(HS_RETRY[1], Math.round(Number(fs?.["$hs_retry"] ?? 1)) || 0));
+    const off = [
+      { name: "상점", on: shopOn(ps), call: true, ctls: [sw("shop.on", "", shop.on, (v) => `set-shop-on|${v}`), pick4("shop.model", "모델", shop.model, MODEL2, (v) => `set-shop-model|${v}`)], calls: "열 때·새로고침·말 걸 때마다 1회", est: "", real: real(is("상점 진열", "상점 대화")), go: ["set:shop", "r:사용"] },
+      { name: hsName(), on: hs.on, call: true, ctls: [sw("hs.on", "", hs.on, (v) => `fam-set|s:hs:on=${v}`), pick4("hs.auto", "자동 호출", hs.auto, [["manual", "수동"], ["open", "창을 열 때"]], (v) => `fam-set|s:hs:auto=${v}`), pick4("hs.model", "모델", hs.shop.model, MODEL2, (v) => `fam-set|s:hs:model=${v}`)], calls: hs.on ? hs.auto === "open" ? "창을 열 때 1회" : "수동 (새로고침 때만)" : "호출 없음", est: "", real: real((l) => l.startsWith(`${hsName()} `)), go: ["set:shop", "r:사용"] },
+      // 망상홈쇼핑의 사용·자동 호출·모델은 상점 페이지 격자에 있다
+      { name: "채팅 보내기", sub: true, on: hs.on && hsF.say, ctls: [sw("hs.say", "", hsF.say, (v) => `hs-cfg|say=${v}`)], calls: "보낼 때마다 1회", go: ["set:hs", "r:채팅 보내기"] },
+      /** 자동 다시 연결은 그 페이지의 단추처럼 한 칸씩만 움직인다 (hs-retry ±) */
+      { name: "자동 다시 연결", sub: true, on: hs.on && retry2 > 0, ctls: [{ id: "hs.retry", label: "", kind: "step", cur: String(retry2), lo: HS_RETRY[0], hi: HS_RETRY[1], unit: "회", inp: "hs-retry|n", act: (v) => [`hs-retry|n=${v}`] }], help: `편성을 받지 못하면 「신호 없음」 화면에서 스스로 다시 연결하는 횟수예요(${HS_RETRY[0]}~${HS_RETRY[1]}). 1회마다 호출이 1회 늘어요.`, go: ["set:hs", "r:자동 다시 연결"] },
+      { name: "포인트몰 1:1 상담", on: desk.on && mallSettings(ps, "bm").on, call: true, ctls: [sw("desk.on", "", desk.on, (v) => `ms-cfg|bm:desk_on=${v}`), sw("desk.again", "지난 상담사 다시 만나기", desk.again, (v) => `ms-cfg|bm:desk_again=${v}`)], calls: calls("포인트몰 1:1 상담"), help: "켜면 가끔(4번에 1번꼴) 전에 만났던 상담사가 다시 연결돼요. 그때는 연결 호출이 없어요.", est: "", real: real((l) => l.includes("1:1 상담")), go: ["set:bm", "r:사용@1:1 상담"] }
+    ];
+    const advStep = (key) => {
+      const it = advItem("gen", key);
+      return { id: `gen.${key}`, label: "", kind: "step", cur: advValue(ds, "gen", key), lo: it?.min ?? 0, hi: it?.max ?? 0, unit: it?.unit ?? "", zero: it?.zero, inp: `adv-set|gen:${key}`, act: (v) => [`adv-set|gen:${key}=${v}`] };
+    };
+    const retryModel = advItem("gen", "retry_model");
+    const reit = Number(advValue(ds, "gen", "reiterate")) || 0;
+    const common = [
+      { name: "형식 오류 재시도", on: gen2.retries > 0, ctls: [advStep("retries")], help: "모델의 답이 형식에 맞지 않을 때 다시 묻는 횟수예요. 1회마다 호출이 1회 늘어요.", go: ["set:adv", "r:형식 오류 재시도"] },
+      { name: "재시도 모델", on: gen2.retries > 0, ctls: [pick4("gen.retry_model", "", advValue(ds, "gen", "retry_model"), retryModel?.opts ?? [], (v) => `adv-set|gen:retry_model=${v}`)], help: "다시 물을 때 부를 모델이에요.", go: ["set:adv", "r:재시도 모델"] },
+      { name: "다시 보기", on: reit > 0, ctls: [advStep("reiterate")], help: "첫 응답 뒤 모델에게 지침과 형식을 지켰는지 다시 보게 하는 횟수예요. 1회마다 호출이 1회 늘어요.", go: ["set:adv", "r:다시 보기"] }
+    ];
+    const sections3 = [
+      { title: "메인 요청 전", tables: [{ title: "인물", rows: peoplePre }] },
+      { title: "메인 응답", tables: [{ title: "", rows: [mainRow] }] },
+      { title: "메인 응답 뒤", tables: [{ title: "인물", rows: peoplePost }, { title: "캐릭터 이미지", rows: [image] }, { title: "괴담톡 · 인터넷 · 위키", rows: grid, cols: COLS, leads: [joint] }, { title: "쇼핑몰", rows: malls, cols: COLS, leads: mallLeads }] },
+      { title: "턴과 무관", note: "누르거나 열 때만", tables: [{ title: "", rows: off }] },
+      { title: "생성 공통", tables: [{ title: "", rows: common }] }
+    ];
+    return { sections: sections3, nodes: nodes2 };
+  }
+  var HS_RETRY = [0, 3];
+  function flowPage(ctx2, headFn, started) {
+    const { sections: sections3, nodes: nodes2 } = flowSections(ctx2, started);
+    const { pre: pre2, main: main2, post } = nodes2;
+    const all = [...pre2, ...post];
+    const sure = [...all, main2].reduce((n3, x) => n3 + x.sure, 0);
+    const maybe = [...all, main2].reduce((n3, x) => n3 + x.maybe, 0);
+    const auxTok = all.filter((x) => x.on && typeof x.tok === "number").reduce((s8, x) => s8 + x.tok, 0);
+    const tok3 = flowTokState();
+    const estTok = tok3.ready ? fmt2(auxTok) : tok3.pending ? "세는 중…" : tok3.error ? `<span title="${esc39(`토큰 셈 실패: ${tok3.error}`)}">–</span>` : "–";
+    const t = lastTurn();
+    const rsent = (t ? t.calls.filter((c) => c.phase !== "manual") : []).reduce((s8, c) => s8 + (c.requestTokens ?? 0), 0);
+    const mainTok = t?.main?.totalTokens;
+    const mainEst = mainTok !== void 0 ? mainTok + (t?.reply?.tokens ?? 0) : void 0;
+    const sumLine = (label2, m, a) => `<span>${label2}: 메인 <b>${m !== void 0 ? fmt2(m) : "–"}</b> + 보조 <b>${a !== null ? fmt2(a) : "–"}</b> = <b>${m !== void 0 && a !== null ? fmt2(m + a) : "–"}</b></span>`;
+    const turnSum = t ? `<small class="fl-sum">${sumLine("이번 턴 예상", mainEst, tok3.ready ? auxTok : null)}${sumLine("지난 턴", mainTok, rsent)}</small>` : "";
+    const bar = `<div class="fl-line fl-bar"><p>턴마다 보조 호출 <b>${sure}회</b>${maybe ? ` (조건에 따라 최대 <b>${sure + maybe}회</b>)` : ""} · 메인 <b>1회</b>${turnSum}</p><div><span>호출</span><b>${sure}${maybe ? `~${sure + maybe}` : ""}회</b></div><div><span>보조 예상</span><b>${estTok}</b></div><div><span>보조 지난 턴</span><b>${t ? fmt2(rsent) : "–"}</b></div><i></i></div>`;
+    const body5 = sections3.map((s8) => `<h2 class="fam-h">${esc39(s8.title)}${s8.note ? ` <small>${esc39(s8.note)}</small>` : ""}</h2>${s8.tables.map(table).join("")}`).join("");
+    return `<div class="gw-page gw-set">${headFn("", "호출 흐름", "한 턴에 플러그인이 모델을 부르는 순서예요. 호출 수와 모델을 바꾸는 값만 모았고, 여기서 바꾼 값은 각 메뉴의 설정과 같은 값이에요.")}
+    <div class="gx-settings gw-setbody fl-page">${bar}${body5}</div></div>`;
+  }
+
+  // src/ui/editor/manage.ts
+  var esc40 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var kb = (n3) => n3 >= 1e6 ? `${(n3 / 1e6).toFixed(1)}MB` : n3 >= 1e3 ? `${Math.round(n3 / 1e3)}KB` : `${n3}B`;
+  var isManageNode = (n3) => n3 === "manage:backup" || n3 === "manage:diag" || n3 === "manage:log" || n3 === "manage:trace" || n3 === "manage:flow" || n3 === "manage:people";
+  var STORE = [
+    ["goei:prefs", "기기 설정", "화면·이미지·지침 고친 글·추가 규칙·새 채팅 기본값"],
+    ["goei:wikibase", "위키 기본 문서", "카드에서 뺀 기본 문서 묶음. 지우면 설치·업데이트에서 다시 받아요", "man-drop-wiki"],
+    ["goei:tok-o200k", "토크나이저", "o200k_base 순위표. 지우면 토큰 수가 어림값이 돼요", "man-drop-tok"],
+    ["goei-people-diag", "인물 기록 실행 기록", "최근 갱신의 입력·출력 원문", "man-drop-diag"],
+    ["goei:body", "플러그인 본체", "괴이 카드를 열 때 받아 둔 goei-body.js. 플러그인 판이 바뀌면 다시 받아요"],
+    ["goei:data-world", "세계 자료", "요원·조직·괴이·파밍·부록 기본 기록과 세력 관계 기본값. 본체가 뜰 때 받아 두고, 플러그인 판이 바뀌면 다시 받아요"],
+    ["goei:data-install", "설치 자료", "인사말·카드 사진 목록·기본 명부·아이콘 정보. 설치·업데이트를 처음 열 때 받아 두고, 플러그인 판이 바뀌면 다시 받아요"]
+  ];
+  async function sizeOf2(key) {
+    try {
+      const raw = await risuai.pluginStorage.getItem(key);
+      return typeof raw === "string" ? raw.length : raw ? JSON.stringify(raw).length : 0;
+    } catch {
+      return 0;
+    }
+  }
+  var manUi = {
+    sizes: null,
+    /** 올린 파일 이름 (가져오기) */
+    importName: "",
+    pending: false,
+    importText: "",
+    confirm: "",
+    info: "",
+    notice: "",
+    diag: null,
+    /** 상태 점검의 「받기」 진행 중인 것과 진행 글 (2026-11-06 사용자 승인, 전수점검 9-9) */
+    getting: "",
+    /** 받기 결과 글: 그 줄 단추 옆에 (머리에 띄우면 위로 끼어들어 잘리고 아래를 밀었다, 전수점검 눌러2-보통-27) */
+    getMsg: null,
+    progress: "",
+    /** 내보내기에 지금 채팅의 설정 값($st_·$wg_·기능 설정 변수)도 넣을지 (2026-11-06 사용자, 전수점검 남은 것 5). 시작 전에는 칸 자체가 없다 */
+    withChat: false
+  };
+  var rerender3 = null;
+  var diagOpen = false;
+  async function refresh() {
+    const sizes = {};
+    for (const [key] of STORE) {
+      sizes[key] = await sizeOf2(key);
+    }
+    manUi.sizes = sizes;
+    try {
+      manUi.diag = await loadDiag();
+    } catch {
+      manUi.diag = [];
+    }
+    try {
+      traceUi.turns = await loadTrace();
+    } catch {
+      traceUi.turns = [];
+    }
+  }
+  var traceWatch = false;
+  function ensureManage(render3) {
+    rerender3 = render3;
+    if (!traceWatch) {
+      traceWatch = true;
+      onTraceChange(() => {
+        if (!document.querySelector('[data-action="man-drop-trace"], [data-action="man-drop-trace-yes"]')) return;
+        void loadTrace().then((t) => {
+          traceUi.turns = t;
+          rerender3?.();
+        }).catch(() => {
+        });
+      });
+    }
+    if (manUi.sizes || manUi.pending) return;
+    manUi.pending = true;
+    void refresh().finally(() => {
+      manUi.pending = false;
+      render3();
+    });
+  }
+  var row6 = (label2, ctl, help = "") => setRow(label2, ctl, help);
+  var badge2 = (ok, text5) => `<span class="gw-state${ok === null ? " off" : ok ? "" : " bad"}">${esc40(text5)}</span>`;
+  var head2 = (crumb, title2, desc, act2 = "") => `<header class="gw-head"><h2>${esc40(title2)}${crumb ? `<small>${esc40(crumb)}</small>` : ""}</h2>${act2 ? `<div class="gw-head-act">${act2}</div>` : ""}<p class="gx-muted">${esc40(desc)}</p>${manUi.notice ? `<div class="gx-err" role="alert">${esc40(manUi.notice)}</div>` : ""}${manUi.info ? `<p class="gx-hint">${esc40(manUi.info)}</p>` : ""}</header>`;
+  function exportJson(ctx2, withChat = false) {
+    const directory2 = readDirectoryData(ctx2.char.globalLore ?? []);
+    const chat = withChat ? { vars: chatSettingVars(ctx2.chat.scriptstate) } : null;
+    return JSON.stringify({ ...getPrefs(), ...directory2 ? { directory: directory2 } : {}, ...chat ? { chat } : {} }, null, 2);
+  }
+  function diagBundle(ctx2, canChat) {
+    const lore = ctx2.char.globalLore;
+    const fail4 = (f) => f ? { reason: f.reason, raw: f.raw } : null;
+    const runs = (manUi.diag ?? []).slice(0, 10).map((r) => ({ at: r.at, reason: r.reason, model: r.model, people: r.people, ms: r.ms, ok: r.ok, ...r.stage ? { stage: r.stage } : {}, ...r.error ? { error: r.error } : {} }));
+    return JSON.stringify({
+      kind: "goei-diag",
+      at: (/* @__PURE__ */ new Date()).toISOString(),
+      plugin: PLUGIN_VERSION,
+      card: isGoeiLore(lore) ? cardVersion(lore) : null,
+      tokenizer: tokenizerName() || null,
+      wikiPack: !!storedWikiPack(),
+      chat: canChat ? { messages: Array.isArray(ctx2.chat.message) ? ctx2.chat.message.length : 0, vars: chatSettingVars(ctx2.chat.scriptstate) } : null,
+      prefs: getPrefs(),
+      // 네 게시판 실패를 사이트와 함께 모두 적는다 (전수검사 11-13)
+      failures: { gnet: boardFailures().map((f) => ({ site: f.site, reason: f.reason, raw: f.raw })), phone: fail4(phone.failure), wiki: fail4(wiki.failure) },
+      peopleRuns: runs
+    }, null, 2);
+  }
+  function downloadJson(name, json) {
+    const url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2e3);
+  }
+  function backupPage(ctx2, canChat) {
+    const withChat = canChat && manUi.withChat;
+    const json = exportJson(ctx2, withChat);
+    const chatN = canChat ? Object.keys(chatSettingVars(ctx2.chat.scriptstate)).length : 0;
+    const sizes = manUi.sizes;
+    const store3 = STORE.map(([key, label2, help, drop]) => {
+      const n3 = sizes?.[key] ?? 0;
+      const ctl = `<span class="gw-tokens">${sizes ? n3 ? kb(n3) : "없음" : "…"}</span>${drop && n3 ? `<button class="gx-mini danger" data-action="${drop}">${ICONS.trash}지우기</button>` : ""}`;
+      return row6(label2, ctl, help);
+    }).join("");
+    const importRows = `<div class="ps-row gw-import-row"><div class="ps-label"><b>가져오기</b><small>내보낸 JSON을 붙여 넣거나 파일을 올리고 「적용」을 누르세요. 지금 기기 설정(과 세계 편집)을 통째로 바꿔요.</small></div>
+      <div class="ps-ctl"><label class="gx-mini gw-file">파일 올리기<input type="file" accept=".json,application/json" data-change="man-import-file" hidden></label>${manUi.importName ? `<span class="gx-muted">${esc40(manUi.importName)}</span>` : ""}</div>
+      <textarea data-input="man-import-text" rows="4" placeholder="여기에 붙여 넣기 { … }">${esc40(manUi.importText)}</textarea></div>
+    <div class="ps-row gw-rel-foot"><button class="gx-mini" data-action="man-import" ${manUi.importText.trim() ? "" : "disabled"}>적용</button></div>`;
+    const defRow2 = (label2, help, what, btn, off = false) => row6(label2, `<button class="gx-mini${what === "reset" ? " danger" : ""}" data-action="set-bar" data-value="${what}" ${off ? "disabled" : ""}>${btn}</button>`, help);
+    const defaults = `<section class="ps-group"><h3>기본값</h3><div class="ps-rows">
+      ${defRow2("기본값으로 저장", canChat ? "지금 설정을 기본값으로 저장해요. 앞으로 새로 시작하는 모든 채팅이 이 값으로 시작해요. 덮어쓴 기본값은 되돌릴 수 없어요." : "기능 페이지(괴담넷·괴담톡·위키·인물 등)에서 이 채팅에 바꿔 둔 값을 기본값으로 저장해요. 앞으로 새로 시작하는 모든 채팅이 이 값으로 시작해요. 덮어쓴 기본값은 되돌릴 수 없어요.", "save", "기본값으로 저장")}
+      ${defRow2("기본값 불러오기", canChat ? "저장해 둔 기본값을 지금 채팅에 가져와요." : "채팅을 시작한 뒤에 쓸 수 있어요. 새 채팅은 기본값으로 시작해요.", "load", "불러오기", !canChat)}
+      ${defRow2("초기화", "지금 채팅의 설정과 저장해 둔 기본값, 고친 지침, 고친 세계(카드 명부)를 플러그인 원래 값으로 되돌려요. 상황판 켜기·끄기와 추가 규칙은 그대로 둬요.", "reset", "초기화", !canChat)}
+    </div></section>${mainDefaultsConfirm(ctx2)}${settingsNotices()}`;
+    const copyNow = ctx2.char.assetCopy ?? [];
+    const copyN = assetCopyCount(copyNow);
+    const copyFresh = makeAssetCopy(ctx2.char.globalLore ?? []);
+    const agentN = assetCopyCount(copyFresh);
+    const copyOld = copyN > 0 && !sameAssetCopy(copyNow, copyFresh);
+    const copyCtl = `<span class="gw-tokens">${copyN ? `${copyN}명${copyOld ? " · 지금 설정과 다름" : ""}` : "없음"}</span><button class="gx-mini" data-action="man-asset-put" ${agentN && (!copyN || copyOld) ? "" : "disabled"}>${copyN ? "다시 넣기" : "넣기"}</button><button class="gx-mini" data-action="man-asset-drop" ${copyN ? "" : "disabled"}>빼기</button>`;
+    const assetCopy = `<section class="ps-group"><h3>에셋용 사본</h3><div class="ps-rows">${row6("요원 로어북 사본", copyCtl, `봇 카드의 로어북을 직접 읽는 다른 플러그인(에셋 메이드 등)이 요원 설정을 볼 수 있게, 요원 ${agentN}명의 로어북 사본을 봇 카드 로어북의 「${ASSET_COPY_NAME}」 폴더에 넣어요. 이 플러그인과 Risu는 이 폴더를 읽지 않아서 대화에 들어가지 않고 토큰도 늘지 않아요. 세계 설정에서 요원을 고친 뒤에는 「다시 넣기」를 눌러야 사본도 바뀌어요. 「빼기」는 이 폴더만 지워요.`)}</div></section>`;
+    return `<div class="gw-page gw-set">${head2("", "저장·불러오기", "설정은 고치는 즉시 저장돼요. 여기서는 기본값을 저장·불러오기·초기화하고, 설정을 글(JSON)로 내보내고 가져와요.")}
+    <div class="gx-settings gw-setbody">
+    ${defaults}
+    <section class="ps-group"><h3>내보내기·가져오기</h3><p class="ps-note">들어가는 것: 화면·이미지 설정, 기본값(상황판·괴이 발생·괴담넷·괴담톡·위키·인물·일지·가계부·상태창 칸·생성 공통), 고친 지침·추가 규칙·이미지 지침, 그리고 이 카드의 세계 편집(요원·조직·괴이·파밍·부록·세력 관계·명부). 바꾸지 않아 원래 값 그대로인 항목은 적지 않아요. 채팅 안에 든 기록(상황판·인물 기록·일지)은 Risu 채팅 백업에 들어 있어요.</p><div class="ps-rows">
+      <div class="ps-row"><div class="ps-label"><b>내보내기</b><small>위 설정 전부를 JSON 글 하나로. 복사해서 메모장 같은 곳에 두세요. 바꾸지 않은 항목은 기본값이라 적히지 않아요.</small></div>
+        <div class="ps-ctl"><span class="gw-tokens">${kb(json.length)}</span><button class="gx-mini" data-action="man-copy">${ICONS.copy}복사</button><button class="gx-mini" data-action="man-download">내려받기</button></div></div>
+      ${canChat ? `<div class="ps-row"><div class="ps-label"><b>지금 채팅 값도 넣기</b><small>이 채팅에서 바꾼 설정 값(상황판·괴이 발생·괴담넷·괴담톡·위키·인물·일지·가계부·생성 공통) ${chatN}개를 「chat」으로 같이 넣어요. 가져올 때 채팅이 열려 있으면 그 채팅에 적혀요. 기록(상황판 내용·인물 기록·일지)은 안 들어가요.</small></div>
+        <div class="ps-ctl">${switchHtml({ action: "man-with-chat", value: withChat ? "0" : "1", on: withChat, label: "지금 채팅 값도 넣기" })}</div></div>` : ""}
+      ${importRows}
+    </div></section>
+    ${assetCopy}
+    <section class="ps-group"><h3>저장소 사용량 <small>이 기기 플러그인 저장소에 있는 것</small></h3><div class="ps-rows">${store3}</div></section>
+    </div></div>`;
+  }
+  function getBtn(what, label2, has3) {
+    if (has3) return "";
+    if (manUi.getting === what) return `<span class="gx-muted gw-getting">${esc40(manUi.progress || "받는 중…")}</span>`;
+    const m = manUi.getMsg?.what === what ? manUi.getMsg : null;
+    return `<button class="gx-mini" data-action="man-get-${what}" ${manUi.getting ? "disabled" : ""}>${esc40(label2)}</button>${m ? `<span class="gw-getmsg${m.err ? " err" : ""}" role="${m.err ? "alert" : "status"}">${esc40(m.text)}</span>` : ""}`;
+  }
+  function diagPage(ctx2, canChat) {
+    const lore = ctx2.char.globalLore;
+    const goei = isGoeiLore(lore);
+    const ver = cardVersion(lore);
+    const mode2 = String(advValue(ctx2.chat.scriptstate, "gen", "lore_mode") ?? "plugin");
+    const msgs4 = Array.isArray(ctx2.chat.message) ? ctx2.chat.message.length : 0;
+    const tok3 = tokenizerName();
+    const wikiOld = wikiPackOld();
+    if (!wikiOld) void checkWikiPackOld().then((old) => old && wikiPackOld() && diagOpen && rerender3?.());
+    const rows3 = [
+      row6("카드", badge2(goei, goei ? "괴이 카드" : "괴이 카드 아님"), goei ? `카드 ${ver === "0" ? "이전 판" : `v${ver}`} · 명부·플러그인 정보 있음` : "설치 · 점검에서 심으면 괴이 카드가 돼요"),
+      row6("플러그인", badge2(true, `v${PLUGIN_VERSION}`), UPDATE_BASE ? "지금 쓰는 플러그인 판이에요. 새 판은 점검 → 설치·업데이트에서 받아요." : "업데이트를 받을 수 없는 빌드"),
+      // 주소 글은 보여 주지 않는다 (2026-11-13 사용자)
+      // 카드 판 ≠ 플러그인 판이면 빨간 줄 (2026-11-06 사용자, 전수점검 남은 것 4): 카드가 낡았으면 업데이트 페이지로, 카드가 더 새면 플러그인을 받으라고
+      ...goei && compareVersions(ver, PLUGIN_VERSION) !== 0 ? [row6("판 맞춤", badge2(false, compareVersions(ver, PLUGIN_VERSION) < 0 ? "카드가 낡음" : "플러그인이 낡음"), compareVersions(ver, PLUGIN_VERSION) < 0 ? `카드 ${ver === "0" ? "이전 판" : `v${ver}`}, 플러그인 v${PLUGIN_VERSION}. 새 기능·지침이 카드에 없을 수 있어요. 업데이트에서 카드를 플러그인 판으로 올리세요. <button class="gx-mini" data-action="ed-node" data-value="set:update">${ICONS.refresh}업데이트로</button>` : `카드 v${ver}, 플러그인 v${PLUGIN_VERSION}. 플러그인을 새 판으로 받으세요.`)] : [],
+      row6("채팅", badge2(canChat ? true : null, canChat ? "진행 중" : "시작 전"), canChat ? `메시지 ${msgs4}개 · 이 채팅 값으로 동작해요` : "시작 화면이에요. 기본 설정은 새 채팅 기본값에, 기능 페이지 값은 이 채팅에 저장돼요"),
+      // 없으면 배지 옆에 바로 받는 단추와, 안 받으면 뭐가 다른지 한 줄 (2026-11-06 사용자 승인, 전수점검 9-9).
+      // 어림값·시작 전은 고장이 아니라 회색 (빨간 오류색이라 고장처럼 보였다, 전수점검 눌러-보통-42)
+      row6("토크나이저", badge2(tok3 ? true : null, tok3 || "어림값") + getBtn("tok", "받기 (약 2MB)", !!tok3), tok3 ? "토큰 수를 정확히 세요" : "안 받으면 토큰 수를 어림으로 세요. 받으면 정확해져요. 기능 차이는 없어요."),
+      row6("위키 기본 문서", badge2(!!storedWikiPack() && !wikiOld, wikiOld ? "새 판 있음" : storedWikiPack() ? "있음" : "없음") + getBtn("wiki", "받기 (약 1MB)", !!storedWikiPack() && !wikiOld), storedWikiPack() ? "카드에서 뺀 기본 문서 묶음 (이 기기 저장소)" : "안 받으면 위키 기본 문서(괴이·장소 설명)가 비어 있어요. 받으면 위키 탭에서 바로 읽을 수 있어요."),
+      row6("로어북 보내기", badge2(null, mode2 === "risu" ? "Risu가 직접" : "플러그인이 고름"), "설정 → 호출 → 로어북 호출 → 로어북 보내기")
+    ].join("");
+    const fails = [...boardFailures().map((f) => `${f.name}: ${f.reason}`), phone.failure ? `괴담톡: ${phone.failure.reason}` : "", wiki.failure ? `위키: ${wiki.failure.reason}` : ""].filter(Boolean);
+    return `<div class="gw-page gw-set">${head2("", "상태 점검", "플러그인·카드·저장소가 지금 어떤 상태인지. 문제가 있으면 어디서 고치는지 적어 뒀어요.")}
+    <div class="gx-settings gw-setbody">
+    <section class="ps-group"><h3>현재 상태</h3><div class="ps-rows">${rows3}${row6("최근 실패", fails.length ? badge2(false, `${fails.length}건`) : badge2(true, "없음"), fails.length ? "「실패 기록」에서 원문을 볼 수 있어요" : "괴담넷·괴담톡·위키 요청이 실패한 적이 없어요")}</div></section>
+    </div></div>`;
+  }
+  function logPage(ctx2, canChat) {
+    const fail4 = (name, f) => f ? `<div class="ps-row"><div class="ps-label"><b>${esc40(name)}</b><small>${esc40(f.reason)}</small></div><textarea readonly rows="4">${esc40(f.raw)}</textarea></div>` : "";
+    const fails = boardFailures().map((f) => fail4(f.name, f)).join("") + fail4("괴담톡", phone.failure) + fail4("위키", wiki.failure);
+    const bundle = diagBundle(ctx2, canChat);
+    return `<div class="gw-page gw-set">${head2("", "실패 기록", "괴담넷·괴담톡·위키 요청이 실패했을 때 모델이 보낸 원문이에요. 인물 기록 갱신의 결과는 「인물 기록 점검」에 있어요.")}
+    <div class="gx-settings gw-setbody">
+    <section class="ps-group"><h3>진단 묶음</h3><div class="ps-rows">${row6("진단 파일", `<span class="gw-tokens">${kb(bundle.length)}</span><button class="gx-mini" data-action="man-diag-download">내려받기</button>`, "판 번호·설정·최근 실패 원문·인물 기록 갱신 10회를 JSON 하나로. 대화 본문은 안 들어가요. 문제를 알릴 때 이 파일만 보내면 돼요.")}</div></section>
+    <section class="ps-group"><h3>최근 실패 <small>창을 닫아도 이 세션 동안 남아요</small></h3><div class="ps-rows">${fails || '<p class="ps-note">실패한 요청이 없어요.</p>'}${fails ? `<div class="ps-row gw-rel-foot"><button class="gx-mini danger" data-action="man-clear-fail">${ICONS.trash}지우기</button></div>` : ""}</div></section>
+    </div></div>`;
+  }
+  var popup2 = (msg, yes, label2) => askPopup(msg, { action: yes }, { action: "man-no" }, label2);
+  function manageConfirmPopup() {
+    if (manUi.confirm === "clear-fail") return popup2("최근 실패 기록을 모두 지울까요? 지운 실패 원문은 되돌릴 수 없어요.", "man-clear-fail-yes", "지우기");
+    if (manUi.confirm === "import") return popup2("가져온 설정으로 지금 기기 설정(과 세계 편집)을 통째로 덮어쓸까요? 덮어쓴 설정은 되돌릴 수 없어요.", "man-import-yes", "적용");
+    if (manUi.confirm) {
+      const st = STORE.find((x) => x[3] === `man-${manUi.confirm}`);
+      if (st) return popup2(`이 기기의 「${st[1]}」${josa(st[1], "을", "를").slice(st[1].length)} 지울까요? ${st[2]}.`, `man-${manUi.confirm}-yes`, "지우기");
+    }
+    if (traceUi.confirm) return popup2("호출 기록을 모두 지울까요? 지운 기록은 되돌릴 수 없어요.", "man-drop-trace-yes", "지우기");
+    return "";
+  }
+  function managePage(ctx2, node, canChat) {
+    diagOpen = node === "manage:diag";
+    if (node === "manage:backup") return backupPage(ctx2, canChat);
+    if (node === "manage:diag") return diagPage(ctx2, canChat);
+    if (node === "manage:people") {
+      return `<div class="gw-page gw-set">${head2("", "인물 기록 점검", "인물 기록 갱신을 지금 돌려 보고, 최근 갱신의 입력 크기·결과·실패 이유를 봐요.")}
+    <div class="gx-settings gw-setbody"><div class="ps pp-set">${peopleDiagPane(ctx2, canChat)}</div></div></div>`;
+    }
+    if (node === "manage:flow") {
+      ensureFlow(flowView(ctx2, canChat).ctx, () => rerender3?.());
+      return flowPage(ctx2, head2, canChat);
+    }
+    if (node === "manage:trace") {
+      const confirm = `<button class="gx-mini danger" data-action="man-drop-trace">${ICONS.trash}기록 지우기</button>`;
+      return tracePage(head2, confirm);
+    }
+    return logPage(ctx2, canChat);
+  }
+  function manageInput(name, value) {
+    if (name !== "man-import-text") return false;
+    manUi.importText = value;
+    manUi.importName = "";
+    return true;
+  }
+  async function manageFile(el) {
+    if (el.dataset.change !== "man-import-file") return false;
+    const f = el.files?.[0];
+    if (!f) return true;
+    try {
+      manUi.importText = await f.text();
+      manUi.importName = f.name;
+      manUi.notice = "";
+    } catch (error) {
+      manUi.notice = `파일을 읽지 못했어요: ${error instanceof Error ? error.message : String(error)}`;
+    }
+    el.value = "";
+    return true;
+  }
+  async function manageAction(action, root3, ctx2 = null, canChat = true, value = "") {
+    if (!action.startsWith("man-")) return false;
+    manUi.notice = "";
+    manUi.info = "";
+    switch (action) {
+      case "man-no":
+        manUi.confirm = "";
+        traceUi.confirm = false;
+        return true;
+      case "man-trace-toggle":
+        if (traceUi.open.has(value)) traceUi.open.delete(value);
+        else traceUi.open.add(value);
+        return true;
+      case "man-drop-trace":
+        traceUi.confirm = true;
+        return true;
+      case "man-drop-trace-yes":
+        traceUi.confirm = false;
+        await clearTrace();
+        traceUi.turns = [];
+        traceUi.open.clear();
+        manUi.info = "호출 기록을 지웠어요.";
+        return true;
+      case "man-with-chat":
+        manUi.withChat = !manUi.withChat;
+        return true;
+      case "man-copy": {
+        if (!ctx2) return true;
+        const json = exportJson(ctx2, manUi.withChat && !!canChat);
+        const ok = await copyText(json);
+        manUi.info = ok ? `복사했어요 (${kb(json.length)}).` : "이 환경에서는 복사가 막혀 있어요. 「내려받기」로 파일로 받으세요.";
+        return true;
+      }
+      case "man-download": {
+        try {
+          const json = ctx2 ? exportJson(ctx2, manUi.withChat && !!canChat) : JSON.stringify(getPrefs(), null, 2);
+          downloadJson(`goei-settings-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}.json`, json);
+          manUi.info = "내려받기를 시작했어요. 안 되면 「복사」로 글을 옮기세요.";
+        } catch (error) {
+          manUi.notice = `내려받지 못했어요: ${error instanceof Error ? error.message : String(error)}`;
+        }
+        return true;
+      }
+      case "man-diag-download": {
+        if (!ctx2) return true;
+        try {
+          downloadJson(`goei-diag-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}.json`, diagBundle(ctx2, !!canChat));
+          manUi.info = "진단 묶음 내려받기를 시작했어요. 제보할 때 이 파일 하나를 보내면 돼요.";
+        } catch (error) {
+          manUi.notice = `내려받지 못했어요: ${error instanceof Error ? error.message : String(error)}`;
+        }
+        return true;
+      }
+      case "man-asset-put":
+      case "man-asset-drop": {
+        if (!ctx2) return true;
+        const put = action === "man-asset-put";
+        try {
+          ctx2.char.assetCopy = await setAssetCopy(ctx2.charIndex, put);
+          const n3 = assetCopyCount(ctx2.char.assetCopy);
+          manUi.info = put ? `요원 ${n3}명의 사본을 봇 카드 로어북 「${ASSET_COPY_NAME}」 폴더에 넣었어요.` : `봇 카드 로어북에서 「${ASSET_COPY_NAME}」 폴더를 뺐어요.`;
+        } catch (error) {
+          manUi.notice = `${put ? "넣지" : "빼지"} 못했어요: ${error instanceof Error ? error.message : String(error)}`;
+        }
+        return true;
+      }
+      case "man-import":
+        manUi.confirm = "import";
+        return true;
+      case "man-import-yes": {
+        manUi.confirm = "";
+        try {
+          const parsed = JSON.parse(manUi.importText);
+          if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("설정 JSON 이 아니에요.");
+          const { directory: directory2, chat, ...prefs2 } = parsed;
+          let wrote = "";
+          if (directory2 && typeof directory2 === "object" && !Array.isArray(directory2)) {
+            if (!ctx2) throw new Error("세계 편집을 적을 카드가 없어요.");
+            await updateCharacterLore(ctx2.charIndex, (lore) => withDirectory(lore, directory2));
+            wrote = " 세계 편집(명부)도 카드에 적었어요.";
+          }
+          const cv = chat && typeof chat === "object" && !Array.isArray(chat) ? chat.vars : null;
+          if (cv && typeof cv === "object" && !Array.isArray(cv)) {
+            const vars = Object.entries(cv).filter(([k, v]) => isChatSettingVar(k) && (typeof v === "string" || typeof v === "number" || typeof v === "boolean"));
+            if (ctx2 && canChat && vars.length) {
+              let shopOff = false;
+              await updateChat(ctx2.charIndex, ctx2.chatIndex, (c) => {
+                const prev = { ...c.scriptstate ?? {} };
+                const next = { ...prev };
+                for (const [k, v] of vars) next[k] = String(v);
+                const side = bulkSideVars(c, prev, next);
+                shopOff = side.shopOff;
+                c.scriptstate = { ...next, ...side.vars };
+                return c;
+              });
+              if (shopOff) await bulkShopOff(ctx2);
+              wrote += ` 채팅 값 ${vars.length}개도 이 채팅에 적었어요.`;
+            } else if (vars.length) wrote += " 채팅 값은 시작 전이라 적지 않았어요.";
+          }
+          await savePrefs(() => prefs2);
+          manUi.importText = "";
+          manUi.importName = "";
+          manUi.sizes = null;
+          manUi.info = `설정을 가져왔어요.${wrote} 창을 닫았다 열면 전부 반영돼요.`;
+        } catch (error) {
+          manUi.notice = `가져오지 못했어요: ${error instanceof Error ? error.message : String(error)}`;
+        }
+        return true;
+      }
+      case "man-get-tok":
+      case "man-get-wiki": {
+        if (manUi.getting) return true;
+        const what = action === "man-get-tok" ? "tok" : "wiki";
+        manUi.getting = what;
+        manUi.progress = "";
+        rerender3?.();
+        const progress4 = (t) => {
+          manUi.progress = t;
+          rerender3?.();
+        };
+        try {
+          if (what === "tok") await installTokenizer(progress4);
+          else await installWikiPack(progress4);
+          manUi.getMsg = null;
+          manUi.info = what === "tok" ? "토크나이저를 받았어요. 이제 토큰 수를 정확히 세요." : "위키 기본 문서를 받았어요. 위키 탭에서 읽을 수 있어요.";
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : String(error);
+          manUi.getMsg = { what, err: true, text: /못했어요|달라요|없어요/.test(msg) ? msg : `${what === "tok" ? "토크나이저" : "위키 기본 문서"}를 받지 못했어요: ${msg}` };
+        }
+        manUi.getting = "";
+        manUi.progress = "";
+        manUi.sizes = null;
+        return true;
+      }
+      case "man-drop-wiki":
+      case "man-drop-tok":
+      case "man-drop-diag":
+        manUi.confirm = action.slice(4);
+        return true;
+      case "man-drop-wiki-yes":
+        manUi.confirm = "";
+        await dropWikiPack();
+        manUi.info = "위키 기본 문서를 지웠어요.";
+        manUi.sizes = null;
+        return true;
+      case "man-drop-tok-yes":
+        manUi.confirm = "";
+        await dropTokenizer();
+        manUi.info = "토크나이저를 지웠어요. 토큰 수는 어림값이에요.";
+        manUi.sizes = null;
+        return true;
+      case "man-drop-diag-yes":
+        manUi.confirm = "";
+        await clearDiag();
+        manUi.info = "인물 기록 실행 기록을 지웠어요.";
+        manUi.sizes = null;
+        return true;
+      case "man-clear-fail":
+        manUi.confirm = "clear-fail";
+        return true;
+      case "man-clear-fail-yes":
+        manUi.confirm = "";
+        clearBoardFailures();
+        phone.failure = null;
+        wiki.failure = null;
+        return true;
+    }
+    return true;
+  }
+
+  // src/ui/editor/catalog.ts
+  function txt(el) {
+    if (!el) return "";
+    const parts = [];
+    const walk = (n3) => n3.childNodes.forEach((c) => {
+      if (c.nodeType === 3) parts.push(c.textContent ?? "");
+      else if (c.nodeType === 1) {
+        parts.push(" ");
+        walk(c);
+        parts.push(" ");
+      }
+    });
+    walk(el);
+    return parts.join("").replace(/\s+/g, " ").trim();
+  }
+  var own = (el) => el ? [...el.childNodes].filter((n3) => n3.nodeType === 3).map((n3) => n3.textContent ?? "").join("").replace(/\s+/g, " ").trim() : "";
+  var ROW = ".ps-row, .ck-row, .mx-row, .st-col-row";
+  var NOT_SETTING = ".lc-row";
+  var TWIN = ".ck-ph, .fl-ph";
+  var CTL = "button[data-action], input[data-change], textarea[data-change]";
+  var keyOf3 = (v) => v.includes("=") ? v.slice(0, v.lastIndexOf("=")) : v.includes(":") ? v.slice(0, v.lastIndexOf(":")) : "";
+  function gridCols(section3) {
+    if (!section3) return [];
+    const opts = [...section3.querySelectorAll(":scope > .ps-rows > .ck-h2 > span")].slice(1).map(txt);
+    const groups = [];
+    section3.querySelectorAll(":scope > .ps-rows > .ck-h1 > b").forEach((b) => {
+      const n3 = Number(/span\s+(\d+)/.exec(b.getAttribute("style") ?? "")?.[1] ?? 1);
+      for (let i = 0; i < n3; i++) groups.push(txt(b));
+    });
+    return opts.map((o, i) => [groups[i] ?? "", o]);
+  }
+  function subOf2(el, rowLabel) {
+    const set1 = el.closest(".fam-set1");
+    if (set1) {
+      const l = txt(set1.querySelector(":scope > span"));
+      if (l) return l;
+    }
+    const box3 = el.closest(".st-step") ?? el.closest(".gx-switch-wrap") ?? el.closest(".gx-segs") ?? el;
+    const prev = box3.previousElementSibling;
+    if (prev && prev.tagName === "SPAN" && !prev.querySelector(CTL) && !prev.matches(".gx-switch-wrap, .ph-inline")) {
+      const l = txt(prev);
+      if (l && l.length <= 12) return l;
+    }
+    const site = txt(el.closest(".mx-cell")?.querySelector(":scope > .mx-site"));
+    if (site) return site;
+    const aria = (el.getAttribute("aria-label") ?? "").replace(/\s+/g, " ").trim();
+    const rest = aria.startsWith(rowLabel) ? aria.slice(rowLabel.length).trim() : aria;
+    return rest === rowLabel ? "" : rest;
+  }
+  function pageRows(html, page, menu) {
+    const doc2 = new DOMParser().parseFromString(html, "text/html");
+    const out2 = [];
+    const seen4 = /* @__PURE__ */ new Set();
+    let infoN = 0;
+    const cols = /* @__PURE__ */ new Map();
+    const colsOf = (s8) => {
+      if (!s8) return [];
+      if (!cols.has(s8)) cols.set(s8, gridCols(s8));
+      return cols.get(s8);
+    };
+    doc2.querySelectorAll(ROW).forEach((row8) => {
+      if (row8.closest(TWIN) || row8.matches(NOT_SETTING)) return;
+      const section3 = row8.closest(".ps-group, .ps-card, details");
+      const headEl = section3?.querySelector("h3, h4, summary") ?? null;
+      const group4 = own(headEl) || txt(headEl);
+      const isPs = row8.matches(".ps-row");
+      const isGrid = row8.matches(".ck-row");
+      const labelEl = row8.querySelector(isPs ? ":scope > .ps-label > b" : isGrid ? ":scope > .ck-name" : row8.matches(".mx-row") ? ":scope > .mx-label" : ":scope > .st-col-name > b");
+      const label2 = isPs ? own(labelEl) : txt(labelEl);
+      if (!label2) return;
+      const help = txt(row8.querySelector(isPs ? ":scope > .ps-label > small" : row8.matches(".mx-row") ? ":scope > .mx-help" : ":scope > .st-col-name > small"));
+      const badge3 = isPs ? txt(labelEl?.querySelector("i.gx-scope")) : "";
+      const scope = badge3 && badge3 !== "이 채팅" ? badge3 : void 0;
+      const grp = txt(section3?.querySelector("h3"));
+      const spot = (colGroup = "") => [`set:${page}`, isPs ? `r:${label2}${grp ? `@${grp}` : ""}` : colGroup ? `r:${colGroup}` : ""];
+      const els = [...row8.querySelectorAll(CTL)].filter((e) => e.closest(ROW) === row8 && !e.closest('[data-consult="no"]'));
+      const gcols = isGrid ? colsOf(section3) : [];
+      const cellAt = (e) => {
+        const cell3 = e.closest(".ck-cell");
+        const i = cell3 ? [...row8.querySelectorAll(":scope > .ck-cell")].indexOf(cell3) : -1;
+        return gcols[i] ?? ["", ""];
+      };
+      const made = [];
+      const used = /* @__PURE__ */ new Set();
+      const push3 = (r) => {
+        if (seen4.has(r.id)) return;
+        seen4.add(r.id);
+        const { colGroup, ...rest } = r;
+        made.push({ ...rest, page, menu, group: group4, help, scope, go: spot(colGroup), keys: colGroup ? [label2, colGroup] : [label2] });
+      };
+      for (const e of els) {
+        if (used.has(e)) continue;
+        used.add(e);
+        const locked = e.hasAttribute("disabled") || e.hasAttribute("readonly");
+        if (e.tagName !== "BUTTON") {
+          const input3 = e;
+          const type = (input3.getAttribute("type") ?? "text").toLowerCase();
+          if (["hidden", "file", "checkbox", "radio", "color"].includes(type)) continue;
+          const action2 = input3.dataset.change ?? "";
+          const key2 = input3.dataset.key ?? "";
+          const [cg3, co2] = cellAt(e);
+          const lone = isGrid && !!cg3 && gcols.filter(([g3]) => g3 === cg3).length === 1;
+          const sub = isGrid ? lone ? cg3 : [cg3, co2].filter(Boolean).join(" ") : subOf2(e, label2);
+          const value2 = (e.tagName === "TEXTAREA" ? e.textContent ?? "" : input3.getAttribute("value") ?? "").replace(/\r/g, "");
+          const lo = Number(input3.getAttribute("min"));
+          const hi = Number(input3.getAttribute("max"));
+          const isNum = (type === "number" || type === "range") && input3.hasAttribute("min") && input3.hasAttribute("max") && Number.isFinite(lo) && Number.isFinite(hi);
+          const unit = (lone ? co2 : "") || txt(e.closest(".st-step")?.querySelector(":scope > span")) || txt(e.parentElement?.querySelector(":scope > output")).replace(/^-?[\d,.\s]+/, "") || void 0;
+          const max = Number(input3.getAttribute("maxlength")) || void 0;
+          push3({ id: key2 ? `${action2}.${key2}` : action2, name: sub, kind: isNum ? "num" : "text", cur: isNum ? value2.trim() : value2.trim(), ...isNum ? { lo, hi, unit } : { max, multi: e.tagName === "TEXTAREA" }, locked, colGroup: cg3 || void 0, ctl: { t: "input", action: action2, key: key2 } });
+          continue;
+        }
+        const action = e.dataset.action ?? "";
+        const value = e.dataset.value ?? "";
+        if (e.getAttribute("role") === "switch") {
+          const on3 = e.getAttribute("aria-checked") === "true";
+          push3({ id: `${action}${keyOf3(value) ? `.${keyOf3(value)}` : ""}`, name: subOf2(e, label2), kind: "pick", cur: on3 ? "1" : "0", opts: [["1", "ON"], ["0", "OFF"]], locked, ctl: { t: "toggle", action, send: value } });
+          continue;
+        }
+        if (e.classList.contains("gx-step")) {
+          const box3 = e.closest(".st-step");
+          if (!box3 || box3.querySelector("input[data-change]")) continue;
+          const btns = [...box3.querySelectorAll("button.gx-step[data-action]")];
+          btns.forEach((b) => used.add(b));
+          const minus = btns.find((b) => (b.dataset.value ?? "").endsWith("-"));
+          const plus = btns.find((b) => (b.dataset.value ?? "").endsWith("+"));
+          if (!minus || !plus) continue;
+          const shown6 = txt(box3.querySelector(":scope > b"));
+          const m = /-?\d[\d,]*/.exec(shown6);
+          const n3 = m ? Number(m[0].replace(/,/g, "")) : 0;
+          const key2 = (minus.dataset.value ?? "").slice(0, -1).replace(/:$/, "");
+          push3({
+            id: key2 ? `${action}.${key2}` : action,
+            name: subOf2(e, label2),
+            kind: "step",
+            cur: String(n3),
+            unit: m ? shown6.slice((m.index ?? 0) + m[0].length).trim() || void 0 : void 0,
+            zero: m ? void 0 : shown6 || void 0,
+            ...Number(box3.dataset.step) > 1 ? { stride: Number(box3.dataset.step) } : {},
+            ...minus.hasAttribute("disabled") ? { lo: n3 } : {},
+            ...plus.hasAttribute("disabled") ? { hi: n3 } : {},
+            locked: false,
+            ctl: { t: "rel", action, minus: minus.dataset.value ?? "", plus: plus.dataset.value ?? "" }
+          });
+          continue;
+        }
+        if (!e.hasAttribute("aria-pressed")) continue;
+        const key = keyOf3(value);
+        const mates = els.filter((x) => x.tagName === "BUTTON" && x.hasAttribute("aria-pressed") && x.dataset.action === action && keyOf3(x.dataset.value ?? "") === key && !x.classList.contains("gx-step") && x.getAttribute("role") !== "switch");
+        const round = e.classList.contains("round");
+        const [cg2, co] = cellAt(e);
+        if (mates.length < 2 && !round) {
+          const on3 = e.getAttribute("aria-pressed") === "true";
+          const name = isGrid ? [cg2, co === "켬" ? "" : co].filter(Boolean).join(" ") : e.classList.contains("gx-chip") ? txt(e) : subOf2(e, label2);
+          push3({ id: `${action}${key ? `.${key}` : ""}`, name, kind: "pick", cur: on3 ? "1" : "0", opts: [["1", "ON"], ["0", "OFF"]], locked, colGroup: cg2 || void 0, ctl: { t: "toggle", action, send: value } });
+          continue;
+        }
+        mates.forEach((x) => used.add(x));
+        const opts = mates.map((x) => [x.dataset.value ?? "", (isGrid ? cellAt(x)[1] : "") || txt(x) || (x.getAttribute("aria-label") ?? "")]);
+        const curEl = mates.find((x) => x.getAttribute("aria-pressed") === "true");
+        push3({ id: `${action}${key ? `.${key}` : ""}`, name: isGrid ? cg2 : "", kind: "pick", cur: curEl?.dataset.value ?? "", opts, locked: mates.every((x) => x.hasAttribute("disabled")), colGroup: cg2 || void 0, ctl: { t: "pick", action, send: Object.fromEntries(opts.map(([v]) => [v, v])) } });
+      }
+      if (!made.length) {
+        out2.push({ id: `row.${page}.${++infoN}`, page, menu, group: group4, name: label2, kind: "info", cur: "", help, go: spot(), keys: [label2] });
+        return;
+      }
+      for (const r of made) {
+        r.name = r.name && (made.length > 1 || !isPs) ? `${label2} · ${r.name}` : label2;
+        out2.push(r);
+      }
+    });
+    doc2.querySelectorAll(".ps-group > .mx-foot").forEach((foot) => {
+      if (foot.closest(TWIN)) return;
+      const title2 = txt(foot.parentElement?.querySelector("h3"));
+      const help = txt(foot);
+      if (title2 && help) out2.push({ id: `row.${page}.${++infoN}`, page, menu, group: title2, name: title2, kind: "info", cur: "", help, go: [`set:${page}`, ""], keys: [title2] });
+    });
+    doc2.querySelectorAll("details.ps-adv").forEach((d) => {
+      if (d.closest(TWIN) || !d.querySelector(".ms-tb") || d.querySelector(ROW)) return;
+      const name = txt(d.querySelector(":scope > summary > b"));
+      if (!name) return;
+      const count2 = txt(d.querySelector(":scope > summary > .adv-count"));
+      const help = `${count2 ? `${guideTxt("Consult", "CATALOG.FOLDED_COUNT", { count: count2 })} ` : ""}${txt(d.querySelector(".ps-note"))} ${guideTxt("Consult", "CATALOG.FOLDED_NOTE")}`.trim();
+      out2.push({ id: `row.${page}.${++infoN}`, page, menu, group: txt(d.closest(".ps-group")?.querySelector("h3")), name, kind: "info", cur: "", help, go: [`set:${page}`, ""], keys: [name] });
+    });
+    return out2;
+  }
+  var host2 = null;
+  var setCatalogHost = (h) => {
+    host2 = h;
+  };
+  function catalogPage(page) {
+    const p2 = host2?.pages().find(([id2]) => id2 === page);
+    if (!host2 || !p2) return [];
+    try {
+      return pageRows(host2.render(page), page, p2[1]);
+    } catch {
+      return [];
+    }
+  }
+  function catalogAll() {
+    return (host2?.pages() ?? []).map(([page, menu, intro]) => ({ page, menu, intro, rows: catalogPage(page) }));
+  }
+  var catalogOthers = () => host2?.others() ?? "";
+  var catalogCurrent = () => host2?.current() ?? "";
+  function sendsFor(r, v) {
+    const c = r.ctl;
+    if (!c || r.locked) return [];
+    if (c.t === "pick") return v in c.send ? [[c.action, c.send[v]]] : [];
+    if (c.t === "toggle") return v !== r.cur ? [[c.action, c.send]] : [];
+    if (c.t === "input") return [[c.action, c.key ? `${c.key}=${v}` : v]];
+    const d = Number(v) - Number(r.cur);
+    return d === 0 ? [] : [[c.action, d > 0 ? c.plus : c.minus]];
+  }
+  var NEVER = /-(del|reset|clear|add|yes|no|import|export|save|load)$|^(upd|dir|rec|ed|man|guide|rule|ip|ai|fl)-/;
+  function consultAllowed(page, action, value) {
+    if (NEVER.test(action)) return false;
+    return catalogPage(page).some((r) => {
+      const c = r.ctl;
+      if (!c || r.locked || c.action !== action) return false;
+      if (c.t === "pick") return Object.values(c.send).includes(value);
+      if (c.t === "toggle") return c.send === value;
+      if (c.t === "rel") return value === c.minus || value === c.plus;
+      if (c.key && !value.startsWith(`${c.key}=`)) return false;
+      const v = c.key ? value.slice(c.key.length + 1) : value;
+      if (v === "" && r.kind !== "text") return r.kind === "num";
+      return consultValue(r.kind === "text" ? { ...r, multi: true } : r, v.replace(/\n/g, "\\n")) !== null;
+    });
+  }
+
+  // src/ui/editor/consult.ts
+  var esc41 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var KEY3 = "goei:consult";
+  var consultUi = { open: false, busy: false, input: "", clear: false, drawn: -1, confirm: false };
+  var store2 = null;
+  var loading6 = false;
+  var chatKey7 = (ctx2) => {
+    const cha = String(ctx2.char.chaId ?? "").trim() || `c${ctx2.charIndex}`;
+    const id2 = String(ctx2.chat.id ?? "").trim() || `i${ctx2.chatIndex}`;
+    return `${cha}:${id2}`;
+  };
+  var mine2 = (ctx2) => {
+    const k = chatKey7(ctx2);
+    store2 ??= {};
+    return store2[k] ??= { lines: [], pending: [], at: 0 };
+  };
+  function ensureLoaded(render3) {
+    if (store2 || loading6) return;
+    loading6 = true;
+    void (async () => {
+      let next = {};
+      try {
+        const raw = await risuai.pluginStorage.getItem(KEY3);
+        const v = typeof raw === "string" ? JSON.parse(raw) : raw;
+        if (v && typeof v === "object") next = v;
+      } catch {
+      }
+      store2 = { ...next, ...store2 ?? {} };
+      loading6 = false;
+      render3();
+    })();
+  }
+  async function persist() {
+    if (!store2) return;
+    trimConsult(store2);
+    try {
+      await risuai.pluginStorage.setItem(KEY3, JSON.stringify(store2));
+    } catch (error) {
+      console.log(`[goei] AI 상담 대화를 저장하지 못했어요: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  var C2 = (section3, vars) => guideTxt("Consult", section3, vars);
+  var fmt3 = (n3) => n3.toLocaleString("ko-KR");
+  var flat = (s8) => s8.toLowerCase().replace(/\s+/g, "");
+  var rowsOf4 = (menus) => {
+    const seen4 = /* @__PURE__ */ new Set();
+    return menus.flatMap((m) => m.rows).filter((r) => seen4.has(r.id) ? false : (seen4.add(r.id), true));
+  };
+  function consultState(ctx2, started) {
+    const { pre: pre2, main: main2, post, manual } = flowNodes(flowView(ctx2, started).ctx);
+    const all = [...pre2, ...post];
+    const sure = all.reduce((n3, x) => n3 + x.sure, 0);
+    const maybe = all.reduce((n3, x) => n3 + x.maybe, 0);
+    const ready = flowTokState().ready;
+    const tok3 = all.filter((x) => x.on && typeof x.tok === "number").reduce((n3, x) => n3 + x.tok, 0);
+    const modelPart = (x) => x.model ? ` ${C2("STATE.NODE_MODEL", { model: x.model })}` : "";
+    const line2 = (x) => C2("STATE.NODE", { name: x.name, on: C2(x.on ? "STATE.NODE_ON" : "STATE.NODE_OFF"), model: modelPart(x), calls: x.calls, tok: ready && x.on && typeof x.tok === "number" ? ` ${C2("STATE.NODE_TOKENS", { tok: fmt3(x.tok) })}` : "" });
+    return [
+      C2("STATE.SUMMARY", { sure, maybe: maybe ? ` ${C2("STATE.SUMMARY_MAYBE", { max: sure + maybe })}` : "", tok: ready ? ` ${C2("STATE.SUMMARY_TOKENS", { tok: fmt3(tok3) })}` : "" }),
+      ...started ? [] : [C2("STATE.NOT_STARTED")],
+      C2("STATE.PRE"),
+      ...pre2.map(line2),
+      C2("STATE.MAIN"),
+      C2("STATE.MAIN_NODE", { name: main2.name, calls: main2.calls }),
+      C2("STATE.POST"),
+      ...post.map(line2),
+      C2("STATE.MANUAL"),
+      ...manual.map((x) => C2("STATE.MANUAL_NODE", { name: x.name, model: modelPart(x), calls: x.calls }))
+    ].join("\n");
+  }
+  async function consultLast() {
+    let turns3 = [];
+    try {
+      turns3 = await loadTrace();
+    } catch {
+    }
+    const t = [...turns3].reverse().find((x) => x.main || x.calls.some((c) => c.phase !== "manual"));
+    if (!t) return C2("LAST.NONE");
+    const calls = t.calls.filter((c) => c.phase !== "manual");
+    const model2 = (m) => C2(m === "main" ? "LAST.MODEL_MAIN" : m === "aux" ? "LAST.MODEL_AUX" : "LAST.MODEL_ID");
+    const toks = (n3) => n3 !== void 0 ? C2("LAST.TOKENS", { n: fmt3(n3) }) : C2("LAST.NO_RECORD");
+    const sent2 = calls.reduce((n3, c) => n3 + (c.requestTokens ?? 0), 0);
+    const got = calls.reduce((n3, c) => n3 + (c.responseTokens ?? 0), 0);
+    return [
+      C2("LAST.HEAD", { main: toks(t.main?.totalTokens), reply: toks(t.reply?.tokens) }),
+      ...calls.map((c) => C2("LAST.CALL", { label: c.label, phase: C2(c.phase === "before" ? "STATE.PRE" : "STATE.POST"), model: model2(c.model), sent: fmt3(c.requestTokens ?? 0), got: fmt3(c.responseTokens ?? 0), sec: Math.round(c.ms / 100) / 10, result: C2(c.ok ? "LAST.OK" : "LAST.FAIL") })),
+      C2("LAST.TOTAL", { n: calls.length, sent: fmt3(sent2), got: fmt3(got) })
+    ].join("\n");
+  }
+  var menuLine = (m, short) => {
+    const intro = m.intro ? C2("MENUS.INTRO", { intro: m.intro }) : "";
+    return short ? C2("MENUS.LINE_SHORT", { menu: m.menu, intro }) : C2("MENUS.LINE", { menu: m.menu, intro, names: [...new Set(m.rows.flatMap((r) => r.keys))].join(", ") });
+  };
+  function consultMenus(menus, short) {
+    return [...menus.map((m) => menuLine(m, !!short?.has(m.page))), C2("MENUS.OTHERS_HEAD"), catalogOthers()].join("\n");
+  }
+  function shortMenus(menus, keep2, over) {
+    const out2 = /* @__PURE__ */ new Set();
+    let left = over;
+    for (let i = menus.length - 1; i >= 0 && left > 0; i--) {
+      const m = menus[i];
+      if (keep2.includes(m.page)) continue;
+      const saved = tokens(menuLine(m, false)) - tokens(menuLine(m, true));
+      if (saved <= 0) continue;
+      out2.add(m.page);
+      left -= saved;
+    }
+    return out2;
+  }
+  function menusInText(menus, text5) {
+    const t = flat(text5);
+    if (!t) return [];
+    const where2 = /* @__PURE__ */ new Map();
+    for (const m of menus) for (const k of new Set(m.rows.flatMap((r) => [...r.keys, r.group]).map(flat).filter((k2) => k2.length >= 2))) (where2.get(k) ?? where2.set(k, /* @__PURE__ */ new Set()).get(k)).add(m.page);
+    const byName = menus.filter((m) => t.includes(flat(m.menu))).map((m) => m.page);
+    const byRow = [...where2].filter(([k, pages2]) => pages2.size <= 2 && t.includes(k)).flatMap(([, pages2]) => [...pages2]);
+    return [.../* @__PURE__ */ new Set([...byName, ...byRow])];
+  }
+  function openMenus(menus, want, base, budget2) {
+    const out2 = [];
+    let used = base;
+    for (const page of [...new Set(want)]) {
+      const m = menus.find((x) => x.page === page);
+      if (!m || !m.rows.length) continue;
+      const cost = budget2 > 0 ? tokens(m.rows.map(itemLine2).join("\n")) : 0;
+      if (budget2 > 0 && out2.length > 0 && used + cost > budget2) continue;
+      used += cost;
+      out2.push(m);
+    }
+    return out2;
+  }
+  var modelOf = () => getPrefs().consultModel === "main" ? "main" : "aux";
+  var consultButton = () => `<button class="gx-mini ai-open${consultUi.open ? " on" : ""}" data-action="ai-toggle" aria-pressed="${consultUi.open}">AI 상담</button>`;
+  var goBtn = (go3) => `<button class="gx-mini" data-action="ai-go" data-value="${esc41(go3[0])}|${esc41(go3[1])}">설정으로 가기 →</button>`;
+  function lineHtml(l, i, busy6) {
+    if (l.who === "card") {
+      const go3 = l.rows.find((r) => r.go)?.go;
+      return `<div class="ai-card"><b>바꾼 설정 ${l.rows.length}개</b>${l.rows.map((r) => `<div class="ai-ch"><span>${esc41(r.title)}${r.scope ? `<i class="gx-scope">${esc41(r.scope)}</i>` : ""}</span><i><s>${esc41(r.fromLabel)}</s> → <em>${esc41(r.toLabel)}</em></i></div>`).join("")}
+      <div class="ai-btns">${l.undone ? '<button class="gx-mini" disabled>되돌렸어요</button>' : `<button class="gx-mini" data-action="ai-undo" data-value="${i}"${busy6 ? " disabled" : ""}>되돌리기</button>`}${go3 ? goBtn(go3) : ""}</div></div>`;
+    }
+    if (l.who === "err") return `<div class="ai-sys ai-err"><span>${esc41(l.text)}</span><button class="gx-mini" data-action="ai-retry"${busy6 ? " disabled" : ""}>다시 시도</button></div>`;
+    if (l.who === "sys") return `<div class="ai-sys">${esc41(l.text)}</div>`;
+    return `<div class="ai-m ${l.who === "me" ? "ai-me" : "ai-op"}">${esc41(l.text)}</div>${l.go ? `<div class="ai-btns ai-gobtn">${goBtn(l.go)}</div>` : ""}`;
+  }
+  function consultAside(ctx2, render3) {
+    if (!consultUi.open) return "";
+    ensureLoaded(render3);
+    const lines3 = ctx2 && store2 ? mine2(ctx2).lines : [];
+    const busy6 = consultUi.busy;
+    const model2 = modelOf();
+    const confirm = consultUi.confirm && lines3.length && !busy6 ? '<div class="gw-confirm"><div class="gw-confirm-box"><p>이 채팅의 상담 대화를 지울까요? 바꾼 설정은 그대로 둬요.</p><div class="gx-row-btns"><button class="gx-mini danger" data-action="ai-clear-yes">대화 지우기</button><button class="gx-mini" data-action="ai-clear-no">취소</button></div></div></div>' : "";
+    return `<aside class="gw-ai" role="dialog" aria-label="AI 상담">
+    <div class="gw-ai-top"><span class="gw-brand">${GHOST_ICON}</span><b>AI 상담</b><button class="ai-model" data-action="ai-model" data-value="${model2 === "aux" ? "main" : "aux"}" aria-label="부를 모델: ${model2 === "aux" ? "보조 모델" : "메인 모델"}"${busy6 ? " disabled" : ""}>${model2 === "aux" ? "보조 모델" : "메인 모델"}</button><button class="ai-model ai-clear" data-action="ai-clear"${busy6 || !lines3.length ? " disabled" : ""}>대화 지우기</button><button class="gx-x" data-action="ai-close" aria-label="닫기">${ICONS.close}</button></div>
+    <div class="gw-ai-log" aria-live="polite">
+      <div class="ai-sys">설정을 묻거나 바꿔 달라고 하세요. 이 대화는 메인 요청에 들어가지 않아요.</div>
+      ${lines3.map((l, i) => lineHtml(l, i, busy6)).join("")}
+    </div>
+    <div class="gw-ai-in"><input class="gx-search" name="ai-q" data-input="ai-q" data-enter="ai-send" value="${esc41(consultUi.input)}" maxlength="500" placeholder="${busy6 ? "보내는 중…" : "설정에 대해 물어보세요"}" aria-label="메시지" autocomplete="off"${busy6 || !ctx2 ? " disabled" : ""}><button class="gx-mini" data-action="ai-send" data-take="ai-q"${busy6 || !ctx2 ? " disabled" : ""}>보내기</button></div>${confirm}
+  </aside>`;
+  }
+  function consultAfterRender(root3, ctx2) {
+    root3.classList.toggle("ai-on", consultUi.open);
+    if (!consultUi.open) {
+      consultUi.drawn = -1;
+      return;
+    }
+    const input3 = root3.querySelector('.gw-ai [name="ai-q"]');
+    if (input3 && consultUi.clear) {
+      input3.value = "";
+      consultUi.clear = false;
+    }
+    const n3 = ctx2 && store2 ? mine2(ctx2).lines.length : 0;
+    const log = root3.querySelector(".gw-ai-log");
+    if (log && n3 !== consultUi.drawn) log.scrollTop = log.scrollHeight;
+    consultUi.drawn = n3;
+  }
+  var rowAt = (page, id2) => catalogPage(page).find((r) => r.id === id2);
+  var press = (d, page, a) => d.panel("ai-do", `${page}|${a[0]}|${a[1]}`);
+  async function stepTo(d, page, id2, value) {
+    for (let i = 0; i < 400; i++) {
+      const cur = rowAt(page, id2);
+      if (!cur) return false;
+      if (cur.cur === value) return true;
+      const [a] = sendsFor(cur, value);
+      if (!a) return false;
+      const gap = Number(value) - Number(cur.cur);
+      await press(d, page, a);
+      const next = rowAt(page, id2);
+      if (!next || next.cur === cur.cur) return false;
+      if ((Number(value) - Number(next.cur)) * gap < 0) return false;
+    }
+    return false;
+  }
+  var cardOf = (e, now2) => ({ id: e.id, page: e.page, title: `${e.menu} · ${e.name}`, from: e.cur, to: now2.cur, fromLabel: consultLabel(e, e.cur), toLabel: consultLabel(now2, now2.cur), go: e.go, ...e.scope ? { scope: e.scope } : {} });
+  async function setOne(d, page, id2, value) {
+    const e = rowAt(page, id2);
+    if (!e || !consultCan(e) || e.cur === value) return null;
+    const card3 = (now3) => cardOf(e, now3);
+    if (e.ctl?.t === "rel") {
+      if (await stepTo(d, page, id2, value)) {
+        const now3 = rowAt(page, id2);
+        return now3 ? card3(now3) : null;
+      }
+      await stepTo(d, page, id2, e.cur);
+      return null;
+    }
+    for (const a of sendsFor(e, value)) await press(d, page, a);
+    const now2 = rowAt(page, id2);
+    if (!now2) return null;
+    if (e.kind === "text" ? now2.cur === e.cur : now2.cur !== value) return null;
+    return card3(now2);
+  }
+  async function ask4(d, ctx2) {
+    const key = chatKey7(ctx2);
+    const me = mine2(ctx2);
+    const started = d.started();
+    consultUi.busy = true;
+    d.render();
+    try {
+      const menus = catalogAll();
+      const all = rowsOf4(menus);
+      const pending2 = me.pending.filter((p2) => all.some((i) => i.id === p2.id));
+      const talk = me.lines.filter((l) => l.who === "me" || l.who === "op").slice(-consultTalk(flowView(ctx2, started).scope)).map((l) => ({ who: l.who, text: l.text }));
+      const scope = flowView(ctx2, started).scope;
+      const gen2 = genSettings(scope);
+      const budget2 = advNum(scope, "gen", "budget");
+      const lastCard = [...me.lines].reverse().find((l) => l.who === "card");
+      const pageOf2 = (id2) => all.find((r) => r.id === id2)?.page ?? "";
+      const said3 = [...me.lines].reverse().find((l) => l.who === "me");
+      const cur = catalogCurrent();
+      const want = [cur, ...pending2.map((p2) => pageOf2(p2.id)), ...lastCard?.who === "card" ? lastCard.rows.map((r) => r.page) : [], ...menusInText(menus, said3 && said3.who === "me" ? said3.text : "")].filter(Boolean);
+      let short = /* @__PURE__ */ new Set();
+      const src = (opened2) => ({ state: consultState(ctx2, started), last: last2, menus: consultMenus(menus, short), opened: opened2.map((m) => ({ menu: m.menu, items: m.rows })), all, pending: pending2, talk });
+      const last2 = await consultLast();
+      const size = (m) => m.reduce((n3, x) => n3 + tokens(x.content), 0);
+      let base = 0;
+      const fit2 = (wantNow) => {
+        short = /* @__PURE__ */ new Set();
+        if (!(budget2 > 0)) return;
+        const first = openMenus(menus, wantNow, 0, 0).slice(0, 1);
+        short = shortMenus(menus, wantNow, size(consultPrompt(src(first))) - budget2);
+        base = size(consultPrompt(src([])));
+      };
+      const call = async (wantNow) => {
+        fit2(wantNow);
+        return (await generate(consultPrompt(src(openMenus(menus, wantNow, base, budget2))), modelOf(), parseConsult, { retries: gen2.retries, retryModel: gen2.retryModel, transientRetries: gen2.transientRetries, label: "AI 상담" })).value;
+      };
+      let value = await call(want);
+      const more = value.open.map((n3) => menus.find((m) => flat(m.menu) === flat(n3))?.page ?? "").filter((p2) => p2 && !want.includes(p2));
+      if (more.length) value = await call(cur && want[0] === cur ? [cur, ...more, ...want.slice(1)] : [...more, ...want]);
+      if (!value.say) throw new Error(C2("ERR.NO_SAY"));
+      const now2 = d.ctx();
+      const same4 = !!now2 && chatKey7(now2) === key;
+      const go3 = all.find((r) => r.id === value.go)?.go;
+      me.lines.push({ who: "op", text: value.say, ...go3 ? { go: go3 } : {} });
+      me.pending = [];
+      if (value.apply) {
+        if (!pending2.length) me.lines.push({ who: "sys", text: "바꾸자고 한 것이 없어서 아무것도 바꾸지 않았어요." });
+        else if (!same4) me.lines.push({ who: "sys", text: "채팅이 바뀌어서 아무것도 바꾸지 않았어요." });
+        else {
+          const rows3 = [];
+          const failed4 = [];
+          const first = new Map(pending2.map((p2) => [p2.id, rowAt(pageOf2(p2.id), p2.id)]));
+          for (const p2 of pending2) {
+            if (rowAt(pageOf2(p2.id), p2.id)?.cur === p2.value) continue;
+            await setOne(d, pageOf2(p2.id), p2.id, p2.value);
+          }
+          for (const p2 of pending2) {
+            const e = first.get(p2.id);
+            const now3 = rowAt(pageOf2(p2.id), p2.id);
+            if (e && now3 && now3.cur !== e.cur && (e.kind === "text" || now3.cur === p2.value)) rows3.push(cardOf(e, now3));
+            else failed4.push(e?.name ?? all.find((x) => x.id === p2.id)?.name ?? p2.id);
+          }
+          if (rows3.length) me.lines.push({ who: "card", rows: rows3 });
+          if (failed4.length) me.lines.push({ who: "sys", text: `바꾸지 못했어요: ${failed4.join(", ")}` });
+        }
+      }
+      if (value.set.length && !(value.apply && pending2.length)) {
+        const { ok, bad } = checkConsult(all, value.set);
+        me.pending = ok;
+        if (bad.length) me.lines.push({ who: "sys", text: `바꿀 수 없는 것은 뺐어요. ${bad.join(" · ")}` });
+      }
+    } catch (error) {
+      me.lines.push({ who: "err", text: `답을 받지 못했어요. ${(error instanceof Error ? error.message : String(error)).split("\n")[0].slice(0, 200)}` });
+    }
+    me.at = Date.now();
+    consultUi.busy = false;
+    await persist();
+    d.render();
+  }
+  async function consultAction(action, value, d) {
+    const ctx2 = d.ctx();
+    if (action === "ai-toggle" || action === "ai-close") {
+      consultUi.open = action === "ai-toggle" ? !consultUi.open : false;
+      consultUi.confirm = false;
+      return d.render();
+    }
+    if (action === "ai-go") {
+      if (d.phone()) consultUi.open = false;
+      return d.editor("ed-flow-go", value);
+    }
+    if (action === "ai-model") {
+      if (consultUi.busy) return;
+      await savePrefs((p2) => {
+        const { consultModel: _drop, ...rest } = p2;
+        return value === "main" ? { ...rest, consultModel: "main" } : rest;
+      });
+      return d.render();
+    }
+    if (!ctx2 || consultUi.busy || !store2) return;
+    const me = mine2(ctx2);
+    if (action === "ai-clear" || action === "ai-clear-no") {
+      consultUi.confirm = action === "ai-clear" && me.lines.length > 0;
+      return d.render();
+    }
+    if (action === "ai-clear-yes") {
+      if (!consultUi.confirm) return;
+      consultUi.confirm = false;
+      me.lines = [];
+      me.pending = [];
+      me.at = Date.now();
+      await persist();
+      return d.render();
+    }
+    consultUi.confirm = false;
+    if (action === "ai-send") {
+      const text5 = String(value ?? "").replace(/\s+/g, " ").trim().slice(0, 500);
+      if (!text5) return;
+      me.lines.push({ who: "me", text: text5 });
+      consultUi.input = "";
+      consultUi.clear = true;
+      return ask4(d, ctx2);
+    }
+    if (action === "ai-retry") {
+      const last2 = me.lines.at(-1);
+      if (last2?.who !== "err") return;
+      me.lines.pop();
+      return ask4(d, ctx2);
+    }
+    if (action === "ai-undo") {
+      const card3 = me.lines[Number(value)];
+      if (!card3 || card3.who !== "card" || card3.undone) return;
+      consultUi.busy = true;
+      d.render();
+      const failed4 = [];
+      const back = (r) => {
+        try {
+          return rowAt(r.page, r.id)?.cur === r.from;
+        } catch {
+          return false;
+        }
+      };
+      try {
+        for (let pass = 0; pass < 2; pass++) {
+          for (const r of [...card3.rows].reverse()) if (!back(r)) await setOne(d, r.page, r.id, r.from);
+          if (card3.rows.every(back)) break;
+        }
+      } catch (error) {
+        console.log(`[goei] AI 상담 되돌리기 중 오류: ${error instanceof Error ? error.message : String(error)}`);
+      }
+      for (const r of card3.rows) if (!back(r)) failed4.push(r.title);
+      if (failed4.length) me.lines.push({ who: "sys", text: `되돌리지 못했어요: ${failed4.join(", ")}` });
+      else card3.undone = true;
+      me.at = Date.now();
+      consultUi.busy = false;
+      await persist();
+      return d.render();
+    }
+  }
+  function consultClose() {
+    consultUi.open = false;
+    consultUi.confirm = false;
+  }
+
+  // src/ui/morph.ts
+  var KEEP = [".ph-drawer", ".gx-mbar"];
+  var committed = null;
+  function markCommitted(el) {
+    committed = el;
+  }
+  var TRANSIENT2 = ["gw-find-flash"];
+  function syncAttrs(a, b) {
+    const keep2 = TRANSIENT2.filter((c) => a.classList.contains(c));
+    for (const { name } of [...a.attributes]) if (!b.hasAttribute(name) && !(name === "class" && keep2.length)) a.removeAttribute(name);
+    for (const { name, value } of [...b.attributes]) {
+      const want = name === "class" && keep2.length ? [value, ...keep2.filter((c) => !value.split(/\s+/).includes(c))].filter(Boolean).join(" ") : value;
+      if (a.getAttribute(name) !== want) a.setAttribute(name, want);
+    }
+    if (keep2.length && !b.hasAttribute("class")) a.setAttribute("class", keep2.join(" "));
+  }
+  function syncForm(a, b) {
+    const active3 = document.activeElement === a && a !== committed;
+    if (a instanceof HTMLInputElement && b instanceof HTMLInputElement) {
+      if (a.type === "checkbox" || a.type === "radio") {
+        if (a.checked !== b.hasAttribute("checked")) a.checked = b.hasAttribute("checked");
+      } else if (a.type !== "file" && !active3 && a.value !== b.getAttribute("value")) a.value = b.getAttribute("value") ?? "";
+    } else if (a instanceof HTMLTextAreaElement && b instanceof HTMLTextAreaElement) {
+      if (!active3 && a.value !== b.textContent) a.value = b.textContent ?? "";
+    } else if (a instanceof HTMLSelectElement && b instanceof HTMLSelectElement) {
+      const want = [...b.options].findIndex((o) => o.hasAttribute("selected"));
+      if (want >= 0 && a.selectedIndex !== want) a.selectedIndex = want;
+    } else if (a instanceof HTMLOptionElement && b instanceof HTMLOptionElement) {
+      if (a.selected !== b.hasAttribute("selected")) a.selected = b.hasAttribute("selected");
+    }
+  }
+  function same3(a, b) {
+    return a.nodeType === b.nodeType && (a.nodeType !== Node.ELEMENT_NODE || a.tagName === b.tagName);
+  }
+  function morphNode(a, b) {
+    if (a.nodeType === Node.TEXT_NODE || a.nodeType === Node.COMMENT_NODE) {
+      if (a.nodeValue !== b.nodeValue) a.nodeValue = b.nodeValue;
+      return;
+    }
+    const ea = a;
+    const eb = b;
+    if (document.activeElement === ea && ea.tagName === "BUTTON" && (ea.getAttribute("data-action") !== eb.getAttribute("data-action") || ea.getAttribute("data-value") !== eb.getAttribute("data-value"))) ea.blur();
+    syncAttrs(ea, eb);
+    syncForm(ea, eb);
+    if (KEEP.some((q) => ea.matches(q))) return;
+    morphChildren(ea, eb);
+  }
+  function morphChildren(a, b) {
+    const want = [...b.childNodes];
+    const have = [...a.childNodes];
+    let i = 0;
+    for (; i < want.length; i++) {
+      const w = want[i];
+      const h = have[i];
+      if (!h) {
+        a.appendChild(w.cloneNode(true));
+        continue;
+      }
+      if (same3(h, w)) {
+        morphNode(h, w);
+        continue;
+      }
+      const j = have.findIndex((x, k) => k > i && same3(x, w));
+      if (j > i && j - i <= 3) {
+        for (let k = i; k < j; k++) have[k].remove();
+        have.splice(i, j - i);
+        morphNode(have[i], w);
+        continue;
+      }
+      a.replaceChild(w.cloneNode(true), h);
+      have[i] = a.childNodes[i];
+    }
+    for (let k = have.length - 1; k >= i; k--) have[k].remove();
+  }
+  function morph(root3, html) {
+    const tpl = document.createElement("template");
+    tpl.innerHTML = html;
+    morphChildren(root3, tpl.content);
+    committed = null;
+  }
+
+  // src/ui/editor/index.ts
+  var SET_PAGES = ["screen", "image", "board", "status", "gnet", "gal", "wpf", "sm", "cos", "bm", "hs", "phone", "wiki", "journal", "wallet", "items", "shop", "people", "factions", "lore", "adv", "update", "net"];
+  var isFeatPage = (p2) => ["gnet", "gal", "wpf", "sm", "cos", "bm", "hs", "phone", "wiki", "people", "journal", "factions"].includes(p2);
+  var isSetNode = (n3) => n3.startsWith("set:") && SET_PAGES.includes(n3.slice(4));
+  var isGuideNode = (n3) => n3.startsWith("guide:");
+  var TABS2 = [["set", "기능", ICONS.settings], ["world", "세계", ICONS.map], ["guide", "지침", ICONS.book], ["manage", "점검", ICONS.refresh]];
+  var tabOf = (n3) => isKind4(n3) || n3 === "base" || n3 === "start" || n3 === "relations" ? "world" : isGuideNode(n3) || isRuleNode(n3) ? "guide" : n3 === "install" || n3 === "set:update" || n3.startsWith("manage:") && n3 !== "manage:flow" ? "manage" : "set";
+  var legacyNode = (n3) => /^set:(gnet|gal|wpf|sm)$/.test(n3) ? "set:net" : n3 === "set:guides" ? "guide:RP" : n3 === "set:update" ? "install" : n3 === "manage:lore" ? "set:lore" : n3 === "set:wallet" ? "set:items" : n3.startsWith("rule:") ? "rule:all" : n3;
+  var edUi = {
+    open: false,
+    node: "agent",
+    /** 기록 종류별로 고른 이름 */
+    sel: {},
+    q: "",
+    over: {},
+    /** 덧쓰기 초안을 만든 로어북 */
+    from: null,
+    base: "",
+    busy: false,
+    notice: "",
+    info: "",
+    drawer: false,
+    confirm: "",
+    /** 표 줄 지우기를 묻는 중 (ROW_DEL) */
+    askDel: null,
+    /** 탭마다 마지막으로 보던 페이지 */
+    last: {},
+    /** 기능 탭 「설정 찾기」 칸에 적은 말 (2026-11-06 사용자 승인, 전수점검 8-10) */
+    sq: "",
+    /** 세계 통합 검색 (2026-11-07 사용자: 종류마다 검색 말고 요원·조직·괴이·파밍·부록을 한 칸에서) */
+    wq: ""
+  };
+  var root = null;
+  var host3 = null;
+  var esc42 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  function overridesOf(ctx2) {
+    const lore = ctx2.char.globalLore ?? [];
+    if (edUi.from !== lore && (!edUi.from || !worldDirty())) {
+      const d = readDirectoryData(lore);
+      edUi.over = structuredClone(d?.세계 ?? {});
+      edUi.base = JSON.stringify(edUi.over);
+      edUi.from = lore;
+    }
+    return edUi.over;
+  }
+  var worldDirty = () => JSON.stringify(edUi.over) !== edUi.base;
+  var anyDirty = () => worldDirty() || dirty2();
+  function setOverrides(next) {
+    edUi.over = next;
+  }
+  var edHist = new NavHistory();
+  function edStep(dir2) {
+    if (!edUi.open || edUi.confirm) return null;
+    if (consultUi.open) return dir2 < 0 ? () => void run4("ai-close") : null;
+    if (edUi.drawer) return dir2 < 0 ? () => void run4("ed-drawer") : null;
+    if (edHist.can(dir2)) return () => {
+      const n3 = edHist.go(dir2);
+      if (n3) void run4("ed-node", n3);
+    };
+    return dir2 < 0 ? () => void run4("ed-close") : null;
+  }
+  function openEditor(h, node) {
+    host3 = h;
+    if (!edUi.open) edHist.clear();
+    edCdr = false;
+    edUi.open = true;
+    if (node) edUi.node = legacyNode(node);
+    edUi.notice = "";
+    manUi.sizes = null;
+    findIndex = null;
+    syncSettingsPage();
+    ensureRoot();
+    render();
+  }
+  function syncSettingsPage() {
+    const n3 = edUi.node;
+    const page = isSetNode(n3) ? n3.slice(4) : "";
+    settingsUi.page = isFeatPage(page) ? page : "";
+  }
+  function closeEditor() {
+    edUi.open = false;
+    edUi.confirm = "";
+    consultClose();
+    if (root) root.hidden = true;
+  }
+  var editorOpen = () => edUi.open;
+  var editorOnSettings = () => edUi.open && isSetNode(edUi.node);
+  function ensureRoot() {
+    if (root) {
+      root.hidden = false;
+      return root;
+    }
+    const style = document.createElement("style");
+    style.textContent = style_default;
+    document.head.appendChild(style);
+    root = document.createElement("div");
+    root.className = "gw";
+    document.body.appendChild(root);
+    guardHiddenScroll(root);
+    bindNeedFill();
+    root.addEventListener("toggle", (ev) => rememberPanel(ev.target), true);
+    bindCropDrag(root, () => render());
+    root.addEventListener("click", (ev) => {
+      const t = ev.target;
+      if (t === root) return void run4(consultUi.open && isPhone() ? "ai-close" : "ed-close");
+      if (edUi.drawer && t.closest(".gw-body, .gw-totop") && getComputedStyle(root.querySelector(".gw-menu") ?? root).display !== "none") return void run4("ed-drawer");
+      const pickMap = t.closest("[data-base-pick]");
+      if (pickMap) {
+        const img = pickMap.querySelector("img")?.getBoundingClientRect();
+        if (!img || !img.width || !img.height) return;
+        const x = (ev.clientX - img.left) / img.width * 100;
+        const y = (ev.clientY - img.top) / img.height * 100;
+        if (x < 0 || x > 100 || y < 0 || y > 100) return;
+        return void run4("dir-base-xy", `${x.toFixed(1)}|${y.toFixed(1)}|${pickMap.dataset.basePick}`);
+      }
+      if (slotDropped) return;
+      const el = t.closest("[data-action]");
+      if (!el || el.hasAttribute("disabled")) return;
+      if (el.dataset.action === "ed-hint") return hintFor === el ? hideHint() : showHint(el);
+      const take = el.dataset.take ? root?.querySelector(`[name="${el.dataset.take}"]`)?.value : void 0;
+      void run4(el.dataset.action, take ?? el.dataset.value);
+    });
+    root.addEventListener("mouseover", (ev) => {
+      const b = ev.target.closest(".gw-fhint");
+      if (b) showHint(b);
+    });
+    root.addEventListener("mouseout", (ev) => {
+      const b = ev.target.closest(".gw-fhint");
+      if (b && b === hintFor && !(ev.relatedTarget instanceof Node && b.contains(ev.relatedTarget))) hideHint();
+    });
+    root.addEventListener("scroll", (ev) => {
+      if (ev.target?.classList?.contains("gw-body")) syncTop();
+      if (Date.now() - hintAt > 400) hideHint();
+    }, true);
+    root.addEventListener("input", (ev) => {
+      const el = ev.target;
+      const auto = el?.dataset?.autosave;
+      if (auto) {
+        const field4 = el.getAttribute("name") ?? auto;
+        later(`auto:${field4}`, () => {
+          const cur = root?.querySelector(`[name="${CSS.escape(field4)}"]`);
+          void run4(auto, cur?.value ?? el.value);
+        });
+      }
+      const name = el?.dataset?.input;
+      if (!name) return;
+      if (name === "ai-q") {
+        consultUi.input = el.value;
+        return;
+      }
+      const ctx2 = host3?.ctx();
+      if (name === "dir") {
+        directoryInput(el.dataset.key ?? "", el.value, null);
+        touched();
+        return;
+      }
+      if (name === "ed-sq") {
+        edUi.sq = el.value;
+        const box3 = root?.querySelector(".gw-find-out");
+        if (box3) box3.innerHTML = edUi.sq.trim() ? findResults(ctx2 ?? null) : treeGroups(treeCounts(ctx2 ?? null), featureState(ctx2 ?? null));
+        return;
+      }
+      if (name === "ed-wq") {
+        edUi.wq = el.value;
+        const box3 = root?.querySelector(".gw-find-out");
+        if (box3) box3.innerHTML = edUi.wq.trim() ? worldFindResults(ctx2 ?? null) : treeGroups(treeCounts(ctx2 ?? null), featureState(ctx2 ?? null));
+        return;
+      }
+      if (name === "ed-q") {
+        edUi.q = el.value;
+        const box3 = root?.querySelector(".gw-list");
+        if (box3 && ctx2 && isKind4(edUi.node)) box3.innerHTML = recordList(ctx2, edUi.node, overridesOf(ctx2), edUi.q);
+        return;
+      }
+      if (imgInput(name, el.value)) return;
+      if (name === "dir-photo-q" && ctx2) {
+        dirUi.pickQ = el.value;
+        const box3 = root?.querySelector(".dir-pics");
+        if (box3) box3.innerHTML = directoryPhotoList(ctx2);
+        return;
+      }
+      if (name === "dir-crop-size") {
+        const key = el.dataset.key ?? "";
+        const [x, y] = cropValue(key);
+        setCrop(key, [x, y, Number(el.value)]);
+        const frame = root?.querySelector("[data-crop] .dir-crop-frame");
+        if (frame) frame.style.width = `${el.value}%`;
+        return;
+      }
+      if (name === "adv-books-q" && ctx2) {
+        booksInput(name, el.value, root, { char: ctx2.char, chat: ctx2.chat }, host3?.canChat?.() ?? true ? ctx2.chat.scriptstate : defaultsState());
+        return;
+      }
+      if (name === "dir-ext-q" && ctx2) {
+        dirUi.addQ = el.value;
+        const box3 = root?.querySelector(".dir-ext-list");
+        if (box3) box3.innerHTML = directoryExtList(ctx2);
+        return;
+      }
+      if (ctx2) {
+        const took = recordInput(name, el.dataset.key ?? "", el.value, ctx2);
+        if (name === "ed-extra-name") xnameSync(el);
+        if (took === "invalid") return;
+        if (took) return void touched();
+      }
+      if (ctx2 && relationsInput(name, el.dataset.key ?? "", el.value, ctx2)) return void touched();
+      if (guideInput(name, el.dataset.key ?? "", el.value)) {
+        touched();
+        const key = el.dataset.key ?? "";
+        const g3 = key.includes("|") ? key.slice(0, key.lastIndexOf("|")) : key;
+        later(`guide:${g3}`, () => void guideAction("ed-guide-save", g3).then(() => guideUi.info && render()));
+        return;
+      }
+      if (ruleInput(name, el.dataset.key ?? "", el.value)) return;
+      if (manageInput(name, el.value)) {
+        const btn = root?.querySelector('[data-action="man-import"]');
+        if (btn) btn.disabled = !el.value.trim();
+        return;
+      }
+      if (name === "dir-q" && ctx2) {
+        dirUi.q = el.value;
+        const box3 = root?.querySelector(".dir-list");
+        if (box3) box3.innerHTML = directoryList(ctx2, true);
+        return;
+      }
+      host3?.input?.(el);
+    });
+    root.addEventListener("change", (ev) => {
+      const el = ev.target;
+      markCommitted(el);
+      if (el?.dataset?.input === "dir-crop-size") return render();
+      if (el?.dataset?.change?.startsWith("ed-")) return void run4(el.dataset.change, el.value);
+      if (el?.dataset?.change === "man-import-file") return void manageFile(el).then(() => render());
+      if (el?.dataset?.change === "man-with-chat") return void manageAction("man-with-chat", root, host3?.ctx() ?? null, host3?.canChat?.() ?? true).then(() => render());
+      if (el?.dataset?.change?.startsWith("dir-") || el?.dataset?.change?.startsWith("ip-")) return void run4(el.dataset.change, el.dataset.key ? `${el.dataset.key}=${el.value}` : el.value);
+      if (el?.dataset?.change === "pp-diag-all") return void run4("pp-diag-all", el.value);
+      host3?.change?.(el);
+    });
+    root.addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      const form2 = ev.target;
+      const input3 = form2.querySelector("input");
+      if (form2.dataset.submit) void run4(form2.dataset.submit, input3?.value ?? "");
+    });
+    root.addEventListener("keydown", (ev) => {
+      const el = ev.target;
+      if (ev.key === "Enter" && !ev.isComposing && ev.keyCode !== 229 && el?.dataset?.enter && !(el instanceof HTMLTextAreaElement)) {
+        ev.preventDefault();
+        void run4(el.dataset.enter, el.value);
+      }
+    });
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key === "Escape" && edUi.open && !edUi.confirm) void run4(consultUi.open ? "ai-close" : "ed-close");
+    });
+    let drag = null;
+    root.addEventListener("dragstart", (ev) => {
+      const row8 = ev.target.closest("[data-field-row]");
+      drag = row8?.dataset.fieldRow ?? null;
+      if (row8) row8.classList.add("dragging");
+      ev.dataTransfer?.setData("text/plain", drag ?? "");
+    });
+    root.addEventListener("dragover", (ev) => {
+      const row8 = ev.target.closest("[data-field-row]");
+      if (!row8 || !drag) return;
+      ev.preventDefault();
+      root?.querySelectorAll(".drop-before").forEach((x) => x.classList.remove("drop-before"));
+      row8.classList.add("drop-before");
+    });
+    root.addEventListener("drop", (ev) => {
+      const row8 = ev.target.closest("[data-field-row]");
+      root?.querySelectorAll(".drop-before, .dragging").forEach((x) => x.classList.remove("drop-before", "dragging"));
+      if (!row8 || !drag) return;
+      ev.preventDefault();
+      const to = row8.dataset.fieldRow ?? "";
+      const from = drag;
+      drag = null;
+      if (from && to && from !== to) void run4("ed-field-drop", `${from}|${to}`);
+    });
+    let slotDropped = false;
+    root.addEventListener("pointerdown", (ev) => {
+      const grip = ev.target.closest?.("[data-drag-slot]");
+      const row8 = grip?.closest("[data-slot-row]");
+      if (!grip || !row8 || !root) return;
+      ev.preventDefault();
+      const box3 = root;
+      const rows3 = [...box3.querySelectorAll("[data-slot-row]")].filter((r) => r !== row8);
+      let drop = null;
+      const mark2 = (next) => {
+        drop?.el.classList.remove("drop-before", "drop-after");
+        drop = next;
+        drop?.el.classList.add(drop.after ? "drop-after" : "drop-before");
+      };
+      const move = (e) => {
+        let best = null;
+        let gap = Infinity;
+        for (const r of rows3) {
+          const b = r.getBoundingClientRect();
+          const d = Math.abs(e.clientY - (b.top + b.height / 2));
+          if (d < gap) [gap, best] = [d, { el: r, after: e.clientY > b.top + b.height / 2 }];
+        }
+        if (best?.el !== drop?.el || best?.after !== drop?.after) mark2(best);
+      };
+      row8.classList.add("dragging");
+      box3.classList.add("dir-dragging");
+      grip.setPointerCapture?.(ev.pointerId);
+      const up = () => {
+        grip.removeEventListener("pointermove", move);
+        grip.removeEventListener("pointerup", up);
+        grip.removeEventListener("pointercancel", up);
+        row8.classList.remove("dragging");
+        box3.classList.remove("dir-dragging");
+        const target = drop;
+        mark2(null);
+        if (target) {
+          slotDropped = true;
+          setTimeout(() => slotDropped = false, 0);
+        }
+        if (target) void run4("dir-start-drop", `${target.after ? "after" : "before"}|${grip.dataset.dragSlot}|${target.el.dataset.slotRow}`);
+      };
+      grip.addEventListener("pointermove", move);
+      grip.addEventListener("pointerup", up);
+      grip.addEventListener("pointercancel", up);
+    });
+    root.addEventListener("dragend", () => root?.querySelectorAll(".drop-before, .dragging").forEach((x) => x.classList.remove("drop-before", "dragging")));
+    return root;
+  }
+  function touched() {
+    if (edUi.notice.startsWith("저장하지 못했어요")) edUi.notice = "";
+    autoSaveWorld();
+    root?.toggleAttribute("data-dirty", anyDirty());
+    if (root && isGuideNode(edUi.node)) guideBarSync(root, edUi.node.slice(6));
+    const tok3 = root?.querySelector(".gw-tokens");
+    const ctx2 = host3?.ctx();
+    if (tok3 && ctx2 && isKind4(edUi.node)) tok3.outerHTML = recUi.tokensHtml(ctx2, edUi.node, overridesOf(ctx2));
+  }
+  var isKind4 = (n3) => ["agent", "org", "anomaly", "site", "appendix"].includes(n3);
+  var SET_LABEL = { screen: "화면", image: "캐릭터 이미지", board: "상황판", status: "상태창", gnet: "괴담넷", gal: "괴담갤", wpf: "세정게", sm: "연어 마켓", cos: "우주 쇼핑몰", bm: "백일몽 포인트몰", hs: "망상홈쇼핑", phone: "괴담톡", wiki: "위키", journal: "일지", wallet: "가계부", items: "소지품", shop: "상점", people: "인물", factions: "세력", lore: "로어북 호출", adv: "생성 공통", update: "업데이트", net: "인터넷" };
+  var SET_ICON = { screen: ICONS.settings, image: ICONS.cctv, board: ICONS.grid, status: ICONS.list, gnet: siteLogo("gn"), gal: siteLogo("gal"), wpf: siteLogo("wpf"), sm: siteLogo("sm"), cos: siteLogo("cos"), bm: siteLogo("bm"), hs: siteLogo("hs"), phone: ICONS.phone, wiki: ICONS.wiki, journal: ICONS.records, wallet: ICONS.wallet, items: ICONS.bag, shop: ICONS.tag, people: ICONS.group, factions: ICONS.org, lore: ICONS.search, adv: ICONS.pen, update: ICONS.refresh, net: ICONS.net };
+  var setItem = (p2) => [`set:${p2}`, SET_LABEL[p2], SET_ICON[p2]];
+  var subItem = (p2) => [`set:${p2}`, SET_LABEL[p2], SET_ICON[p2], void 0, true];
+  var guideItem = (g3) => [`guide:${g3}`, g3 === "Image" ? "이미지(메인 모델)" : GUIDE_LABEL[g3], ICONS.book];
+  function treeOf(tab2) {
+    switch (tab2) {
+      // 2026-11-10 사용자: 호출 흐름 → 로어북 호출 → 생성 공통 → 화면 → 캐릭터 이미지 → 상태창은 기능이 아니라 따로 「기본」 묶음. 인터넷 사이트 여섯은 「인터넷」 아래로 묶는다
+      // 2026-11-12 사용자: 「기본」에 두 종류가 섞였다 → 「호출」(호출 흐름·로어북 호출·생성 공통)과 「표시」(화면·캐릭터 이미지·상태창)로 나눈다. 순서·페이지는 그대로
+      case "set":
+        return [{ title: "호출", items: [
+          ["manage:flow", "호출 흐름", ICONS.swap],
+          ...["lore", "adv"].map(setItem)
+        ] }, { title: "표시", items: ["screen", "image", "status"].map(setItem) }, { title: "기능", items: [
+          setItem("board"),
+          // 4단계: 틀로 묶는다. 인터넷 = 게시판 넷(누르면 게시판 표), 상점 = 기본 상점 + 쇼핑몰 둘 + 망상홈쇼핑(누르면 상점 표)
+          setItem("net"),
+          ...["phone", "wiki"].map(setItem),
+          // 가계부·소지품·상점은 한 페이지 「소지품」 (2026-11-07 사용자: 각자 설정이 적어 합침, 켜고 끄기는 따로)
+          // 2026-11-12 사용자: 가계부 페이지는 줄이 적어 「소지품」 페이지의 「가계부」 묶음으로 (옛 자리 set:wallet 은 legacyNode 가 소지품으로)
+          ...["items", "shop"].map(setItem),
+          ...["cos", "bm", "hs"].map(subItem),
+          ["label:records", "기록", ICONS.records],
+          ...["journal", "people", "factions"].map(subItem)
+        ] }];
+      case "world":
+        return [{ title: "세계", items: [["agent", "요원", ICONS.person], ["org", "조직", ICONS.org], ["anomaly", "괴이", ICONS.spook], ["site", "파밍", ICONS.star], ["appendix", "부록", ICONS.book], ["base", "거점", ICONS.pin], ["relations", "세력 관계", ICONS.grid], ["start", "시작 화면", ICONS.idcard]] }];
+      // 시작 화면은 세계 자료가 아니라 새 채팅 화면 꾸미기라 맨 아래 (2026-11-13 사용자)
+      case "guide":
+        return [
+          { title: "추가 규칙", items: ruleTreeItems().map(([id2, label2, badge3]) => [id2, label2, ICONS.pen, badge3]) },
+          { title: "기본", items: ["RP", "Directive", "Tag", "Main", "Common"].map(guideItem) },
+          // 기능 탭과 같은 묶음 (2026-11-13 사용자: 한 줄로 늘어놓지 말고 묶어라): 이미지 / 인터넷 / 괴담톡·위키 / 상점
+          { title: "이미지", items: ["Image", "Asset"].map(guideItem) },
+          { title: "인터넷", items: ["GNet", "Gal", "Wpf", "Salmon"].map(guideItem) },
+          { title: "괴담톡·위키", items: ["Phone", "Wiki"].map(guideItem) },
+          { title: "상점", items: ["Shop", "Cos", "Bm", "BmDesk", "Hs"].map(guideItem) },
+          { title: "인물 기록", items: ["Updater", "UpdaterCompact", "UpdaterExtra", "Director", "Router"].map(guideItem) },
+          { title: "설정 창", items: ["Consult"].map(guideItem) }
+        ];
+      // 11-09 사용자: 설치·업데이트는 하나로, 아이콘은 서로 다르게, 다음 호출 로어북은 따로(펼친 채), 이름은 무엇을 보는지 바로 알게
+      case "manage":
+        return [{ title: "점검", items: [["install", "설치·업데이트", ICONS.refresh], ["manage:diag", "상태 점검", ICONS.info], ["manage:trace", "호출 기록", ICONS.records], ["manage:log", "실패 기록", ICONS.siren], ["manage:people", "인물 기록 점검", ICONS.group], ["manage:backup", "저장·불러오기", ICONS.swap]] }];
+    }
+  }
+  var firstOf = (tab2) => tab2 === "guide" ? "guide:RP" : treeOf(tab2)[0].items.find((i) => !i[0].startsWith("label:"))[0];
+  function featureState(ctx2) {
+    if (!ctx2) return {};
+    const ss = ctx2.chat.scriptstate;
+    const basic = basicSettings(ctx2.char.globalLore, ss);
+    return {
+      "set:board": host3?.canChat?.() ? worldOn(ctx2.chat) : basic.anomalyOn,
+      "set:image": basic.assetOn,
+      "set:people": ppValue(ss, "on") === "1",
+      // 사용 켬/끔이 있는 소지품도 같은 표시 (일부 기능에만 「끔」이 붙었다, 전수점검 눌러-사소-22)
+      "set:items": invOn(ss)
+    };
+  }
+  var FEATURE_INFO = {
+    // 2026-10-29 사용자: 응답 태그 형식 같은 안쪽 사정은 예시로 보이지 않는다 (상황판·이미지는 설명만)
+    board: { desc: "응답마다 괴이·사건·특수 발생을 판정하고 상황판·지도·요원 상태를 갱신해요.", example: "", off: "끄면 괴이가 자동으로 생기지 않고 상황판이 비어요. 커스텀 임무는 계속 쓸 수 있어요." },
+    image: { desc: "본문에 등장한 캐릭터의 등록 이미지를 채팅 속에 띄워요. 이미지 목록은 봇 카드에 있어요.", example: "", off: "끄면 캐릭터 이미지를 띄우지 않고 이미지 지침도 요청에 넣지 않아요." },
+    gnet: { desc: "괴담넷 게시판 글·댓글·쪽지를 보조 모델이 만들어요.", example: "「[목격담] 중림 지하상가 3번 출구에서 또 봤음 · 댓글 7」 — 게시판 글 한 줄. 장면과 관련된 글은 메인 요청에 붙어요." },
+    gal: { desc: "괴담갤 게시판 글·댓글·쪽지를 만들어요.", example: "" },
+    wpf: { desc: "세정게 게시판 글·댓글·쪽지를 만들어요.", example: "" },
+    sm: { desc: "연어 마켓 거래 글·댓글·쪽지를 만들어요.", example: "" },
+    cos: { desc: "우주 쇼핑몰의 물건 목록과 운영자 답을 만들어요. 산 물건은 소지품에, 돈은 가계부에 남고 다음 턴 메인 요청에 넘어가요.", example: "" },
+    bm: { desc: "백일몽 포인트몰의 상품 목록을 만들어요. 포인트로 산 물건은 소지품에 남고 다음 턴 메인 요청에 넘어가요.", example: "" },
+    hs: { desc: "망상홈쇼핑 방송의 편성(상품·큐시트·채팅)을 만들어요. 주문한 물건은 소지품에 남고, 할부 호출과 방청 신청은 메인 요청에 넘어가요.", example: "" },
+    phone: { desc: "괴담톡 연락처와 문자방의 답장·선톡·단톡방 초대를 보조 모델이 만들어요.", example: "「스팡달: 부장님 지금 어디세요? 본부 4층 비었어요」 — 장면과 관련된 대화는 메인 요청에 붙어요." },
+    wiki: { desc: "위키 문서를 생성·갱신해요. 장면에 나온 문서는 메인 요청에 붙일 수 있어요.", example: "「미술관」 문서: 소재 · 접근 · 규칙 · 목격 기록 — 분량·작성 모드대로 써요." },
+    people: { desc: "메인 응답이 끝날 때마다 보조 모델이 한 번 읽어 인물별 기록(기본정보·성격·현재 상태·인간관계·호감·호칭)을 쌓고, 다음 메인 요청이 그 기록을 읽어요.", example: "「쟈알디 · 호감 +8 → 신뢰 — 함께 임무를 치른 뒤」 — 기록이 이야기에 따라 바뀌어요.", off: "끄면 응답을 읽지 않고, 메인 요청에도 기록을 넣지 않아요." },
+    // 기록(일지·보고서)은 모델을 부르지 않아 켬/끔 배지가 없다 (featureState 에 넣지 않음)
+    journal: { desc: "사건이 끝날 때마다 일지 한 줄과 그때의 보고서를 상황판·인물·가계부 기록에서 만들어요(모델을 부르지 않아요). 채팅에 보고서 카드를 띄울지와 보관 상한을 여기서 정해요.", example: "「RPT-0510-03 · 거울 속 사람 · 내 사건 · 1시간 24분」 — 왼쪽 메뉴 「기록 → 일지」에 쌓여요." },
+    // 2026-11-08 사용자: 안 읽히고, 요청 글 모양(내부 로직)을 예로 보일 까닭이 없다 → 짧게, 예 없음
+    wallet: { desc: "응답에 나온 거래를 읽어 잔고와 거래 내역을 기록해요.", example: "" },
+    items: { desc: "가진 물건을 기록하고 메인 요청에 넘겨요.", example: "" },
+    shop: { desc: "물건을 사고파는 곳의 설정이에요. 표의 값은 상점마다 따로 정하고, 그 아래 줄의 값은 네 곳이 같이 써요.", example: "" },
+    net: { desc: "괴담넷·괴담갤·세정게·연어 마켓의 설정이에요.", example: "" },
+    factions: { desc: "세력(관리국·백일몽·협회…)이 주인공을 어떻게 보는지를 인물 기록 갱신기가 −100~100 값으로 매겨요. 켤지를 여기서 정해요.", example: "" },
+    lore: { desc: "세력·괴이·파밍·요원·부록 로어북을 요청에 넣을지 누가 고를지 정해요. 다음 요청에 어떤 로어북이 들어가는지는 아래에서 바로 볼 수 있어요.", example: "" },
+    adv: { desc: "괴담넷·괴담톡·위키·상점(쇼핑몰·망상홈쇼핑 포함) 생성에 공통으로 쓰는 값이에요. 생성 언어, 형식이 틀렸을 때 다시 부르는 횟수(AI 상담에도 써요), 요청 하나의 토큰 상한(괴담넷·괴담톡·위키).", example: "" }
+  };
+  function settingsPage(ctx2, page) {
+    const canChat = host3?.canChat?.() ?? true;
+    const scope = canChat ? "chat" : "defaults";
+    if (canChat) settingsUi.scope = "chat";
+    const title2 = SET_LABEL[page];
+    const sec3 = (s8) => settingsSection(ctx2, scope, canChat, s8);
+    let body5 = "";
+    let act2 = "";
+    let chatOnly = false;
+    const feat = (p2) => {
+      chatOnly = true;
+      const r = featurePane(ctx2, p2, canChat);
+      act2 = r.act;
+      return r.body;
+    };
+    switch (page) {
+      case "screen":
+        body5 = sec3("screen");
+        break;
+      case "image":
+        body5 = sec3("image");
+        break;
+      // 2026-11-05 사용자: 이미지 지침은 「지침 → 이미지」 한 곳에만 (여기 이중으로 띄우지 않는다)
+      case "board":
+        body5 = sec3("board");
+        break;
+      case "status":
+        body5 = sec3("status");
+        break;
+      case "gnet":
+      case "gal":
+      case "wpf":
+      case "sm":
+      case "cos":
+      case "bm":
+      case "hs":
+        body5 = feat(page);
+        break;
+      case "phone":
+        body5 = feat("phone");
+        break;
+      case "wiki":
+        body5 = feat("wiki");
+        break;
+      case "people":
+        body5 = feat("people");
+        break;
+      // 기록 하위 메뉴 넷 (2026-11-05 사용자): 일지 · 가계부 · 인물 · 세력
+      case "journal":
+        body5 = feat("journal");
+        break;
+      case "wallet":
+      case "items":
+        body5 = sec3("items") + sec3("wallet");
+        break;
+      // 상점 표는 아래 「열리는 조건」과 같은 범위(시작 전 = 새 채팅 기본값)의 값을 보이고 고친다. 게시판 표는 기능 페이지처럼 늘 이 채팅
+      case "shop":
+        body5 = shopTable(scope === "chat" ? ctx2.chat.scriptstate : getPrefs().vars, settingsUi.busy) + sec3("shop");
+        break;
+      case "net":
+        chatOnly = true;
+        body5 = boardTable(ctx2.chat.scriptstate);
+        break;
+      case "factions":
+        body5 = feat("factions");
+        break;
+      // 2026-11-10 사용자: 점검에 따로 있던 「다음 호출 로어북」을 여기로 합침 (고르는 설정 바로 아래에서 결과를 본다)
+      case "lore":
+        body5 = sec3("lore") + (canChat ? loreCheckBox(ctx2, true) : '<section class="ps-group"><h3>다음 호출 로어북</h3><p class="ps-note">채팅을 시작하면 볼 수 있어요.</p></section>');
+        break;
+      case "adv":
+        body5 = sec3("adv");
+        break;
+      case "update":
+        body5 = sec3("update");
+        break;
+    }
+    const chatPage = page !== "screen" && page !== "update";
+    act2 = act2.replace(/<span class="ps-defaults">[\s\S]*?<\/span>/, "").trim();
+    const right = chatPage && !canChat ? `<i class="gx-scope ${chatOnly ? "chat" : "defaults"}">${chatOnly ? "이 채팅 설정 (시작 전)" : "새 채팅 기본값 (시작 전)"}</i>${act2}` : act2;
+    const info = FEATURE_INFO[page];
+    const on3 = featureState(ctx2)[`set:${page}`];
+    const badge3 = on3 === void 0 ? "" : `<span class="gw-state${on3 ? "" : " off"}">${on3 ? "켬" : "끔"}</span>`;
+    if (info) body5 = body5.replace(/<p class="ps-note">메인 응답이 끝날 때마다[\s\S]*?<\/p>/, "");
+    const calls = callSummary(ctx2, page);
+    const lead = info ? `<p class="gx-muted">${esc42(info.desc)}${info.example ? ` <span class="gw-eg">예) ${esc42(info.example)}</span>` : ""}${on3 === false && info.off ? ` <span class="gw-off-note">${esc42(info.off)}</span>` : ""}</p>${calls}</header>` : `${calls}</header>`;
+    return `<div class="gw-page gw-set"><header class="gw-head"><h2>${esc42(title2)}${badge3}</h2>${right ? `<div class="gw-head-act">${right}</div>` : ""}${lead}
+    ${settingsNotices()}
+    <div class="gx-settings gw-setbody">${body5}</div></div>`;
+  }
+  function treeCounts(ctx2) {
+    if (!ctx2) return {};
+    const over = overridesOf(ctx2);
+    const out2 = {};
+    for (const k of ["agent", "org", "anomaly", "site", "appendix"]) out2[k] = recordCount(ctx2, k, over);
+    out2.base = directoryDraft(ctx2).bases.length;
+    return out2;
+  }
+  var GRID_HEADS = ".ck-pc .ck-h1 > b, .mx-grid:not(.ck-ph) .mx-head label";
+  var gridOf = (scope, label2) => [...scope?.querySelectorAll(GRID_HEADS) ?? []].find((b) => b.textContent?.trim() === label2)?.closest(".ps-group") ?? null;
+  var findIndex = null;
+  var FIND_PAGES = ["screen", "image", "board", "status", "net", "cos", "bm", "hs", "phone", "wiki", "journal", "items", "shop", "people", "factions", "lore", "adv"];
+  var findNorm = (s8) => s8.toLowerCase().replace(/\s+/g, "");
+  function buildFindIndex(ctx2) {
+    const out2 = [];
+    const keepPage = settingsUi.page;
+    for (const page of FIND_PAGES) {
+      let html = "";
+      try {
+        settingsUi.page = isFeatPage(page) ? page : "";
+        html = settingsPage(ctx2, page);
+      } catch {
+        continue;
+      }
+      const doc2 = new DOMParser().parseFromString(html, "text/html");
+      doc2.querySelectorAll(".ps-row").forEach((row8) => {
+        const b = row8.querySelector(".ps-label > b");
+        if (!b) return;
+        const label2 = [...b.childNodes].filter((n3) => !(n3 instanceof HTMLElement && n3.tagName === "I")).map((n3) => n3.textContent ?? "").join("").trim();
+        if (!label2) return;
+        const group4 = row8.closest(".ps-group, .ps-card, details")?.querySelector("h3, h4, summary")?.textContent?.trim() ?? "";
+        const help = row8.querySelector(".ps-label > small")?.textContent?.trim() ?? "";
+        out2.push({ page, label: label2, group: group4, help });
+      });
+      doc2.querySelectorAll(GRID_HEADS).forEach((b) => {
+        const label2 = b.textContent?.trim() ?? "";
+        if (label2) out2.push({ page, label: label2, group: b.closest(".ps-group")?.querySelector("h3")?.textContent?.trim() ?? "", help: "" });
+      });
+    }
+    settingsUi.page = keepPage;
+    return out2;
+  }
+  setCatalogHost({
+    pages: () => treeOf("set").flatMap((g3) => g3.items).filter((i) => i[0].startsWith("set:")).map((i) => {
+      const p2 = i[0].slice(4);
+      return [p2, SET_LABEL[p2], FEATURE_INFO[p2]?.desc ?? ""];
+    }),
+    render: (page) => {
+      const ctx2 = host3?.ctx();
+      if (!ctx2) return "";
+      const keep2 = settingsUi.page;
+      try {
+        settingsUi.page = isFeatPage(page) ? page : "";
+        return settingsPage(ctx2, page);
+      } finally {
+        settingsUi.page = keep2;
+      }
+    },
+    others: () => [
+      `${TABS2.find(([t]) => t === "set")[1]} 탭: ${treeOf("set").flatMap((g3) => g3.items).filter((i) => !i[0].startsWith("set:") && !i[0].startsWith("label:")).map((i) => i[1]).join(", ")}`,
+      ...["world", "guide", "manage"].map((t) => `${TABS2.find(([x]) => x === t)[1]} 탭: ${treeOf(t).map((g3) => t === "guide" && g3.title === "추가 규칙" ? g3.title : g3.items.map((i) => i[1]).join(", ")).join(", ")}`)
+    ].join("\n"),
+    current: () => edUi.open && edUi.node.startsWith("set:") ? edUi.node.slice(4) : ""
+  });
+  function findResults(ctx2) {
+    const q = findNorm(edUi.sq);
+    if (!ctx2) return '<p class="gw-find-none">채팅 정보를 읽지 못했어요.</p>';
+    findIndex ??= buildFindIndex(ctx2);
+    const score2 = (h) => findNorm(h.label).includes(q) ? 0 : findNorm(SET_LABEL[h.page] + h.group).includes(q) ? 1 : findNorm(h.help).includes(q) ? 2 : -1;
+    const hits2 = findIndex.map((h, i) => ({ h, i, s: score2(h) })).filter((x) => x.s >= 0).sort((a, b) => a.s - b.s || a.i - b.i).slice(0, 40);
+    if (!hits2.length) return '<p class="gw-find-none">찾는 설정이 없어요.</p>';
+    return `<div class="gw-tree-group gw-find-res"><h4>찾은 설정 ${hits2.length}개</h4>${hits2.map(({ h, i }) => `<button class="gw-tree-item gw-find-hit" data-action="ed-find-go" data-value="${i}">${SET_ICON[h.page]}<span><b>${esc42(h.label)}</b><small>${esc42(SET_LABEL[h.page])}${h.group && h.group !== h.label && h.group !== SET_LABEL[h.page] ? ` · ${esc42(h.group)}` : ""}</small></span></button>`).join("")}</div>`;
+  }
+  function flashEl(el, block5) {
+    const box3 = el.closest("details");
+    if (box3 && !box3.open) box3.open = true;
+    scrollInside(el, block5 === "center" ? "center" : block5 === "start" ? "start" : "nearest");
+    el.classList.remove("gw-find-flash");
+    void el.offsetWidth;
+    el.classList.add("gw-find-flash");
+    setTimeout(() => el.classList.remove("gw-find-flash"), 2200);
+  }
+  function flashSpot(to) {
+    const body5 = root?.querySelector(".gw-body");
+    if (!body5 || !to.startsWith("r:")) return;
+    const [label2, grp] = to.slice(2).split("@");
+    const head3 = (h) => h ? [...h.childNodes].filter((n3) => n3.nodeType === Node.TEXT_NODE).map((n3) => n3.textContent ?? "").join("").trim() : "";
+    const row8 = [...body5.querySelectorAll(".ps-row")].find((r) => head3(r.querySelector(".ps-label > b")) === label2 && (!grp || r.closest(".ps-group")?.querySelector("h3")?.textContent?.trim() === grp));
+    const el = row8 ?? gridOf(body5, label2);
+    if (el) flashEl(el, "center");
+  }
+  function flashFound(hit4) {
+    const rows3 = [...root?.querySelectorAll(".gw-body .ps-row") ?? []];
+    const row8 = rows3

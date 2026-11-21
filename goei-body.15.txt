@@ -1,0 +1,2897 @@
+) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  function seg4(action, cur, items, disabled = false) {
+    const sw2 = onOffSwitch(items, cur, action, (v) => v, disabled);
+    if (sw2) return sw2;
+    return `<div class="gx-segs gx-segs-sm">${items.map(([v, label2]) => `<button class="gx-seg${cur === v ? " on" : ""}" data-action="${action}" data-value="${v}" aria-pressed="${cur === v}" ${disabled ? "disabled" : ""}>${label2}</button>`).join("")}</div>`;
+  }
+  var ownWeb = () => [["none", "없음"], ["cos", guideTxt("Cos", "MALL_NAME")], ["bm", guideTxt("Bm", "MALL_NAME")], ["hs", guideTxt("Hs", "CHANNEL_NAME")]];
+  var OWN_VISIT = [["shop", "기본 상점창"], ["none", "열지 않음"]];
+  function ownShopsField(vars, busy6) {
+    const list4 = ownShops(vars);
+    const text5 = (o, key, ph, len) => `<input class="st-text" type="text" maxlength="${len}" value="${esc26(o[key])}" data-change="set-own" data-key="${esc26(o.id)}:${key}" placeholder="${ph}" aria-label="${ph}"${busy6 ? " disabled" : ""}>`;
+    const rows3 = list4.map((o) => `<div class="ms-fx${o.on ? "" : " off"}">
+      <div class="ms-fx-head">${text5(o, "name", "상점 이름(로어 이름 그대로)", 30)}${switchHtml({ action: "set-own-on", value: o.on ? `${o.id}:0` : `${o.id}:1`, on: o.on, disabled: busy6, label: `${o.name || "고유 상점"} 켜고 끄기` })}<button class="gx-mini danger" data-action="set-own-del" data-value="${esc26(o.id)}" aria-label="${esc26(o.name || "고유 상점")} 지우기"${busy6 ? " disabled" : ""}>${ICONS.trash}지우기</button></div>
+      <div class="ms-fx-row"><span class="ph-inline ms-fx-wide"><span>다른 이름</span>${text5(o, "alias", "쉼표로 나눠서(예: 포인트몰, 복지몰)", 120)}</span></div>
+      <div class="ms-fx-row"><span class="ph-inline"><span>인터넷 접속</span>${seg4("set-own-web", `${o.id}:${o.web || "none"}`, ownWeb().map(([v, l]) => [`${o.id}:${v}`, l]), busy6)}</span></div>
+      <div class="ms-fx-row"><span class="ph-inline"><span>직접 가면</span>${seg4("set-own-visit", `${o.id}:${o.visit || "none"}`, OWN_VISIT.map(([v, l]) => [`${o.id}:${v}`, l]), busy6)}</span></div>
+    </div>`).join("");
+    const foot = `<div class="ps-row gw-rel-foot"><button class="gx-mini" data-action="set-own-add"${list4.length >= OWN_MAX || busy6 ? " disabled" : ""}>${ICONS.plus}고유 상점 추가</button><button class="gx-mini" data-action="set-own-reset"${busy6 ? " disabled" : ""}>초기값으로</button></div>`;
+    return field2("고유 상점", "", `로어에 있는, 자기 창이 따로 있는 상점이에요. 켜진 줄은 상점 판단 기준에 들어가요. 주인공이 그 사이트·앱에 실제로 접속해 있으면 응답 아래 「접속하기」가 붙고, 누르면 상황판 없이 인터넷 창만 그 사이트로 열려요. 직접 매장에 가 있으면 「직접 가면」에 고른 창이 열려요(열지 않음이면 안 열림). 표에 없는 편의점 같은 곳은 그대로 기본 상점창이에요.`) + rows3 + foot;
+  }
+  var field2 = (label2, control3, help, scope) => setRow(label2, control3, help, "", scope);
+  var dimSlider = (n3, busy6) => `<label class="st-range"><input type="range" min="0" max="100" step="5" value="${n3}" data-input="dim" data-change="set-dim" aria-label="창 바깥 불투명도"${busy6 ? " disabled" : ""}><output>${n3}%</output></label>`;
+  var pctSlider = (action, n3, r, label2, busy6) => `<label class="st-range"><input type="range" min="${r.min}" max="${r.max}" step="${r.step}" value="${n3}" data-input="pct" data-change="${action}" aria-label="${label2}"${busy6 ? " disabled" : ""}><output>${n3}%</output></label>`;
+  function recentControl(key, v, label2, busy6) {
+    const n3 = v ?? IMG_RECENT.def;
+    const all = n3 === 0;
+    return `<div class="st-recent">${seg4(`set-${key}-mode`, all ? "all" : "recent", [["recent", "최근만"], ["all", "전부"]], busy6)}` + (all ? "" : `<label class="st-range"><input type="range" min="${IMG_RECENT.min}" max="${IMG_RECENT.max}" step="1" value="${n3}" data-input="count" data-change="set-${key}" aria-label="${label2}"${busy6 ? " disabled" : ""}><output>${n3}개</output></label>`) + "</div>";
+  }
+  var group2 = setGroup;
+  var pairGrid = (head3, body5, n3) => n3 ? `<div class="ms-pg">${head3}${head3}${body5}</div>` : '<p class="ps-note ms-empty">아직 줄이 없어요. 「추가」로 한 줄씩 넣어요.</p>';
+  var RULES_TABLE = pairTable(ITEM_RULES_DEFAULT);
+  function rulesBlock(stored2, busy6) {
+    const def = findDef(SETTINGS_SET, "items-rules");
+    const rows3 = RULES_TABLE.shown(stored2);
+    const dis = busy6 ? " disabled" : "";
+    const used = parseItemRules(rows3.map((r) => `${r.a} → ${r.b}`).join("\n"));
+    const head3 = '<div class="ms-tb-h"><span>종류·물건말</span><span></span><span>판정</span><span></span></div>';
+    const body5 = rows3.map((r, i) => {
+      const key = normIcon(r.a).replace(/ /g, "");
+      const kindKey = Object.entries(ICON_KIND_LABEL).find(([, v]) => v === r.a.trim())?.[0];
+      const ok = kindKey ? used.kinds.has(kindKey) : used.words.has(key);
+      const bad = (r.a || r.b) && !ok ? !r.a ? "종류·물건말이 비어 있어 이 줄은 안 쓰여요." : !r.b ? "판정이 비어 있어 이 줄은 안 쓰여요." : "판정은 손·장비·사용·소모N이나 - 로 적어요. 이 줄은 안 쓰여요." : "";
+      return `<div class="ms-tb-r${bad ? " bad" : ""}">
+      <label class="ms-tb-c n"><span>종류·물건말</span><input class="gx-search" data-change="set-items-rules-cell" data-key="${i}:a" value="${esc26(r.a)}" maxlength="${ALIAS_WORD_MAX}" aria-label="종류·물건말"${dis}></label>
+      <i class="ms-arrow" aria-hidden="true">→</i>
+      <label class="ms-tb-c n"><span>판정</span><input class="gx-search" data-change="set-items-rules-cell" data-key="${i}:b" value="${esc26(r.b)}" maxlength="${ALIAS_WORD_MAX}" aria-label="판정"${dis}></label>
+      <button class="gx-mini icon danger ms-tb-x" data-action="set-items-rules-del" data-value="${i}" aria-label="지우기" title="지우기"${dis}>${ICONS.trash}</button>
+      ${bad ? `<p class="ms-tb-err">${bad}</p>` : ""}
+    </div>`;
+    }).join("");
+    const changed = RULES_TABLE.changed(stored2);
+    const foot = `<div class="ms-tb-foot"><button class="gx-mini" data-action="set-items-rules-add"${busy6 || !RULES_TABLE.canAdd(stored2) ? " disabled" : ""}>${ICONS.plus}추가</button>${changed ? `<button class="gx-mini" data-action="set-items-rules-reset"${dis}>초기값으로</button>` : ""}</div>`;
+    const help = typeof def.help === "string" ? def.help : "";
+    return `<details class="ps-adv${changed ? " ps-changed" : ""}" data-keep="items-rules"${keepOpen("items-rules")}><summary class="ps-adv-sum"><b>${esc26(def.label)}</b><span class="adv-count">${rows3.length}줄</span></summary><div class="ps-adv-body"><div class="ms-tb ms-pairs">${pairGrid(head3, body5, rows3.length)}${foot}</div>${help ? `<p class="ps-note">${help}</p>` : ""}</div></details>`;
+  }
+  var wordsText = (v) => v.replace(/\s+/g, " ").trim().slice(0, ITEM_WORDS_MAX);
+  function aliasBlock(stored2, busy6) {
+    const def = findDef(SETTINGS_SET, "items-alias");
+    const rows3 = aliasShown(stored2);
+    const dis = busy6 ? " disabled" : "";
+    const head3 = '<div class="ms-tb-h"><span>이름의 끝 말</span><span></span><span>바꿔 찾을 말</span><span></span></div>';
+    const body5 = rows3.map((r, i) => {
+      const bad = r.a || r.b ? aliasRowBad(r) : "";
+      return `<div class="ms-tb-r${bad ? " bad" : ""}">
+      <label class="ms-tb-c n"><span>이름의 끝 말</span><input class="gx-search" data-change="set-items-alias-cell" data-key="${i}:a" value="${esc26(r.a)}" maxlength="${ALIAS_WORD_MAX}" aria-label="이름의 끝 말"${dis}></label>
+      <i class="ms-arrow" aria-hidden="true">→</i>
+      <label class="ms-tb-c n"><span>바꿔 찾을 말</span><input class="gx-search" data-change="set-items-alias-cell" data-key="${i}:b" value="${esc26(r.b)}" maxlength="${ALIAS_WORD_MAX}" aria-label="바꿔 찾을 말"${dis}></label>
+      <button class="gx-mini icon danger ms-tb-x" data-action="set-items-alias-del" data-value="${i}" aria-label="지우기" title="지우기"${dis}>${ICONS.trash}</button>
+      ${bad ? `<p class="ms-tb-err">${bad}</p>` : ""}
+    </div>`;
+    }).join("");
+    const changed = aliasChanged(stored2);
+    const foot = `<div class="ms-tb-foot"><button class="gx-mini" data-action="set-items-alias-add"${busy6 || !aliasCanAdd(stored2) ? " disabled" : ""}>${ICONS.plus}추가</button>${changed ? `<button class="gx-mini" data-action="set-items-alias-reset"${dis}>초기값으로</button>` : ""}</div>`;
+    const help = typeof def.help === "string" ? def.help : "";
+    return `<details class="ps-adv${changed ? " ps-changed" : ""}" data-keep="items-alias"${keepOpen("items-alias")}><summary class="ps-adv-sum"><b>${esc26(def.label)}</b><span class="adv-count">${rows3.length}줄</span></summary><div class="ps-adv-body"><div class="ms-tb ms-pairs">${pairGrid(head3, body5, rows3.length)}${foot}</div>${help ? `<p class="ps-note">${help}</p>` : ""}</div></details>`;
+  }
+  function statusColsTable(cfg, busy6, vars) {
+    const rows3 = STATUS_COLS.map((c) => {
+      const m = cfg[c.id];
+      const auto = c.id === "points" && pointsAuto(vars);
+      const useOpts = c.id === "points" ? [["a", "자동"], ["1", "사용"], ["0", "사용 안 함"]] : [["1", "사용"], ["0", "사용 안 함"]];
+      const use = seg4("set-col", auto ? "a" : m === "off" ? "0" : "1", useOpts, busy6 || c.locked).replace(/data-value="([a\d])"/g, `data-value="${c.id}:use:$1"`);
+      const showOn = auto ? vars?.[colVar("points")] !== AUTO_HIDE : m === "on";
+      const show = seg4("set-col", showOn ? "1" : "0", [["1", "표시"], ["0", "숨김"]], busy6 || m === "off" && !auto).replace(/data-value="(\d)"/g, `data-value="${c.id}:show:$1"`);
+      const hint = c.locked ? "늘 사용해요." : c.id === "points" ? "자동: 신분이 백일몽일 때만 사용해요." : c.feature ? `끄면 ${c.feature}도 꺼져요.` : "";
+      return `<div class="st-col-row${m === "off" ? " off" : ""}"><div class="st-col-name"><b>${c.label}</b>${hint ? `<small>${hint}</small>` : ""}</div>${use}${show}</div>`;
+    });
+    const used = STATUS_COLS.filter((c) => cfg[c.id] !== "off");
+    const allCur = used.every((c) => cfg[c.id] === "on") ? "1" : used.every((c) => cfg[c.id] === "hide") ? "0" : "";
+    const all = seg4("set-col", allCur, [["1", "전부 표시"], ["0", "전부 숨김"]], busy6 || !used.length).replace(/data-value="(\d)"/g, 'data-value="all:show:$1"');
+    const head3 = `<div class="st-col-row st-col-all"><div class="st-col-name"><b>모든 칸</b><small>사용 중인 칸을 한 번에 표시하거나 숨겨요.</small></div>${all}</div>`;
+    return `<div class="st-cols ps-row-block">${head3}${rows3.join("")}</div>`;
+  }
+  var wonInput = (n3, busy6, locked = false) => `<input class="st-won" type="text" inputmode="numeric" value="${n3.toLocaleString("en-US")}" data-change="set-wallet-start" aria-label="시작 잔고"${busy6 || locked ? " disabled" : ""}>`;
+  function worldOffVars() {
+    return { $st_anomaly_on: "0", [WORLD_KEY]: "", $an_report: "", $in_report: "", $ms_report: "", $ag_report: "" };
+  }
+  function current2(ctx2, scope) {
+    const lore = ctx2.char.globalLore;
+    if (scope !== "chat") return { basic: basicDefaults(lore), world: worldDefaults(lore), theme: getPrefs().theme ?? "dark" };
+    const cur = String(ctx2.chat.scriptstate?.[THEME_KEY] ?? "");
+    return {
+      basic: basicSettings(lore, ctx2.chat.scriptstate),
+      world: worldSettings(lore, ctx2.chat.scriptstate),
+      theme: cur === "dark" || cur === "paper" ? cur : "light"
+    };
+  }
+  function stepper2(action, key, n3, lo, hi, unit, label2, busy6, zero = "") {
+    return stepIn(action, key, n3, lo, hi, unit, label2, busy6, zero);
+  }
+  var WORLD_ACTS = { set: "set-world", num: "set-world", rel: true };
+  var WORLD_KINDS = [["preset", "프리셋 괴이"], ["random", "랜덤 괴이"], ["incident", "사건"], ["mystic", "특수"]];
+  var worldNum = (w, key) => ({ n: w[key], lo: 0, hi: WORLD_SPEC.find((x) => x.key === key)?.max ?? 99 });
+  function worldGrid(w, busy6) {
+    const band = {
+      title: "괴이 발생",
+      groups: [
+        { name: "동시 최대", opts: ["개"], kind: "num" },
+        { name: "발생 확률", opts: ["%"], kind: "num" },
+        { name: "자동 종료", opts: ["켬"], kind: "check" },
+        { name: "RP 유지 시간", opts: ["시간"], kind: "num" }
+      ],
+      marks: WORLD_KINDS.map(([k]) => [worldNum(w, `${k}_cap`), worldNum(w, `${k}_p`), w[`${k}_expire`] === 1, w[`${k}_expire`] === 1 ? worldNum(w, `${k}_ttl`) : null]),
+      acts: WORLD_KINDS.map(([k]) => [`${k}_cap`, `${k}_p`, `${k}_expire:${w[`${k}_expire`] === 1 ? 0 : 1}`, `${k}_ttl`]),
+      foot: helpBox("응답을 처리할 때마다 판정해요.", [
+        ["동시 최대", "같은 때에 살아 있을 수 있는 수예요. 0이면 그 종류는 저절로 생기지 않아요."],
+        ["발생 확률", "응답 하나를 처리할 때 새로 생길 확률이에요."],
+        ["자동 종료", "켜면 RP 유지 시간이 지났을 때 플러그인이 끝내요. 끄면 모델이 끝낼 때까지 남아요."],
+        ["RP 유지 시간", "생긴 뒤 이야기 속 시간으로 이만큼 지나면 끝나요. 모델이 먼저 끝내면 그때 끝나요. 자동 종료가 꺼져 있으면 쓰지 않아 「–」로 보여요."]
+      ])
+    };
+    const n3 = (key, aria, unit) => numCtl(key, worldNum(w, key), aria, unit, busy6, WORLD_ACTS);
+    return `${ckWide([band], WORLD_KINDS.map(([, name]) => name), busy6, WORLD_ACTS)}
+    ${group2("", [
+      field2("사건의 거점 비율", n3("landmark_share", "사건의 거점 비율", "%"), "사건이 생길 때 등록된 거점(본부·지사 같은 장소)에서 생길 비율이에요. 나머지는 지도의 아무 곳에서 생겨요."),
+      field2("추가 발생 여유분", numSet([["괴이", n3("extra_cap", "괴이 여유분", "개")], ["사건", n3("extra_in_cap", "사건 여유분", "개")], ["특수", n3("extra_ms_cap", "특수 여유분", "개")]]), "직접 고르거나 RP 중에 새로 등장한 것을 동시 최대와 따로 기록할 수 있는 수예요."),
+      field2("클리어 기록 상한", n3("cleared_cap", "클리어 기록 상한", "개"), "클리어한 괴이 이름을 몇 개까지 기억할지예요. 넘으면 오래된 이름부터 잊어요. 기억하는 괴이는 위키 문서의 스포일러 문단이 처음부터 펼쳐져요. 0이면 모두 기억해요.")
+    ].join(""))}`;
+  }
+  var resetHooks = [];
+  var CONFIRM = {
+    chat: {
+      save: ["지금 설정을 기본값으로 저장할까요? 저장해 둔 기본값을 덮어써서, 앞으로 새로 시작하는 모든 채팅이 이 값으로 시작해요. 덮어쓴 기본값은 되돌릴 수 없어요.", "기본값으로 저장"],
+      load: ["저장해 둔 기본값을 지금 채팅에 불러올까요? 지금 채팅의 설정이 기본값으로 바뀌어요. 상황판 켜기·끄기는 그대로 둬요.", "불러오기"],
+      reset: ["지금 채팅의 설정과 저장해 둔 기본값, 고친 지침과 세계를 모두 버리고 플러그인 원래 값으로 초기화할까요? 상황판 켜기·끄기와 추가 규칙은 그대로 둬요.", "초기화"]
+    },
+    card: {
+      save: ["고친 명부로 카드에 저장된 명부를 덮어쓸까요? 이 카드의 모든 채팅에 적용돼요.", "덮어쓰기"],
+      load: ["고친 내용을 버리고 카드에 저장된 명부로 되돌릴까요?", "되돌리기"],
+      reset: ["고친 내용을 버리고 카드에 저장된 명부로 되돌릴까요?", "되돌리기"]
+    }
+  };
+  function scopeBar(scope, canChat, ctx2) {
+    const items = [[canChat ? "chat" : "defaults", "설정"]];
+    const tabs2 = `<div class="gx-segs st-scope">${items.map(([k, label2]) => `<button class="gx-seg${scope === k ? " on" : ""}" data-action="set-scope" data-value="${k}" aria-pressed="${scope === k}">${label2}</button>`).join("")}</div>`;
+    const btns = scope === "card" ? `<span class="st-barbtns dir-bar">${directoryBar()}</span>` : scope === "chat" ? `<span class="st-barbtns">${barButtons(settingsUi.busy)}</span>` : "";
+    const kind = scope === "card" ? "card" : "chat";
+    const c = settingsUi.confirm && scope !== "defaults" ? CONFIRM[kind][settingsUi.confirm] : null;
+    const yes = kind === "card" ? settingsUi.confirm === "save" ? "dir-save" : "dir-reset" : "set-bar-yes";
+    const confirm = c ? `<div class="st-confirm st-barconfirm"><p>${c[0]}</p><div class="gx-row-btns"><button class="gx-mini${settingsUi.confirm === "load" ? " danger" : " ps-save"}" data-action="${yes}" data-value="${settingsUi.confirm}">${c[1]}</button><button class="gx-mini" data-action="set-bar-no">취소</button></div></div>` : scope === "chat" && ctx2 ? undoBar(ctx2) : "";
+    return `<div class="st-scopebar">${tabs2}${btns}</div>${confirm}`;
+  }
+  function undoBar(ctx2) {
+    const u = settingsUi.undo;
+    if (!u || u.charIndex !== ctx2.charIndex || u.chatIndex !== ctx2.chatIndex || settingsUi.confirm) return "";
+    return `<div class="st-confirm st-undobar ps-defconfirm"><p>${u.from === "reset" ? "초기화" : "불러오기"} 전 채팅 설정을 보관해 뒀어요. 되돌리면 그때 값으로 돌아가요. (기본값·지침은 되돌아오지 않아요)</p><div class="gx-row-btns"><button class="gx-mini ps-save" data-action="set-bar-undo" ${settingsUi.busy ? "disabled" : ""}>${ICONS.back}그 전으로 되돌리기</button><button class="gx-mini" data-action="set-bar-undo-drop">보관한 것 버리기</button></div></div>`;
+  }
+  function mainDefaultsConfirm(ctx2) {
+    return ctx2 ? undoBar(ctx2) : "";
+  }
+  function mainDefaultsPopup() {
+    const c = settingsUi.confirm ? CONFIRM.chat[settingsUi.confirm] : null;
+    if (!c) return "";
+    return `<div class="gw-confirm"><div class="gw-confirm-box"><p>${c[0]}</p><div class="gx-row-btns"><button class="gx-mini danger" data-action="set-bar-yes" data-value="${settingsUi.confirm}">${c[1]}</button><button class="gx-mini" data-action="set-bar-no">취소</button></div></div></div>`;
+  }
+  var BACK = `<button class="ph-tool ph-back" data-action="set-feat-back" aria-label="설정으로">${ICONS.back}</button>`;
+  function featurePage(ctx2, page, canChat) {
+    const raw = page === "phone" ? phoneSettingsPane(ctx2) : page === "gnet" ? gnetSettingsPane(ctx2, "gn") : page === "gal" || page === "wpf" || page === "sm" ? gnetSettingsPane(ctx2, page) : page === "cos" || page === "bm" ? mallSettingsPane(ctx2, page) : page === "hs" ? homeshopSettingsPane(ctx2) : page === "people" ? peopleSettingsPane(ctx2, canChat) : page === "factions" ? peopleFactionPane(ctx2, canChat) : page === "journal" ? journalSettingsPane(ctx2, canChat) : wikiSettingsPane(ctx2);
+    let pane2 = raw.replace(/<header class="ph-room-head[^"]*">(\s*<button class="ph-tool ph-back"[^>]*>[\s\S]*?<\/button>)?/, `<header class="ph-room-head">${BACK}`);
+    if (!canChat) pane2 = pane2.replace(/<\/header>/, '</header><p class="gx-hint st-prehint">채팅을 시작하기 전이에요. 여기서 바꾼 값은 이 채팅에 그대로 적용되고, 갱신·열기 같은 동작은 시작한 뒤에 할 수 있어요.</p>');
+    return `<main class="gx-body gx-settings st-featpage">${pane2}</main>`;
+  }
+  function settingsSection(ctx2, scope, canChat, section3) {
+    return settingsTab(ctx2, scope, canChat, section3);
+  }
+  function settingsNotices() {
+    return `${settingsUi.notice ? `<div class="gx-err" role="alert">${esc26(settingsUi.notice)}</div>` : ""}${toast("st", settingsUi.info, (t) => {
+      if (settingsUi.info === t) settingsUi.info = "";
+    })}`;
+  }
+  function featurePane(ctx2, page, canChat) {
+    let html = featurePage(ctx2, page, canChat).replace(/^<main class="gx-body gx-settings st-featpage">/, "").replace(/<\/main>$/, "").replace(/<p class="gx-hint st-prehint">[\s\S]*?<\/p>/, "");
+    let act2 = "";
+    html = html.replace(/<header class="ph-room-head[^"]*">([\s\S]*?)<\/header>/, (_m, inner) => {
+      act2 = inner.replace(/<button class="ph-tool ph-back"[^>]*>[\s\S]*?<\/button>/, "").replace(/<div class="ph-room-title">[\s\S]*?<\/div>/, "").replace(/^<span class="ph-act">([\s\S]*)<\/span>$/, "$1").trim();
+      return "";
+    });
+    return { body: html, act: act2 };
+  }
+  function settingsTab(ctx2, scope = "chat", canChat = true, only) {
+    if (scope === "card") {
+      return `<main class="gx-body gx-settings">${scopeBar(scope, canChat, ctx2)}${directoryView(ctx2)}${toast("dir", directoryDone(), directoryDoneClear)}</main>${drawerBox(directorySearch(), "gx-dirdrawer")}`;
+    }
+    if (settingsUi.page && !only) return featurePage(ctx2, settingsUi.page, canChat);
+    const { basic: s8, world: world2, theme } = current2(ctx2, scope);
+    const on3 = scope === "chat" ? worldOn(ctx2.chat) : s8.anomalyOn;
+    const busy6 = settingsUi.busy;
+    const D = (key, cur, o = {}) => {
+      const def = findDef(SETTINGS_SET, key);
+      return defRow(SETTINGS_SET, o.scope ? { ...def, scope: o.scope } : def, {
+        cur: () => cur,
+        busy: busy6,
+        ...o.ctl !== void 0 ? { custom: { [key]: () => ({ ctl: o.ctl, ...o.help !== void 0 ? { help: o.help } : {} }) } } : {},
+        ...o.help !== void 0 ? { help: { [key]: () => o.help } } : {}
+      });
+    };
+    const anomaly = scope === "chat" ? `<span data-consult="no" style="display:contents">${seg4("set-anomaly", on3 ? "on" : "off", [["on", "ON"], ["off", "OFF"]], busy6)}</span>` : seg4("set-anomaly", on3 ? "on" : "off", [["on", "ON"], ["off", "OFF"]], busy6);
+    const note2 = String(ctx2.chat.scriptstate?.[ASSET_NOTE] ?? "");
+    const colCfg = colConfig(scope === "chat" ? ctx2.chat.scriptstate : getPrefs().vars);
+    const wallet = readWallet(scope === "chat" ? ctx2.chat.scriptstate : void 0, getPrefs().walletStart ?? WALLET_START_DEFAULT);
+    const walletStart = wallet.start;
+    const walletNow = scope === "chat" ? walletBalance(wallet, aliveAnchors(ctx2.chat)) : walletStart;
+    const walletEdit = walletEditable(scope === "chat" ? ctx2.chat.scriptstate : getPrefs().vars);
+    const itVars = scope === "chat" ? ctx2.chat.scriptstate : getPrefs().vars;
+    const startLocked = scope === "chat" && !walletEdit && walletStarted(ctx2.chat);
+    const S = {
+      screen: `${group2("", [
+        // 테마는 채팅마다 ($st_fixed_theme, 원본 ensureDefaults) — 시작 뒤엔 이 채팅, 시작 전엔 새 채팅 기본값 (2026-10-28 QC: 「이 기기」 배지가 붙어 있었지만 실제로는 채팅에 저장됐다)
+        D("theme", theme, { help: `채팅 화면의 캐릭터 이미지 배경과 상태창(「테마」를 골랐을 때) 배색이에요. ${scope === "chat" ? "이 채팅에 저장돼요. 새 채팅의 기본값은 시작 화면의 설정에서 정해요." : "새 채팅이 시작할 때 쓸 배색이에요."}`, scope: scope === "chat" ? "chat" : "defaults" }),
+        D("nav", getPrefs().nav ?? "left"),
+        D("wiki-side", getPrefs().wikiSide ?? "right"),
+        D("agents", getPrefs().agents ?? "wall"),
+        D("dim", "", { ctl: dimSlider(getPrefs().dim ?? DIM_DEFAULT, busy6) }),
+        // 호출 진행 창 (11-09 사용자): 채팅을 보내면 라우터→디렉터→메인→갱신기→인터넷이 어디까지 돌았는지 (host/progwin.ts)
+        D("progress", getPrefs().progress === false ? "0" : "1"),
+        // 기다리는 시간 (core/timing.ts, 전수점검 보통-5·사소-9)
+        ...TIME_KEYS.map((k) => D(`time-${k}`, "", { ctl: stepIn("set-time", k, timeOf(k), TIME_SPEC[k].lo, TIME_SPEC[k].hi, TIME_SPEC[k].unit, TIME_SPEC[k].label, busy6) })),
+        // 호출 기록·AI 상담 대화는 기기에 하나뿐인 저장소라 보관하는 양도 이 기기에 하나 (core/settings.ts)
+        D("trace-keep", "", { ctl: stepBox("set-trace-keep", "n", keepTurns(), ...TRACE_KEEP_RANGE, "턴", "호출 기록 보관", busy6) }),
+        // 창 둘레 기기 틀 (2026-10-29 사용자, ui/frame.ts). 좁아서 숨긴 상태는 app.ts 가 .gx 에 data-frame-hidden 으로 적는다
+        D("frame", getPrefs().frame ?? "tablet", { help: `PC에서 상황판 창 둘레에 그리는 기기 틀로, 폰에서는 그리지 않고 창 폭이 모자라면 자동으로 숨겨요.${document.querySelector(".gx")?.dataset.frameHidden === "1" ? '<br><span class="st-frame-note">지금 창 폭이 좁아 프레임을 숨겼어요</span>' : ""}` }),
+        D("editor-width", String(getPrefs().editorWidth ?? 90)),
+        D("consult-lines", "", { ctl: stepBox("set-consult-lines", "n", consultKeep().lines, ...CONSULT_LINES_RANGE, "줄", "AI 상담 대화 보관", busy6) }),
+        D("consult-chats", "", { ctl: stepBox("set-consult-chats", "n", consultKeep().chats, ...CONSULT_CHATS_RANGE, "개", "AI 상담 보관 채팅", busy6) })
+      ].join(""))}`,
+      image: `${group2("", [
+        D("asset", s8.assetOn ? "1" : "0"),
+        s8.assetOn ? D("asset-model", s8.assetModel) : "",
+        s8.assetOn && s8.assetModel === "aux" ? D("asset-limit", String(s8.assetLimit)) : "",
+        s8.assetOn ? D("asset-player", s8.assetPlayer ? "1" : "0") : "",
+        s8.assetOn && s8.assetModel === "main" ? D("img-scene", getPrefs().imgNamesScene ? "1" : "0") : "",
+        s8.assetOn && s8.assetModel === "main" ? D("img-send", "", { ctl: recentControl("img-send", getPrefs().imgSend, "태그를 남길 메시지 수", busy6) }) : ""
+      ].join(""))}
+    ${scope === "chat" && s8.assetOn && s8.assetModel === "aux" && note2 ? `<p class="gx-hint">최근 보충: ${esc26(note2)}</p>` : ""}
+    ${s8.assetOn ? group2("그림 표시", [
+        D("img-size", "", { ctl: pctSlider("set-img-size", getPrefs().imgSize ?? IMG_SIZE.def, IMG_SIZE, "이미지 크기", busy6) }),
+        D("img-foldon", getPrefs().imgFoldOn === false ? "0" : "1"),
+        getPrefs().imgFoldOn !== false ? D("img-foldlock", getPrefs().imgFoldLock ? "0" : "1") : "",
+        getPrefs().imgFoldOn !== false ? D("img-fold", "", { ctl: pctSlider("set-img-fold", getPrefs().imgFold ?? IMG_FOLD.def, IMG_FOLD, "접힌 높이", busy6) }) : "",
+        D("img-show", "", { ctl: recentControl("img-show", getPrefs().imgShow, "이미지 표시 메시지 수", busy6) })
+      ].join("")) : ""}`,
+      board: `${group2("", [
+        D("anomaly", "", { ctl: anomaly, help: scope === "chat" ? "켜면 괴이·사건·특수가 저절로 생기고 응답마다 지도와 요원 상태를 갱신해요. 끄면 지금 상황판을 비워요. 커스텀 임무는 꺼져 있어도 쓸 수 있어요." : "새 채팅을 상황판을 켠 채로 시작할지 정해요." }),
+        D("agent", "", { ctl: stepper2("set-agent", "n", s8.agentLimit, 0, AGENT_MAX, "명", "요원 표시 인원", busy6), help: `상황판과 편성에 보일 등록 요원 수(0~${AGENT_MAX}명, 0이면 숨김)` }),
+        D("support", s8.supportOn ? "1" : "0")
+      ].join(""))}
+    ${worldGrid(world2, busy6)}`,
+      // 상태창: 배색(이 기기)과 칸 구성(이 채팅). 2026-10-29 사용자: 상황판 페이지에 섞여 있던 것을 따로 뺌
+      status: `${group2("", [
+        D("status", getPrefs().status ?? "auto")
+      ].join(""))}
+    ${group2(
+        `칸 <small>${usedCols(colCfg).length}칸 사용</small>`,
+        statusColsTable(colCfg, busy6, scope === "chat" ? ctx2.chat.scriptstate : getPrefs().vars),
+        `응답 끝의 상태 태그 <code>[▣|…]</code>에 들어가는 칸이에요. 「사용 안 함」으로 하면 태그에서 그 칸이 빠지고(모델에 모양을 알려 줘요), 「숨김」은 태그에는 두고 채팅 속 상태창 상자에서만 가려요.${scope === "chat" ? " 바꾼 구성은 이 채팅에 바로 적용되고 바뀐 시점이 기록돼요." : " 새 채팅의 기본 구성이에요."}`
+      )}
+`,
+      // 가계부(시작 잔고·잔고 직접 수정): 설정 「기록」 페이지 안의 묶음 (2026-11-05 사용자: 가계부가 기록 하위 탭이니 상태창에는 잔고 칸 표시만)
+      // 2026-11-07 사용자: 가계부·소지품·상점 설정을 「소지품」 한 페이지로, 켜고 끄기는 따로 (가계부 = 상태창 잔고 칸 $st_col_wallet)
+      wallet: [
+        group2("가계부", [
+          D("wallet-on", colCfg.wallet === "off" ? "0" : "1"),
+          ...colCfg.wallet === "off" ? [] : [
+            D("wallet-loose", walletLoose(itVars) ? "1" : "0"),
+            D("wallet-recent", "", { ctl: stepper2("set-wallet-recent", "n", walletRecentN(itVars), 0, WALLET_RECENT_MAX, "줄", "최근 거래 줄 수", busy6), help: `메인 요청의 지난 상태창 아래에 최근 거래를 몇 줄 붙일지예요(0~${WALLET_RECENT_MAX}, 0이면 안 붙여요). 모델이 돈이 어디로 갔는지 알고 이어 써요.` }),
+            D("wallet-cap", "", { ctl: stepper2("set-wallet-cap", "n", walletCapOf(itVars), WALLET_CAP_MIN, WALLET_CAP_MAX, "줄", "거래 줄 상한", busy6), help: `가계부와 포인트 장부에 거래를 몇 줄까지 남길지예요(${WALLET_CAP_MIN}~${WALLET_CAP_MAX}). 넘으면 오래된 거래부터 정리하고, 잔고는 그대로예요.` })
+          ]
+        ].join("")),
+        colCfg.wallet === "off" ? "" : group2("잔고", [
+          D("wallet-start", "", { ctl: wonInput(walletStart, busy6, startLocked), help: scope === "chat" ? `이 채팅 가계부의 시작 잔고예요. 지금 잔고 ${esc26(formatWon(walletNow))}. 거래 내역은 소지품 → 가계부에서.${startLocked ? " 이야기가 시작돼서 잠겼어요(아래 「잔고 직접 수정」을 켜면 바꿀 수 있어요)." : ""}` : "새 채팅 가계부의 시작 잔고예요. 거래는 인물 기록 갱신기가 본문에서 금액이 적힌 것만 뽑아 더하고 빼요." }),
+          D("wallet-edit", walletEdit ? "1" : "0"),
+          D("wallet-sync", walletSyncOn(itVars) ? "1" : "0")
+        ].join(""))
+      ].join(""),
+      // 소지품 (2026-11-07): 메인 요청에 넘기기·보조 모델 읽기·칸 수·한계 문장. 채팅 변수 $it_* 또는 새 채팅 기본값
+      items: [
+        group2("", [
+          D("inv-on", invOn(itVars) ? "1" : "0"),
+          ...!invOn(itVars) ? [] : [
+            D("items-auto", "", { ctl: `<span class="ph-inline">${seg4("set-items-auto", itemAutoOn(itVars) ? "1" : "0", [["1", "ON"], ["0", "OFF"]], busy6)}<button class="gx-mini" data-action="ed-node" data-value="set:people">갱신기 설정 →</button></span>` }),
+            D("items-state", itemStateOn(itVars) ? "1" : "0"),
+            ...!itemAutoOn(itVars) ? [] : [
+              D("items-scope", itemScope(itVars)),
+              D("items-skip", "", { ctl: `<input class="st-text" type="text" maxlength="${ITEM_SKIP_MAX}" value="${esc26(itemSkip(itVars))}" data-change="set-items-skip" placeholder="예: 지급받은 옷, 명함, 영수증" aria-label="만들지 않을 것"${busy6 ? " disabled" : ""}>` })
+            ]
+          ]
+        ].join("")),
+        ...!invOn(itVars) ? [] : [
+          group2("컨텍스트 포함", [
+            D("items-detail", itemDetail(itVars)),
+            D("items-logturns", "", { ctl: stepper2("set-items-logturns", "n", itemLogTurns(itVars), 0, ITEM_LOGTURNS_MAX, "턴", "기록 턴 수", busy6), help: `최근 몇 턴 동안 얻고·쓰고·버리고·잃은 기록을 [Inventory] 에 「Recently」 한 줄로 붙일지예요(0~${ITEM_LOGTURNS_MAX}, 0이면 안 붙여요).` }),
+            D("items-limit", "", { ctl: `<input class="st-text" type="text" maxlength="60" value="${esc26(itemLimit(itVars))}" data-change="set-items-limit" placeholder="${esc26(ITEM_LIMIT_DEFAULT)}" aria-label="지닐 수 있는 한계"${busy6 ? " disabled" : ""}>` })
+          ].join("")),
+          group2("칸과 물건", [
+            D("items-slots", "", { ctl: stepper2("set-items-slots", "n", itemSlots(itVars), ITEM_SLOTS_MIN, ITEM_SLOTS_MAX, "칸", "칸 수", busy6), help: `소지품 칸이에요(${ITEM_SLOTS_MIN}~${ITEM_SLOTS_MAX}). 넘쳐도 막지 않고 「17/16」처럼 보여 주며 그대로 메인 요청에 넘겨요.` }),
+            D("items-carry", "", { ctl: stepper2("set-items-carry", "n", itemCarrySetting(itVars), ITEM_CARRY_MIN, ITEM_CARRY_MAX, "kg", "소지 한도", busy6), help: `들 수 있는 무게예요(${ITEM_CARRY_MIN}~${ITEM_CARRY_MAX}kg). 장착한 것까지 모든 물건의 무게를 더해 보여 주고, 넘으면 넘은 만큼 색이 진해져요. 막지는 않고, 메인 요청에는 넘었는지·얼마나 넘었는지만 넘겨요. 고유 인물로 시작하면 명부의 「소지 한도」를 쓰고, 값이 없을 때만 이 값을 써요.${scope === "chat" && itemWeight(itVars?.[ITEM_CARRY_PC_VAR]) ? ` 이 채팅은 명부 값 ${itemWeight(itVars?.[ITEM_CARRY_PC_VAR])}kg을 써요.` : ""}` }),
+            D("items-edit", itemEditOn(itVars) ? "1" : "0"),
+            D("items-spent", itemsUiSpent(itVars)),
+            D("items-away-turns", "", { ctl: stepper2("set-items-away-turns", "n", itemAwayTurns(itVars), 0, ITEM_AWAY_TURNS_MAX, "턴", "치운 물건 기억", busy6, "계속"), help: `두고 오거나 버리거나 잃거나 부서진 물건을 몇 턴 동안 기억할지예요(0~${ITEM_AWAY_TURNS_MAX}, 0이면 계속). 기억하는 동안은 그 응답을 다시 굴리면 돌아오고, 본문에서 되찾으면 같은 물건으로 돌아와요. 지나면 목록에서 지워서, 그 뒤에 되찾으면 새 물건으로 생기고, 치운 응답을 지워도 돌아오지 않아요.` }),
+            D("items-list-cap", "", { ctl: stepper2("set-items-list-cap", "n", itemListCapOf(itVars), ITEM_LIST_CAP_MIN, ITEM_LIST_CAP_MAX, "줄", "물건 줄 상한", busy6), help: `저장하는 물건 줄 수예요(${ITEM_LIST_CAP_MIN}~${ITEM_LIST_CAP_MAX}). 넘으면 지운 응답의 물건, 팔거나 부서졌거나 다 쓴 물건을 오래된 것부터 지워요. 갖고 있는 물건은 지우지 않아요.` }),
+            D("items-logcap", "", { ctl: stepper2("set-items-logcap", "n", itemLogCapOf(itVars), ITEM_LOG_CAP_MIN, ITEM_LOG_CAP_MAX, "줄", "기록 줄 상한", busy6), help: `얻고·쓰고·버리고·잃은 기록을 몇 줄까지 남길지예요(${ITEM_LOG_CAP_MIN}~${ITEM_LOG_CAP_MAX}). 넘으면 오래된 기록부터 정리하고, 소모품의 남은 횟수는 그대로예요.` }),
+            D("items-act-gap", "", { ctl: numSet([["최소", stepper2("set-items-act-min", "n", lookActGap(itVars)[0], 0, LOOK_ACT_GAP_HI, "초", "아바타 동작 간격 최소", busy6)], ["최대", stepper2("set-items-act-max", "n", lookActGap(itVars)[1], 0, LOOK_ACT_GAP_HI, "초", "아바타 동작 간격 최대", busy6)]]), help: `소지품의 내 아바타가 한 동작을 마치고 다음 동작까지 서 있는 시간이에요. 최소와 최대 사이에서 매번 달라져요(0~${LOOK_ACT_GAP_HI}초). 최대가 0이면 동작 없이 서 있기만 해요.` }),
+            D("items-start", itemStartOn(itVars) ? "1" : "0"),
+            D("items-left-words", String(itVars?.[ITEM_LEFT_WORDS_VAR] ?? "")),
+            D("items-off-words", String(itVars?.[ITEM_OFF_WORDS_VAR] ?? ""))
+          ].join("")).replace(/<\/section>\s*$/, `${rulesBlock(itVars?.[ITEM_RULES_VAR], busy6)}</section>`),
+          // 그림 대체 말은 줄이 많아(기본 32줄) 접어 둔다 (11-12 사용자). 묶음의 줄들 아래, 고급 설정과 같은 접는 양식
+          `<section class="ps-group"><h3>물건 그림</h3><div class="ps-rows">${[
+            D("items-pool", itemIconPoolOn(itVars) ? "1" : "0"),
+            ...scope === "chat" ? [D("items-misses", "", { ctl: (() => {
+              const m = readIconMisses();
+              return m.length ? `<div class="st-misses">${m.slice().reverse().map((x) => `<div>${esc26(x.name)}${x.icon ? ` <small>(${esc26(x.icon)})</small>` : ""} → 상자</div>`).join("")}</div>` : '<div class="st-misses">없음</div>';
+            })() })] : []
+          ].join("")}</div>${aliasBlock(itVars?.[ITEM_ICON_ALIAS_VAR], busy6)}</section>`
+        ]
+      ].join(""),
+      // 상점 (2026-11-07 사용자): 표식 `[shop: 가게|주인]` 으로 열리는 상점 팝업의 생성 방식. 채팅 변수 $sh_* 또는 새 채팅 기본값
+      shop: (() => {
+        const sh = shopSettings(itVars);
+        return [
+          ...sh.on ? [
+            group2("열리는 조건", [
+              (() => {
+                const j = shopJudgeBy(itVars);
+                const now2 = j.fallback ? "지금은 갱신기가 안 돌아 메인 모델로 대신합니다." : `지금은 ${j.by === "updater" ? "갱신기" : "메인 모델"}가 판단해요.`;
+                return D("shop-judge", sh.judge, { help: `지금 장면에 상점이 있는지 누가 볼지예요. 메인 모델은 본문을 쓰면서 응답 끝에 표식을 같이 써요(추가 호출 없음). 갱신기는 응답이 끝난 뒤 인물 기록 갱신 호출에서 따로 판단해요(카드가 조금 늦게 붙어요). 자동은 갱신기가 매 턴 돌면 갱신기, 아니면 메인 모델이에요. 판단 기준은 지침 「상점」의 SHOP_RULE 한 곳을 양쪽이 같이 읽어요. ${now2}` });
+              })(),
+              D("shop-where", sh.where),
+              ownShopsField(itVars, busy6)
+            ].join(""))
+          ] : []
+        ].join("");
+      })(),
+      // 로어북 호출: 고급에서 따로 뺀 페이지 (2026-11-05 사용자)
+      lore: (() => {
+        const st = scope === "chat" ? ctx2.chat.scriptstate : getPrefs().vars;
+        return advSections("gen", st, {}, [1], true, { 1: activeBooksRow({ char: ctx2.char, chat: ctx2.chat }, st) });
+      })(),
+      adv: `${advSections("gen", scope === "chat" ? ctx2.chat.scriptstate : getPrefs().vars, {}, [0], true)}`,
+      update: `${updateGroup(ctx2)}`
+    };
+    if (only) return S[only];
+    return `<main class="gx-body gx-settings">
+    ${scopeBar(scope, canChat, ctx2)}
+    ${settingsUi.notice ? `<div class="gx-err" role="alert">${esc26(settingsUi.notice)}</div>` : ""}
+    ${S.screen}${S.image}${S.board}${S.lore}${S.adv}${S.update}
+    ${toast("st", settingsUi.info, (t) => {
+      if (settingsUi.info === t) settingsUi.info = "";
+    })}
+  </main>`;
+  }
+  async function bulkShopOff(ctx2) {
+    resetShop();
+    await dropShopTags(ctx2);
+  }
+  async function dropShopTags(ctx2) {
+    await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+      const list4 = chat.message ?? [];
+      if (!list4.some((m) => m.role === "char" && hasShopTag(String(m.data ?? "")))) return null;
+      return { ...chat, message: list4.map((m) => m.role === "char" && hasShopTag(String(m.data ?? "")) ? { ...m, data: stripShopTags(String(m.data)) } : m) };
+    }).catch(() => null);
+  }
+  function bulkSideVars(chat, prev, next) {
+    const vars = {};
+    const n3 = (chat.message ?? []).length;
+    const before = usedCols(colConfig(prev));
+    const after = usedCols(colConfig(next));
+    if (before.join() !== after.join()) vars[COL_LOG_VAR] = withColLog(prev, n3, after);
+    if (invOn(prev) && !invOn(next)) Object.assign(vars, { [ITEM_USE_VAR]: "", [ITEM_USE_AT_VAR]: "", [ITEM_USE_PREV_VAR]: "", [ITEM_RESUMED_VAR]: "" });
+    else if (!invOn(prev) && invOn(next)) vars[ITEM_RESUMED_VAR] = n3 ? String(n3) : "";
+    const shopOff = shopSettings(prev).on && !shopSettings(next).on;
+    if (shopOff) vars[SHOP_VAR] = "";
+    return { vars, shopOff };
+  }
+  var itemsUiSpent = (vars) => vars?.[ITEM_SPENT_VAR] === "keep" ? "keep" : "remove";
+  var INV_OPTS = {
+    "set-items-start": { key: ITEM_START_VAR, values: ["1", "0"] },
+    "set-items-detail": { key: ITEM_DETAIL_VAR, values: ["full", "state", "name"] },
+    "set-items-state": { key: ITEM_STATE_VAR, values: ["1", "0"] },
+    "set-items-scope": { key: ITEM_SCOPE_VAR, values: ["narrow", "mid", "wide"] },
+    "set-items-edit": { key: ITEM_EDIT_VAR, values: ["1", "0"] },
+    "set-items-pool": { key: ITEM_ICON_POOL_VAR, values: ["1", "0"] },
+    "set-items-spent": { key: ITEM_SPENT_VAR, values: ["remove", "keep"] },
+    "set-items-logturns": { key: ITEM_LOGTURNS_VAR, values: [], max: ITEM_LOGTURNS_MAX, num: itemLogTurns },
+    "set-items-away-turns": { key: ITEM_AWAY_TURNS_VAR, values: [], max: ITEM_AWAY_TURNS_MAX, num: itemAwayTurns },
+    "set-items-list-cap": { key: ITEM_LIST_CAP_VAR, values: [], max: ITEM_LIST_CAP_MAX, min: ITEM_LIST_CAP_MIN, num: itemListCapOf },
+    "set-items-logcap": { key: ITEM_LOG_CAP_VAR, values: [], max: ITEM_LOG_CAP_MAX, min: ITEM_LOG_CAP_MIN, num: itemLogCapOf },
+    "set-wallet-sync": { key: WALLET_SYNC_VAR, values: ["1", "0"] },
+    "set-wallet-loose": { key: WALLET_LOOSE_VAR, values: ["1", "0"] },
+    "set-wallet-recent": { key: WALLET_RECENT_VAR, values: [], max: WALLET_RECENT_MAX, num: walletRecentN },
+    "set-wallet-cap": { key: WALLET_CAP_VAR, values: [], max: WALLET_CAP_MAX, min: WALLET_CAP_MIN, num: walletCapOf }
+  };
+  async function save2(ctx2, env3, change) {
+    settingsUi.busy = true;
+    settingsUi.notice = "";
+    env3.render();
+    try {
+      await updateChat(ctx2.charIndex, ctx2.chatIndex, (latest) => {
+        const vars = change(latest);
+        return vars ? { ...latest, scriptstate: { ...latest.scriptstate ?? {}, ...vars } } : null;
+      });
+    } catch (error) {
+      settingsUi.notice = error instanceof Error ? error.message : String(error);
+    }
+    settingsUi.busy = false;
+    await env3.refresh();
+  }
+  var cardMode = (ss) => journalSettings(ss).chatCard;
+  async function redrawIfCard(ctx2, was, now2) {
+    if (!settingsUi.notice && was !== now2) await redrawChatCards(ctx2.charIndex, ctx2.chatIndex);
+  }
+  function withBasic(ctx2, chat, patch) {
+    return basicVars({ ...basicSettings(ctx2.char.globalLore, chat.scriptstate), ...patch });
+  }
+  async function saveDefaults(env3, change) {
+    settingsUi.busy = true;
+    settingsUi.notice = "";
+    env3.render();
+    try {
+      await savePrefs(change);
+    } catch (error) {
+      settingsUi.notice = `기본값을 저장하지 못했어요: ${error instanceof Error ? error.message : String(error)}`;
+    }
+    settingsUi.busy = false;
+    env3.render();
+  }
+  var basicPatch = (env3, patch) => saveDefaults(env3, (p2) => ({ ...p2, basic: { ...p2.basic, ...patch } }));
+  function allShowVars(cfg, v, vars) {
+    if (v !== "all:show:1" && v !== "all:show:0") return null;
+    const to = v.endsWith("1") ? "on" : "hide";
+    const out2 = Object.fromEntries(STATUS_COLS.filter((c) => !(c.id === "points" && pointsAuto(vars)) && cfg[c.id] !== "off" && cfg[c.id] !== to).map((c) => [colVar(c.id), to]));
+    if (pointsAuto(vars)) {
+      const want = to === "on" ? AUTO : AUTO_HIDE;
+      if ((vars?.[colVar("points")] === AUTO_HIDE ? AUTO_HIDE : AUTO) !== want) out2[colVar("points")] = want;
+    }
+    return out2;
+  }
+  function pointsColVar(vars, v) {
+    const [id2, what, val] = v.split(":");
+    if (id2 !== "points") return null;
+    const raw = vars?.[colVar("points")];
+    const auto = pointsAuto(vars);
+    const hidden = auto ? raw === AUTO_HIDE : raw === "hide";
+    let next = null;
+    if (what === "use") next = val === "a" ? hidden ? AUTO_HIDE : AUTO : val === "1" ? hidden ? "hide" : "on" : val === "0" ? "off" : null;
+    else if (what === "show" && (val === "1" || val === "0")) next = auto ? val === "1" ? AUTO : AUTO_HIDE : raw === "off" ? null : val === "1" ? "on" : "hide";
+    const cur = typeof raw === "string" && raw ? raw : AUTO;
+    return next === null || next === cur ? null : next;
+  }
+  function nextColMode(cfg, v) {
+    const [id2, what, val] = v.split(":");
+    const def = STATUS_COLS.find((c) => c.id === id2);
+    if (!def || what !== "use" && what !== "show" || val !== "1" && val !== "0") return null;
+    const cur = cfg[def.id];
+    let next = cur;
+    if (what === "use") next = val === "1" ? cur === "off" ? "on" : cur : def.locked ? cur : "off";
+    else next = cur === "off" ? cur : val === "1" ? "on" : "hide";
+    return next === cur ? null : [def.id, next];
+  }
+  function nextWorld(w, v) {
+    const [key, op] = v.split(":");
+    const f = WORLD_SPEC.find((x) => x.key === key);
+    if (!f || op === void 0) return null;
+    if (op.trim() === "") return null;
+    const cur = w[f.key];
+    const step = stepOf(f.max ?? 99);
+    const n3 = op === "+" ? cur + step : op === "-" ? cur - step : Number(op);
+    if (!Number.isFinite(n3)) return null;
+    const clamped = Math.min(f.max ?? 99, Math.max(0, f.fraction ? n3 : Math.round(n3)));
+    return clamped === cur ? null : [f.key, clamped];
+  }
+  async function shopFamSet(ctx2, env3, scope, col, key, raw) {
+    const vars = scope === "defaults" ? getPrefs().vars : ctx2.chat.scriptstate;
+    const name = (sh) => col === "shop" ? sh : col === "hs" ? hsKey(sh) : mallKey(sh, col);
+    const cur = col === "shop" ? shopSettings(vars) : col === "hs" ? hsSettings(vars).shop : mallSettings(vars, col);
+    const flag2 = raw === "1" || raw === "0";
+    const int3 = (lo, hi) => {
+      const n3 = Math.round(Number(raw));
+      return raw.trim() !== "" && Number.isFinite(n3) ? Math.max(lo, Math.min(hi, n3)) : null;
+    };
+    let patch = null;
+    if (key === "on") {
+      if (col === "shop" && flag2) return handleSettings("set-shop-on", raw, ctx2, env3, scope);
+      if (col === "hs" && flag2) patch = { [HS_KEY.on]: raw };
+    } else if (key === "auto") {
+      if ((col === "cos" || col === "bm") && ["manual", "open", "turn"].includes(raw)) patch = { [mallAutoKey(col)]: raw };
+      else if (col === "hs" && (raw === "manual" || raw === "open")) patch = { [HS_KEY.auto]: raw };
+    } else if (key === "model") {
+      if (raw === "main" || raw === "aux") patch = { [name(SHOP_MODEL_VAR)]: raw };
+    } else if (key === "feature") {
+      if (col !== "hs" && flag2) patch = { [name(SHOP_FEATURE_VAR)]: raw };
+    } else if (key === "main" || key.startsWith("main_")) {
+      const kind = key.slice(5);
+      if (col === "hs") {
+        const hk = key.slice(8);
+        if (key === "main" && flag2) patch = { [HS_MAIN_KEY.on]: raw };
+        else if (key === "main_turns") {
+          const t = HS_MAIN_SET.turns;
+          const n3 = raw.trim() === "" ? 0 : int3(t.lo, t.hi);
+          if (n3 !== null) patch = { [HS_MAIN_KEY.turns]: String(n3) };
+        } else if (key === "main_tokens") {
+          const t = HS_MAIN_SET.tokens;
+          const n3 = raw.trim() === "" ? 0 : int3(t.lo, t.hi);
+          if (n3 !== null) patch = { [HS_MAIN_KEY.tokens]: String(n3) };
+        } else if (key.startsWith("main_hs_") && flag2 && HS_LOG_KINDS.includes(hk)) {
+          const cur2 = hsMainSettings(scope === "defaults" ? getPrefs().vars : ctx2.chat.scriptstate).kinds;
+          const next = HS_LOG_KINDS.filter((k) => k === hk ? raw === "1" : cur2.includes(k));
+          patch = { [HS_MAIN_KEY.kinds]: next.length ? next.join(",") : "none" };
+        }
+      } else if (key === "main_lines") {
+        const n3 = col !== "shop" ? null : raw.trim() === "" ? SHOP_MAIN_LINES.def : int3(SHOP_MAIN_LINES.min, SHOP_MAIN_LINES.max);
+        if (n3 !== null) patch = { [SHOP_MAIN_LINES_VAR]: String(n3) };
+      } else if (isShopPlace(col) && flag2 && (key === "main" || SHOP_MAIN_KINDS[col].includes(kind))) patch = { [shopMainKey(col, key === "main" ? void 0 : kind)]: raw };
+    } else if (key === "price") {
+      patch = { [name(SHOP_PRICE_VAR)]: raw.replace(/\s+/g, " ").trim().slice(0, 80) };
+    } else if (key === "min" || key === "max") {
+      const n3 = int3(SHOP_SIZE_LO, SHOP_SIZE_HI);
+      if (n3 !== null) {
+        let [lo, hi] = cur.size;
+        if (key === "min") {
+          lo = n3;
+          if (lo > hi) hi = lo;
+        } else {
+          hi = n3;
+          if (hi < lo) lo = hi;
+        }
+        patch = { [name(SHOP_MIN_VAR)]: String(lo), [name(SHOP_MAX_VAR)]: String(hi) };
+      }
+    } else if (key === "keep_orders") {
+      const n3 = int3(ORDERS_KEEP_RANGE.min, ORDERS_KEEP_RANGE.max);
+      if (n3 !== null && (col === "cos" || col === "bm")) patch = { [col === "cos" ? COS_ORDERS_KEEP_VAR : BM_ORDERS_KEEP_VAR]: String(n3) };
+    } else if (key.startsWith("limit_")) {
+      const k = key.slice(6);
+      if (col === "shop" && isShopLimit(k)) {
+        const n3 = int3(SHOP_LIMITS[k].min, SHOP_LIMITS[k].max);
+        if (n3 !== null) patch = { [SHOP_LIMITS[k].key]: String(n3) };
+      }
+    } else if (key === "ctx" || key.startsWith("give_")) {
+      const k = key === "ctx" ? "ctx" : key.slice(5);
+      if (isGiveShop(col) && isGiveKey(k) && flag2) patch = { [shopGiveVar(col, k)]: raw };
+    } else if (key.startsWith("fn_")) {
+      const m = /^fn_([a-z]+)_([a-z]+)$/.exec(key);
+      if (col === "shop" && m && isShopFn(m[1])) {
+        if (isGiveKey(m[2]) && flag2) patch = { [shopFnVar(m[1], m[2])]: raw };
+        else if (isShopAmount(m[2]) && !shopAmountNone(m[1], m[2])) {
+          const n3 = int3(SHOP_AMOUNTS[m[2]].min, SHOP_AMOUNTS[m[2]].max);
+          if (n3 !== null) patch = { [shopFnVar(m[1], m[2])]: String(n3) };
+        }
+      }
+    } else if (col === "shop") {
+      const FLAGS = { diverse: SHOP_DIVERSE_VAR, prev: SHOP_PREV_VAR, kick: SHOP_KICK_VAR, talkstock: SHOP_TALK_STOCK_VAR };
+      if (FLAGS[key] && flag2) patch = { [FLAGS[key]]: raw };
+      else if (key === "thoughts" && ["off", "inner", "note"].includes(raw)) patch = { [SHOP_THOUGHTS_VAR]: raw };
+      else if (key === "turns") {
+        const n3 = int3(1, 8);
+        if (n3 !== null) patch = { [SHOP_TURNS_VAR]: String(n3) };
+      } else if (key === "refs") {
+        const n3 = int3(0, 12);
+        if (n3 !== null) patch = { [SHOP_REFS_VAR]: String(n3) };
+      } else if (key === "shelf") {
+        const n3 = int3(SHOP_SHELF_LO, SHOP_SHELF_HI);
+        if (n3 !== null) patch = { [SHOP_SHELF_VAR]: String(n3) };
+      }
+    }
+    if (!patch) return env3.render(), true;
+    const out2 = patch;
+    if (scope === "defaults") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, ...out2 } }));
+    else await save2(ctx2, env3, (chat) => Object.entries(out2).every(([k, v]) => String(chat.scriptstate?.[k] ?? "") === v) ? null : out2);
+    return true;
+  }
+  async function handleSettings(action, value, ctx2, env3, scope = "chat") {
+    const v = value ?? "";
+    const lore = ctx2.char.globalLore;
+    if (action === "set-feat-back") {
+      settingsUi.page = "";
+      env3.render();
+      return true;
+    }
+    if (action === "set-bar") {
+      settingsUi.confirm = v === "save" || scope !== "defaults" && (v === "load" || v === "reset") ? v : "";
+      env3.render();
+      return true;
+    }
+    if (action === "set-bar-no") {
+      settingsUi.confirm = "";
+      env3.render();
+      return true;
+    }
+    if (action === "set-bar-undo-drop") {
+      settingsUi.undo = null;
+      env3.render();
+      return true;
+    }
+    if (action === "set-bar-undo") {
+      const u = settingsUi.undo;
+      if (!u || u.charIndex !== ctx2.charIndex || u.chatIndex !== ctx2.chatIndex) return true;
+      settingsUi.undo = null;
+      let shopOff = false;
+      let card3 = ["", ""];
+      await save2(ctx2, env3, (chat) => {
+        const prev = chat.scriptstate;
+        const vars = {};
+        const drop = [];
+        for (const [k, val] of Object.entries(u.before)) {
+          if (k === COL_LOG_VAR) continue;
+          if (val === void 0) drop.push(k);
+          else vars[k] = val;
+        }
+        const ss = { ...chat.scriptstate ?? {} };
+        for (const k of drop) delete ss[k];
+        const side = bulkSideVars(chat, prev, { ...ss, ...vars });
+        shopOff = side.shopOff;
+        if (drop.length) chat.scriptstate = ss;
+        card3 = [cardMode(prev), cardMode({ ...ss, ...vars, ...side.vars })];
+        return { ...vars, ...side.vars };
+      });
+      if (shopOff) {
+        resetShop();
+        await dropShopTags(ctx2);
+      }
+      await redrawIfCard(ctx2, card3[0], card3[1]);
+      if (!settingsUi.notice) settingsUi.info = u.from === "reset" ? "초기화 전 설정으로 되돌렸어요." : "기본값을 불러오기 전 설정으로 되돌렸어요.";
+      env3.render();
+      return true;
+    }
+    if (action === "set-bar-yes") {
+      const what = settingsUi.confirm;
+      settingsUi.confirm = "";
+      if (what === "save") {
+        const cur = current2(ctx2, settingsUi.scope === "defaults" ? "defaults" : "chat");
+        await saveDefaults(env3, (p2) => ({ ...p2, basic: { ...cur.basic }, world: { ...cur.world }, theme: cur.theme }));
+        const state2 = scope === "defaults" ? { ...getPrefs().vars ?? {}, ...ctx2.chat.scriptstate ?? {} } : ctx2.chat.scriptstate;
+        if (!settingsUi.notice) await saveVarDefaults(ALL_PREFIXES, state2).catch((error) => settingsUi.notice = `기본값을 저장하지 못했어요: ${error instanceof Error ? error.message : String(error)}`);
+        if (!settingsUi.notice) settingsUi.info = "지금 설정을 기본값으로 저장했어요.";
+        env3.render();
+      } else if (what === "load") {
+        const d = current2(ctx2, "defaults");
+        let before = null;
+        let shopOff = false;
+        let card3 = ["", ""];
+        await save2(ctx2, env3, (chat) => {
+          const r = varDefaultsToLoad(ALL_PREFIXES, chat.scriptstate);
+          const prev = chat.scriptstate;
+          const base = { ...chat.scriptstate ?? {} };
+          for (const k of r.drop) delete base[k];
+          const vars = { ...basicVars(d.basic), [THEME_KEY]: d.theme, ...r.set };
+          for (const f of WORLD_SPEC) vars[wgKey(f.key)] = String(d.world[f.key]);
+          if (worldOn(chat)) {
+            const ss = { ...base, ...vars };
+            Object.assign(vars, worldVars(readWorld(chat), parseCatalog(lore), worldSettings(lore, ss), String(ss["$st_faction"] ?? "")));
+          }
+          const side = bulkSideVars(chat, prev, { ...base, ...vars });
+          shopOff = side.shopOff;
+          Object.assign(vars, side.vars);
+          before = {};
+          for (const k of [...Object.keys(vars), ...r.drop]) before[k] = prev?.[k];
+          if (r.drop.length) chat.scriptstate = base;
+          card3 = [cardMode(prev), cardMode({ ...base, ...vars })];
+          return vars;
+        });
+        if (shopOff) {
+          resetShop();
+          await dropShopTags(ctx2);
+        }
+        await redrawIfCard(ctx2, card3[0], card3[1]);
+        if (!settingsUi.notice && before) settingsUi.undo = { charIndex: ctx2.charIndex, chatIndex: ctx2.chatIndex, before, from: "load" };
+        if (!settingsUi.notice) settingsUi.info = "기본값을 지금 채팅에 불러왔어요.";
+        env3.render();
+      } else if (what === "reset") {
+        let before = null;
+        let shopOff = false;
+        let card3 = ["", ""];
+        await save2(ctx2, env3, (chat) => {
+          const prev = chat.scriptstate;
+          const ss = { ...chat.scriptstate ?? {} };
+          before = {};
+          for (const k of Object.keys(ss)) {
+            if (k === "$st_anomaly_on" || !(isChatSettingVar(k) || k === THEME_KEY)) continue;
+            before[k] = ss[k];
+            delete ss[k];
+          }
+          if (!(THEME_KEY in before)) before[THEME_KEY] = void 0;
+          const side = bulkSideVars(chat, prev, ss);
+          shopOff = side.shopOff;
+          for (const k of Object.keys(side.vars)) if (!(k in before)) before[k] = prev?.[k];
+          chat.scriptstate = ss;
+          const vars = { ...side.vars, [THEME_KEY]: "dark" };
+          if (walletStarted(chat) && !ss[WALLET_VAR]) Object.assign(vars, walletVars(readWallet(ss, getPrefs().walletStart ?? WALLET_START_DEFAULT)));
+          if (worldOn(chat)) {
+            const wv = worldVars(readWorld(chat), parseCatalog(lore), worldSettings(lore, ss), String(ss["$st_faction"] ?? ""));
+            for (const k of Object.keys(wv)) if (!(k in before)) before[k] = ss[k];
+            Object.assign(vars, wv);
+          }
+          card3 = [cardMode(prev), cardMode({ ...ss, ...vars })];
+          return vars;
+        });
+        if (shopOff) {
+          resetShop();
+          await dropShopTags(ctx2);
+        }
+        await redrawIfCard(ctx2, card3[0], card3[1]);
+        if (!settingsUi.notice) {
+          for (const g3 of GUIDE_NAMES) setGuideOverride(g3, "");
+          await saveDefaults(env3, (p2) => ({ ...p2, basic: {}, world: {}, theme: void 0, vars: {}, guides: void 0, imgPrompt: void 0, imgKeywords: void 0, walletStart: void 0, imgNamesOff: void 0, imgNamesExtra: void 0, imgNamesScene: void 0 }));
+          imgUi.template = null;
+          imgUi.keywords = null;
+          for (const f of resetHooks) f();
+        }
+        if (!settingsUi.notice && before) settingsUi.undo = { charIndex: ctx2.charIndex, chatIndex: ctx2.chatIndex, before, from: "reset" };
+        if (!settingsUi.notice) settingsUi.info = "지금 채팅 설정·기본값·지침·세계를 플러그인 원래 값으로 초기화했어요. 추가 규칙은 그대로 둬요.";
+        env3.render();
+      } else env3.render();
+      return true;
+    }
+    if (action === "set-status" && ["auto", "dark", "light", "paper", "off"].includes(v ?? "")) {
+      await saveDefaults(env3, (p2) => ({ ...p2, status: v === "auto" ? void 0 : v }));
+      repaintTheme();
+      return true;
+    }
+    if (action === "set-img-foldon") {
+      await saveDefaults(env3, (p2) => ({ ...p2, imgFoldOn: v === "0" ? false : void 0 }));
+      repaintTheme();
+      return true;
+    }
+    if (action === "set-img-scene") {
+      await saveDefaults(env3, (p2) => ({ ...p2, imgNamesScene: v === "1" ? true : void 0 }));
+      return true;
+    }
+    if (action === "set-img-foldlock") {
+      await saveDefaults(env3, (p2) => ({ ...p2, imgFoldLock: v === "0" ? true : void 0 }));
+      repaintTheme();
+      return true;
+    }
+    if (action === "set-img-size" || action === "set-img-fold") {
+      const size = imgSize(v);
+      const fold = imgFold(v);
+      if (action === "set-img-size" && size !== null) await saveDefaults(env3, (p2) => ({ ...p2, imgSize: size === IMG_SIZE.def ? void 0 : size }));
+      else if (action === "set-img-fold" && fold !== null) await saveDefaults(env3, (p2) => ({ ...p2, imgFold: fold === IMG_FOLD.def ? void 0 : fold }));
+      repaintTheme();
+      return true;
+    }
+    if (/^set-img-(show|send)(-mode)?$/.test(action)) {
+      const key = action.includes("show") ? "imgShow" : "imgSend";
+      const cur = getPrefs()[key];
+      const n3 = action.endsWith("-mode") ? v === "all" ? 0 : cur === 0 || cur === void 0 ? IMG_RECENT.def : cur : imgRecent(v);
+      if (n3 !== null) await saveDefaults(env3, (p2) => ({ ...p2, [key]: n3 === IMG_RECENT.def ? void 0 : n3 }));
+      return true;
+    }
+    if (action === "set-agents") {
+      await saveDefaults(env3, (p2) => ({ ...p2, agents: v === "list" ? "list" : void 0 }));
+      return true;
+    }
+    if (action === "set-wiki-side") {
+      if (v === "left" || v === "right") await saveDefaults(env3, (p2) => ({ ...p2, wikiSide: v }));
+      return true;
+    }
+    if (action === "set-progress") {
+      if (v === "1" || v === "0") await saveDefaults(env3, (p2) => ({ ...p2, progress: v === "0" ? false : void 0 }));
+      return true;
+    }
+    if (action === "set-time") {
+      const k = v.split(/[:=]/)[0];
+      if (!TIME_KEYS.includes(k)) return true;
+      const sp = TIME_SPEC[k];
+      const n3 = stepNext(v.slice(k.length), timeOf(k), sp.lo, sp.hi);
+      if (n3 === null || n3 === timeOf(k)) return true;
+      await saveDefaults(env3, (p2) => {
+        const t = { ...p2.times ?? {} };
+        if (n3 === sp.def) delete t[k];
+        else t[k] = n3;
+        return { ...p2, times: t };
+      });
+      return true;
+    }
+    if (action === "set-trace-keep" || action === "set-consult-lines" || action === "set-consult-chats") {
+      const [key, [lo, hi]] = action === "set-trace-keep" ? ["traceKeep", TRACE_KEEP_RANGE] : action === "set-consult-lines" ? ["consultLines", CONSULT_LINES_RANGE] : ["consultChats", CONSULT_CHATS_RANGE];
+      const raw = v.slice(v.indexOf("=") + 1).trim();
+      const n3 = Number(raw);
+      if (/^-?\d+$/.test(raw)) await saveDefaults(env3, (p2) => ({ ...p2, [key]: Math.max(lo, Math.min(hi, n3)) }));
+      return true;
+    }
+    if (action === "set-frame") {
+      if (v === "none" || v === "tablet" || v === "tactical") await saveDefaults(env3, (p2) => ({ ...p2, frame: v === "tablet" ? void 0 : v }));
+      return true;
+    }
+    if (action === "set-nav" || action === "set-dim") {
+      const n3 = Number(v);
+      if (action === "set-nav" && (v === "left" || v === "right")) await saveDefaults(env3, (p2) => ({ ...p2, nav: v === "right" ? "right" : void 0 }));
+      else if (action === "set-dim" && Number.isInteger(n3) && n3 >= 0 && n3 <= 100) await saveDefaults(env3, (p2) => ({ ...p2, dim: n3 }));
+      return true;
+    }
+    if (action === "set-scope") {
+      settingsUi.scope = v === "defaults" || v === "card" ? v : "chat";
+      settingsUi.confirm = "";
+      env3.render();
+      return true;
+    }
+    if (action === "set-items-act-min" || action === "set-items-act-max") {
+      const vars = scope === "defaults" ? getPrefs().vars : ctx2.chat.scriptstate;
+      let [lo, hi] = lookActGap(vars);
+      const to = stepNext(v, action === "set-items-act-min" ? lo : hi, 0, LOOK_ACT_GAP_HI);
+      if (to === null) return true;
+      if (action === "set-items-act-min") lo = to;
+      else hi = to;
+      if (lo > hi) action === "set-items-act-min" ? hi = lo : lo = hi;
+      const patch = { [LOOK_ACT_MIN_VAR]: String(lo), [LOOK_ACT_MAX_VAR]: String(hi) };
+      if (scope === "defaults") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, ...patch } }));
+      else await save2(ctx2, env3, (chat) => String(chat.scriptstate?.[LOOK_ACT_MIN_VAR] ?? "") === patch[LOOK_ACT_MIN_VAR] && String(chat.scriptstate?.[LOOK_ACT_MAX_VAR] ?? "") === patch[LOOK_ACT_MAX_VAR] ? null : patch);
+      return true;
+    }
+    const simple = INV_OPTS[action];
+    if (simple) {
+      const vars = scope === "defaults" ? getPrefs().vars : ctx2.chat.scriptstate;
+      let next = null;
+      if (simple.max !== void 0) {
+        const n3 = /^n(:[+-]|=)/.test(v) ? stepNext(v, simple.num(vars), simple.min ?? 0, simple.max) : null;
+        if (n3 !== null) next = String(n3);
+      } else if (simple.values.includes(v)) next = v;
+      if (next === null) return true;
+      const key = simple.key;
+      const val = next;
+      if (scope === "defaults") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [key]: val } }));
+      else await save2(ctx2, env3, (chat) => String(chat.scriptstate?.[key] ?? "") === val ? null : { [key]: val });
+      return true;
+    }
+    if (action.startsWith("set-own")) {
+      const vars = scope === "defaults" ? getPrefs().vars : ctx2.chat.scriptstate;
+      const cur = ownShops(vars);
+      const fm = action === "set-own" ? /^([\w-]+):(name|alias)=([\s\S]*)$/.exec(v) : null;
+      const [id2, ...rest] = (fm ? fm[1] : v).split(":");
+      const val = rest.join(":");
+      let next = null;
+      const edit = (f) => cur.map((o) => o.id === id2 ? f(o) : o);
+      if (fm) {
+        const t = fm[3].replace(/\s+/g, " ").trim();
+        next = edit((o) => fm[2] === "name" ? { ...o, name: t.slice(0, 30) } : { ...o, alias: t.slice(0, 120) });
+      } else if (action === "set-own-on" && (val === "1" || val === "0")) next = edit((o) => ({ ...o, on: val === "1" }));
+      else if (action === "set-own-web" && ownWeb().some(([w]) => w === val)) next = edit((o) => ({ ...o, web: val === "none" ? "" : val }));
+      else if (action === "set-own-visit" && OWN_VISIT.some(([w]) => w === val)) next = edit((o) => ({ ...o, visit: val === "none" ? "" : val }));
+      else if (action === "set-own-add" && cur.length < OWN_MAX) next = [...cur, { id: `o${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, on: true, name: "", alias: "", web: "", visit: "shop" }];
+      else if (action === "set-own-del") next = cur.filter((o) => o.id !== v);
+      else if (action === "set-own-reset") next = null;
+      if (!next && action !== "set-own-reset") return true;
+      const out2 = next ? JSON.stringify(next) : "";
+      if (scope === "defaults") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [SHOP_OWN_VAR]: out2 } }));
+      else await save2(ctx2, env3, (chat) => String(chat.scriptstate?.[SHOP_OWN_VAR] ?? "") === out2 ? null : { [SHOP_OWN_VAR]: out2 });
+      return true;
+    }
+    if (action.startsWith("set-shop-")) {
+      if (action === "set-shop-min" || action === "set-shop-max") {
+        const vars = scope === "defaults" ? getPrefs().vars : ctx2.chat.scriptstate;
+        let [lo, hi] = shopSettings(vars).size;
+        const d = v.endsWith("+") ? 1 : -1;
+        if (action === "set-shop-min") lo = Math.max(SHOP_SIZE_LO, Math.min(SHOP_SIZE_HI, lo + d));
+        else hi = Math.max(SHOP_SIZE_LO, Math.min(SHOP_SIZE_HI, hi + d));
+        if (lo > hi) action === "set-shop-min" ? hi = lo : lo = hi;
+        const patch = { [SHOP_MIN_VAR]: String(lo), [SHOP_MAX_VAR]: String(hi) };
+        if (scope === "defaults") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, ...patch } }));
+        else await save2(ctx2, env3, (chat) => String(chat.scriptstate?.[SHOP_MIN_VAR] ?? "") === patch[SHOP_MIN_VAR] && String(chat.scriptstate?.[SHOP_MAX_VAR] ?? "") === patch[SHOP_MAX_VAR] ? null : patch);
+        return true;
+      }
+      const KEY4 = { on: SHOP_ON_VAR, model: SHOP_MODEL_VAR, count: SHOP_COUNT_VAR, ctx: SHOP_CTX_VAR, price: SHOP_PRICE_VAR, diverse: SHOP_DIVERSE_VAR, thoughts: SHOP_THOUGHTS_VAR, prev: SHOP_PREV_VAR, kick: SHOP_KICK_VAR, feature: SHOP_FEATURE_VAR, turns: SHOP_TURNS_VAR, refs: SHOP_REFS_VAR, shelf: SHOP_SHELF_VAR, where: SHOP_WHERE_VAR, judge: SHOP_JUDGE_VAR };
+      const k = action.slice(9);
+      const key = KEY4[k];
+      if (!key) return true;
+      if ((k === "turns" || k === "refs") && /^n:[+-]$/.test(v)) {
+        const cur = shopSettings(scope === "defaults" ? getPrefs().vars : ctx2.chat.scriptstate)[k];
+        const [lo, hi] = k === "turns" ? [1, 8] : [0, 12];
+        const nv = String(Math.max(lo, Math.min(hi, cur + (v.endsWith("+") ? 1 : -1))));
+        if (scope === "defaults") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [key]: nv } }));
+        else await save2(ctx2, env3, (chat) => String(chat.scriptstate?.[key] ?? "") === nv ? null : { [key]: nv });
+        return true;
+      }
+      const ok = k === "price" ? true : k === "model" ? v === "main" || v === "aux" : k === "count" ? ["0", "1", "2"].includes(v) : k === "thoughts" ? ["off", "inner", "note"].includes(v) : k === "where" ? v === "any" || v === "shop" : k === "judge" ? ["auto", "main", "updater"].includes(v) : k === "turns" ? /^[1-8]$/.test(v) : k === "refs" ? /^([0-9]|1[0-2])$/.test(v) : k === "shelf" ? /^\d{2,3}$/.test(v) && Number(v) >= SHOP_SHELF_LO && Number(v) <= SHOP_SHELF_HI : v === "1" || v === "0";
+      if (!ok) return true;
+      const next = k === "price" ? v.replace(/\s+/g, " ").trim().slice(0, 80) : v;
+      if (scope === "defaults") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [key]: next } }));
+      else {
+        await save2(ctx2, env3, (chat) => String(chat.scriptstate?.[key] ?? "") === next ? null : { [key]: next, ...k === "on" && next === "0" ? { [SHOP_VAR]: "" } : {} });
+        if (k === "on" && next === "0") {
+          resetShop();
+          await dropShopTags(ctx2);
+        }
+      }
+      return true;
+    }
+    if (scope === "defaults") {
+      const d = current2(ctx2, "defaults");
+      switch (action) {
+        case "set-anomaly":
+          if (v === "on" || v === "off") await basicPatch(env3, { anomalyOn: v === "on" });
+          return true;
+        case "set-people":
+          if (v === "1" || v === "0") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [PP("on")]: v } }));
+          return true;
+        case "set-col": {
+          const all = allShowVars(colConfig(getPrefs().vars), v, getPrefs().vars);
+          if (all) {
+            if (Object.keys(all).length) await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, ...all } }));
+            return true;
+          }
+          if (v.startsWith("points:")) {
+            const pv = pointsColVar(getPrefs().vars, v);
+            if (pv) await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [colVar("points")]: pv } }));
+            return true;
+          }
+          const hit4 = nextColMode(colConfig(getPrefs().vars), v);
+          if (hit4) await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [colVar(hit4[0])]: hit4[1] } }));
+          return true;
+        }
+        case "set-wallet-start": {
+          const n3 = parseWon(v);
+          if (n3 !== null && n3 >= 0 && n3 <= WALLET_MAX) await saveDefaults(env3, (p2) => ({ ...p2, walletStart: n3 }));
+          else env3.render();
+          return true;
+        }
+        case "set-wallet-edit":
+          if (v === "1" || v === "0") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [WALLET_EDIT_VAR]: v } }));
+          return true;
+        case "set-wallet-on":
+          if (v === "1" || v === "0") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [colVar("wallet")]: v === "1" ? "on" : "off" } }));
+          return true;
+        case "set-inv-on":
+          if (v === "1" || v === "0") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [ITEM_ON_VAR]: v } }));
+          return true;
+        case "set-items-auto":
+          if (v === "1" || v === "0") await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [ITEM_AUTO_VAR]: v } }));
+          return true;
+        case "set-items-slots": {
+          const next = stepNext(v, itemSlots(getPrefs().vars), ITEM_SLOTS_MIN, ITEM_SLOTS_MAX);
+          if (next === null) return true;
+          await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [ITEM_SLOTS_VAR]: String(next) } }));
+          return true;
+        }
+        case "set-items-carry": {
+          const next = stepNext(v, itemCarrySetting(getPrefs().vars), ITEM_CARRY_MIN, ITEM_CARRY_MAX);
+          if (next === null) return true;
+          await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [ITEM_CARRY_VAR]: String(next) } }));
+          return true;
+        }
+        case "set-items-alias-cell":
+        case "set-items-alias-del":
+        case "set-items-alias-add":
+        case "set-items-alias-reset": {
+          const next = aliasEdit(getPrefs().vars?.[ITEM_ICON_ALIAS_VAR], action.slice(16), v);
+          if (next !== null) await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [ITEM_ICON_ALIAS_VAR]: next } }));
+          return true;
+        }
+        case "set-items-rules-cell":
+        case "set-items-rules-del":
+        case "set-items-rules-add":
+        case "set-items-rules-reset": {
+          const next = RULES_TABLE.edit(getPrefs().vars?.[ITEM_RULES_VAR], action.slice(16), v);
+          if (next !== null) await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [ITEM_RULES_VAR]: next } }));
+          return true;
+        }
+        case "set-items-left-words":
+          await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [ITEM_LEFT_WORDS_VAR]: defStored(wordsText(v), ITEM_LEFT_WORDS_DEFAULT, void 0, ITEM_WORDS_MAX) } }));
+          return true;
+        case "set-items-off-words":
+          await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [ITEM_OFF_WORDS_VAR]: defStored(wordsText(v), ITEM_OFF_WORDS_DEFAULT, void 0, ITEM_WORDS_MAX) } }));
+          return true;
+        case "set-items-skip":
+          await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [ITEM_SKIP_VAR]: v.replace(/\s+/g, " ").trim().slice(0, ITEM_SKIP_MAX) } }));
+          return true;
+        case "set-items-limit":
+          await saveDefaults(env3, (p2) => ({ ...p2, vars: { ...p2.vars ?? {}, [ITEM_LIMIT_VAR]: v.replace(/\s+/g, " ").trim().slice(0, 60) } }));
+          return true;
+        case "set-agent": {
+          const next = stepNext(v, d.basic.agentLimit, 0, AGENT_MAX);
+          if (next !== null && next !== d.basic.agentLimit) await basicPatch(env3, { agentLimit: next });
+          return true;
+        }
+        case "set-theme":
+          if (v === "light" || v === "dark" || v === "paper") await saveDefaults(env3, (p2) => ({ ...p2, theme: v }));
+          return true;
+        case "set-support":
+          await basicPatch(env3, { supportOn: v === "1" });
+          return true;
+        case "set-asset":
+          await basicPatch(env3, { assetOn: v === "1" });
+          return true;
+        case "set-asset-model":
+          if (v === "main" || v === "aux") await basicPatch(env3, { assetModel: v });
+          return true;
+        case "set-asset-player":
+          await basicPatch(env3, { assetPlayer: v === "1" });
+          return true;
+        case "set-asset-limit": {
+          const n3 = Number(v);
+          if (Number.isInteger(n3) && n3 >= 1 && n3 <= 4) await basicPatch(env3, { assetLimit: n3 });
+          return true;
+        }
+        case "set-world": {
+          const hit4 = nextWorld(d.world, v.replace("=", ":"));
+          if (hit4) await saveDefaults(env3, (p2) => ({ ...p2, world: { ...p2.world, [hit4[0]]: hit4[1] } }));
+          else env3.render();
+          return true;
+        }
+      }
+      return false;
+    }
+    switch (action) {
+      case "set-world":
+        await save2(ctx2, env3, (chat) => {
+          const hit4 = nextWorld(worldSettings(lore, chat.scriptstate), v.replace("=", ":"));
+          return hit4 ? { [wgKey(hit4[0])]: String(hit4[1]) } : null;
+        });
+        return true;
+      case "set-people":
+        if (v !== "1" && v !== "0") return true;
+        await save2(ctx2, env3, (chat) => ppValue(chat.scriptstate, "on") === v ? null : { [PP("on")]: v });
+        return true;
+      case "set-col":
+        {
+          let walletOff = false;
+          await save2(ctx2, env3, (chat) => {
+            const cfg = colConfig(chat.scriptstate);
+            const all = allShowVars(cfg, v, chat.scriptstate);
+            if (all) return Object.keys(all).length ? all : null;
+            if (v.startsWith("points:")) {
+              const pv = pointsColVar(chat.scriptstate, v);
+              if (!pv) return null;
+              const flag2 = pv === AUTO || pv === AUTO_HIDE ? pointsFlagFor(chat, isPointsOrg(String(chat.scriptstate?.["$ib_affiliation"] ?? ""))) : null;
+              const vars = { ...chat.scriptstate ?? {}, [colVar("points")]: pv, ...flag2 ? { [POINTS_ON_VAR]: flag2 } : {} };
+              return { [colVar("points")]: pv, ...flag2 ? { [POINTS_ON_VAR]: flag2 } : {}, [COL_LOG_VAR]: withColLog(chat.scriptstate, (chat.message ?? []).length, usedCols(colConfig(vars))) };
+            }
+            const hit4 = nextColMode(cfg, v);
+            if (!hit4) return null;
+            const next = { ...cfg, [hit4[0]]: hit4[1] };
+            walletOff = hit4[0] === "wallet" && hit4[1] === "off";
+            return { [colVar(hit4[0])]: hit4[1], [COL_LOG_VAR]: withColLog(chat.scriptstate, (chat.message ?? []).length, usedCols(next)), ...walletOff ? { [SHOP_VAR]: "" } : {} };
+          });
+          if (walletOff) {
+            resetShop();
+            await dropShopTags(ctx2);
+          }
+        }
+        return true;
+      case "set-wallet-start": {
+        const n3 = parseWon(v);
+        if (n3 === null || n3 < 0 || n3 > WALLET_MAX) {
+          env3.render();
+          return true;
+        }
+        await save2(ctx2, env3, (chat) => {
+          if (walletStarted(chat) && !walletEditable(chat.scriptstate)) return null;
+          const w = readWallet(chat.scriptstate, getPrefs().walletStart ?? WALLET_START_DEFAULT);
+          return w.start === n3 ? null : walletVars({ ...w, start: n3 });
+        });
+        return true;
+      }
+      case "set-wallet-edit":
+        if (v !== "1" && v !== "0") return true;
+        await save2(ctx2, env3, (chat) => walletEditable(chat.scriptstate) === (v === "1") ? null : { [WALLET_EDIT_VAR]: v });
+        return true;
+      case "set-wallet-on":
+        if (v !== "1" && v !== "0") return true;
+        await save2(ctx2, env3, (chat) => {
+          const cfg = colConfig(chat.scriptstate);
+          const mode2 = v === "1" ? cfg.wallet === "off" ? "on" : cfg.wallet : "off";
+          if (mode2 === cfg.wallet) return null;
+          const next = { ...cfg, wallet: mode2 };
+          return { [colVar("wallet")]: mode2, [COL_LOG_VAR]: withColLog(chat.scriptstate, (chat.message ?? []).length, usedCols(next)), ...v === "0" ? { [SHOP_VAR]: "" } : {} };
+        });
+        if (v === "0") {
+          resetShop();
+          await dropShopTags(ctx2);
+        }
+        return true;
+      case "set-inv-on":
+        if (v !== "1" && v !== "0") return true;
+        await save2(ctx2, env3, (chat) => {
+          if (invOn(chat.scriptstate) === (v === "1")) return null;
+          return v === "0" ? { [ITEM_ON_VAR]: "0", [ITEM_USE_VAR]: "", [ITEM_USE_AT_VAR]: "", [ITEM_USE_PREV_VAR]: "", [SHOP_VAR]: "", [ITEM_RESUMED_VAR]: "" } : { [ITEM_ON_VAR]: "1", [ITEM_RESUMED_VAR]: (chat.message ?? []).length ? String((chat.message ?? []).length) : "" };
+        });
+        if (v === "0") {
+          resetShop();
+          await dropShopTags(ctx2);
+        }
+        return true;
+      case "set-items-auto": {
+        if (v !== "1" && v !== "0") return true;
+        await save2(ctx2, env3, (chat) => itemAutoOn(chat.scriptstate) === (v === "1") ? null : { [ITEM_AUTO_VAR]: v });
+        return true;
+      }
+      case "set-items-slots":
+        await save2(ctx2, env3, (chat) => {
+          const cur = itemSlots(chat.scriptstate);
+          const next = stepNext(v, cur, ITEM_SLOTS_MIN, ITEM_SLOTS_MAX);
+          return next === null || next === cur ? null : { [ITEM_SLOTS_VAR]: String(next) };
+        });
+        return true;
+      case "set-items-carry":
+        await save2(ctx2, env3, (chat) => {
+          const cur = itemCarrySetting(chat.scriptstate);
+          const next = stepNext(v, cur, ITEM_CARRY_MIN, ITEM_CARRY_MAX);
+          return next === null || next === cur ? null : { [ITEM_CARRY_VAR]: String(next) };
+        });
+        return true;
+      case "set-items-skip":
+        await save2(ctx2, env3, (chat) => {
+          const next = v.replace(/\s+/g, " ").trim().slice(0, ITEM_SKIP_MAX);
+          return next === String(chat.scriptstate?.[ITEM_SKIP_VAR] ?? "") ? null : { [ITEM_SKIP_VAR]: next };
+        });
+        return true;
+      case "set-items-limit":
+        await save2(ctx2, env3, (chat) => {
+          const next = v.replace(/\s+/g, " ").trim().slice(0, 60);
+          return next === String(chat.scriptstate?.[ITEM_LIMIT_VAR] ?? "") ? null : { [ITEM_LIMIT_VAR]: next };
+        });
+        return true;
+      case "set-items-rules-cell":
+      case "set-items-rules-del":
+      case "set-items-rules-add":
+      case "set-items-rules-reset":
+        await save2(ctx2, env3, (chat) => {
+          const next = RULES_TABLE.edit(chat.scriptstate?.[ITEM_RULES_VAR], action.slice(16), v);
+          return next === null ? null : { [ITEM_RULES_VAR]: next };
+        });
+        return true;
+      case "set-items-left-words":
+      case "set-items-off-words":
+        await save2(ctx2, env3, (chat) => {
+          const [key, def] = action === "set-items-left-words" ? [ITEM_LEFT_WORDS_VAR, ITEM_LEFT_WORDS_DEFAULT] : [ITEM_OFF_WORDS_VAR, ITEM_OFF_WORDS_DEFAULT];
+          const next = defStored(wordsText(v), def, void 0, ITEM_WORDS_MAX);
+          return next === String(chat.scriptstate?.[key] ?? "") ? null : { [key]: next };
+        });
+        return true;
+      case "set-items-alias-cell":
+      case "set-items-alias-del":
+      case "set-items-alias-add":
+      case "set-items-alias-reset":
+        await save2(ctx2, env3, (chat) => {
+          const next = aliasEdit(chat.scriptstate?.[ITEM_ICON_ALIAS_VAR], action.slice(16), v);
+          return next === null ? null : { [ITEM_ICON_ALIAS_VAR]: next };
+        });
+        return true;
+      case "set-anomaly":
+        if (v === "off") {
+          await save2(ctx2, env3, (chat) => worldOn(chat) ? worldOffVars() : null);
+          return true;
+        }
+        if (v === "on") {
+          await save2(ctx2, env3, (chat) => {
+            if (worldOn(chat)) return null;
+            const faction = String(chat.scriptstate?.["$st_faction"] ?? "");
+            return startWorldVars(parseCatalog(lore), worldSettings(lore, chat.scriptstate), faction, Math.random, String(chat.scriptstate?.["$st_player"] ?? ""));
+          });
+        }
+        return true;
+      case "set-agent":
+        await save2(ctx2, env3, (chat) => {
+          const cur = basicSettings(lore, chat.scriptstate).agentLimit;
+          const next = stepNext(v, cur, 0, AGENT_MAX);
+          if (next === null || next === cur) return null;
+          const vars = withBasic(ctx2, chat, { agentLimit: next });
+          if (worldOn(chat)) {
+            const ss = { ...chat.scriptstate ?? {}, ...vars };
+            Object.assign(vars, worldVars(readWorld(chat), parseCatalog(lore), worldSettings(lore, ss), String(ss["$st_faction"] ?? "")));
+          }
+          return vars;
+        });
+        return true;
+      case "set-theme":
+        if (v !== "light" && v !== "dark" && v !== "paper") return true;
+        await save2(ctx2, env3, (chat) => chat.scriptstate?.[THEME_KEY] === v ? null : { [THEME_KEY]: v });
+        return true;
+      case "set-support":
+        await save2(ctx2, env3, (chat) => withBasic(ctx2, chat, { supportOn: v === "1" }));
+        return true;
+      case "set-asset":
+        await save2(ctx2, env3, (chat) => withBasic(ctx2, chat, { assetOn: v === "1" }));
+        if (setImgHidden(v !== "1")) repaintTheme();
+        return true;
+      case "set-asset-model":
+        if (v !== "main" && v !== "aux") return true;
+        await save2(ctx2, env3, (chat) => withBasic(ctx2, chat, { assetModel: v }));
+        return true;
+      case "set-asset-player":
+        await save2(ctx2, env3, (chat) => withBasic(ctx2, chat, { assetPlayer: v === "1" }));
+        return true;
+      case "set-asset-limit": {
+        const n3 = Number(v);
+        if (!Number.isInteger(n3) || n3 < 1 || n3 > 4) return true;
+        await save2(ctx2, env3, (chat) => withBasic(ctx2, chat, { assetLimit: n3 }));
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // src/ui/malls.ts
+  var esc27 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var fresh2 = () => ({ loading: "", notice: "", failRaw: "", info: "", cart: [], page: "", pay: false, ask: false, chip: "", picking: false, selling: false, input: "", focus: "", win: null });
+  var ui2 = { cos: fresh2(), bm: fresh2() };
+  var uiChat2 = "";
+  var chatKey6 = (ctx2) => `${ctx2.charIndex}:${ctx2.chatIndex}`;
+  function sync2(ctx2) {
+    const k = chatKey6(ctx2);
+    if (k === uiChat2) return;
+    uiChat2 = k;
+    ui2.cos = fresh2();
+    ui2.bm = fresh2();
+  }
+  var rollResetArm = "";
+  function resetMalls() {
+    uiChat2 = "";
+    rollResetArm = "";
+    ui2.cos = fresh2();
+    ui2.bm = fresh2();
+  }
+  var won2 = (n3) => `₩${Math.trunc(n3).toLocaleString("en-US")}`;
+  var pp = (word, withBatchim, without) => josa(word, withBatchim, without).slice(word.length);
+  var pts2 = (n3) => `${Math.trunc(n3).toLocaleString("en-US")} P`;
+  var balanceOf2 = (ctx2, site) => {
+    const alive = aliveAnchors(ctx2.chat);
+    return site === "bm" ? walletBalance(readPoints(ctx2.chat.scriptstate), alive) : walletBalance(readWallet(ctx2.chat.scriptstate, getPrefs().walletStart ?? WALLET_START_DEFAULT), alive);
+  };
+  var loggedNick = (ctx2) => String(ctx2.chat.scriptstate?.["$br_login"] ?? "") === "1" ? String(ctx2.chat.scriptstate?.["$br_nick"] ?? "").trim() : "";
+  var atKey = mallAtKey;
+  var jobs5 = /* @__PURE__ */ new Set();
+  var fixedItem = (f) => ({ name: f.name.trim(), desc: f.desc, effect: f.effect, use: false, price: f.price, truth: f.truth.trim() || "?", ...f.was && f.was > f.price ? { tag: "sale", was: f.was } : {} });
+  function saleDone2(chat, site, itemId4) {
+    const now2 = readMall(chat.scriptstate, site, aliveAnchors(chat));
+    const o = now2.sell;
+    if (!o || o.itemId !== itemId4 || typeof o.price !== "number") return null;
+    const it0 = readItems(chat.scriptstate);
+    if (!liveItemsOf(it0, chat).some((x) => x.id === itemId4)) return null;
+    const anchor = lastBot(chat)?.key ?? "";
+    const w0 = readWallet(chat.scriptstate, getPrefs().walletStart ?? WALLET_START_DEFAULT);
+    const w = addWalletEntry(w0, { id: freshWalletId(w0, `${site}_sl_${itemId4}_${now2.sales.length}`, anchor), anchor, amount: o.price, memo: guideTxt("Main", "MALL.MEMO.SELL", { item: o.name, mall: MALL_NAME[site] }), src: "store" }, aliveAnchors(chat));
+    const items = sellItem(it0, itemId4, anchor, `${MALL_NAME[site]}에 팖`);
+    const nextShop = closeSale(now2, anchor, shopLimits(chat.scriptstate));
+    if (!nextShop) return null;
+    const q = chat.scriptstate?.[ITEM_USE_AT_VAR] || useLocked() ? null : readItemUse(chat.scriptstate);
+    const use = q && q.some((u) => u.id === itemId4) ? itemUseVars(dropUse(q, itemId4)) : {};
+    return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...walletVars(w), ...itemsVars(items), ...mallVarsOf(site, nextShop), ...use } };
+  }
+  var lateNow = (chat, site) => readMall(chat.scriptstate, site, aliveAnchors(chat));
+  var sendsOrders = (site, kind) => site === "cos" && kind === "talk";
+  async function ask3(ctx2, env3, site, kind, st0) {
+    const job = `${chatKey6(ctx2)}:${site}`;
+    if (jobs5.has(job)) return;
+    jobs5.add(job);
+    const v = ui2[site];
+    const s8 = mallSettings(ctx2.chat.scriptstate, site);
+    v.loading = kind;
+    v.notice = "";
+    v.failRaw = "";
+    if (kind === "talk") await env3.refresh();
+    else env3.render();
+    try {
+      const give = shopGive(ctx2.chat.scriptstate, site, kind);
+      const src = shopSource({ ...ctx2, chat: { ...ctx2.chat, scriptstate: mallVars(ctx2.chat.scriptstate, site) } }, st0, s8, give);
+      if (kind === "shelf") src.assign = cosAssignment(s8.size[0] + Math.floor(Math.random() * (s8.size[1] - s8.size[0] + 1)), give.context, mallRoll(ctx2.chat.scriptstate, site), Math.random, site);
+      if (site === "cos") src.truthMode = cosTruthMode(ctx2.chat.scriptstate);
+      if (sendsOrders(site, kind)) {
+        const od = ordersText(liveOrders(ctx2.chat.scriptstate, aliveAnchors(ctx2.chat)), worldMinute(ctx2.chat), lastBot(ctx2.chat)?.key ?? "");
+        if (od) src.orders = od;
+      }
+      const g3 = genSettings(ctx2.chat.scriptstate);
+      const opts = { retries: g3.retries, retryModel: g3.retryModel, concurrent: g3.concurrent, state: ctx2.chat.scriptstate, label: `${MALL_NAME[site]} ${kind === "shelf" ? "진열" : "문의"}` };
+      let next;
+      let note2 = null;
+      let deal = "";
+      if (kind === "shelf") {
+        const { value } = await generate(shelfPrompt(src, s8, MALL_GUIDE[site]), s8.model, (raw) => {
+          const r = parseShelf(raw, st0.loaded ? st0.identity : null);
+          return site === "bm" ? { ...r, items: r.items.map(pointPrice) } : r;
+        }, opts);
+        let applied = applyShelf(st0, value, s8);
+        if (site === "cos") {
+          const had = new Set(st0.items.map((x) => x.id));
+          applied = { ...applied, items: applied.items.map((x) => !x.sold && !had.has(x.id) && !x.truth ? { ...x, truth: "?" } : x) };
+        }
+        if (site === "cos") {
+          const fixed = cosFixed(ctx2.chat.scriptstate);
+          applied = dropItemsNamed(applied, fixed.map((f) => f.name));
+          applied = appendItems(applied, cosFixedRoll(fixed).map(fixedItem));
+        }
+        note2 = value.owner ?? "";
+        next = { ...applied, talk: st0.talk };
+      } else {
+        const { value } = await generate(talkPrompt(src, s8, MALL_GUIDE[site]), s8.model, parseTalk, opts);
+        next = stampLastLine(applyTalk(st0, value, false, s8.talkStock, s8.shelf, s8.keep), lastBot(ctx2.chat)?.key ?? "");
+        if (site === "cos") {
+          const had = new Set(st0.items.map((x) => x.id));
+          next = { ...next, items: next.items.map((x) => !x.sold && !had.has(x.id) && !x.truth ? { ...x, truth: "?" } : x) };
+        }
+        if (value.deal && next.sell && typeof next.sell.price === "number") deal = next.sell.itemId;
+      }
+      if (site === "bm") next = { ...next, identity: { ...next.identity, points: true } };
+      const cur = env3.current();
+      if (!cur || chatKey6(cur) !== chatKey6(ctx2)) return;
+      const key = lastBot(cur.chat)?.key ?? "";
+      const sale = deal ? next.sell : null;
+      let sold = false;
+      let merged = next;
+      await updateChat(cur.charIndex, cur.chatIndex, (chat) => {
+        const now2 = lateNow(chat, site);
+        merged = mergeLate(now2, next, st0, s8.shelf);
+        if (st0.sell && !now2.sell) deal = "";
+        const saved = { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...mallVarsOf(site, { ...merged, key }), ...note2 !== null ? { [mallNoteKey(site)]: note2, [atKey(site)]: turnKey(chat) } : {} } };
+        const done3 = deal ? saleDone2(saved, site, deal) : null;
+        if (done3) sold = true;
+        return done3 ?? saved;
+      });
+      if (sold && sale) {
+        v.info = `「${sale.name}」${pp(sale.name, "을", "를")} ${won2(sale.price)}에 팔았다. 입금 완료, 너에게.`;
+        void refreshUseBox(cur.charIndex, cur.chatIndex);
+      }
+      v.cart = v.cart.filter((id2) => shelfItems(merged).some((x) => x.id === id2));
+    } catch (error) {
+      v.notice = error instanceof Error ? error.message : String(error);
+      v.failRaw = deskRawSafe(String(error.raw ?? ""));
+      if (kind === "talk") {
+        const cur = env3.current();
+        if (cur && chatKey6(cur) === chatKey6(ctx2)) {
+          await updateChat(cur.charIndex, cur.chatIndex, (chat) => {
+            const now2 = readMall(chat.scriptstate, site, aliveAnchors(chat));
+            const last2 = now2.talk[now2.talk.length - 1];
+            if (!last2 || last2.who !== "me") return null;
+            return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...mallVarsOf(site, { ...now2, talk: now2.talk.slice(0, -1) }) } };
+          }).catch(() => null);
+        }
+      }
+    } finally {
+      v.loading = "";
+      jobs5.delete(job);
+    }
+    await env3.refresh();
+  }
+  function markSeen(ctx2, site) {
+    if (!mallUnseen(ctx2.chat.scriptstate, site, readMall(ctx2.chat.scriptstate, site, aliveAnchors(ctx2.chat)).loaded)) return;
+    const at = String(ctx2.chat.scriptstate?.[atKey(site)] ?? "");
+    void updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => String(chat.scriptstate?.[atKey(site)] ?? "") !== at || String(chat.scriptstate?.[mallSeenKey(site)] ?? "") === at ? null : { ...chat, scriptstate: { ...chat.scriptstate ?? {}, [mallSeenKey(site)]: at } }).catch(() => null);
+  }
+  var liveEnv5 = null;
+  function mallOpenCheck(ctx2, env3, site) {
+    liveEnv5 = env3;
+    sync2(ctx2);
+    const s8 = mallSettings(ctx2.chat.scriptstate, site);
+    if (!s8.on || s8.auto === "manual" || ui2[site].loading) return;
+    if (site === "bm" && !loggedNick(ctx2)) return;
+    const st = readMall(ctx2.chat.scriptstate, site, aliveAnchors(ctx2.chat));
+    if (st.loaded && String(ctx2.chat.scriptstate?.[atKey(site)] ?? "") === turnKey(ctx2.chat)) return;
+    if (st.loaded && s8.auto === "turn") return;
+    void ask3(ctx2, env3, site, "shelf", st);
+  }
+  async function autoRefreshMall(ctx2, site) {
+    const live = liveEnv5?.current();
+    const env3 = live && chatKey6(live) === chatKey6(ctx2) ? liveEnv5 : { render() {
+    }, refresh: async () => {
+    }, current: () => ctx2 };
+    const s8 = mallSettings(ctx2.chat.scriptstate, site);
+    if (!s8.on || s8.auto !== "turn") return;
+    if (site === "bm" && !pointsOn(ctx2.chat)) return;
+    if (String(ctx2.chat.scriptstate?.[atKey(site)] ?? "") === turnKey(ctx2.chat)) return;
+    const st = readMall(ctx2.chat.scriptstate, site, aliveAnchors(ctx2.chat));
+    if (mallUnseen(ctx2.chat.scriptstate, site, st.loaded)) return;
+    await ask3(ctx2, env3, site, "shelf", st);
+  }
+  function previewMallShelf(ctx2, site) {
+    const s8 = mallSettings(ctx2.chat.scriptstate, site);
+    if (!s8.on) return null;
+    const st = readMall(ctx2.chat.scriptstate, site, aliveAnchors(ctx2.chat));
+    const give = shopGive(ctx2.chat.scriptstate, site, "shelf");
+    const src = shopSource({ ...ctx2, chat: { ...ctx2.chat, scriptstate: mallVars(ctx2.chat.scriptstate, site) } }, st, s8, give);
+    src.assign = cosAssignment(s8.size[1], give.context, mallRoll(ctx2.chat.scriptstate, site), Math.random, site);
+    if (site === "cos") src.truthMode = cosTruthMode(ctx2.chat.scriptstate);
+    return shelfPrompt(src, s8, MALL_GUIDE[site]);
+  }
+  async function buy(ctx2, site, ids) {
+    const start3 = getPrefs().walletStart ?? WALLET_START_DEFAULT;
+    let got = null;
+    await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+      const now2 = readMall(chat.scriptstate, site, aliveAnchors(chat));
+      const list4 = ids.map((id2) => now2.items.find((x) => x.id === id2 && !x.sold)).filter((x) => !!x);
+      if (!list4.length || list4.length !== ids.length) return null;
+      const alive = aliveAnchors(chat);
+      const p2 = site === "bm";
+      let w = p2 ? readPoints(chat.scriptstate) : readWallet(chat.scriptstate, start3);
+      const total = list4.reduce((a, x) => a + x.price, 0);
+      if (walletBalance(w, alive) < total) return null;
+      const anchor = lastBot(chat)?.key ?? "";
+      let items = readItems(chat.scriptstate);
+      const waiting2 = [];
+      let st = now2;
+      for (const it of list4) {
+        const walletId = it.price > 0 ? freshWalletId(w, `${site}_${it.id}`, anchor) : "";
+        if (walletId) w = addWalletEntry(w, { id: walletId, anchor, amount: -it.price, memo: guideTxt("Main", "MALL.MEMO.BUY", { item: it.name, mall: MALL_NAME[site] }), src: "store" }, alive);
+        const extra2 = it.pay ? ` ${guideTxt("Main", "MALL.PAID.EXTRA", { pay: it.pay })}` : "";
+        const paid = p2 ? { paidWith: guideTxt("Main", "MALL.PAID.POINTS", { price: it.price.toLocaleString("en-US"), mall: MALL_NAME[site], extra: extra2 }) } : { price: it.price, ...walletId ? { walletId } : {}, paidWith: guideTxt("Main", "MALL.PAID.BANK", { mall: MALL_NAME[site], extra: extra2 }) };
+        if (p2) waiting2.push({ id: walletId || `bm_${it.id}_${Date.now().toString(36)}${waiting2.length}`, anchor, price: it.price, walletId: walletId || void 0, paidWith: paid.paidWith, item: { name: it.name, desc: it.desc, effect: it.effect, truth: it.truth, use: it.use, uses: it.uses, equip: it.equip, icon: it.icon, weight: it.weight } });
+        else items = addItem(items, alive, { name: it.name, desc: it.desc, effect: it.effect, truth: it.truth, use: it.use, uses: it.uses, equip: it.equip, icon: it.icon, weight: it.weight, from: "store", store: site, anchor, ...paid });
+        st = markSold(st, it.id, anchor, storyStamp(chat));
+      }
+      got = list4;
+      return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...p2 ? { ...pointsVars(w), ...bmOrdersVars([...liveBmOrders(chat.scriptstate, alive), ...waiting2], bmOrdersKeep(chat.scriptstate)) } : { ...walletVars(w), ...itemsVars(items) }, ...mallVarsOf(site, st) } };
+    });
+    return got;
+  }
+  async function mallAction(action, value, ctx2, env3, site) {
+    if (!action.startsWith("mall-")) return false;
+    sync2(ctx2);
+    const MONEY = ["mall-pay", "mall-buy", "mall-note-buy", "mall-quote-accept", "mall-custom-take", "mall-pickup", "mall-pickup-all", "mall-sell"];
+    if (MONEY.includes(action)) {
+      if (moneyBusy) return true;
+      moneyBusy = true;
+      try {
+        return await mallMoney(action, value, ctx2, env3, site);
+      } finally {
+        moneyBusy = false;
+      }
+    }
+    return mallMoney(action, value, ctx2, env3, site);
+  }
+  var moneyBusy = false;
+  async function mallMoney(action, value, ctx2, env3, site) {
+    const v = ui2[site];
+    const st = readMall(ctx2.chat.scriptstate, site, aliveAnchors(ctx2.chat));
+    const s8 = mallSettings(ctx2.chat.scriptstate, site);
+    v.info = "";
+    switch (action) {
+      case "mall-refresh":
+        if (!s8.on || v.loading) return true;
+        if (site === "bm" && !loggedNick(ctx2)) return true;
+        await ask3(ctx2, env3, site, "shelf", st);
+        return true;
+      case "mall-page":
+        v.page = value ?? "";
+        v.pay = false;
+        v.focus = "";
+        v.took = "";
+        break;
+      case "mall-cart": {
+        const id2 = value ?? "";
+        if (!st.items.some((x) => x.id === id2 && !x.sold)) return true;
+        v.cart = v.cart.includes(id2) ? v.cart.filter((x) => x !== id2) : [...v.cart, id2];
+        break;
+      }
+      case "mall-order":
+        if (!v.cart.length) return true;
+        v.pay = true;
+        break;
+      case "mall-pay-close":
+        v.pay = false;
+        break;
+      case "mall-pay": {
+        const names4 = v.cart.map((id2) => st.items.find((x) => x.id === id2)?.name ?? "").filter(Boolean);
+        const got = await buy(ctx2, site, v.cart);
+        if (got) {
+          v.cart = [];
+          v.pay = false;
+          v.page = "";
+          v.info = `입금 확인!! ${names4.map((n3) => `「${n3}」`).join(" ")} 갔다 너의 소지품으로, 즉시.`;
+        } else v.info = "잔고 부족, 또는 상품 이미 팔렸다, 밖으로. 입금 아님 수행.";
+        await env3.refresh();
+        return true;
+      }
+      case "mall-buy": {
+        if (site !== "bm" || !loggedNick(ctx2) || v.loading) return true;
+        const it = st.items.find((x) => x.id === value && !x.sold);
+        if (!it) return true;
+        const got = await buy(ctx2, site, [it.id]);
+        v.info = got ? `「${it.name}」 구매가 완료되었습니다. 「주문 조회」에서 수령 대기 중입니다.` : "포인트가 부족하거나 품절된 상품입니다.";
+        await env3.refresh();
+        return true;
+      }
+      case "mall-ask":
+        if (site === "bm") return deskOpen(ctx2, env3);
+        if (site !== "cos") return true;
+        v.ask = true;
+        v.picking = false;
+        if (value) v.chip = value;
+        break;
+      case "mall-ask-close":
+        v.ask = false;
+        v.picking = false;
+        break;
+      case "mall-pick":
+        v.picking = !v.picking;
+        v.selling = false;
+        break;
+      case "mall-sell-open":
+        if (site !== "cos") return true;
+        v.selling = !v.selling;
+        v.picking = false;
+        break;
+      case "mall-sell-pick": {
+        if (site !== "cos" || v.loading || !st.loaded) return true;
+        const mine3 = liveItemsOf(readItems(ctx2.chat.scriptstate), ctx2.chat).find((x) => x.id === value);
+        if (!mine3) return true;
+        const left = itemLeft(readItems(ctx2.chat.scriptstate), mine3, aliveAnchors(ctx2.chat));
+        const next = startSell(st, { itemId: mine3.id, name: mine3.name, desc: mine3.desc, effect: mine3.effect, ...mine3.truth ? { truth: mine3.truth } : {}, use: mine3.use, ...left !== void 0 ? { uses: left } : {}, ...mine3.equip ? { equip: mine3.equip } : {}, ...mine3.icon ? { icon: mine3.icon } : {}, ...Number.isSafeInteger(mine3.price) ? { paid: mine3.price } : {} });
+        v.selling = false;
+        v.chip = "";
+        await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => ({ ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...mallVarsOf(site, next) } }));
+        await env3.refresh();
+        return true;
+      }
+      case "mall-note-buy": {
+        const n3 = (st.notes ?? []).find((x) => x.id === value && !x.bought);
+        if (site !== "cos" || !n3 || v.loading) return true;
+        let ok = false;
+        let short = false;
+        await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+          const now2 = readMall(chat.scriptstate, site, aliveAnchors(chat));
+          const nextShop = buyNote(now2, n3.id, lastBot(chat)?.key ?? "");
+          if (!nextShop) return null;
+          const alive = aliveAnchors(chat);
+          let w = readWallet(chat.scriptstate, getPrefs().walletStart ?? WALLET_START_DEFAULT);
+          if (walletBalance(w, alive) < n3.price) {
+            short = true;
+            return null;
+          }
+          const anchor = lastBot(chat)?.key ?? "";
+          const walletId = freshWalletId(w, `${site}_note_${n3.id}`, anchor);
+          w = addWalletEntry(w, { id: walletId, anchor, amount: -n3.price, memo: guideTxt("Main", "MALL.MEMO.NOTE", { title: n3.title, mall: MALL_NAME[site] }), src: "store" }, alive);
+          const items = addItem(readItems(chat.scriptstate), alive, { name: guideTxt("Main", "MALL.NOTE.NAME", { title: n3.title }), desc: guideTxt("Main", "MALL.NOTE.DESC", { mall: MALL_NAME[site] }), text: n3.body, use: false, icon: "note paper", weight: 0.01, from: "store", store: site, anchor, price: n3.price, walletId, paidWith: guideTxt("Main", "MALL.PAID.BANK", { mall: MALL_NAME[site], extra: "" }) });
+          ok = true;
+          return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...walletVars(w), ...itemsVars(items), ...mallVarsOf(site, nextShop) } };
+        });
+        v.info = ok ? `쪽지 「${n3.title}」${pp(n3.title, "이", "가")} 소지품에 도착 했다. 내용은 거기서 읽어라.` : short ? "잔고가 모자란다. 입금이 필요하다." : "살 수 없는 상태다.";
+        await env3.refresh();
+        return true;
+      }
+      case "mall-quote-accept": {
+        const q = (st.quotes ?? []).find((x) => x.id === value && quoteOpen(x));
+        if (site !== "cos" || !q || v.loading) return true;
+        let ok = false;
+        let short = false;
+        await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+          const now2 = readMall(chat.scriptstate, site, aliveAnchors(chat));
+          const nextShop = acceptQuote(now2, q.id, lastBot(chat)?.key ?? "");
+          if (!nextShop) return null;
+          const alive = aliveAnchors(chat);
+          let w = readWallet(chat.scriptstate, getPrefs().walletStart ?? WALLET_START_DEFAULT);
+          if (walletBalance(w, alive) < q.price) {
+            short = true;
+            return null;
+          }
+          const anchor = lastBot(chat)?.key ?? "";
+          const walletId = freshWalletId(w, `${site}_ord_${q.id}`, anchor);
+          w = addWalletEntry(w, { id: walletId, anchor, amount: -q.price, memo: guideTxt("Main", "MALL.MEMO.ORDER", { item: q.item.name, mall: MALL_NAME[site] }), src: "store" }, alive);
+          const { sold: _s, tag: _t, was: _w, orig: _o, pay: _p, ...rest } = q.item;
+          const item2 = rest.truth ? rest : { ...rest, truth: "?" };
+          const order2 = { id: q.id, anchor, price: q.price, hours: q.hours, orderedAt: worldMinute(chat), orderedKey: anchor, walletId, item: item2 };
+          ok = true;
+          return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...walletVars(w), ...ordersVars([...liveOrders(chat.scriptstate, aliveAnchors(chat)), order2], cosOrdersKeep(chat.scriptstate)), ...mallVarsOf(site, nextShop) } };
+        });
+        v.info = ok ? `「${q.item.name}」 주문이 접수 되었다. 선납 완료. 완성되면 「주문 조회」에서 받아라.` : short ? "잔고가 모자란다. 입금이 필요하다." : "주문할 수 없는 상태다.";
+        await env3.refresh();
+        return true;
+      }
+      case "mall-custom-take": {
+        const o = liveOrders(ctx2.chat.scriptstate, aliveAnchors(ctx2.chat)).find((x) => x.id === value);
+        if (site !== "cos" || !o || !orderReady(o, worldMinute(ctx2.chat), lastBot(ctx2.chat)?.key ?? "")) return true;
+        let ok = false;
+        await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+          const list4 = liveOrders(chat.scriptstate, aliveAnchors(chat));
+          const cur = list4.find((x) => x.id === o.id);
+          if (!cur || cur.taken) return null;
+          const anchor = lastBot(chat)?.key ?? "";
+          const it = cur.item;
+          const items = addItem(readItems(chat.scriptstate), aliveAnchors(chat), { name: it.name, desc: it.desc, effect: it.effect, truth: it.truth, use: it.use, uses: it.uses, equip: it.equip, icon: it.icon, weight: it.weight, from: "store", store: site === "cos" ? "cos-order" : site, anchor, price: cur.price, walletId: cur.walletId ?? `${site}_ord_${cur.id}`, paidWith: guideTxt("Main", "MALL.PAID.ORDER", { mall: MALL_NAME[site] }) });
+          ok = true;
+          const next = { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...itemsVars(items), ...ordersVars(list4.map((x) => x.id === o.id ? { ...x, taken: true, takenKey: anchor } : x), cosOrdersKeep(chat.scriptstate)) } };
+          const message = settleReady(next, cosReadyMode(next.scriptstate) !== "off");
+          return message ? { ...next, message } : next;
+        });
+        v.info = ok ? `「${o.item.name}」${pp(o.item.name, "을", "를")} 받았다. 소지품에 들어갔다.` : "받을 수 없는 상태다.";
+        if (ok) v.took = o.id;
+        await env3.refresh();
+        return true;
+      }
+      case "mall-pickup":
+      case "mall-pickup-all": {
+        if (site !== "bm" || !loggedNick(ctx2)) return true;
+        const ids = action === "mall-pickup" ? [value ?? ""] : void 0;
+        let n3 = 0;
+        let first = "";
+        let went = false;
+        await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+          const alive = aliveAnchors(chat);
+          const anchor = lastBot(chat)?.key ?? "";
+          if (bmPickupConfirm(chat.scriptstate)) {
+            const r = requestBmOrders(liveBmOrders(chat.scriptstate, alive), anchor, ids);
+            if (!r.got.length) return null;
+            went = true;
+            n3 = r.got.length;
+            first = r.got[0].item.name;
+            return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...bmOrdersVars(r.list, bmOrdersKeep(chat.scriptstate)) } };
+          }
+          const { list: list4, got } = takeBmOrders(liveBmOrders(chat.scriptstate, alive), anchor, ids);
+          if (!got.length) return null;
+          let items = readItems(chat.scriptstate);
+          for (const o of got) {
+            const it = o.item;
+            items = addItem(items, alive, { name: it.name, desc: it.desc, effect: it.effect, truth: it.truth, use: it.use, uses: it.uses, equip: it.equip, icon: it.icon, weight: it.weight, from: "store", store: site, anchor, ...o.walletId ? { walletId: o.walletId } : {}, paidWith: o.paidWith ?? guideTxt("Main", "MALL.PAID.POINTS", { price: o.price.toLocaleString("en-US"), mall: MALL_NAME[site], extra: "" }) });
+          }
+          n3 = got.length;
+          first = got[0].item.name;
+          return { ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...itemsVars(items), ...bmOrdersVars(list4, bmOrdersKeep(chat.scriptstate)) } };
+        });
+        if (went) v.info = n3 > 1 ? `상품 ${n3}건을 수령하러 갑니다. 대여창고에서 받으면 소지품에 들어옵니다.` : `「${first}」${pp(first, "을", "를")} 수령하러 갑니다. 대여창고에서 받으면 소지품에 들어옵니다.`;
+        else v.info = n3 > 1 ? `상품 ${n3}건을 수령했습니다. 소지품에 들어갔습니다.` : n3 ? `「${first}」${pp(first, "을", "를")} 수령했습니다. 소지품에 들어갔습니다.` : "수령할 수 없는 상태입니다.";
+        await env3.refresh();
+        return true;
+      }
+      case "mall-sell-cancel":
+        if (st.sell) await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => ({ ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...mallVarsOf(site, cancelSell(readMall(chat.scriptstate, site, aliveAnchors(chat)))) } }));
+        await env3.refresh();
+        return true;
+      case "mall-sell": {
+        if (!st.sell || typeof st.sell.price !== "number" || v.loading) return true;
+        const o = st.sell;
+        let sold = false;
+        await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+          const done3 = saleDone2(chat, site, o.itemId);
+          if (done3) sold = true;
+          return done3;
+        });
+        v.info = sold ? `「${o.name}」${pp(o.name, "을", "를")} ${won2(o.price)}에 팔았다. 입금 완료, 너에게.` : "팔 수 없음, 지금 (물건이 없거나 값이 바뀌었다).";
+        if (sold) void refreshUseBox(ctx2.charIndex, ctx2.chatIndex);
+        await env3.refresh();
+        return true;
+      }
+      case "mall-chip":
+        v.chip = value ?? "";
+        v.picking = false;
+        break;
+      case "mall-show":
+        v.ask = false;
+        v.page = "";
+        v.focus = value ?? "";
+        env3.render();
+        scrollInside(document.querySelector(`.ms [data-item="${CSS.escape(v.focus)}"]`), "center");
+        return true;
+      case "mall-raw":
+        if (v.failRaw) v.notice = `${v.notice.split("\n")[0]}
+${v.failRaw.slice(0, 1500)}`;
+        v.failRaw = "";
+        break;
+      case "mall-desk-end":
+        if (site !== "bm" || v.dl) return true;
+        await saveDesk(ctx2, endDesk(readDesk(ctx2.chat.scriptstate), deskSettings(ctx2.chat.scriptstate).keep));
+        v.ask = false;
+        v.input = "";
+        await env3.refresh();
+        return true;
+      case "mall-desk-next": {
+        if (site !== "bm" || v.dl) return true;
+        const saved = await saveDesk(ctx2, endDesk(readDesk(ctx2.chat.scriptstate), deskSettings(ctx2.chat.scriptstate).keep));
+        v.input = "";
+        if (saved) await deskRun({ ...ctx2, chat: saved }, env3, "make", endDesk(readDesk(saved.scriptstate), deskSettings(saved.scriptstate).keep));
+        return true;
+      }
+      case "mall-say": {
+        const said3 = (value ?? v.input).trim();
+        if (site === "bm") {
+          const d = readDesk(ctx2.chat.scriptstate);
+          if (!said3 || v.dl || !d.agent) return true;
+          const me = { who: "me", text: said3.slice(0, 600), k: lastBot(ctx2.chat)?.key ?? "" };
+          const next2 = { ...d, talk: [...d.talk, me].slice(-shopLimits(ctx2.chat.scriptstate).talk) };
+          v.input = "";
+          const saved2 = await saveDesk(ctx2, next2);
+          if (saved2) await deskRun({ ...ctx2, chat: saved2 }, env3, "talk", next2);
+          return true;
+        }
+        if (site !== "cos" || !said3 || v.loading || !st.loaded) return true;
+        const chip3 = st.items.find((x) => x.id === v.chip && !x.sold);
+        const next = stampLastLine(sayToOwner(st, chip3 ? guideTxt("Cos", "ASK_CHIP", { item: chip3.name, said: said3 }) : said3, shopLimits(ctx2.chat.scriptstate)), lastBot(ctx2.chat)?.key ?? "");
+        v.input = "";
+        v.chip = "";
+        v.picking = false;
+        const saved = await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => ({ ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...mallVarsOf(site, next) } }));
+        if (!saved) return true;
+        await ask3({ ...ctx2, chat: saved }, env3, site, "talk", next);
+        return true;
+      }
+      default:
+        return false;
+    }
+    env3.render();
+    return true;
+  }
+  function deskSource(ctx2) {
+    const vars = ctx2.chat.scriptstate;
+    const s8 = mallSettings(vars, "bm");
+    const st = readMall(vars, "bm", aliveAnchors(ctx2.chat));
+    const src = shopSource({ ...ctx2, chat: { ...ctx2.chat, scriptstate: mallVars(vars, "bm") } }, { ...st, shop: guideTxt("BmDesk", "SHOP_NAME"), owner: "" }, s8, shopGive(vars, "bm", "desk"));
+    return { refs: src.refs, shelf: onShelf(st).map((x) => guideTxt("BmDesk", "SHELF_LINE", { name: x.name, price: x.price, desc: x.desc })).join("\n"), points: balanceOf2(ctx2, "bm"), nick: loggedNick(ctx2), language: src.language, identity: src.identity, status: src.status, situation: src.situation, story: src.story };
+  }
+  async function saveDesk(ctx2, st) {
+    return updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => ({ ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...deskVars(st) } }));
+  }
+  var deskHello = (a, again = false) => `${deskTag(a)} 님이 상담에 ${again ? "다시 " : ""}연결되었습니다.`;
+  async function deskRun(ctx2, env3, kind, st0) {
+    const v = ui2.bm;
+    const job = `${chatKey6(ctx2)}:bm-desk`;
+    if (jobs5.has(job)) return;
+    jobs5.add(job);
+    const vars = ctx2.chat.scriptstate;
+    const s8 = mallSettings(vars, "bm");
+    const ds = deskSettings(vars);
+    v.dl = kind;
+    v.notice = "";
+    v.failRaw = "";
+    if (kind === "talk") await env3.refresh();
+    else env3.render();
+    try {
+      const src = deskSource(ctx2);
+      const g3 = genSettings(vars);
+      const opts = { retries: g3.retries, retryModel: g3.retryModel, concurrent: g3.concurrent, state: vars, label: `${MALL_NAME.bm} 1:1 상담${kind === "make" ? " 연결" : ""}` };
+      let next;
+      const key = lastBot(ctx2.chat)?.key ?? "";
+      if (kind === "make") {
+        const dice = rollDice(ds.axes);
+        const no = newDeskNo();
+        const p2 = makePrompt(src, dice, st0.past.slice(0, ds.avoid), no);
+        const { value } = await generate(craftMessages(p2.messages, { thoughts: s8.thoughts, memo: false, reiterate: 0 }, { thoughts: p2.thoughts }), s8.model, (raw) => parseCard(raw, dice, no), opts);
+        next = { ...st0, agent: value.agent, anchor: key, talk: [{ who: "sys", text: deskHello(value.agent) }, ...value.say.map((t) => ({ who: "op", text: t, k: key }))] };
+      } else {
+        const p2 = talkPrompt2(src, st0);
+        const { value } = await generate(craftMessages(p2.messages, { thoughts: s8.thoughts, memo: false, reiterate: 0 }, { thoughts: p2.thoughts }), s8.model, parseSay, opts);
+        next = { ...st0, talk: [...st0.talk, ...value.map((t) => ({ who: "op", text: t, k: key }))].slice(-shopLimits(vars).talk) };
+      }
+      const cur = env3.current();
+      if (!cur || chatKey6(cur) !== chatKey6(ctx2)) return;
+      await saveDesk(cur, next);
+    } catch (error) {
+      v.notice = error instanceof Error ? error.message : String(error);
+      v.failRaw = deskRawSafe(String(error.raw ?? ""));
+      if (kind === "talk") {
+        const cur = env3.current();
+        if (cur && chatKey6(cur) === chatKey6(ctx2)) {
+          const last2 = st0.talk[st0.talk.length - 1];
+          if (last2?.who === "me") {
+            v.input = last2.text;
+            await saveDesk(cur, { ...st0, talk: st0.talk.slice(0, -1) }).catch(() => null);
+          }
+        }
+      }
+    } finally {
+      v.dl = "";
+      jobs5.delete(job);
+    }
+    await env3.refresh();
+  }
+  async function deskOpen(ctx2, env3) {
+    const v = ui2.bm;
+    const ds = deskSettings(ctx2.chat.scriptstate);
+    if (!ds.on || !loggedNick(ctx2)) return true;
+    v.ask = true;
+    v.notice = "";
+    if (v.dl) return env3.render(), true;
+    let st = readDesk(ctx2.chat.scriptstate);
+    const key = lastBot(ctx2.chat)?.key ?? "";
+    if (st.agent && st.anchor === key) return env3.render(), true;
+    if (st.agent) st = endDesk(st, ds.keep);
+    const again = pickAgain(st, ds);
+    if (again) {
+      st = { ...st, agent: again, anchor: key, past: st.past.filter((p2) => p2.id !== again.id), talk: [{ who: "sys", text: deskHello(again, true) }] };
+      await saveDesk(ctx2, st);
+      await env3.refresh();
+      return true;
+    }
+    const saved = await saveDesk(ctx2, st);
+    if (saved) await deskRun({ ...ctx2, chat: saved }, env3, "make", st);
+    return true;
+  }
+  function mallInput(site, text5) {
+    ui2[site].input = text5;
+  }
+  var pic2 = (it) => itemPic({ name: it.name, icon: it.icon });
+  var onShelf = (st) => shelfItems(st);
+  var failBox2 = (v, cls) => v.notice ? `<div class="${cls}" role="alert">${esc27(v.notice).replace(/\n/g, "<br>")}${v.failRaw ? ' <button data-action="mall-raw">받은 글 보기</button>' : ""}</div>` : "";
+  function noteCard(st, id2, v) {
+    const n3 = id2 ? (st.notes ?? []).find((x) => x.id === id2) : null;
+    if (!n3) return "";
+    return `<div class="q-note${n3.bought ? " done" : ""}"><span>📄 쪽지</span><b>${esc27(n3.title)}</b><em>${won2(n3.price)}</em>${n3.bought ? "<small>구매 완료 — 소지품에서 읽어라</small>" : `<button class="cs-btn" data-action="mall-note-buy" data-value="${esc27(n3.id)}"${v.loading ? " disabled" : ""}>구매</button>`}</div>`;
+  }
+  var quoteOpen = (q) => !q.accepted;
+  function quoteCard(st, id2, v) {
+    const q0 = id2 ? (st.quotes ?? []).find((x) => x.id === id2) : null;
+    if (!q0) return "";
+    const q = { ...q0, accepted: !quoteOpen(q0) };
+    const h = q.hours >= 24 ? `${Math.round(q.hours / 24 * 10) / 10}일` : `${q.hours}시간`;
+    return `<div class="q-note q-quote${q.accepted ? " done" : ""}"><span>🛠 맞춤 주문 견적</span><b>${esc27(q.item.name)}</b><em>${won2(q.price)}</em><small>납기 ${h}</small>${q.accepted ? '<small class="ok">선납 완료 — 주문 조회에서 받아라</small>' : `<button class="cs-btn" data-action="mall-quote-accept" data-value="${esc27(q.id)}"${v.loading ? " disabled" : ""}>선납하고 주문</button>`}</div>`;
+  }
+  function cosOrders(ctx2, v) {
+    const list4 = liveOrders(ctx2.chat.scriptstate, aliveAnchors(ctx2.chat));
+    const nowMin = worldMinute(ctx2.chat);
+    const lastKey = lastBot(ctx2.chat)?.key ?? "";
+    if (!list4.length) return '<div class="cs-box"><b class="cs-h">◈ 주문 조회 ◈</b><p>주문의 존재는 없다. 운영자에게 질문에서 맞춤 주문을 말해라.</p></div>';
+    const rows3 = [...list4].reverse().map((o) => {
+      const ready = orderReady(o, nowMin, lastKey);
+      const due = orderDue(o);
+      const when3 = o.taken ? "받음" : ready ? '<b class="cs-red">완성 — 위 카드에서 받아라</b>' : due !== null ? `제작 중 · 납기 ${esc27(minuteText(due))}${nowMin !== null ? ` (${Math.max(1, Math.ceil((due - nowMin) / 60))}시간 남음)` : ""}` : `제작 중 · 납기 ${o.hours}시간 (다음 응답 뒤)`;
+      return `<tr class="${o.taken ? "done" : ""}"><td>${esc27(o.item.name)}</td><td>${won2(o.price)}</td><td>${when3}</td></tr>`;
+    }).join("");
+    const cards2 = [...list4].reverse().filter((o) => !o.taken && orderReady(o, nowMin, lastKey) || o.id === v.took).map((o) => {
+      const got = o.taken;
+      return `<div class="cs-it cs-got"><span class="cs-bd">${got ? "받음" : "★완성★"}</span><span class="cs-pic">${itemPic({ name: o.item.name, icon: o.item.icon })}</span>
+    <b class="cs-nm">${esc27(o.item.name)}</b><p>${got ? `${esc27(o.item.desc)}${o.item.effect ? `<br><i>※ ${esc27(o.item.effect)}</i>` : ""}` : "우리는 만들었다. 받아라."}</p>
+    <div class="cs-pr"><b>${won2(o.price)}</b> <small>선납 완료</small></div>
+    <div class="cs-bt">${got ? "<small>소지품에 들어갔다</small>" : `<button class="cs-btn" data-action="mall-custom-take" data-value="${esc27(o.id)}">받기</button>`}</div></div>`;
+    }).join("");
+    return `<div class="cs-box"><b class="cs-h">◈ 주문 조회 ◈</b>${cards2 ? `<div class="cs-gotgrid">${cards2}</div>` : ""}<table class="cs-tb cs-ord"><tr><th>주문</th><th>선납</th><th>상태</th></tr>${rows3}</table><p class="cs-bal">납기는 작중 시각 기준이다. 환불의 존재는 없다.</p></div>`;
+  }
+  function opText(text5, st) {
+    const html = esc27(text5);
+    const byName = /* @__PURE__ */ new Map();
+    for (const it of onShelf(st).slice().sort((a, b) => b.name.length - a.name.length)) {
+      const n3 = esc27(it.name);
+      if (n3 && !byName.has(n3)) byName.set(n3, it);
+    }
+    if (!byName.size) return html;
+    const re = new RegExp([...byName.keys()].map((n3) => n3.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g");
+    return html.replace(re, (n3) => {
+      const it = byName.get(n3);
+      return `<button class="cs-ln" data-action="mall-show" data-value="${esc27(it.id)}">${n3} <b>${won2(it.price)}</b></button>`;
+    });
+  }
+  function cosCard(it, v) {
+    const sale = it.tag === "sale" && !!it.was && it.was > it.price;
+    const inCart = v.cart.includes(it.id);
+    const badge3 = it.tag === "rare" ? '<span class="cs-bd">★굉장한 상품★</span>' : sale ? '<span class="cs-bd cs-bds">※세일※</span>' : "";
+    return `<div class="cs-it${v.focus === it.id ? " on" : ""}" data-item="${esc27(it.id)}">${badge3}<span class="cs-pic">${pic2(it)}</span>
+    <b class="cs-nm">${esc27(it.name)}</b><p>${esc27(it.desc)}${it.effect ? `<br><i>※ ${esc27(it.effect)}</i>` : ""}</p>
+    <div class="cs-pr">${sale ? `<s>${won2(it.was)}</s> ` : ""}<b>${won2(it.price)}</b>${it.pay ? ` <small>+ ${esc27(it.pay)}</small>` : ""}</div>
+    <div class="cs-bt"><button class="cs-btn${inCart ? " in" : ""}" data-action="mall-cart" data-value="${esc27(it.id)}" aria-pressed="${inCart}">${inCart ? "장바구니에서 제거" : "장바구니에 담기"}</button><button class="cs-ln" data-action="mall-ask" data-value="${esc27(it.id)}">질문 하기</button></div></div>`;
+  }
+  function cosCart(st, v, bal) {
+    const list4 = v.cart.map((id2) => st.items.find((x) => x.id === id2)).filter((x) => !!x);
+    if (!list4.length) return `<div class="cs-box"><b class="cs-h">◈ 장바구니 ◈</b><p>장바구니 비었다. 담아라 상품, 먼저.</p><button class="cs-btn" data-action="mall-page" data-value="">상품 목록으로</button></div>`;
+    const total = list4.reduce((a, x) => a + x.price, 0);
+    return `<div class="cs-box"><b class="cs-h">◈ 장바구니 ◈</b><table class="cs-tb"><tr><th>상품</th><th>가격</th><th></th></tr>${list4.map((x) => `<tr><td>${esc27(x.name)}</td><td>${won2(x.price)}</td><td><button class="cs-ln" data-action="mall-cart" data-value="${esc27(x.id)}">제거</button></td></tr>`).join("")}
+    <tr class="cs-sum"><td>합계</td><td colspan="2"><b>${won2(total)}</b></td></tr></table>
+    <p class="cs-bal">당신의 잔고 : ${formatWon(bal)}</p><button class="cs-btn cs-go" data-action="mall-order">주문 하기</button></div>`;
+  }
+  function cosPay(st, v, bal) {
+    const list4 = v.cart.map((id2) => st.items.find((x) => x.id === id2)).filter((x) => !!x);
+    const total = list4.reduce((a, x) => a + x.price, 0);
+    const poor = bal < total;
+    return `<div class="cs-dim"><div class="cs-win cs-paywin" role="dialog" aria-label="입금 안내"><div class="cs-wt"><b>★ 입금 안내 ★ - Netscape</b><button data-action="mall-pay-close" aria-label="닫기">×</button></div>
+    <div class="cs-wb"><p>아래 계좌로 입금해라. 우리는 입금을 확인한다.</p><p class="cs-acc">${esc27(COS_ACCOUNT)}</p>
+    <table class="cs-tb"><tr><td>입금 금액</td><td><b>${won2(total)}</b></td></tr><tr><td>현재 잔고</td><td>${formatWon(bal)}</td></tr><tr><td>입금 후</td><td>${formatWon(bal - total)}</td></tr></table>
+    <p class="cs-warn">※ 환불의 존재는 없다. 반품 또한 그렇다.</p>
+    <div class="cs-wbt"><button class="cs-btn cs-go" data-action="mall-pay" ${poor ? "disabled" : ""}>${poor ? "잔고 부족" : "입금 한다"}</button><button class="cs-btn" data-action="mall-pay-close">취소</button></div></div></div></div>`;
+  }
+  function cosAsk(ctx2, st, v, mobile) {
+    const at = mobile ? "" : winStyle(v.win);
+    const ufo = siteLogo("cos", "cs-ufo");
+    const chip3 = st.items.find((x) => x.id === v.chip && !x.sold);
+    const log = st.talk.length ? st.talk.map((l) => l.who === "me" ? `<div class="q-m q-me"><b>나</b><p>${esc27(l.text)}</p></div>` : `<div class="q-m q-op"><b>${esc27(MALL_OWNER.cos)}</b><p>${opText(l.text, st)}</p>${noteCard(st, l.note, v)}${quoteCard(st, l.quote, v)}</div>`).join("") : `<div class="q-m q-op"><b>${esc27(MALL_OWNER.cos)}</b><p>안녕하신가! 무엇을 도울까, 만일 상품을 물어보면 붙여라 그것을 여기에.</p></div>`;
+    const wait = v.loading === "talk" ? `<div class="q-m q-op q-wait"><b>${esc27(MALL_OWNER.cos)}</b><p>운영자가 입력하는 중…</p></div>` : "";
+    const pickList = v.picking ? `<div class="q-pick">${onShelf(st).map((x) => `<button data-action="mall-chip" data-value="${esc27(x.id)}">${esc27(x.name)} <b>${won2(x.price)}</b></button>`).join("") || "<p>없다 붙일 상품.</p>"}</div>` : "";
+    const mine3 = v.selling ? liveItemsOf(readItems(ctx2.chat.scriptstate), ctx2.chat) : [];
+    const sellList = v.selling ? `<div class="q-pick">${mine3.map((x) => `<button data-action="mall-sell-pick" data-value="${esc27(x.id)}">${esc27(x.name)}${Number.isSafeInteger(x.price) ? ` <small>산 값 ${won2(x.price)}</small>` : ""}</button>`).join("") || "<p>팔 만한 소지품이 없다.</p>"}</div>` : "";
+    const o = st.sell;
+    const offered = !!o && typeof o.price === "number";
+    const sellCard = o ? `<div class="q-card q-sell"><i class="q-th">${itemPic({ name: o.name, icon: o.icon })}</i><span>파는 물건</span><b>${esc27(o.name)}</b>${o.paid !== void 0 ? `<small>산 값 ${won2(o.paid)}</small>` : ""}<em>${offered ? `우리의 값 ${o.first !== void 0 ? `<s>${won2(o.first)}</s> ` : ""}${won2(o.price)}` : o.price === null ? "우리는 사지 않는다" : "값을 아직 말하지 않았다"}</em>${offered ? `<button class="cs-btn" data-action="mall-sell"${v.loading ? " disabled" : ""}>판매</button>` : ""}<button class="q-x" data-action="mall-sell-cancel" aria-label="그만">×</button></div>` : "";
+    return `<div class="cs-win cs-askwin" role="dialog" aria-label="운영자에게 질문"${at}><div class="cs-wt"><b>★ 운영자에게 질문 ★ - Netscape</b><button data-action="mall-ask-close" aria-label="닫기">×</button></div>
+    <div class="q-hd">${ufo}<div><b>${esc27(MALL_OWNER.cos)}</b><small>● 운영자 여기에 있음, 지금</small></div></div>
+    <div class="q-lg" data-chatlog="cos">${log}${wait}</div>${failBox2(v, "q-fail")}${pickList}${sellList}${sellCard}${chip3 ? `<div class="q-card"><i class="q-th">${pic2(chip3)}</i><span>붙인 상품</span><button class="cs-ln" data-action="mall-show" data-value="${esc27(chip3.id)}">${esc27(chip3.name)} <b>${won2(chip3.price)}</b></button><button class="q-x" data-action="mall-chip" data-value="" aria-label="상품 떼기">×</button></div>` : ""}
+    <div class="q-in"><button class="cs-btn" data-action="mall-pick" aria-pressed="${v.picking}">상품 붙이기</button><button class="cs-btn" data-action="mall-sell-open" aria-pressed="${v.selling}">내 물건 팔기</button><input name="mall-say" data-input="mall-say" data-enter="mall-say" value="${esc27(v.input)}" placeholder="${o ? offered ? "값을 다시 불러 보거나 그냥 팔아라" : "값을 부르거나 그냥 보내라" : "넣어라 질문, 여기에"}" aria-label="질문"${v.loading ? " disabled" : ""}><button class="cs-btn" data-action="mall-say" data-take="mall-say"${needAttr("mall-say", v.input, !!v.loading || !st.loaded)}>전송</button></div><i class="cs-rs" aria-hidden="true"></i></div>`;
+  }
+  function cosHtml(ctx2, mobile) {
+    const site = "cos";
+    const v = ui2[site];
+    const st = readMall(ctx2.chat.scriptstate, site, aliveAnchors(ctx2.chat));
+    const s8 = mallSettings(ctx2.chat.scriptstate, site);
+    const bal = balanceOf2(ctx2, site);
+    const list4 = onShelf(st);
+    const rare = s8.feature ? list4.filter((x) => x.tag === "rare") : [];
+    const sale = s8.feature ? list4.filter((x) => x.tag === "sale" && x.was) : [];
+    const rest = list4.filter((x) => !rare.includes(x) && !sale.includes(x));
+    const ufo = siteLogo("cos", "cs-ufo");
+    const pending2 = liveOrders(ctx2.chat.scriptstate, aliveAnchors(ctx2.chat)).filter((o) => !o.taken).length;
+    const menu = [["", "처음 화면"], ["cart", `장바구니 (${v.cart.length})`], ["orders", `주문 조회${pending2 ? ` (${pending2})` : ""}`]].map(([k, l]) => `<button class="${v.page === k ? "on" : ""}" data-action="mall-page" data-value="${k}">◈ ${l}</button>`).join("") + '<button data-action="mall-ask" data-value="">◈ 운영자에게 질문</button>';
+    const note2 = mallNote(ctx2.chat.scriptstate, site);
+    const grid = (xs) => `<div class="cs-grid">${xs.map((x) => cosCard(x, v)).join("")}</div>`;
+    let main2;
+    if (!s8.on) main2 = '<div class="cs-box"><p>지금 영업 아님. (소지품·가계부가 꺼져 있어요)</p></div>';
+    else if (v.page === "cart") main2 = cosCart(st, v, bal);
+    else if (v.page === "orders") main2 = cosOrders(ctx2, v);
+    else if (v.loading === "shelf" && !list4.length) main2 = '<div class="cs-box cs-wait"><p>우리는 상품을 진열하는 중… <span class="blink">★</span></p></div>';
+    else if (!list4.length) main2 = `<div class="cs-box"><p>${st.loaded ? "모든 상품 팔렸다, 밖으로." : "아직 없다 상품, 진열대에."}</p><button class="cs-btn" data-action="mall-refresh" ${v.loading ? "disabled" : ""}>상품 가져오기</button></div>`;
+    else main2 = `<b class="cs-h">◈ 상품 목록 ◈</b>${grid([...rare, ...sale, ...rest])}${v.loading === "shelf" ? '<p class="cs-wait">새로운 상품을 진열하는 중…</p>' : ""}`;
+    const how = `<div class="cs-how"><b>◈ 구매의 방법 ◈</b><br>1. 상품을 장바구니에 담는다 &nbsp; 2. 아래 계좌로 입금한다 &nbsp; 3. 입금이 확인되면 상품은 즉시 간다<br>입금 계좌 : <b>${esc27(COS_ACCOUNT)}</b><br><span class="cs-red">※ 환불의 존재는 없다. 반품 또한 그렇다.</span><br>질문이 있으면 <button class="cs-ln" data-action="mall-ask" data-value="">운영자에게 질문</button> 해라.</div>`;
+    const head3 = `<div class="cs-title">${mobile ? "" : ufo} Cosmic Shopping Mall ${mobile ? "" : ufo.replace("cs-ufo", "cs-ufo cs-flip")}</div><div class="cs-subt">※우주에서 온 굉장한 상품※</div><hr class="cs-rb">
+    <div class="cs-mq"><span>☆ 어서 와라 ☆★ 물건을 보겠습니다 ★☆ 입금 확인되면 상품 간다, 즉시 ★☆ 환불 다음 기회 ☆</span></div>
+    <div class="cs-wel"><p><span>안녕하신가! 굉장하고 강한 상품, 만일 우리에게 물어보면 우리는 <b>${esc27(MALL_NAME.cos)}</b>.</span> <span>모든 상품 <b>진짜</b>, 그러나 사용의 결과 우리의 <b>책임 아님</b>.</span>${note2 ? "" : ' <span class="blink">NEW!!</span>'}</p>${note2 ? `<p><span class="cs-op">${esc27(MALL_OWNER.cos)} :</span> ${opText(note2, st)} <span class="blink">NEW!!</span></p>` : ""}</div>`;
+    const info = v.info ? `<div class="cs-info" role="status">${esc27(v.info)}</div>` : "";
+    const side = mobile ? `<nav class="cs-top">${menu}</nav>` : `<nav class="cs-lf"><div class="cs-lt">★${esc27(MALL_NAME.cos)}★</div>${ufo.replace("cs-ufo", "cs-ufo cs-big")}${menu}<hr class="cs-rb"><div class="cs-cnt">TOTAL <span>${String(st.items.length + st.talk.length + 700).padStart(6, "0")}</span></div><small>800×600 해상도를<br>권장 합니다</small></nav>`;
+    return `<main class="ms ms-cos${mobile ? " ms-m" : ""}"><div class="cs-fr">${side}<div class="cs-mn">${head3}${info}${failBox2(v, "cs-fail")}${main2}${how}<div class="cs-ft">Copyright ⓒ 1997 Cosmic Shopping Mall. All rights reserved.<br>이 페이지는 <span>Netscape Now!</span> 에서 가장 좋게 보입니다 · 웹 관리자 : 운영자</div></div></div>${v.ask ? cosAsk(ctx2, st, v, mobile) : ""}${v.pay ? cosPay(st, v, bal) : ""}</main>`;
+  }
+  function bmCard(it, bal, v, busy6) {
+    const sale = it.tag === "sale" && !!it.was && it.was > it.price;
+    const poor = it.price > bal;
+    const lab = it.tag === "rare" ? '<span class="bp-lim">이달의 한정</span>' : sale ? '<span class="bp-sale">특가</span>' : "";
+    const off = sale ? Math.round((1 - it.price / it.was) * 100) : 0;
+    return `<div class="bp-it${it.tag === "rare" ? " bp-rare" : sale ? " bp-cut" : ""}${v.focus === it.id ? " on" : ""}" data-item="${esc27(it.id)}"><span class="bp-pic">${pic2(it)}</span>${lab}
+    <b class="bp-nm">${esc27(it.name)}</b><p class="bp-ds">${esc27(it.desc)}${it.effect ? `<br><i>${esc27(it.effect)}</i>` : ""}</p>
+    <div class="bp-pr">${sale ? `<s>${pts2(it.was)}</s> ` : ""}${off > 0 ? `<em>${off}%</em> ` : ""}${it.pay && !it.price ? "" : `<b>${Math.trunc(it.price).toLocaleString("en-US")}</b> P`}${it.pay ? ` <small>${it.price ? "+ " : ""}${esc27(it.pay)}</small>` : ""}</div>
+    <button class="bp-buy" data-action="mall-buy" data-value="${esc27(it.id)}" ${poor || busy6 ? "disabled" : ""}>${poor ? "포인트 부족" : "포인트로 구매"}</button></div>`;
+  }
+  function bmHtml(ctx2, mobile) {
+    const site = "bm";
+    const v = ui2[site];
+    const st = readMall(ctx2.chat.scriptstate, site, aliveAnchors(ctx2.chat));
+    const s8 = mallSettings(ctx2.chat.scriptstate, site);
+    const nick = loggedNick(ctx2);
+    const bal = balanceOf2(ctx2, site);
+    const list4 = onShelf(st);
+    const gnb = `<div class="bp-gnb"><b>백일몽 사내망</b><span>공지</span><span>포인트몰</span>${mobile ? "" : '<span class="r">보안 등급 C · 외부 반출 금지</span>'}</div>`;
+    const me = nick ? `<div class="bp-me"><b>${esc27(nick)}</b><div class="bp-pt"><small>보유 포인트</small>${pts2(bal)}</div></div>` : '<button class="bp-login" data-action="br-login">로그인</button>';
+    const hd = `<div class="bp-hd"><span class="bp-lg">${siteLogo("bm", "bp-logo")}${esc27(MALL_NAME.bm)}<small>임직원 복지</small></span>${me}</div>`;
+    let body5;
+    if (!s8.on) body5 = '<div class="bp-box">소지품·가계부가 꺼져 있어 이용할 수 없습니다.</div>';
+    else if (!nick) body5 = '<div class="bp-box bp-need"><b>로그인이 필요합니다</b><p>포인트몰은 임직원 계정으로 로그인한 뒤 이용할 수 있습니다.</p><button class="bp-buy" data-action="br-login">로그인</button></div>';
+    else {
+      const cats = [["", "전체"], ...s8.feature ? [["rare", "이달의 한정"], ["sale", "특가"]] : []];
+      const shown6 = v.page === "rare" ? list4.filter((x) => x.tag === "rare") : v.page === "sale" ? list4.filter((x) => x.tag === "sale" && x.was) : list4;
+      const desk = deskSettings(ctx2.chat.scriptstate).on ? `<button class="bp-desk${v.ask ? " on" : ""}" data-action="mall-ask" data-value="" aria-pressed="${v.ask}">1:1 상담</button>` : "";
+      const orders = liveBmOrders(ctx2.chat.scriptstate, aliveAnchors(ctx2.chat));
+      const waitN = orders.filter((o) => !o.taken).length;
+      const menu = [...cats, ["orders", `주문 조회${waitN ? ` (${waitN})` : ""}`]];
+      const side = `<nav class="bp-side${mobile ? " m" : ""}">${menu.map(([k, l]) => `<button class="${v.page === k ? "on" : ""}" data-action="mall-page" data-value="${k}" aria-pressed="${v.page === k}">${l}</button>`).join("")}${desk}</nav>`;
+      const note2 = mallNote(ctx2.chat.scriptstate, site);
+      const banner = `<div class="bp-ban">포인트는 현금으로 바꿀 수 없으며, 이 몰에서만 쓸 수 있습니다.${note2 ? `<br>${esc27(note2)}` : ""}</div>`;
+      const info = v.info ? `<div class="bp-info" role="status">${esc27(v.info)}</div>` : "";
+      const grid = v.loading === "shelf" && !list4.length ? '<div class="bp-box">상품을 불러오는 중입니다…</div>' : !list4.length ? `<div class="bp-box"><p>${st.loaded ? "모든 상품이 품절되었습니다." : "등록된 상품이 없습니다."}</p><button class="bp-buy" data-action="mall-refresh" ${v.loading ? "disabled" : ""}>상품 불러오기</button></div>` : `<div class="bp-grid">${shown6.map((x) => bmCard(x, bal, v, !!v.loading)).join("") || '<p class="bp-none">이 분류에는 상품이 없습니다.</p>'}</div>`;
+      body5 = v.page === "orders" ? `<div class="bp-wrap">${side}<div class="bp-main">${info}${bmOrders(orders, mobile, !!v.loading, bmPickupConfirm(ctx2.chat.scriptstate) ? lastBot(ctx2.chat)?.key ?? "" : null)}</div></div>` : `<div class="bp-wrap">${side}<div class="bp-main">${banner}${info}${failBox2(v, "bp-fail")}<h2>${v.page === "rare" ? "이달의 한정" : v.page === "sale" ? "특가" : "전체 상품"}${v.loading === "shelf" && list4.length ? " <small>새 상품을 불러오는 중…</small>" : ""}</h2>${grid}</div></div>`;
+    }
+    const deskWin = v.ask && s8.on && nick && deskSettings(ctx2.chat.scriptstate).on ? bmDesk(ctx2, v, mobile) : "";
+    return `<main class="ms ms-bm${mobile ? " ms-m" : ""}">${gnb}${hd}${body5}${deskWin}</main>`;
+  }
+  function bmOrders(orders, mobile, busy6, lastKey) {
+    const list4 = [...orders].reverse();
+    const going = (o) => lastKey !== null && bmGoing(o, lastKey);
+    const waitN = list4.filter((o) => !o.taken && !going(o)).length;
+    const head3 = `<div class="bp-oh"><h2>주문 조회</h2>${waitN ? `<button class="bp-buy bp-all" data-action="mall-pickup-all" ${busy6 ? "disabled" : ""}>모두 받기</button>` : ""}</div><p class="bp-onote">본사 대여창고에서 받습니다.</p>`;
+    if (!list4.length) return `${head3}<div class="bp-box"><p>주문 내역이 없습니다.</p></div>`;
+    const state2 = (o) => o.taken ? '<span class="bp-ost done">받음</span>' : going(o) ? '<span class="bp-ost go">수령하러 감</span>' : '<span class="bp-ost">수령 대기</span>';
+    const take = (o) => o.taken || going(o) ? "" : `<button class="bp-buy bp-take" data-action="mall-pickup" data-value="${esc27(o.id)}" ${busy6 ? "disabled" : ""}>받기</button>`;
+    const picOf2 = (o) => `<span class="bp-opic">${itemPic({ name: o.item.name, icon: o.item.icon })}</span>`;
+    if (mobile) return `${head3}<div class="bp-olist">${list4.map((o) => `<div class="bp-orow${o.taken ? " done" : ""}">${picOf2(o)}<div class="bp-oinfo"><b>${esc27(o.item.name)}</b><small>${pts2(o.price)}</small></div><div class="bp-oact">${state2(o)}${take(o)}</div></div>`).join("")}</div>`;
+    return `${head3}<table class="bp-otb"><tr><th>상품</th><th>포인트</th><th>상태</th><th></th></tr>${list4.map((o) => `<tr class="${o.taken ? "done" : ""}"><td><span class="bp-oname">${picOf2(o)}<b>${esc27(o.item.name)}</b></span></td><td>${pts2(o.price)}</td><td>${state2(o)}</td><td>${take(o)}</td></tr>`).join("")}</table>`;
+  }
+  function bmDesk(ctx2, v, mobile) {
+    const d = readDesk(ctx2.chat.scriptstate);
+    const a = d.agent;
+    const at = mobile ? "" : winStyle(v.win);
+    const busy6 = !!v.dl;
+    const badge3 = a ? `<div class="bd-badge"><i aria-hidden="true">${esc27(deskTag(a).slice(-2))}</i><div><small>${esc27(MALL_NAME.bm)}</small><b>${esc27(deskTag(a))}</b><span>임직원 복지 상담</span></div></div>` : `<div class="bd-badge bd-wait"><i aria-hidden="true">…</i><div><small>백일몽 주식회사</small><b>${v.dl === "make" ? "상담원 연결 중…" : "연결된 상담원 없음"}</b></div></div>`;
+    const line2 = (l) => l.who === "sys" ? `<div class="bd-sys">${esc27(l.text)}</div>` : l.who === "me" ? `<div class="bd-m bd-me"><p>${esc27(l.text)}</p></div>` : `<div class="bd-m bd-op"><small>${esc27(a ? deskTag(a) : "상담원")}</small><p>${esc27(l.text)}</p></div>`;
+    const wait = v.dl === "make" ? '<div class="bd-sys">상담원을 연결하고 있습니다…</div>' : v.dl === "talk" ? `<div class="bd-m bd-op bd-typing"><small>${esc27(a ? deskTag(a) : "상담원")}</small><p>입력 중…</p></div>` : "";
+    const log = `${d.talk.map(line2).join("")}${wait}`;
+    const tools = `<div class="bd-tools"><button data-action="mall-desk-next"${busy6 ? " disabled" : ""}>다른 상담사 연결</button><button data-action="mall-desk-end"${busy6 || !a ? " disabled" : ""}>상담 종료</button></div>`;
+    return `<div class="bd-win" role="dialog" aria-label="1:1 상담"${at}><div class="bd-wt"><b>1:1 상담</b><span>${esc27(MALL_NAME.bm)}</span><button data-action="mall-ask-close" aria-label="닫기">×</button></div>
+    <div class="bd-hd">${badge3}${tools}</div>
+    <div class="bd-lg"><div>${log}</div></div>${failBox2(v, "bp-fail bd-fail")}
+    <div class="bd-in"><input name="mall-say" data-input="mall-say" data-enter="mall-say" value="${esc27(v.input)}" placeholder="${a ? "메시지를 입력하세요" : "상담사가 연결되면 입력할 수 있습니다"}" aria-label="메시지"${busy6 || !a ? " disabled" : ""}><button class="bp-buy" data-action="mall-say" data-take="mall-say"${needAttr("mall-say", v.input, busy6 || !a)}>전송</button></div>${mobile ? "" : '<i class="bd-rs" aria-hidden="true"></i>'}</div>`;
+  }
+  function mallTab(ctx2, env3, site, shown6 = false) {
+    sync2(ctx2);
+    void env3;
+    if (shown6) markSeen(ctx2, site);
+    const mobile = isPhone();
+    return site === "cos" ? cosHtml(ctx2, mobile) : bmHtml(ctx2, mobile);
+  }
+  var row5 = setRow;
+  var genresNorm = (t) => genresText(parseGenres(t));
+  var tiersNorm = (t) => tiersText(parseTiers(t));
+  var axesNorm = (t) => parseAxes(t).map((a) => `${a.name}: ${a.values.join(", ")}`).join("\n");
+  var group3 = (title2, rows3) => setGroup(title2, rows3);
+  var tiersRaw = (text5) => String(text5 ?? "").split(/\r?\n/).filter((l) => l.includes("|")).map((l) => {
+    const [name = "", desc = "", lo = "", hi = "", w = ""] = l.split("|").map((x) => x.trim());
+    return { name, desc, lo, hi, w };
+  });
+  var tiersRawText = (t) => t.map((x) => `${x.name}|${x.desc}|${x.lo}|${x.hi}|${x.w}`).join("\n");
+  var tierRows = (vars, site) => {
+    const st = String(vars?.[rollKeys(site).tiers] ?? "");
+    return tiersRaw(st.trim() ? st : tiersText(rollDefaults(site).tiers));
+  };
+  var tierBad = (x) => {
+    const a = Number(x.lo.replace(/[^\d]/g, ""));
+    const b = Number(x.hi.replace(/[^\d]/g, ""));
+    if (!x.name) return "이름이 비어 있어 이 줄은 안 뽑혀요.";
+    if (!x.lo || a <= 0) return "하한이 비어 있어 이 줄은 안 뽑혀요.";
+    if (!x.hi || b < a) return "상한이 하한보다 작아 이 줄은 안 뽑혀요.";
+    return "";
+  };
+  function tierTable(vars, site) {
+    const unit = site === "bm" ? "p" : "원";
+    const rows3 = tierRows(vars, site);
+    const cell3 = (cls, label2, inner) => `<label class="ms-tb-c ${cls}"><span>${label2}</span>${inner}</label>`;
+    const body5 = rows3.map((x, i) => {
+      const k = `${site}:${i}`;
+      const bad = tierBad(x);
+      const w = x.w === "" || !Number.isFinite(Number(x.w)) || Number(x.w) < 0 ? 1 : Math.min(99, Math.trunc(Number(x.w)));
+      const num8 = (f, label2) => {
+        const d = x[f].replace(/[^\d]/g, "");
+        return `<span class="ph-inline"><input class="gx-search ms-num" type="text" inputmode="numeric" maxlength="17" data-change="ms-tier" data-key="${k}:${f}" value="${d ? Number(d).toLocaleString("en-US") : ""}" aria-label="${label2}"><span>${unit}</span></span>`;
+      };
+      return `<div class="ms-tb-r${bad ? " bad" : ""}">
+      ${cell3("n", "이름", `<input class="gx-search" data-change="ms-tier" data-key="${k}:name" value="${esc27(x.name)}" maxlength="20" aria-label="이름">`)}
+      ${cell3("d", "설명(영어)", `<textarea class="gx-search ms-list" rows="1" data-change="ms-tier" data-key="${k}:desc" maxlength="120" aria-label="설명(영어)">${esc27(x.desc)}</textarea>`)}
+      ${cell3("lo", "하한", num8("lo", "하한"))}
+      ${cell3("hi", "상한", num8("hi", "상한"))}
+      <div class="ms-tb-c w"><span>가중치</span>${stepIn("ms-tier-w", k, w, 0, 99, "", "가중치")}</div>
+      <button class="gx-mini icon danger ms-tb-x" data-action="ms-tier-del" data-value="${k}" aria-label="지우기" title="지우기">${ICONS.trash}</button>
+      ${bad ? `<p class="ms-tb-err">${bad}</p>` : ""}
+    </div>`;
+    }).join("");
+    return `<div class="ms-tb ms-tiers"><div class="ms-tb-h"><span>이름</span><span>설명(영어)</span><span>하한</span><span>상한</span><span>가중치</span><span></span></div>${body5}<div class="ms-tb-foot"><button class="gx-mini" data-action="ms-tier-add" data-value="${site}" ${rows3.length >= 12 ? "disabled" : ""}>${ICONS.plus}등급 추가</button></div></div>`;
+  }
+  var axesRaw = (text5) => String(text5 ?? "").split(/\r?\n/).filter((l) => l.includes(":")).map((l) => {
+    const i = l.indexOf(":");
+    return { name: l.slice(0, i).trim(), values: l.slice(i + 1).split(/[,，]/).map((x) => x.trim()).filter(Boolean) };
+  });
+  var axesRawText = (a) => a.map((x) => `${x.name}: ${x.values.join(", ")}`).join("\n");
+  var axisRows = (vars) => {
+    const st = String(vars?.[DESK_KEY.axes] ?? "");
+    return axesRaw(st.trim() ? st : deskAxesDefault());
+  };
+  function axisTable(vars) {
+    const rows3 = axisRows(vars);
+    const body5 = rows3.map((a, i) => {
+      const bad = !a.name ? "칸 이름이 비어 있어 이 칸은 안 뽑아요." : !a.values.length ? "값이 없어 이 칸은 안 뽑아요." : "";
+      return `<div class="ms-ax${bad ? " bad" : ""}">
+      <label class="ms-tb-c n"><span>칸 이름</span><input class="gx-search" data-change="ms-ax-name" data-key="${i}" value="${esc27(a.name)}" maxlength="20" placeholder="칸 이름" aria-label="칸 이름"></label>
+      <label class="ms-tb-c v"><span>값</span><input class="gx-search" data-change="ms-ax-vals" data-key="${i}" value="${esc27(a.values.join(", "))}" maxlength="900" placeholder="값, 값" aria-label="값"></label>
+      <button class="gx-mini icon danger ms-tb-x" data-action="ms-ax-del" data-value="${i}" aria-label="지우기" title="지우기">${ICONS.trash}</button>
+      ${bad ? `<p class="ms-tb-err">${bad}</p>` : ""}
+    </div>`;
+    }).join("");
+    return `<div class="ms-tb ms-axs"><div class="ms-tb-h"><span>칸 이름</span><span>값</span><span></span></div>${body5}<div class="ms-tb-foot"><button class="gx-mini" data-action="ms-ax-add" ${rows3.length >= 12 ? "disabled" : ""}>${ICONS.plus}칸 추가</button></div></div>`;
+  }
+  function mseg(site, key, cur, items) {
+    const sw2 = onOffSwitch(items, cur, "ms-cfg", (v) => `${site}:${key}=${v}`);
+    if (sw2) return sw2;
+    return `<div class="gx-segs gx-segs-sm">${items.map(([v, l]) => `<button class="gx-seg${cur === v ? " on" : ""}" data-action="ms-cfg" data-value="${site}:${key}=${v}" aria-pressed="${cur === v}">${l}</button>`).join("")}</div>`;
+  }
+  var MS_KEY = { model: "$sh_model", ctx: "$sh_ctx", feature: "$sh_feature", price: "$sh_price", diverse: "$sh_diverse", thoughts: "$sh_thoughts", prev: "$sh_prev", min: "$sh_min", max: "$sh_max", turns: "$sh_turns", refs: "$sh_refs" };
+  var MS_RANGE = { min: [SHOP_SIZE_LO, SHOP_SIZE_HI], max: [SHOP_SIZE_LO, SHOP_SIZE_HI], turns: [1, 8], refs: [0, 12] };
+  function mallSettingsPane(ctx2, site) {
+    const s8 = mallSettings(ctx2.chat.scriptstate, site);
+    const name = MALL_NAME[site];
+    const blocked2 = s8.on ? "" : `<p class="gx-hint">소지품이나 가계부가 꺼져 있어 ${name}을 쓸 수 없어요. 산 물건은 소지품에, 돈은 가계부로 오가서 둘 다 켜져 있어야 해요.</p>`;
+    const rows3 = `${blocked2}${cosRollGroup(ctx2, site)}${site === "cos" ? cosReadyGroup(ctx2) + cosTruthGroup(ctx2) + cosFixedGroup(ctx2) : deskGroup(ctx2)}`;
+    return `<div class="ph-form"><header class="ph-room-head"><div class="ph-room-title"><b>${name} 설정</b></div></header><div class="ph-form-body ps">${rows3}</div></div>`;
+  }
+  function cosRollGroup(ctx2, site) {
+    const vars = ctx2.chat.scriptstate;
+    const r = mallRoll(vars, site);
+    const s8 = mallSettings(vars, site);
+    const K = rollKeys(site);
+    const D = rollDefaults(site);
+    const bm = site === "bm";
+    const armed = rollResetArm === site;
+    const reset = rollChanged(vars, site) || String(vars?.[K.tiers] ?? "").trim() ? `<div class="ps-row gw-rel-foot"><button class="gx-mini${armed ? " danger" : ""}" data-action="ms-roll-reset" data-value="${site}" title="${armed ? "한 번 더 누르면 기본값으로 되돌려요" : "뽑기 설정을 기본값으로"}">${armed ? "정말 되돌리기" : "기본값으로"}</button></div>` : "";
+    const gSet = defChanged(String(vars?.[K.genres] ?? ""), genresText(D.genres), genresNorm);
+    const mark2 = (on3) => on3 ? "ps-changed" : "";
+    const n3 = Math.round((s8.size[0] + s8.size[1]) / 2);
+    const money2 = (x) => bm ? `${x.lo.toLocaleString("ko-KR")}~${x.hi.toLocaleString("ko-KR")}p` : `₩${x.lo.toLocaleString("ko-KR")}~${x.hi.toLocaleString("ko-KR")}`;
+    const sample = r.on ? cosDraw(n3, s8.context, r).map((x, i) => `<li><b>${i + 1}칸</b> ${esc27(x.genre)} · ${esc27(x.tier.name)} ${money2(x.tier)}${x.useful ? " · <i>상황용</i>" : ""}</li>`).join("") : "";
+    const word = bm ? "분류" : "장르";
+    const how = `<p class="ps-note">새로 받을 때마다 코드가 ① 칸 수만큼 ${word}를 뽑고 ② 칸마다 값 등급을 뽑고 ③ 상황용 칸을 정한 뒤, 요청문에 「Item&nbsp;n — ${bm ? "CATEGORY" : "GENRE"} · VALUE TIER · ROLE」로 적어요. 모델은 그 칸에 맞는 물건만 짓고, ${word}·등급을 바꾸지 못해요.${bm ? " 로어북의 가격 예시 물건을 그대로 되풀이하기 어렵게 하는 장치예요." : ""}</p>`;
+    if (!r.on) return group3("진열 배정", how + row5("사용", mseg(site, "roll_on", "0", [["1", "ON"], ["0", "OFF"]]), "끄면 배정 없이 모델이 알아서 골라요(같은 물건이 되풀이될 수 있어요)."));
+    return group3("진열 배정", how + [
+      row5("사용", mseg(site, "roll_on", r.on ? "1" : "0", [["1", "ON"], ["0", "OFF"]]), "끄면 배정 없이 모델이 알아서 골라요(같은 물건이 되풀이될 수 있어요)."),
+      row5(`${word} 목록`, `<textarea class="gx-search ms-area ms-list" rows="2" data-change="ms-roll" data-key="${site}:genres">${esc27(genresText(r.genres))}</textarea>`, `쉼표로 나눠요. 다 지우면 기본 ${D.genres.length}종으로 돌아가요.`, `ms-wide ${mark2(gSet)}`),
+      row5(`${word} 뽑기`, mseg(site, "roll_gmode", r.gmode, [["uniq", "칸마다 다르게"], ["any", "겹쳐도 됨"], ["one", `한 ${word}로`]]), r.gmode === "uniq" ? "목록을 섞어 앞에서부터 한 칸에 하나씩. 칸이 목록보다 많으면 처음부터 다시." : r.gmode === "any" ? `칸마다 따로 무작위. 같은 ${word}가 여러 칸에 나올 수 있어요.` : `한 판에 ${word} 하나를 뽑아 모든 칸에 같이 써요(기획전처럼).`),
+      row5("값 등급", tierTable(vars, site), bm ? "가중치는 뽑힐 비율이에요(0이면 안 뽑혀요). 다 지우면 기본 5단계(30~9,999p, 싼 쪽에 가중치)로 돌아가요." : "가중치는 뽑힐 비율이에요(0이면 안 뽑혀요). 다 지우면 기본 5단계(₩999,999~49,999,999, 모두 1)로 돌아가요.", `ms-wide ${mark2(String(vars?.[K.tiers] ?? "").trim() !== "")}`),
+      row5("등급 뽑기", mseg(site, "roll_tmode", r.tmode, [["weight", "가중치대로"], ["even", "골고루"], ["same", "한 등급으로"]]), r.tmode === "weight" ? "칸마다 따로, 가중치 비율대로 뽑아요. 같은 등급이 몰릴 수 있어요." : r.tmode === "even" ? "등급을 칸에 순서대로 고르게 나눈 뒤 자리를 섞어요. 가중치는 안 봐요." : "한 판에 등급 하나를 가중치대로 뽑아 모든 칸에 같이 써요."),
+      row5("상황용 칸", mseg(site, "roll_useful", r.useful, [["auto", "자동"], ["0", "없음"], ["1", "1칸"], ["2", "2칸"]]), "「지금 상황에 쓸모 있는 것」으로 배정할 칸 수. 자동 = 가게 표의 「맥락 반영」이 켜져 있고 3칸 이상이면 1~2칸(6칸 이상). 어느 칸인지는 무작위."),
+      r.on ? row5("뽑기 예", `<ul class="ms-sample">${sample}</ul>`, `지금 설정으로 ${n3}칸을 한 번 뽑아 본 거예요. 열 때마다 달라져요.`) : ""
+    ].join("") + reset);
+  }
+  function deskGroup(ctx2) {
+    const d = deskSettings(ctx2.chat.scriptstate);
+    const how = '<p class="ps-note">상담을 열 때마다 코드가 아래 칸마다 값을 하나씩 뽑고, 모델이 그 값으로 상담사(이름·직급·부서·소개·말투)를 한 번 만들어 둬요. 대화하는 동안은 그 카드를 매번 같이 보내서 사람이 바뀌지 않아요. 턴이 넘어가거나 「상담 종료」·「다른 상담사 연결」을 누르면 다음엔 새 상담사예요. 업무 지침과 말 규칙은 설정 → 지침 → 포인트몰 1:1 상담에서 고쳐요.</p>';
+    const aSet = defChanged(d.axesText, deskAxesDefault(), axesNorm);
+    const reset = aSet || String(ctx2.chat.scriptstate?.[DESK_KEY.axes] ?? "").trim() ? `<div class="ps-row gw-rel-foot"><button class="gx-mini" data-action="ms-desk-reset">초기값으로</button></div>` : "";
+    if (!d.on) return group3("1:1 상담", how + row5("사용", mseg("bm", "desk_on", "0", [["1", "ON"], ["0", "OFF"]]), "끄면 왼쪽 메뉴에 「1:1 상담」이 안 보여요."));
+    return group3("1:1 상담", how + [
+      row5("사용", mseg("bm", "desk_on", d.on ? "1" : "0", [["1", "ON"], ["0", "OFF"]]), "끄면 왼쪽 메뉴에 「1:1 상담」이 안 보여요."),
+      row5("상담사 주사위 칸", axisTable(ctx2.chat.scriptstate), "칸마다 값을 하나씩 뽑아요. 값은 쉼표로 나눠요. 같은 값을 여러 번 적으면 그만큼 잘 뽑혀요. 다 지우면 기본 칸으로 돌아가요.", `ms-wide ${aSet || String(ctx2.chat.scriptstate?.[DESK_KEY.axes] ?? "").trim() ? "ps-changed" : ""}`),
+      row5("지난 상담사 다시 만나기", mseg("bm", "desk_again", d.again ? "1" : "0", [["1", "ON"], ["0", "OFF"]]), "켜면 가끔(4번에 1번꼴) 전에 만났던 상담사가 다시 연결돼요."),
+      row5("겹치지 않게 넘길 수", stepIn("ms-desk-step", "", d.avoid, DESK_AVOID_RANGE[0], DESK_AVOID_RANGE[1], "명", "겹치지 않게 넘길 수"), "새 상담사를 만들 때 최근 상담사 몇 명의 요약을 같이 넘겨 「이들과 겹치지 마라」고 해요(0~12)."),
+      row5("지난 상담사 보관 수", stepIn("ms-desk-keep", "", d.keep, DESK_KEEP_RANGE[0], DESK_KEEP_RANGE[1], "명", "지난 상담사 보관 수"), `지난 상담사를 몇 명까지 남겨 둘지예요(${DESK_KEEP_RANGE[0]}~${DESK_KEEP_RANGE[1]}). 넘으면 오래된 상담사부터 지워요. 「다시 만나기」는 남아 있는 상담사 가운데서 골라요.`)
+    ].join("") + reset);
+  }
+  function cosReadyGroup(ctx2) {
+    const m = cosReadyMode(ctx2.chat.scriptstate);
+    return group3("맞춤 주문", row5(
+      "완성 알림",
+      mseg("cos", "ready", m, [["both", "카드 + 메인 요청"], ["card", "카드만"], ["off", "사용 안 함"]]),
+      m === "both" ? "완성된 턴의 상태창 아래에 「받으러 가기」 카드가 뜨고, 다음 턴 메인 요청에 완성 사실을 한 번 넘겨요." : m === "card" ? "카드만 떠요. 메인 모델은 완성된 줄 몰라요." : "알리지 않아요. 사이트의 「주문 조회」에서만 보여요."
+    ));
+  }
+  function cosTruthGroup(ctx2) {
+    const m = cosTruthMode(ctx2.chat.scriptstate);
+    return group3("진짜 효과", `<p class="ps-note">우주몰 물건의 「효과」는 화면에 보이는 광고 문구예요(모호·검열·거짓·뚱딴지·가끔 진실). 진짜 효과는 어디에도 안 보이고 메인 모델만 받아요. 쓸 때 실제로 일어나는 일은 진짜 쪽이에요.</p>` + row5(
+      "진실 미리 정하기",
+      mseg("cos", "truth", m, [["all", "전부"], ["mix", "섞음"], ["none", "안 함"]]),
+      m === "all" ? "우주몰 모델이 물건마다 진짜 효과를 미리 정해 숨겨 둬요. 쓸 때마다 같은 결과." : m === "mix" ? "절반쯤은 미리 정해 숨기고, 나머지는 「아무도 모름」으로 둬서 처음 쓸 때 메인 모델이 정해요." : "전부 「아무도 모름」. 처음 쓸 때 메인 모델이 그 자리에서 정해요."
+    ));
+  }
+  function cosFixedGroup(ctx2) {
+    const vars = ctx2.chat.scriptstate;
+    const list4 = cosFixed(vars);
+    const num8 = (id2, key, v, ph, label2, max = 1e12) => `<input class="gx-search ms-num" type="number" min="0" max="${max}" data-change="ms-fx" data-key="${id2}:${key}" value="${v ?? ""}" placeholder="${ph}" aria-label="${esc27(label2)}">`;
+    const text5 = (id2, key, v, ph, label2, len) => `<input class="gx-search" data-change="ms-fx" data-key="${id2}:${key}" value="${esc27(v)}" maxlength="${len}" placeholder="${ph}" aria-label="${esc27(label2)}">`;
+    const items = list4.map((f) => `<div class="ms-fx${f.on ? "" : " off"}">
+      <div class="ms-fx-head">${text5(f.id, "name", f.name, "상품 이름", "이름", 40)}<span class="ph-inline"><span>확률</span>${num8(f.id, "pct", f.pct, "25", "확률", 100)}<span>%</span></span>${mseg("cos", `fx_on:${f.id}`, f.on ? "1" : "0", [["1", "ON"], ["0", "OFF"]])}<button class="gx-mini icon danger" data-action="ms-fx-del" data-value="${esc27(f.id)}" aria-label="지우기" title="지우기">${ICONS.trash}</button></div>
+      <div class="ms-fx-row"><span class="ph-inline"><span>값</span>${num8(f.id, "price", f.price, "999999", "값")}<span>원</span></span><span class="ph-inline"><span>할인 전</span>${num8(f.id, "was", f.was, "비우면 할인 없음", "할인 전 값")}<span>원</span></span></div>
+      <div class="ms-fx-row"><span class="ph-inline ms-fx-wide"><span>설명</span>${text5(f.id, "desc", f.desc, "겉보기 설명 (???·검열됨처럼 숨겨도 돼요)", "설명", 200)}</span></div>
+      <div class="ms-fx-row"><span class="ph-inline ms-fx-wide"><span>효과</span>${text5(f.id, "effect", f.effect, "화면에 보이는 광고 문구 (모호·검열·거짓·뚱딴지…)", "보이는 효과", 200)}</span></div>
+      <div class="ms-fx-row"><span class="ph-inline ms-fx-wide"><span>진실</span>${text5(f.id, "truth", f.truth, "숨긴 진짜 효과 — 메인 모델만 봐요. 비우면 「아무도 모름」", "진짜 효과", 200)}</span></div>
+    </div>`).join("");
+    const foot = `<div class="ps-row gw-rel-foot"><button class="gx-mini" data-action="ms-fx-add" ${list4.length >= COS_FIXED_MAX ? "disabled" : ""}>${ICONS.plus}상품 추가</button></div>`;
+    return group3("시그니처 상품", `<p class="ps-note">모델이 아니라 코드가 새로고침마다 확률대로 끼워 넣는 상품이에요. 모델에게는 이름을 알리지 않고, 모델이 같은 이름을 내면 버려요. 이미 진열돼 있거나 산 것은 다시 안 넣어요. 다 지우면 안 써요. 「효과」는 화면에 보이는 광고 문구이고 「진실」은 숨긴 진짜 효과예요.</p>${items || '<p class="ps-note">없음.</p>'}${foot}`);
+  }
+  async function mallSettingsAction(action, value, ctx2, env3) {
+    if (action !== "ms-roll-reset") rollResetArm = "";
+    if (await deskSettingsAction(action, value, ctx2, env3)) return true;
+    if (await cosExtraAction(action, value, ctx2, env3)) return true;
+    if (action !== "ms-cfg" && action !== "ms-step" && action !== "ms-text" && action !== "ms-num") return false;
+    let site = "";
+    let k = "";
+    let v = "";
+    if (action === "ms-cfg" || action === "ms-text") [, site, k, v] = /^(\w+):(\w+)=([\s\S]*)$/.exec(value ?? "") ?? [];
+    if (action === "ms-text") v = String(v ?? "").replace(/\s+/g, " ").trim().slice(0, 80);
+    else if (action === "ms-num") {
+      [, site, k, v] = /^(\w+):(\w+)=(.*)$/.exec(value ?? "") ?? [];
+      const n3 = Math.floor(Number(v));
+      const r = MS_RANGE[k];
+      if (!r || !Number.isFinite(n3) || String(v).trim() === "") return env3.render(), true;
+      v = String(Math.max(r[0], Math.min(r[1], n3)));
+    } else if (action === "ms-step") {
+      const m = /^(\w+):(\w+):([+-])$/.exec(value ?? "");
+      if (!m) return true;
+      [, site, k] = m;
+      const s8 = mallSettings(ctx2.chat.scriptstate, site);
+      const cur = k === "min" ? s8.size[0] : k === "max" ? s8.size[1] : k === "turns" ? s8.turns : s8.refs;
+      const [lo, hi] = MS_RANGE[k] ?? [0, 0];
+      v = String(Math.max(lo, Math.min(hi, cur + (m[3] === "+" ? 1 : -1))));
+    }
+    if (site !== "cos" && site !== "bm") return true;
+    const varName = k === "auto" ? mallAutoKey(site) : MS_KEY[k] ? mallKey(MS_KEY[k], site) : "";
+    if (!varName) return true;
+    const extra2 = {};
+    if ((action === "ms-step" || action === "ms-num") && (k === "min" || k === "max")) {
+      const s8 = mallSettings(ctx2.chat.scriptstate, site);
+      const n3 = Number(v);
+      if (k === "min" && n3 > s8.size[1]) extra2[mallKey("$sh_max", site)] = v;
+      if (k === "max" && n3 < s8.size[0]) extra2[mallKey("$sh_min", site)] = v;
+    }
+    await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => String(chat.scriptstate?.[varName] ?? "") === v && !Object.keys(extra2).length ? null : { ...chat, scriptstate: { ...chat.scriptstate ?? {}, [varName]: v, ...extra2 } });
+    await env3.refresh();
+    return true;
+  }
+  async function deskSettingsAction(action, value, ctx2, env3) {
+    const set2 = async (vars) => {
+      await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => ({ ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...vars } }));
+      await env3.refresh();
+      return true;
+    };
+    if (action === "ms-cfg") {
+      const m = /^bm:(desk_on|desk_again)=([01])$/.exec(value ?? "");
+      if (!m) return false;
+      return m[1] === "desk_on" ? set2({ [DESK_KEY.on]: m[2] === "0" ? "0" : "" }) : set2({ [DESK_KEY.again]: m[2] === "1" ? "1" : "" });
+    }
+    {
+      const rows3 = () => axisRows(ctx2.chat.scriptstate);
+      const save4 = (a) => {
+        const t = axesRawText(a);
+        return set2({ [DESK_KEY.axes]: !a.length || t === deskAxesDefault() ? "" : t });
+      };
+      const clean9 = (v, n3) => v.replace(/[:,，\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, n3);
+      if (action === "ms-ax-name") {
+        const m = /^(\d+)=([\s\S]*)$/.exec(value ?? "");
+        if (!m) return true;
+        return save4(rows3().map((a, i) => i === Number(m[1]) ? { ...a, name: clean9(m[2], 20) } : a));
+      }
+      if (action === "ms-ax-del") return save4(rows3().filter((_, i) => i !== Number(value)));
+      if (action === "ms-ax-add") return save4([...rows3(), { name: "", values: [] }]);
+      if (action === "ms-ax-vals") {
+        const m = /^(\d+)=([\s\S]*)$/.exec(value ?? "");
+        if (!m) return true;
+        return save4(rows3().map((a, i) => i === Number(m[1]) ? { ...a, values: m[2].replace(/[:\n]/g, " ").split(/[,，]/).map((x) => x.replace(/\s+/g, " ").trim().slice(0, 60)).filter(Boolean) } : a));
+      }
+    }
+    if (action === "ms-desk") {
+      const m = /^axes=([\s\S]*)$/.exec(value ?? "");
+      return m ? set2({ [DESK_KEY.axes]: defStored(m[1], deskAxesDefault(), axesNorm) }) : true;
+    }
+    if (action === "ms-desk-step") {
+      const d = deskSettings(ctx2.chat.scriptstate);
+      const n3 = stepNext(value, d.avoid, DESK_AVOID_RANGE[0], DESK_AVOID_RANGE[1]);
+      return n3 === null ? true : set2({ [DESK_KEY.avoid]: String(n3) });
+    }
+    if (action === "ms-desk-keep") {
+      const d = deskSettings(ctx2.chat.scriptstate);
+      const n3 = stepNext(value, d.keep, DESK_KEEP_RANGE[0], DESK_KEEP_RANGE[1]);
+      return n3 === null ? true : set2({ [DESK_KEY.keep]: String(n3) });
+    }
+    if (action === "ms-desk-reset") return set2({ [DESK_KEY.axes]: "" });
+    return false;
+  }
+  var mallAskOpen = (site) => site === "cos" || site === "bm" ? ui2[site].ask : false;
+  var mallWinSpec = {
+    host: ".ms-cos",
+    skip: "ms-m",
+    win: ".cs-askwin",
+    grip: ".cs-wt",
+    size: ".cs-rs",
+    keep: '[data-action="mall-ask"], .cs-dim',
+    min: [300, 240],
+    isOpen: () => ui2.cos.ask,
+    close: () => {
+      ui2.cos.ask = false;
+      ui2.cos.picking = false;
+    },
+    save: (b) => {
+      ui2.cos.win = b;
+    }
+  };
+  var bmDeskWinSpec = {
+    host: ".ms-bm",
+    skip: "ms-m",
+    win: ".bd-win",
+    grip: ".bd-wt",
+    size: ".bd-rs",
+    keep: '[data-action="mall-ask"]',
+    min: [300, 260],
+    isOpen: () => ui2.bm.ask,
+    close: () => {
+      ui2.bm.ask = false;
+    },
+    save: (b) => {
+      ui2.bm.win = b;
+    }
+  };
+  async function cosExtraAction(action, value, ctx2, env3) {
+    const set2 = async (vars) => {
+      await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => ({ ...chat, scriptstate: { ...chat.scriptstate ?? {}, ...vars } }));
+      await env3.refresh();
+      return true;
+    };
+    const list4 = () => cosFixed(ctx2.chat.scriptstate);
+    if (action === "ms-cfg") {
+      const m = /^(cos|bm):(roll_on|roll_useful|roll_gmode|roll_tmode|truth|ready|fx_on:\w+)=([\s\S]*)$/.exec(value ?? "");
+      if (!m) return false;
+      const K = rollKeys(m[1]);
+      if (m[2] === "roll_on") return set2({ [K.on]: m[3] === "0" ? "0" : "" });
+      if (m[2] === "roll_useful") return set2({ [K.useful]: m[3] === "auto" ? "" : m[3] });
+      if (m[2] === "roll_gmode") return set2({ [K.gmode]: m[3] === "uniq" ? "" : m[3] });
+      if (m[2] === "roll_tmode") return set2({ [K.tmode]: m[3] === "weight" ? "" : m[3] });
+      m.splice(1, 1);
+      if (m[1] === "ready") {
+        await updateChat(ctx2.charIndex, ctx2.chatIndex, (chat) => {
+          const next = { ...chat, scriptstate: { ...chat.scriptstate ?? {}, [COS_READY_KEY]: m[2] === "both" ? "" : m[2] } };
+          const message = settleReady(next, cosReadyMode(next.scriptstate) !== "off");
+          return message ? { ...next, message } : next;
+        });
+        await env3.refresh();
+        return true;
+      }
+      if (m[1] === "truth") return set2({ [COS_TRUTH_KEY]: m[2] === "mix" ? "" : m[2] });
+      const id2 = m[1].slice(6);
+      return set2(cosFixedVars(list4().map((f) => f.id === id2 ? { ...f, on: m[2] === "1" } : f)));
+    }
+    {
+      const vars = ctx2.chat.scriptstate;
+      const saveT = (site, t) => {
+        const x = tiersRawText(t);
+        return set2({ [rollKeys(site).tiers]: !t.length || x === tiersText(rollDefaults(site).tiers) ? "" : x });
+      };
+      const clean9 = (v, n3) => v.replace(/[|\n]/g, " ").replace(/\s+/g, " ").trim().slice(0, n3);
+      if (action === "ms-tier") {
+        const m = /^(cos|bm):(\d+):(name|desc|lo|hi)=([\s\S]*)$/.exec(value ?? "");
+        if (!m) return true;
+        const site = m[1];
+        const f = m[3];
+        return saveT(site, tierRows(vars, site).map((x, i) => i === Number(m[2]) ? { ...x, [f]: f === "name" ? clean9(m[4], 20) : f === "desc" ? clean9(m[4], 120) : m[4].replace(/[^\d]/g, "").slice(0, 13) } : x));
+      }
+      if (action === "ms-tier-w") {
+        const m = /^(cos|bm):(\d+)(:[+-]|=-?\d+)$/.exec(value ?? "");
+        if (!m) return true;
+        const site = m[1];
+        return saveT(site, tierRows(vars, site).map((x, i) => {
+          if (i !== Number(m[2])) return x;
+          const w = x.w === "" || !Number.isFinite(Number(x.w)) ? 1 : Math.trunc(Number(x.w));
+          return { ...x, w: String(stepNext(m[3], w, 0, 99) ?? w) };
+        }));
+      }
+      if (action === "ms-tier-del") {
+        const m = /^(cos|bm):(\d+)$/.exec(value ?? "");
+        if (!m) return true;
+        const site = m[1];
+        return saveT(site, tierRows(vars, site).filter((_, i) => i !== Number(m[2])));
+      }
+      if (action === "ms-tier-add") {
+        const site = value === "bm" ? "bm" : "cos";
+        return saveT(site, [...tierRows(vars, site), { name: "", desc: "", lo: "", hi: "", w: "1" }]);
+      }
+    }
+    if (action === "ms-roll") {
+      const m = /^(?:(cos|bm):)?(genres|tiers)=([\s\S]*)$/.exec(value ?? "");
+      if (!m) return true;
+      const site = m[1] ?? "cos";
+      const K = rollKeys(site);
+      const D = rollDefaults(site);
+      return set2(m[2] === "genres" ? { [K.genres]: defStored(m[3], genresText(D.genres), genresNorm) } : { [K.tiers]: defStored(m[3], tiersText(D.tiers), tiersNorm) });
+    }
+    if (action === "ms-roll-reset") {
+      const site = value === "bm" ? "bm" : "cos";
+      if (rollResetArm !== site) {
+        rollResetArm = site;
+        env3.render();
+        return true;
+      }
+      rollResetArm = "";
+      settingsUi.info = "뽑기 설정을 기본값으로 되돌렸어요.";
+      return set2(Object.fromEntries(Object.values(rollKeys(value === "bm" ? "bm" : "cos")).map((k) => [k, ""])));
+    }
+    if (action === "ms-fx") {
+      const m = /^(\w+):(name|pct|price|was|desc|effect|truth)=([\s\S]*)$/.exec(value ?? "");
+      if (!m) return true;
+      const [, id2, k, v] = m;
+      return set2(cosFixedVars(list4().map((f) => {
+        if (f.id !== id2) return f;
+        if (k === "name" || k === "desc" || k === "effect" || k === "truth") return { ...f, [k]: v.replace(/\s+/g, " ").trim() };
+        const n3 = Math.trunc(Number(v));
+        if (k === "was") {
+          const { was: _w, ...rest } = f;
+          return Number.isFinite(n3) && n3 > 0 ? { ...rest, was: n3 } : rest;
+        }
+        if (!Number.isFinite(n3) || v.trim() === "") return f;
+        return { ...f, [k]: k === "pct" ? Math.max(0, Math.min(100, n3)) : Math.max(0, n3) };
+      })));
+    }
+    if (action === "ms-fx-add") {
+      const cur = list4();
+      return cur.length >= COS_FIXED_MAX ? true : set2(cosFixedVars([...cur, newCosFixed()]));
+    }
+    if (action === "ms-fx-del") return set2(cosFixedVars(list4().filter((f) => f.id !== value)));
+    return false;
+  }
+
+  // src/host/joint.ts
+  var BOARD_KEYS = ["gnet", "gal", "wpf", "sm"];
+  function instruction(keys) {
+    const boards = keys.filter((k) => BOARD_KEYS.includes(k));
+    const list4 = keys.map((k) => `"${k}"`).join(", ");
+    const boardsRule = boards.length > 1 ? `${guideTxt("Common", "JOINT.BOARDS", { boards: boards.join(", ") })} ` : "";
+    return guideTxt("Common", "JOINT.ENVELOPE", { count: keys.length, keys: list4, boards_rule: boardsRule });
+  }
+  var jointRetryText = (keys) => guideTxt("Common", "JOINT.RETRY", { keys: keys.map((k) => `"${k}"`).join(", ") });
+  function combinedPrompts(tasks) {
+    const chunks = (t) => t.match(/[\s\S]*?(?:\n\n|$)/g)?.filter(Boolean) ?? [t];
+    const split3 = tasks.map((t) => ({ key: t.key, msgs: t.messages.map((m) => ({ role: m.role, parts: chunks(m.content) })) }));
+    const owners = /* @__PURE__ */ new Map();
+    for (const t of split3) for (const m of t.msgs) for (const p2 of m.parts) if (p2.length >= 256) (owners.get(p2) ?? owners.set(p2, /* @__PURE__ */ new Set()).get(p2)).add(t.key);
+    const shared = [];
+    const ids = /* @__PURE__ */ new Map();
+    const body5 = { sharedReferences: shared };
+    for (const t of split3) {
+      body5[t.key] = t.msgs.map((m) => {
+        let referenced = false;
+        const parts = m.parts.map((p2) => {
+          if ((owners.get(p2)?.size ?? 0) < 2) return { text: p2 };
+          let id2 = ids.get(p2);
+          if (!id2) {
+            id2 = `R${shared.length + 1}`;
+            ids.set(p2, id2);
+            shared.push({ id: id2, text: p2 });
+          }
+          referenced = true;
+          return { ref: id2 };
+        });
+        return referenced ? { role: m.role, contentParts: parts } : { role: m.role, content: m.parts.join("") };
+      });
+    }
+    return [{ role: "system", content: instruction(tasks.map((t) => t.key)) }, { role: "user", content: JSON.stringify(body5) }];
+  }
+  function splitCombined(raw, keys = ["gnet", "phone"], partial = false) {
+    let s8 = raw.replace(/^\uFEFF/, "").trim();
+    const habits = (s8.match(/<ph-habits>[\s\S]*?<\/ph-habits>/gi) ?? []).join("");
+    if (habits) s8 = s8.replace(/<ph-habits>[\s\S]*?<\/ph-habits>/gi, "").trim();
+    const fence = /^```(?:json)?\s*\n([\s\S]*?)\n?```$/i.exec(s8);
+    if (fence) s8 = fence[1].trim();
+    const a = s8.indexOf("{");
+    const b = s8.lastIndexOf("}");
+    if (a > 0 || b >= 0 && b < s8.length - 1) s8 = a >= 0 && b > a ? s8.slice(a, b + 1) : s8;
+    let i = 0;
+    const n3 = s8.length;
+    const fail4 = (why) => {
+      throw new Error(`통합 응답 형식이 맞지 않아요: ${why}`);
+    };
+    const space = () => {
+      while (i < n3 && /\s/.test(s8[i])) i++;
+    };
+    const quoted = () => {
+      if (s8[i] !== '"') fail4("문자열 경계");
+      const first = i++;
+      while (i < n3) {
+        if (s8[i] === "\\") i += 2;
+        else if (s8[i++] === '"') return s8.slice(first, i);
+      }
+      return fail4("끝나지 않은 문자열");
+    };
+    const nested = () => {
+      const stack = [s8[i] === "{" ? "}" : "]"];
+      i++;
+      while (i < n3 && stack.length) {
+        const c = s8[i];
+        if (c === '"') quoted();
+        else if (c === "{" || c === "[") stack.push(c === "{" ? "}" : "]"), i++;
+        else if (c === "}" || c === "]") {
+          if (c !== stack.pop()) fail4("괄호");
+          i++;
+        } else i++;
+      }
+      if (stack.length) fail4("중간에 잘림");
+    };
+    const skip = () => {
+      if (s8[i] === '"') quoted();
+      else if (s8[i] === "{" || s8[i] === "[") nested();
+      else while (i < n3 && s8[i] !== "," && s8[i] !== "}") i++;
+    };
+    const parts = {};
+    try {
+      if (s8[i++] !== "{") fail4("JSON 객체가 없음");
+      for (; ; ) {
+        space();
+        const key = JSON.parse(quoted());
+        const known = keys.includes(key) && !(key in parts);
+        if (!known && !partial) fail4(`알 수 없는 칸 ${key}`);
+        space();
+        if (s8[i++] !== ":") fail4("구분자");
+        space();
+        const first = i;
+        if (!known) skip();
+        else if (s8.startsWith("null", i)) {
+          i += 4;
+          parts[key] = null;
+        } else if (s8[i] !== "{") {
+          if (!partial) fail4("결과가 객체가 아님");
+          skip();
+        } else {
+          nested();
+          parts[key] = s8.slice(first, i);
+        }
+        space();
+        const c = s8[i++];
+        if (c === "}") break;
+        if (c !== ",") fail4("결과 구분자");
+      }
+      space();
+      if (!partial && (i < n3 || keys.some((k) => !(k in parts)))) fail4("결과가 빠졌거나 뒤에 다른 글이 붙음");
+    } catch (error) {
+      if (!partial) throw error;
+    }
+    if (habits && typeof parts.phone === "string") parts.phone += habits;
+    return parts;
+  }
+  var Joint = class {
+    // concurrent: 「동시 요청 수」 설정. 묶음이 보내는 요청도 한 건마다 칸 하나를 쓴다 (기다리는 작업은 칸을 안 잡아 교착 없음, 전수검사 11-13)
+    // transient: 「모델 오류 재시도」 설정. 묶음 요청이 일시 오류로 실패하면 묶음째 다시 보낸다 (전수점검 보통-6: 작업 수만큼 따로 다시 나갔다)
+    constructor(model2, staticModel, kinds = ["gn", "phone"], concurrent, transient2 = 0) {
+      this.model = model2;
+      this.staticModel = staticModel;
+      this.concurrent = concurrent;
+      this.transient = transient2;
+      this.left = new Set(kinds);
+    }
+    waits = /* @__PURE__ */ new Map();
+    left;
+    fired = false;
+    /** 이 작업의 첫 요청. 다른 작업도 모이면 한 번에 보낸다 */
+    ask(kind, messages) {
+      if (this.fired || !this.left.has(kind) || messages.some((m) => m.images?.length)) {
+        this.done(kind);
+        return limited(this.concurrent, () => runModel(messages, this.model, this.staticModel, JOINT_LABEL[kind]));
+      }
+      return new Promise((resolve, reject) => {
+        this.waits.set(kind, { messages, resolve, reject });
+        this.flush();
+      });
+    }
+    /** 이 작업은 더 묻지 않는다 (모델을 안 부르고 끝났거나 이미 받음) */
+    done(kind) {
+      this.left.delete(kind);
+      this.flush();
+    }
+    flush() {
+      if (this.fired || [...this.left].some((k) => !this.waits.has(k))) return;
+      this.fired = true;
+      if (this.waits.size >= 2) void this.all();
+      else for (const [k, w] of this.waits) limited(this.concurrent, () => runModel(w.messages, this.model, this.staticModel, JOINT_LABEL[k])).then(w.resolve, w.reject);
+    }
+    /** 작업들을 한 요청으로. 첨부는 작업마다 먼저 바꾸고(번호는 이어서) 합친 요청은 runModel 에서 다시 바꾸지 않는다 (전수검사 11-13) */
+    prompt(kinds) {
+      const pre2 = prepareAttachmentGroups(kinds.map((k) => this.waits.get(k).messages));
+      return markPrepared([...combinedPrompts(kinds.map((k, i) => ({ key: JOINT_KEY[k], messages: pre2.groups[i] }))), ...pre2.data ? [pre2.data] : []]);
+    }
+    alone(k) {
+      const w = this.waits.get(k);
+      limited(this.concurrent, () => runModel(w.messages, this.model, this.staticModel, `${JOINT_LABEL[k]} (통합 뒤 따로)`)).then(w.resolve, w.reject);
+    }
+    async all() {
+      const kinds = [...this.waits.keys()];
+      const keys = kinds.map((k) => JOINT_KEY[k]);
+      const label2 = `${kinds.map((k) => JOINT_LABEL[k]).join("+")} 통합`;
+      const prompt = this.prompt(kinds);
+      let raw = "";
+      for (let left = this.transient; ; left--) {
+        try {
+          raw = await limited(this.concurrent, () => runModel(prompt, this.model, this.staticModel, label2));
+          break;
+        } catch (error) {
+          if (left > 0 && isTransient(error)) {
+            console.log(`[goei] 통합 자동 확인 일시 오류, 묶음째 다시 보냄: ${error instanceof Error ? error.message.split("\n")[0] : String(error)}`);
+            await new Promise((r) => setTimeout(r, timeMs("retryGap")));
+            continue;
+          }
+          markTransientDone(error);
+          for (const w of this.waits.values()) w.reject(error);
+          return;
+        }
+      }
+      let parts = splitCombined(raw, keys, true);
+      if (!Object.keys(parts).length) {
+        console.log("[goei] 통합 자동 확인 응답을 가르지 못해 겉 모양을 다시 묻어요");
+        try {
+          const fix = await limited(this.concurrent, () => runModel(markPrepared([...prompt, { role: "assistant", content: raw }, { role: "user", content: jointRetryText(keys) }]), this.model, this.staticModel, `${label2} 다시 묻기`));
+          parts = splitCombined(fix, keys, true);
+        } catch (again) {
+          console.log(`[goei] 통합 자동 확인 응답을 끝내 가르지 못해 따로 보내요: ${again instanceof Error ? again.message : String(again)}`);
+          parts = {};
+        }
+      }
+      const missing = [];
+      let alive = 0;
+      for (const k of kinds) {
+        const key = JOINT_KEY[k];
+        const part = parts[key];
+        if (part) {
+          this.waits.get(k).resolve(part);
+          alive++;
+        } else if (key in parts) this.alone(k);
+        else missing.push(k);
+      }
+      if (missing.length >= 2 && alive > 0) {
+        const again = missing.map((k) => JOINT_KEY[k]);
+        let more = {};
+        try {
+          more = splitCombined(await limited(this.concurrent, () => runModel(this.prompt(missing), this.model, this.staticModel, `${missing.map((k) => JOINT_LABEL[k]).join("+")} 통합`)), again, true);
+        } catch (error) {
+          console.log(`[goei] 남은 통합 자동 확인을 가르지 못해 따로 보내요: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        for (const k of missing) {
+          const part = more[JOINT_KEY[k]];
+          if (part) this.waits.get(k).resolve(part);
+          else this.alone(k);
+        }
+      } else for (const k of missing) this.alone(k);
+    }
+  };
+
+  // src/host/asset.ts
+  var running4 = false;
+  async function supplementAssets(t) {
+    const s8 = basicSettings(t.lore, t.chat.scriptstate);
+    if (!s8.assetOn || s8.assetModel !== "aux" || running4) return;
+    const msg = t.chat.message?.[t.messageIndex];
+    if (!msg || msg.role !== "char" || typeof msg.data !== "string" || !msg.data) return;
+    if (t.messageIndex !== (t.chat.message?.length ?? 0) - 1) return;
+    running4 = true;
+    const note2 = (text5) => updateChat(t.charIndex, t.chatIndex, (c) => c.scriptstate?.[ASSET_NOTE] === text5 ? null : { ...c, scriptstate: { ...c.scriptstate ?? {}, [ASSET_NOTE]: text5 } }).catch(() => null);
+    try {
+      const agent = playerAgent(t.lore, t.chat.scriptstate);
+      const cfg = imgPromptConfig(getPrefs());
+      const picked = imgCharacters(t.lore, cfg, { assetPlayer: s8.assetPlayer, playerEnglish: agent?.english || void 0, userName: userInfo().name });
+      if (!picked.length) throw new AssetError("이미지 자료 오류 (characters): 출력 대상이 없습니다. 명부에 요원이 있는지, 설정에서 전부 끄지 않았는지 확인하세요.");
+      const tuned = imageDataFrom(t.lore, picked, cfg.keywords);
+      const data3 = { ...s8.assetPlayer ? withUser(tuned, agent ? void 0 : userInfo().name) : tuned, userName: agent?.name || userInfo().name || void 0 };
+      const exclude = agent && !s8.assetPlayer ? [agent.english, data3.aliases.get(agent.name.toLowerCase())].filter((v) => typeof v === "string" && !!v) : [];
+      const job = planAsset(stripReadyTags(msg.data), data3, s8.assetLimit, exclude);
+      if (!job) return;
+      const raw = await runModel(job.messages, "aux", void 0, "이미지 태그 보충");
+      const next = finishAsset(job, raw, data3, s8.assetLimit);
+      if (!next) {
+        await note2("이번 응답에는 붙일 이미지가 없었어요.");
+        return;
+      }
+      const saved = await updateChat(t.charIndex, t.chatIndex, (latest) => {
+        const list4 = latest.message ?? [];
+        const i = t.messageIndex;
+        if (i !== list4.length - 1 || list4[i]?.role !== "char" || stripReadyTags(stripShopTags(String(list4[i].data ?? ""))) !== stripReadyTags(stripShopTags(job.original))) return null;
+        const tag = findShopTag(String(list4[i].data ?? ""));
+        const message = list4.slice();
+        const ready = findReadyTag(String(list4[i].data ?? ""));
+        message[i] = { ...list4[i], data: [stripReadyTags(stripShopTags(next)), ready?.raw, tag?.raw].filter(Boolean).join("\n") };
+        return { ...latest, message, scriptstate: { ...latest.scriptstate ?? {}, [ASSET_NOTE]: "" } };
+      });
+      if (!saved) console.log("[goei] 이미지 태그: 그새 응답이 바뀌어 저장하지 않았어요.");
+    } catch (error) {
+      const why = error instanceof AssetError ? error.message : `보조 모델 호출 실패: ${error instanceof Error ? error.message : String(error)}`;
+      console.log(`[goei] 이미지 태그 보충 실패: ${why}`);
+      await note2(why.slice(0, 300));
+    } finally {
+      running4 = false;
+    }
+  }
+  function previewAsset(lore, chat) {
+    const s8 = basicSettings(lore, chat.scriptstate);
+    const list4 = chat.message ?? [];
+    const msg = list4[list4.length - 1];
+    if (!s8.assetOn || s8.assetModel !== "aux" || !msg || msg.role !== "char" || typeof msg.data !== "string" || !msg.data) return null;
+    try {
+      const agent = playerAgent(lore, chat.scriptstate);
+      const cfg = imgPromptConfig(getPrefs());
+      const picked = imgCharacters(lore, cfg, { assetPlayer: s8.assetPlayer, playerEnglish: agent?.english || void 0, userName: userInfo().name });
+      if (!picked.length) return null;
+      const tuned = imageDataFrom(lore, picked, cfg.keywords);
+      const data3 = { ...s8.assetPlayer ? withUser(tuned, agent ? void 0 : userInfo().name) : tuned, userName: agent?.name || userInfo().name || void 0 };
+      const exclude = agent && !s8.assetPlayer ? [agent.english, data3.aliases.get(agent.name.toLowerCase())].filter((v) => typeof v === "string" && !!v) : [];
+      return planAsset(msg.data, data3, s8.assetLimit, exclude)?.messages ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  // src/core/watch.ts
+  var WatchState = class {
+    charIndex = -2;
+    active = false;
+    isLite = false;
+    /** 지금 캐릭터가 괴이봇 Lite인지 (채팅 화면 여부와 무관) */
+    get lite() {
+      return this.charIndex >= 0 && this.isLite;
+    }
+    needsCharacterCheck(s8) {
+      return s8.charIndex !== this.charIndex;
+    }
+    /** 이 캐릭터를 다시 판정하게 한다 (설치로 로어북이 바뀌었을 때: 같은 캐릭터라 그냥 두면 「괴이 카드 아님」이 남는다) */
+    forget() {
+      this.charIndex = -2;
+    }
+    /**
+     * lite: 이번 캐릭터가 괴이봇 Lite인지 (needsCharacterCheck가 false면 생략, 이전 값 유지).
+     * intro: 괴이봇 Lite 채팅 화면에 새로 들어온 순간마다 true (다른 봇·설정 화면에서 돌아올 때 포함).
+     */
+    update(s8, lite) {
+      if (s8.charIndex !== this.charIndex) this.isLite = lite ?? false;
+      this.charIndex = s8.charIndex;
+      const active3 = s8.charIndex >= 0 && s8.chatIndex >= 0 && s8.chatScreen && this.isLite;
+      const changed = active3 !== this.active;
+      const intro = active3 && !this.active;
+      this.active = active3;
+      return { changed, fabVisible: active3, intro };
+    }
+  };
+
+  // src/host/progwin.ts
+  var POS_KEY2 = "goei-plugin:prog-pos";
+  var PHONE_MAX = 760;
+  var CARD_W = 300;
+  var BTN = 48;
+  var PULSE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12h4l2.5-6 4 12 2.5-6h6"/></svg>';
+  var CSS2 = `
+${themeVars("[x-goei-prog]")}
+[x-goei-prog] { --p-dim: #97A9A5; --p-danger: #FF7A6B; --p-void: #1A2226; }
+[x-goei-prog][x-goei-theme="light"] { --p-dim: #5C6E6A; --p-danger: #C2412F; --p-void: #F4F6F5; }
+[x-goei-prog][x-goei-theme="paper"] { --p-dim: #6E6046; --p-danger: #A8361F; --p-void: #EFE6D2; }
+[x-goei-prog] {
+  position: fixed; right: 12px; top: 12px; z-index: 60; /* 플러그인 창(49) 위: 상황판이 열려 있어도 보인다 (11-11 사용자) */
+  display: none; width: 0; height: 0;
+  font: 13px/1.4 'IBM Plex Sans KR', 'Pretendard', system-ui, -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  color: var(--g-text); word-break: keep-all; -webkit-font-smoothing: antialiased;
+}
+[x-goei-prog][x-goei-show="true"] { display: block; }
+/* 창 안 팝업이 화면을 어둡게 덮으면 같이 흐리게, 누르지 않게 (설정 창 막 밑에 깔릴 때와 같게, 전수점검 눌러2-사소-15) */
+[x-goei-prog][x-goei-dim="true"] { opacity: .35; pointer-events: none; }
+[x-goei-prog] * { box-sizing: border-box; }
+[x-goei-prog] [data-mono] { font-family: 'JetBrains Mono', 'IBM Plex Sans KR', ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+/* 카드: 오른쪽 위 꼭짓점을 기준으로 자라고 줄어든다 */
+[x-goei-prog] [data-card] {
+  position: absolute; top: 0; right: 0; width: ${CARD_W}px;
+  background: var(--g-panel); border: 1px solid var(--g-line); border-radius: 14px; padding: 12px 14px 10px;
+  box-shadow: 0 18px 40px -20px rgba(0,0,0,.6);
+  transform-origin: top right; transition: transform .2s ease, opacity .2s ease;
+}
+[x-goei-prog][x-goei-open="false"] [data-card] { transform: scale(.16); opacity: 0; pointer-events: none; }
+[x-goei-prog] [data-grip] { display: flex; align-items: center; gap: 8px; min-height: 36px; margin: -9px 0 -9px; /* 누르면 접히는 머리줄: 누름 칸 36 (전수점검 눌러-보통-1) */ color: var(--g-sub); font-size: 11.5px; font-weight: 600; letter-spacing: .04em; cursor: grab; user-select: none; -webkit-user-select: none; }
+[x-goei-prog][x-goei-drag="true"] [data-grip] { cursor: grabbing; }
+[x-goei-prog] [data-grip] svg { width: 14px; height: 14px; color: var(--g-signal); flex: 0 0 14px; }
+[x-goei-prog] [data-grip] [data-p="n"] { margin-left: auto; font-size: 11.5px; font-weight: 600; color: var(--p-dim); }
+[x-goei-prog] [data-p="t"] { margin-top: 6px; font-size: 15px; font-weight: 600; color: var(--g-text); }
+[x-goei-prog] [data-p="m"] { margin-top: 2px; color: var(--p-dim); font-size: 12px; }
+[x-goei-prog] [data-p="m"] b { font-weight: 600; color: var(--g-sub); }
+[x-goei-prog] [data-p="cells"] { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 3px; margin-top: 9px; }
+[x-goei-prog] [data-p="c"] { height: 18px; display: grid; place-items: center; padding: 0 3px; border-radius: 4px; border: 1px solid var(--g-line); background: var(--p-void); color: var(--p-dim); font-size: 9.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[x-goei-prog] [data-p="c"][data-s="done"] { border-color: var(--g-acc-line); background: var(--g-acc); color: var(--g-signal); }
+[x-goei-prog] [data-p="c"][data-s="run"] { border-color: var(--g-signal); background: var(--g-acc); color: var(--g-text); box-shadow: 0 0 7px color-mix(in srgb, var(--g-signal) 55%, transparent); }
+[x-goei-prog] [data-p="c"][data-s="fail"] { border-color: var(--p-danger); color: var(--p-danger); }
+[x-goei-prog] [data-p="c"][data-s="skip"] { opacity: .45; }
+[x-goei-prog] [data-p="rows"] { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--g-line); }
+[x-goei-prog] [data-p="r"] { display: grid; grid-template-columns: 16px 1fr auto; column-gap: 8px; align-items: center; padding: 5px 8px; margin: 0 -8px; border-radius: 8px; font-size: 12.5px; color: var(--p-dim); }
+[x-goei-prog] [data-p="r"] [data-p="nm"] { color: var(--g-sub); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+[x-goei-prog] [data-p="r"] [data-p="dt"] { color: var(--p-dim); font-size: 11px; margin-left: 6px; font-weight: 400; }
+[x-goei-prog] [data-p="r"] [data-p="tm"] { font-size: 11.5px; color: var(--p-dim); text-align: right; white-space: nowrap; }
+[x-goei-prog] [data-p="r"][data-s="run"] { background: var(--g-acc); }
+[x-goei-prog] [data-p="r"][data-s="run"] [data-p="nm"] { color: var(--g-text); font-weight: 600; }
+[x-goei-prog] [data-p="r"][data-s="run"] [data-p="tm"] { color: var(--g-signal); }
+[x-goei-prog] [data-p="r"][data-s="wait"] [data-p="nm"], [x-goei-prog] [data-p="r"][data-s="skip"] [data-p="nm"] { color: var(--p-dim); }
+[x-goei-prog] [data-p="r"][data-s="skip"] { opacity: .55; }
+[x-goei-prog] [data-p="r"][data-s="fail"] [data-p="nm"], [x-goei-prog] [data-p="r"][data-s="fail"] [data-p="tm"], [x-goei-prog] [data-p="r"][data-s="fail"] [data-p="dt"] { color: var(--p-danger); }
+[x-goei-prog] [data-p="ic"] { width: 16px; height: 16px; display: grid; place-items: center; }
+[x-goei-prog] [data-p="ic"]::before { content: ""; width: 7px; height: 7px; border-radius: 50%; }
+[x-goei-prog] [data-p="ic"][data-s="done"]::before { background: var(--g-signal); }
+[x-goei-prog] [data-p="ic"][data-s="wait"]::before, [x-goei-prog] [data-p="ic"][data-s="skip"]::before { border: 1.5px solid var(--g-line); width: 7px; height: 7px; }
+[x-goei-prog] [data-p="ic"][data-s="run"]::before { width: 10px; height: 10px; border: 2px solid var(--g-signal); border-right-color: transparent; animation: goei-prog-spin .8s linear infinite; }
+[x-goei-prog] [data-p="ic"][data-s="fail"]::before { background: var(--p-danger); }
+/* 접힌 단추 (PC): 유령 단추와 같은 규격 48px */
+[x-goei-prog] [data-dot] {
+  position: absolute; top: 0; right: 0; width: ${BTN}px; height: ${BTN}px; margin: 0; padding: 0;
+  display: grid; place-items: center; border: 1px solid var(--g-acc-line); border-radius: 14px; background: var(--g-acc); color: var(--g-signal);
+  box-shadow: 0 6px 18px -6px rgba(0,0,0,.45); cursor: pointer; transition: opacity .2s ease, transform .15s ease;
+}
+[x-goei-prog] [data-dot] svg { width: 26px; height: 26px; }
+[x-goei-prog][x-goei-open="true"] [data-dot] { opacity: 0; pointer-events: none; }
+[x-goei-prog][x-goei-run="true"] [data-dot] svg path { stroke-dasharray: 6 4; animation: goei-prog-flow 1s linear infinite; }
+[x-goei-prog] [data-dot] [data-p="bad"] { display: none; position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; border-radius: 50%; background: var(--p-danger); border: 2px solid var(--g-panel); }
+[x-goei-prog][x-goei-fail="true"] [data-dot] [data-p="bad"] { display: block; }
+[x-goei-prog] [data-dot] [data-p="dots"] { display: none; }
+/* 폰: 오른쪽 가장자리에 붙은 막대 (점 다섯 개, 길이 고정). 위아래 자리는 끌어서 정하고 상황판을 열어도 그대로다 (11-15 사용자). 카드는 눌렀을 때만 */
+[x-goei-prog][x-goei-phone="true"] { right: 0; }
+/* 폰에서 상황판이 열려 있으면 숨긴다 (11-15 사용자) */
+[x-goei-prog][x-goei-phone="true"][x-goei-panel="true"] { display: none; }
+[x-goei-prog][x-goei-phone="true"] [data-dot] {
+  width: 28px; height: auto; padding: 8px 0 9px; border-right: 0; border-radius: 10px 0 0 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 7px; box-shadow: 0 8px 18px -10px rgba(0,0,0,.6);
+  touch-action: none; /* 끌 때 화면이 같이 밀리지 않게 */
+}
+[x-goei-prog][x-goei-phone="true"] [data-dot] svg { width: 14px; height: 14px; margin-bottom: 1px; color: var(--g-sub); }
+[x-goei-prog][x-goei-phone="true"][x-goei-run="true"] [data-dot] svg { color: var(--g-signal); }
+[x-goei-prog][x-goei-phone="true"] [data-dot] [data-p="dots"] { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+[x-goei-prog] [data-p="d"] { width: 7px; height: 7px; border-radius: 50%; background: var(--g-line); }
+[x-goei-prog] [data-p="d"][data-s="done"] { background: var(--g-signal); }
+[x-goei-prog] [data-p="d"][data-s="run"] { width: 9px; height: 9px; background: var(--g-signal); box-shadow: 0 0 7px var(--g-signal); animation: goei-prog-blink 1s ease-in-out infinite; }
+[x-goei-prog] [data-p="d"][data-s="skip"] { background: transparent; border: 1.5px solid var(--g-line); width: 6px; height: 6px; }
+[x-goei-prog] [data-p="d"][data-s="fail"] { background: var(--p-danger); }
+[x-goei-prog][x-goei-phone="true"] [data-card] { right: 10px; top: 0; width: min(${CARD_W + 30}px, calc(100vw - 20px)); }
+/* 막대가 화면 아래쪽에 있으면 카드는 위로 자란다 (아래로 넘치지 않게) */
+[x-goei-prog][x-goei-phone="true"][x-goei-low="true"] [data-card] { top: auto; transform-origin: bottom right; }
+[x-goei-prog][x-goei-phone="true"] [data-grip] { cursor: pointer; }
+@keyframes goei-prog-spin { to { transform: rotate(360deg); } }
+@keyframes goei-prog-flow { to { stroke-dashoffset: -20; } }
+@keyframes goei-prog-blink { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { [x-goei-prog] * { animation: none !important; transition: none !important; } }
+`;
+  var esc28 = (s8) => String(s8 ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var num7 = (n3) => Math.max(0, Math.round(n3)).toLocaleString("ko-KR");
+  var secs = (ms) => ms >= 6e4 ? `${(ms / 6e4).toFixed(1)}분` : `${(ms / 1e3).toFixed(ms < 1e4 ? 1 : 0)}초`;
+  var clock2 = (ms) => {
+    const s8 = Math.max(0, Math.floor(ms / 1e3));
+    return `${String(Math.floor(s8 / 60)).padStart(2, "0")}:${String(s8 % 60).padStart(2, "0")}`;
+  };
+  var modelName = (m) => m === "main" ? "메인" : m === "aux" ? "보조" : m;
+  function titleOf(t, now2) {
+    if (t.endAt) {
+      const { failed: failed4 } = turnSummary(t);
+      return failed4 ? `끝 · ${failed4}건 실패` : "끝";
+    }
+    const run6 = runningStages(t);
+    if (t.aborted && !run6.length) return "응답 없음";
+    if (!run6.length) return t.replyAt ? "응답 뒤 정리 중" : t.mainAt ? "메인 응답 대기" : now2 - t.at < progressWatchdog() ? "요청 준비 중" : "응답 없음";
+    if (run6.some((s9) => s9.id === "main")) return "메인 응답 대기";
+    const net = run6.filter((s9) => s9.group === "net");
+    if (net.length > 1) return `인터넷 자동 호출 · ${net.length}건`;
+    const s8 = run6[0];
+    if (t.manual) return `${s8.label} 처리 중`;
+    switch (s8.id) {
+      case "router":
+        return "라우터 인물 고르는 중";
+      case "director":
+        return "디렉터 판단 중";
+      case "update":
+        return "갱신기 기록 중";
+      case "asset":
+        return "이미지 태그 보충 중";
+      case "wiki":
+        return "위키 쓰는 중";
+      default:
+        return s8.group === "net" ? `${s8.label === "통합" ? `통합 요청 (${s8.note ?? ""})` : s8.label} 확인 중` : `${s8.label} 처리 중`;
+    }
+  }
+  function sentGot(sent2, got) {
+    const a = sent2 === void 0 ? "" : `보냄 ${num7(sent2)}`;
+    const b = got === void 0 ? "받는 중" : `받음 ${num7(got)}`;
+    return a ? `${a} · ${b}` : b;
+  }
+  function metaOf(t, now2) {
+    if (t.endAt) {
+      const s8 = turnSummary(t);
+      return `호출 <b data-mono>${num7(s8.calls)}</b>회 · 보냄 <b data-mono>${num7(s8.req)}</b> · 받음 <b data-mono>${num7(s8.resp)}</b> 토큰 · <b data-mono>${esc28(secs(s8.ms))}</b>`;
+    }
+    const run6 = running(t);
+    const parts = [];
+    if (run6.length) {
+      const models = [...new Set(run6.map((c) => modelName(c.model)))].join("·");
+      parts.push(run6.length > 1 ? `${esc28(models)} ${run6.length}건 동시` : `${esc28(models)} 모델`);
+      parts.push(`보냄 <b data-mono>${num7(run6.reduce((n3, c) => n3 + c.reqTokens, 0))}</b> 토큰`);
+      const chars2 = run6.reduce((n3, c) => n3 + (c.chars ?? 0), 0);
+      if (chars2) parts.push(`받는 중 <b data-mono>~${num7(chars2)}</b>자`);
+    } else if (t.mainAt && !t.replyAt) parts.push(`${esc28(modelName("main"))} 모델${t.mainTokens === void 0 ? "" : ` · 보냄 <b data-mono>${num7(t.mainTokens)}</b> 토큰`}`);
+    parts.push(`경과 <b data-mono>${clock2(now2 - t.at)}</b>`);
+    return parts.join(" · ");
+  }
+  function rowDetail(t, s8, st, now2) {
+    if (s8.id === "main") {
+      const who = modelName("main");
+      if (st === "done") return { dt: `${who} · ${sentGot(t.mainTokens, t.replyTokens ?? 0)}`, tm: secs((t.replyAt ?? now2) - (t.mainAt ?? t.at)) };
+      if (st === "run") return { dt: `${who} · ${sentGot(t.mainTokens)}`, tm: `${Math.floor((now2 - (t.mainAt ?? t.at)) / 1e3)}초` };
+      return { dt: "", tm: "" };
+    }
+    const calls = t.calls.filter((c2) => c2.stage === s8.id);
+    if (!calls.length) return { dt: s8.note ?? "", tm: st === "skip" ? "없음" : "" };
+    const c = calls[calls.length - 1];
+    const more = calls.length > 1 ? ` · ${calls.length}회` : "";
+    const head3 = `${s8.note ? `${s8.note} · ` : ""}${modelName(c.model)} · `;
+    if (c.ms === void 0) return { dt: `${head3}보냄 ${num7(c.reqTokens)} · 받는 중${c.chars ? ` ~${num7(c.chars)}자` : ""}${more}`, tm: `${Math.floor((now2 - c.at) / 1e3)}초` };
+    if (!c.ok) return { dt: (c.error ?? "실패").split("\n")[0].slice(0, 40) + more, tm: secs(c.ms) };
+    return { dt: `${head3}${sentGot(c.reqTokens, c.respTokens ?? 0)}${more}`, tm: secs(calls.reduce((n3, x) => n3 + (x.ms ?? 0), 0)) };
+  }
+  function cardHtml(t, now2 = Date.now()) {
+    if (!t) return `<div data-grip>${PULSE}호출 진행<span data-p="n" data-mono>—</span></div><div data-p="t">아직 호출이 없어요</div><div data-p="m">채팅을 보내면 여기에 단계가 보여요.</div>`;
+    const { done: done3, total } = stageCount(t);
+    const cells2 = t.plan.map((s8) => `<div data-p="c" data-s="${stageState(t, s8)}" title="${esc28(s8.note ? `${s8.label} (${s8.note})` : s8.label)}">${esc28(s8.label)}</div>`).join("");
+    const rows3 = t.plan.map((s8) => {
+      const st = stageState(t, s8);
+      const { dt, tm } = rowDetail(t, s8, st, now2);
+      return `<div data-p="r" data-s="${st}"><i data-p="ic" data-s="${st}"></i><span data-p="nm">${esc28(s8.label)}${dt ? `<span data-p="dt">${esc28(dt)}</span>` : ""}</span><span data-p="tm" data-mono>${esc28(tm)}</span></div>`;
+    }).join("");
+    return `<div data-grip>${PULSE}${t.manual ? "수동 호출" : "호출 진행"}<span data-p="n" data-mono>${done3} / ${total}</span></div><div data-p="t">${esc28(titleOf(t, now2))}</div><div data-p="m">${metaOf(t, now2)}</div>` + (total > 1 ? `<div data-p="cells">${cells2}</div>` : "") + `<div data-p="rows">${rows3}</div>`;
+  }
+  function dotHtml(t) {
+    const dots = GROUPS.map((g3) => `<i data-p="d" data-s="${t ? groupState(t, g3) : "skip"}" title="${GROUP_LABEL[g3]}"></i>`).join("");
+    return `${PULSE}<span data-p="dots">${dots}</span><i data-p="bad"></i>`;
+  }
+  var DEFAULT_POS = { right: 12, top: 76 };
+  var PHONE_TOP_KEY = "goei-plugin:prog-phone-top";
+  var DEFAULT_PHONE_TOP = 160;
+  async function createProgWin() {
+    const root3 = await body();
+    if (!root3) throw new Error("Risu 화면 접근 권한이 없어요.");
+    const { doc: doc2 } = root3;
+    try {
+      for (const el of await risuai.unwarpSafeArray(await doc2.querySelectorAll("[x-goei-prog]"))) await el.remove().catch(() => {
+      });
+    } catch {
+    }
+    const host4 = await doc2.createElement("div");
+    await host4.setAttribute("x-goei-prog", "true");
+    await host4.setAttribute("x-goei-open", "false");
+    await host4.setAttribute("x-goei-show", "false");
+    awai

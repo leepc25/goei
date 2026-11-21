@@ -1,0 +1,4798 @@
+ienced):\n@@END\n\n@@SECTION INVENTORY.REALLY_UNKNOWN\n- {name}: not even its seller knows{label_note} — decide what it really does now, then keep it the same from here on.\n@@END\n\n@@SECTION LORE.LOCKED\n[Locked appendix: 「{name}」] Hidden information about {parent} that no character knows yet. Unlock it when this happens in the story: {when}\nDo not invent, reveal, or hint at the hidden information before it is unlocked. In the one reply where the condition is clearly met, write [🔓|{name}] on its own line after the prose.\n@@END\n\n@@SECTION PEOPLE.KNOWLEDGE_RULE\nDo not have a character mention or act on a secret or fact they have not witnessed, learned, or otherwise demonstrably known. Never invent how they acquired information. Keep facts, beliefs, guesses, and misunderstandings distinct. A missing record does not prove ignorance: actual evidence in the conversation may establish knowledge.\n@@END\n\n@@SECTION PEOPLE.RULE\nLiving records of the characters in this scene, kept by the system from what actually happened in this chat. They override the static character sheets where they differ. Treat them as background facts, not as events to narrate; never mention scores or these notes themselves. {knowledge_rule}\n@@END\n\n@@SECTION SEXUAL.POLICY\nsexual_context_only fields are inactive during ordinary conversation, work, dating, flirting, handholding, hugs, and light kisses. Use them only after a clear adult sexual proposition, sexual touching, sexually intended exposure, foreplay, mutually acknowledged imminent sexual activity, or ongoing sexual activity. Current consent and explicit boundaries always override them.\n@@END\n\n@@SECTION PEOPLE.EXPRESS_0\nExpression: almost never shown; appears only through actions and priorities, not words.\n@@END\n\n@@SECTION PEOPLE.EXPRESS_1\nExpression: restrained; small, deniable cues (pauses, gaze, delayed replies).\n@@END\n\n@@SECTION PEOPLE.EXPRESS_2\nExpression: visible but controlled.\n@@END\n\n@@SECTION PEOPLE.EXPRESS_3\nExpression: open and immediate.\n@@END\n\n@@SECTION PEOPLE.TASTE_NOTE\nA separate axis from the relationship above; it never grants closeness by itself.\n@@END\n\n@@SECTION PEOPLE.OPENNESS_NOTE\nApplies only inside intimate contexts that actually arise; an explicit current condition or the other participant\'s choice takes priority.\n@@END\n\n@@SECTION PEOPLE.AFFINITY.0\nExtreme hostility. Keep the actual cause and constraints; the stage alone never compels a newly invented harmful act.\n@@END\n\n@@SECTION PEOPLE.AFFINITY.1\nHostility. Real distance or antagonism, expressed in this character\'s own manner.\n@@END\n\n@@SECTION PEOPLE.AFFINITY.2\nAversion. Evidence-grounded resentment or coldness; shorter answers, discretionary effort withheld.\n@@END\n\n@@SECTION PEOPLE.AFFINITY.3\nIndifference. Base-personality politeness, small talk and work cooperation. No special favor, no forced coldness.\n@@END\n\n@@SECTION PEOPLE.AFFINITY.4\nRecognition. Remembers personal details, notices absence, a little more willing to ask or answer.\n@@END\n\n@@SECTION PEOPLE.AFFINITY.5\nInterest. Seeks shared time; offers reliable help, concern, explanation or appropriately personal worries.\n@@END\n\n@@SECTION PEOPLE.AFFINITY.6\nAttraction. Makes time and space for this person; reveals more sincere concern, preferences or vulnerability.\n@@END\n\n@@SECTION PEOPLE.AFFINITY.7\nAffection. Deep care, voluntary support and emotional closeness, within this character\'s own personality.\n@@END\n\n@@SECTION PEOPLE.TASTE.-3\nstrong aversion; ends or avoids contact\n@@END\n\n@@SECTION PEOPLE.TASTE.-2\nclear dislike; more friction and distance, less voluntary kindness\n@@END\n\n@@SECTION PEOPLE.TASTE.-1\nslightly grating or not to taste; responds only as needed\n@@END\n\n@@SECTION PEOPLE.TASTE.0\nno particular pull or aversion; treats as the relationship stands\n@@END\n\n@@SECTION PEOPLE.TASTE.1\nweakly drawn; pays a little more attention, remembers, keeps talking\n@@END\n\n@@SECTION PEOPLE.TASTE.2\ncore tastes clearly match; asks first, spends more time and effort\n@@END\n\n@@SECTION PEOPLE.TASTE.3\nseveral core tastes strongly match; priorities of attention may shift\n@@END\n\n@@SECTION PEOPLE.OPENNESS.0\nmust use contraception and says so as a prerequisite\n@@END\n\n@@SECTION PEOPLE.OPENNESS.1\nhesitant while still asking for contraception (hesitation is not abandoning the condition)\n@@END\n\n@@SECTION PEOPLE.OPENNESS.2\nbelieves non-use is acceptable on a "safe day" (an attitude; never compute a real safe date)\n@@END\n\n@@SECTION PEOPLE.OPENNESS.3\npays little attention to checking or requesting contraception\n@@END\n\n@@SECTION PEOPLE.OPENNESS.4\nprefers non-use, distinct from mere indifference\n@@END\n\n@@SECTION PEOPLE.AXIS.relationalInitiative.0\nalmost never initiates contact\n@@END\n\n@@SECTION PEOPLE.AXIS.relationalInitiative.1\nmostly responds when the other leads\n@@END\n\n@@SECTION PEOPLE.AXIS.relationalInitiative.2\nalternates between leading and responding\n@@END\n\n@@SECTION PEOPLE.AXIS.relationalInitiative.3\napproaches first when needed and steers the relationship\n@@END\n\n@@SECTION PEOPLE.AXIS.relationalInitiative.4\nsteadily drives the direction of relationships\n@@END\n\n@@SECTION PEOPLE.AXIS.expressionDirectness.0\nalmost never states intent directly\n@@END\n\n@@SECTION PEOPLE.AXIS.expressionDirectness.1\nprefers indirection and hints\n@@END\n\n@@SECTION PEOPLE.AXIS.expressionDirectness.2\nadjusts between direct and roundabout\n@@END\n\n@@SECTION PEOPLE.AXIS.expressionDirectness.3\nstates intent and demands fairly plainly\n@@END\n\n@@SECTION PEOPLE.AXIS.expressionDirectness.4\nexpresses thoughts and intent very directly\n@@END\n\n@@SECTION PEOPLE.AXIS.emotionalExpressiveness.0\nalmost never shows emotion outwardly\n@@END\n\n@@SECTION PEOPLE.AXIS.emotionalExpressiveness.1\nsmall, limited emotional cues\n@@END\n\n@@SECTION PEOPLE.AXIS.emotionalExpressiveness.2\nshows or hides emotion depending on the situation\n@@END\n\n@@SECTION PEOPLE.AXIS.emotionalExpressiveness.3\nemotion often shows in words and actions\n@@END\n\n@@SECTION PEOPLE.AXIS.emotionalExpressiveness.4\nexpresses emotion vividly and immediately\n@@END\n\n@@SECTION PEOPLE.AXIS.guardedness.0\ntrusts easily, hardly any guard\n@@END\n\n@@SECTION PEOPLE.AXIS.guardedness.1\nlow initial guard, opens up fairly fast\n@@END\n\n@@SECTION PEOPLE.AXIS.guardedness.2\nadjusts trust and guard to the situation\n@@END\n\n@@SECTION PEOPLE.AXIS.guardedness.3\ndoes not reveal inner thoughts easily, keeps guard\n@@END\n\n@@SECTION PEOPLE.AXIS.guardedness.4\nstrong guard; strictly limits approach and self-disclosure\n@@END\n\n@@SECTION PEOPLE.AXIS.impulsivity.0\nstrongly suppresses impulse and deliberates\n@@END\n\n@@SECTION PEOPLE.AXIS.impulsivity.1\nmostly thinks before acting\n@@END\n\n@@SECTION PEOPLE.AXIS.impulsivity.2\nmix of deliberation and spontaneous action\n@@END\n\n@@SECTION PEOPLE.AXIS.impulsivity.3\nacts quickly on feeling and desire\n@@END\n\n@@SECTION PEOPLE.AXIS.impulsivity.4\nacts very impulsively before weighing consequences\n@@END\n\n@@SECTION PEOPLE.AXIS.relationshipPersistence.0\nlets relationships go easily\n@@END\n\n@@SECTION PEOPLE.AXIS.relationshipPersistence.1\ntends to withdraw when conflict or distance appears\n@@END\n\n@@SECTION PEOPLE.AXIS.relationshipPersistence.2\nkeeps or drops a relationship by its value\n@@END\n\n@@SECTION PEOPLE.AXIS.relationshipPersistence.3\ntries to keep relationships through difficulty\n@@END\n\n@@SECTION PEOPLE.AXIS.relationshipPersistence.4\nvery persistent in keeping and repairing relationships\n@@END\n\n@@SECTION RHYTHM.HEAD\n## Scene rhythm (kept by the system; guidance, not content to narrate)\n@@END\n\n@@SECTION RHYTHM.CLOCK_HEAD\nHook clock (counted by the system; never say turn numbers in the story):\n@@END\n\n@@SECTION RHYTHM.METHOD\nPrevious staging method: {method} — do not use the same anticipation method in consecutive turns.\n@@END\n\n@@SECTION FACTION.INTRO\nThis reference describes the world to the GM. Public labels, hidden affiliations, doctrine, and internal information are known to an NPC only through that NPC\'s actual access.\n@@END\n\n@@SECTION ROSTER.INTRO\n- Purpose: GM reference for consistent character introductions before individual lore is active.\n- Detail: Use active character lore for fuller characterization.\n@@END\n\n@@SECTION FACTION.RELATIONS_LEGEND\nHow the row faction regards the column faction: H hostile, W wary, N neutral, F favorable, A allied, - self. Factions not in the table regard each other neutrally.\n@@END\n\n@@SECTION FACTION.HEAD\n## Factions → {user} (standing of each organization toward {user}, kept by the system; members act accordingly)\n@@END\n\n@@SECTION FACTION.STAGE.friendly\nFriendly. Members welcome {{user}}, share information freely and take {{user}}\'s side in a fight.\n@@END\n\n@@SECTION FACTION.STAGE.favorable\nFavorable. Members greet {{user}}, make way and extend small favors.\n@@END\n\n@@SECTION FACTION.STAGE.neutral\nNeutral. Ordinary procedure; members take no special notice.\n@@END\n\n@@SECTION FACTION.STAGE.wary\nWary. Members watch and verify; on their own ground they warn {{user}} off or expel; elsewhere they only observe.\n@@END\n\n@@SECTION FACTION.STAGE.hostile\nHostile. Members attack {{user}} on sight, even outside their own ground.\n@@END\n\n@@SECTION RHYTHM.CLOCK.TURN\nTurn {turn} (confirmed replies). Active hooks: short {short}/{short_limit}, mid {mid}/{mid_limit}, long {long}/{long_limit}. New plant {plant}.\n@@END\n\n@@SECTION RHYTHM.CLOCK.ALLOWED\nallowed\n@@END\n\n@@SECTION RHYTHM.CLOCK.NOT_ALLOWED\nnot allowed: {reason}\n@@END\n\n@@SECTION RHYTHM.CLOCK.HOOK\n- {key}: {stage}, {tier}, planted {age} turn(s) ago, last advance {since} turn(s) ago, payoff window {from}–{to}{mark}{extended}\n@@END\n\n@@SECTION RHYTHM.CLOCK.OVERDUE\n— OVERDUE\n@@END\n\n@@SECTION RHYTHM.CLOCK.IN_WINDOW\n— in window\n@@END\n\n@@SECTION RHYTHM.CLOCK.EXTENDED\n(extended)\n@@END\n\n@@SECTION RHYTHM.CLOCK.PRIORITY\nPriority: {items}\n@@END\n\n@@SECTION RHYTHM.BLOCK.GAP\nlast plant {ago} turn(s) ago (need {need})\n@@END\n\n@@SECTION RHYTHM.BLOCK.LIMIT\nactive limits reached\n@@END\n\n@@SECTION RHYTHM.BLOCK.OVERDUE\nhandle the overdue flow first\n@@END\n\n@@SECTION RHYTHM.PRIORITY.OVERDUE\noverdue: {key} ({tier}, {age} turns since planting, window {from}–{to}{ext})\n@@END\n\n@@SECTION RHYTHM.PRIORITY.EXTENDED\nalready extended\n@@END\n\n@@SECTION RHYTHM.PRIORITY.MAY_EXTEND\nmay extend once with [ext]\n@@END\n\n@@SECTION RHYTHM.PRIORITY.PAYOFF\npayoff ready: {key}\n@@END\n\n@@SECTION RHYTHM.PRIORITY.ADVANCE\nadvance due: {key} ({since} turns since last advance)\n@@END\n\n@@SECTION RHYTHM.PRIORITY.PLANT\nnew plant allowed ({tiers})\n@@END\n\n@@SECTION PEOPLE.HEAD\n[People records]\n@@END\n\n@@SECTION DOCS.HEAD\n## Scene-related records (events, places, organizations and items; kept by the system from this chat; background facts, not content to narrate again)\n@@END\n\n@@SECTION DOCS.ITEM\n- {type} · {key}: {text}\n@@END\n\n@@SECTION PEOPLE.BLOCK.HEAD\n## {name} (living record · updated in this chat)\n@@END\n\n@@SECTION PEOPLE.BLOCK.PROVISIONAL\n(`{name}` is the label this record uses for a person whose name the story has not given. It is not a name: no character knows it as one or calls the person by it as a name.)\n@@END\n\n@@SECTION PEOPLE.BLOCK.IDENTITY\nIdentity:\n@@END\n\n@@SECTION PEOPLE.BLOCK.PERSONALITY\nPersonality:\n@@END\n\n@@SECTION PEOPLE.BLOCK.AXES\nPersonality axes (baseline traits, not current feeling):\n@@END\n\n@@SECTION PEOPLE.BLOCK.PATTERNS\nLong-term changes:\n@@END\n\n@@SECTION PEOPLE.BLOCK.AXES_OBSERVED\nSeen in recent scenes (not yet a confirmed change; a tendency only):\n@@END\n\n@@SECTION PEOPLE.BLOCK.AXES_OBSERVED_ITEM\n- {axis} ({direction}): {pattern}\n@@END\n\n@@SECTION PEOPLE.BLOCK.SEXUAL\nSexual profile (policy: {policy})\n@@END\n\n@@SECTION PEOPLE.BLOCK.SEXUAL_POLICY\nSexual profile (policy: {policy} — {policy_text})\n@@END\n\n@@SECTION PEOPLE.BLOCK.SEXUAL_DESIRE\nSexual desire: {text}\n@@END\n\n@@SECTION PEOPLE.BLOCK.PARAPHILIA\nParaphilia: {text}\n@@END\n\n@@SECTION PEOPLE.BLOCK.STATE\nCurrent state:\n@@END\n\n@@SECTION PEOPLE.BLOCK.KNOWS\nKnows:\n@@END\n\n@@SECTION PEOPLE.BLOCK.UNKNOWN\nDoes not know (has not witnessed or been told):\n@@END\n\n@@SECTION PEOPLE.BLOCK.RELATION\nRelationship → {user}: {stage} ({behavior})\n@@END\n\n@@SECTION PEOPLE.BLOCK.RELATION_QUAL\nRelationship → {user}:\n@@END\n\n@@SECTION PEOPLE.BLOCK.TASTE\nFirst impression (taste) → {user}: {band} — {taste}. {note}\n@@END\n\n@@SECTION PEOPLE.BLOCK.OPENNESS\nOpenness: {stage} ({value}/{max}) — contraception attitude: {contraception}. {note}\n@@END\n\n@@SECTION PEOPLE.BLOCK.OTHERS\nRelationships with others:\n@@END\n\n@@SECTION PEOPLE.BLOCK.ADDRESS\nAddress → {user}: \'{address}\', {register}.\n@@END\n\n@@SECTION PEOPLE.BLOCK.SPEECH_USER\nSpeech → {user}:\n@@END\n\n@@SECTION PEOPLE.BLOCK.SPEECH_OTHERS\nSpeech toward others:\n@@END\n\n@@SECTION PEOPLE.BLOCK.BEHAVIOR\nBehavior:\n@@END\n\n@@SECTION PEOPLE.BLOCK.THREADS\nOpen threads:\n@@END\n\n@@SECTION PEOPLE.BLOCK.SUSPICION\nSuspicion:\n@@END\n\n@@SECTION PEOPLE.BLOCK.SUSPICION_ABOUT\nabout {target}\n@@END\n\n@@SECTION PEOPLE.BLOCK.HISTORY\nRecent (this chat):\n@@END\n\n@@SECTION PEOPLE.BLOCK.SCENE\nNow:\n@@END\n\n@@SECTION PEOPLE.BLOCK.NOTE\nDirector note:\n@@END\n\n@@SECTION PEOPLE.BLOCK.MUST_NOT\nMust not reveal: {text}\n@@END\n\n@@SECTION PEOPLE.REGISTER.0\nformal (존댓말)\n@@END\n\n@@SECTION PEOPLE.REGISTER.1\ninformal (반말)\n@@END\n\n@@SECTION PEOPLE.REGISTER.2\nmixed formal/informal\n@@END\n\n@@SECTION PEOPLE.REGISTER.3\nhage-che (archaic, superior-to-junior)\n@@END\n\n@@SECTION PEOPLE.REGISTER.4\nhao-che (archaic, dignified formal)\n@@END\n\n@@SECTION PEOPLE.REGISTER.OTHER\nmixed\n@@END\n\n@@SECTION PEOPLE.GROUP.AFFINITY\nTaste and appraisal\n@@END\n\n@@SECTION PEOPLE.GROUP.REGISTER\nAddress and relationship stage\n@@END\n\n@@SECTION PEOPLE.GROUP.PERCEPTION\nPerception\n@@END\n\n@@SECTION PEOPLE.GROUP.OPENNESS\nIntimacy conditions\n@@END\n\n@@SECTION PEOPLE.GROUP.AFFINITY_QUAL\nGoodwill (qualitative; no score exists)\n@@END\n\n@@SECTION PEOPLE.GROUP.SUSPICION_QUAL\nSuspicion (qualitative; no score exists)\n@@END\n\n@@SECTION PEOPLE.GROUP.OPENNESS_QUAL\nIntimacy attitude (qualitative; no score exists)\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.profile\nTaste profile\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.values\nValues and biases\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.appraisal\nFirst impression (fixed)\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.current_appraisal\nCurrent appraisal\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.intent\nIntent\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.stance\nStance\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.bind\nConstraint\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.private\nUnexpressed\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.approach\nApproach\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.surface_actual\nSurface vs purpose\n@@END\n\n@@SECTION PEOPLE.SLOT.register.context\nAddress conditions\n@@END\n\n@@SECTION PEOPLE.SLOT.register.stage_assessment\nRelationship stage\n@@END\n\n@@SECTION PEOPLE.SLOT.register.knowledge_gap\nLast contact\n@@END\n\n@@SECTION PEOPLE.SLOT.register.restraint\nRestraint\n@@END\n\n@@SECTION PEOPLE.SLOT.perception.profile\nObservation tendency\n@@END\n\n@@SECTION PEOPLE.SLOT.perception.modifiers\nCurrent impairments\n@@END\n\n@@SECTION PEOPLE.SLOT.perception.channels\nScene conditions\n@@END\n\n@@SECTION PEOPLE.SLOT.perception.reading\nClues read\n@@END\n\n@@SECTION PEOPLE.SLOT.perception.secret\nSecrets held\n@@END\n\n@@SECTION PEOPLE.SLOT.openness.context\nConditions\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.regard\nGoodwill\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.speech\nSpeech\n@@END\n\n@@SECTION PEOPLE.SLOT.affinity.behavior\nBehavior\n@@END\n\n@@SECTION PEOPLE.SLOT.suspicion.concern\nConcern\n@@END\n\n@@SECTION PEOPLE.SLOT.suspicion.speech\nSpeech\n@@END\n\n@@SECTION PEOPLE.SLOT.suspicion.behavior\nBehavior\n@@END\n\n@@SECTION PEOPLE.SLOT.openness.attitude\nAttitude\n@@END\n\n@@SECTION PEOPLE.SLOT.openness.speech\nSpeech\n@@END\n\n@@SECTION PEOPLE.SLOT.openness.behavior\nBehavior\n@@END\n\n@@SECTION PEOPLE.AXIS_LABEL.relationalInitiative\nrelational initiative\n@@END\n\n@@SECTION PEOPLE.AXIS_LABEL.expressionDirectness\nexpression directness\n@@END\n\n@@SECTION PEOPLE.AXIS_LABEL.emotionalExpressiveness\nemotional expressiveness\n@@END\n\n@@SECTION PEOPLE.AXIS_LABEL.guardedness\nguardedness\n@@END\n\n@@SECTION PEOPLE.AXIS_LABEL.impulsivity\nimpulsivity\n@@END\n\n@@SECTION PEOPLE.AXIS_LABEL.relationshipPersistence\nrelationship persistence\n@@END\n\n@@SECTION PEOPLE.OPENNESS_STAGE.0\nChaste\n@@END\n\n@@SECTION PEOPLE.OPENNESS_STAGE.1\nShy\n@@END\n\n@@SECTION PEOPLE.OPENNESS_STAGE.2\nOpen\n@@END\n\n@@SECTION PEOPLE.OPENNESS_STAGE.3\nAwakened\n@@END\n\n@@SECTION PEOPLE.OPENNESS_STAGE.4\nIndulgent\n@@END\n\n@@SECTION RHYTHM.DIRECTION\nDirection for this reply: {note}\n@@END\n\n@@SECTION FACTION.WHY\n(why: {note})\n@@END\n\n@@SECTION INVENTORY.SHOP.SOLD\njust sold {items} to the owner of {shop}\n@@END\n\n@@SECTION INVENTORY.SHOP.SOLD_ITEM_WON\n{name} ({price} won)\n@@END\n\n@@SECTION INVENTORY.SHOP.SOLD_ITEM_POINTS\n{name} ({price} Baekilmong points)\n@@END\n\n@@SECTION INVENTORY.SHOP.REFUSED\nwas refused service and sent out of {shop} ("{line}")\n@@END\n\n@@SECTION INVENTORY.SHOP.TALKED\ntalked with the owner of {shop} — {talk}\n@@END\n\n@@SECTION INVENTORY.SHOP.TALK_ME\nprotagonist: "{text}"\n@@END\n\n@@SECTION INVENTORY.SHOP.TALK_OWNER\nowner: "{text}"\n@@END\n\n@@SECTION INVENTORY.SHOP.SHELF\nthe shelf of {shop} now offers these, not bought — {items}\n@@END\n\n@@SECTION INVENTORY.SHOP.SHELF_ITEM\n{name} ({price}){desc}{effect}\n@@END\n\n@@SECTION INVENTORY.SHOP.SHELF_DESC\n: {desc}\n@@END\n\n@@SECTION INVENTORY.SHOP.SHELF_EFFECT\n, effect: {effect}\n@@END\n\n@@SECTION INVENTORY.SHOP.SHELF_PRICE_WON\n{price} won\n@@END\n\n@@SECTION INVENTORY.SHOP.SHELF_PRICE_POINTS\n{price} Baekilmong points\n@@END\n\n@@SECTION INVENTORY.SHOP.OWNER_SAID\nthe owner of {shop} said on showing the shelf: "{line}"\n@@END\n\n@@SECTION STATUS.RECENT_CASH_LINE\n{amount} won {memo}\n@@END\n\n@@SECTION MALL.ASK\nchatted by text with the operator on the {mall} website — {lines}\n@@END\n\n@@SECTION MALL.ORDER\nplaced a custom order with {mall} for 「{item}」, paid {price} won in advance; it will be ready in about {hours} hours and has not arrived yet\n@@END\n\n@@SECTION MALL.READY\nthe custom order 「{item}」 from {mall} is now finished and waiting; the protagonist was notified but has not collected it yet (it is collected on the website, not delivered into the scene by itself)\n@@END\n\n@@SECTION MALL.DESK\nchatted by text with a counselor on the {mall} 1:1 상담 — {lines}\n@@END\n\n@@SECTION MALL.SHELF\nthe {mall} website now lists these, not bought — {items}\n@@END\n\n@@SECTION MALL.NOTICE\nthe front page of the {mall} website reads: "{text}"\n@@END\n\n@@SECTION MALL.LINE\n{who}: "{text}"\n@@END\n\n@@SECTION MALL.WHO.ME\nprotagonist\n@@END\n\n@@SECTION MALL.WHO.OPERATOR\noperator\n@@END\n\n@@SECTION MALL.WHO.COUNSELOR\ncounselor\n@@END\n\n@@SECTION MALL.PAID.POINTS\n{price} Baekilmong points at {mall}{extra}\n@@END\n\n@@SECTION MALL.PAID.BANK\nbank transfer to {mall}{extra}\n@@END\n\n@@SECTION MALL.PAID.EXTRA\n+ {pay}\n@@END\n\n@@SECTION MALL.PAID.ORDER\ncustom order from {mall}, paid in advance\n@@END\n\n@@SECTION MALL.MEMO.BUY\n{item} ({mall})\n@@END\n\n@@SECTION MALL.MEMO.SELL\n{item} ({mall} 매입)\n@@END\n\n@@SECTION MALL.MEMO.NOTE\n쪽지: {title} ({mall})\n@@END\n\n@@SECTION MALL.MEMO.ORDER\n맞춤 주문 선납: {item} ({mall})\n@@END\n\n@@SECTION MALL.NOTE.NAME\n쪽지: {title}\n@@END\n\n@@SECTION MALL.NOTE.DESC\n{mall} 운영자가 보낸 쪽지\n@@END\n\n@@SECTION STATUS.HEAD\n[Previous status]\n@@END\n\n@@SECTION STATUS.FIELDS_LINE\nFields: {labels}\n@@END\n\n@@SECTION STATUS.START.WALLET\nBalance = {n}\n@@END\n\n@@SECTION STATUS.START.POINTS\nPoints = {n}\n@@END\n\n@@SECTION STATUS.LABEL.DATE\n날짜\n@@END\n\n@@SECTION STATUS.LABEL.TIME\n시각\n@@END\n\n@@SECTION STATUS.LABEL.WEATHER\n날씨\n@@END\n\n@@SECTION STATUS.LABEL.TEMP\n기온\n@@END\n\n@@SECTION STATUS.LABEL.PLACE\n위치\n@@END\n\n@@SECTION STATUS.LABEL.TARGET\n목표\n@@END\n\n@@SECTION STATUS.LABEL.COMPANIONS\n동행\n@@END\n\n@@SECTION STATUS.LABEL.DEPLOYED\n투입\n@@END\n\n@@SECTION STATUS.LABEL.IDENTITY\n신분\n@@END\n\n@@SECTION STATUS.LABEL.WALLET\n잔고\n@@END\n\n@@SECTION STATUS.LABEL.POINTS\n포인트\n@@END\n\n@@SECTION STATUS.TOKEN.DATE\nYYYY.MM.DD\n@@END\n\n@@SECTION STATUS.TOKEN.TIME\nHH:MM AM/PM\n@@END\n\n@@SECTION STATUS.TOKEN.WEATHER\nweather\n@@END\n\n@@SECTION STATUS.TOKEN.TEMP\ntemperature\n@@END\n\n@@SECTION STATUS.TOKEN.PLACE\nlocation\n@@END\n\n@@SECTION STATUS.TOKEN.TARGET\nanomaly\n@@END\n\n@@SECTION STATUS.TOKEN.COMPANIONS\ncompanions\n@@END\n\n@@SECTION STATUS.TOKEN.DEPLOYED\ndeployed\n@@END\n\n@@SECTION STATUS.TOKEN.IDENTITY\nidentity\n@@END\n\n@@SECTION STATUS.TOKEN.WALLET\nbalance\n@@END\n\n@@SECTION STATUS.TOKEN.POINTS\npoints\n@@END\n\n@@SECTION STATUS.SECTION_HEAD\n## Status\n@@END\n\n@@SECTION STATUS.FORMAT\n[▣|{tokens}]\n@@END\n\n@@SECTION STATUS.EXAMPLE.LINE\n[▣|{cells}]\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.HEAD\n- Example:\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.HEAD_TARGET\n- Example (no current anomaly):\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.HEAD\n- Example (inside an anomaly):\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.HEAD_COMPANIONS\n- Example (inside an anomaly with two companions):\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.DATE\n2025.01.01\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.TIME\n02:47 AM\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.WEATHER\n☀️\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.TEMP\n4°C\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.PLACE\n서울 종로구 거리\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.TARGET\n없음\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.COMPANIONS\n없음\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.DEPLOYED\n없음\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.IDENTITY\n관리국/신입\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.WALLET\n1230000\n@@END\n\n@@SECTION STATUS.EXAMPLE_A.POINTS\n0\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.DATE\n2025.01.01\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.TIME\n10:15 PM\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.WEATHER\n🌫️\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.TEMP\n9°C\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.PLACE\n명일 아파트 3층 복도\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.TARGET\n명일 아파트\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.COMPANIONS\n쟈알디,에일린\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.DEPLOYED\n투입\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.IDENTITY\n관리국/요원\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.WALLET\n1180000\n@@END\n\n@@SECTION STATUS.EXAMPLE_B.POINTS\n250\n@@END\n\n@@SECTION STATUS.EXAMPLE.IDENTITY_POINTS\n백일몽/사원\n@@END\n\n@@SECTION INVENTORY.HEAD\n[Inventory]\n@@END\n\n@@SECTION INVENTORY.OVER_LIMIT\n(over the limit)\n@@END\n\n@@SECTION INVENTORY.SHOP_HEAD\n[Shop]\n@@END\n\n@@SECTION INVENTORY.NOTHING\n- (nothing)\n@@END\n\n@@SECTION INVENTORY.WEIGHT\nWeight: {weight} kg / {carry} kg\n@@END\n\n@@SECTION INVENTORY.WEIGHT_OVER\nWeight: {weight} kg / {carry} kg ({over} kg over)\n@@END\n\n@@SECTION INVENTORY.CARRY_LIMIT\nCarry limit: {limit}\n@@END\n\n@@SECTION INVENTORY.LIMIT_DEFAULT\none bag, pockets, and two hands\n@@END\n\n@@SECTION INVENTORY.RECENT\nRecently: {list}\n@@END\n\n@@SECTION INVENTORY.THIS_TURN\nThis turn: {events}\n@@END\n\n@@SECTION INVENTORY.EVENT.USES\nuses {list}\n@@END\n\n@@SECTION INVENTORY.USE.USED_UP\n(used up after this)\n@@END\n\n@@SECTION INVENTORY.USE.LEFT\n({n} left after this)\n@@END\n\n@@SECTION INVENTORY.EVENT.BOUGHT\njust bought {list}\n@@END\n\n@@SECTION INVENTORY.EVENT.OVER_LIMIT\ncarrying more than the limit\n@@END\n\n@@SECTION INVENTORY.EVENT.MERGED\ncombined {name} into {other}\n@@END\n\n@@SECTION INVENTORY.EVENT.PUT_AWAY\nput {name} away (still carrying it)\n@@END\n\n@@SECTION INVENTORY.EVENT.TOOK_OFF\ntook off {name} (still carrying it)\n@@END\n\n@@SECTION INVENTORY.EVENT.LEFT_AT\nleft {name} at {place} — no longer carrying or wearing it\n@@END\n\n@@SECTION INVENTORY.EVENT.LEFT_BEHIND\nleft {name} behind — no longer carrying or wearing it\n@@END\n\n@@SECTION INVENTORY.EVENT.GONE\nno longer has {name}\n@@END\n\n@@SECTION INVENTORY.EVENT.DROPPED\nthrew {name} away — the protagonist discarded it on purpose and no longer has it\n@@END\n\n@@SECTION INVENTORY.EVENT.SOLD_TO\njust sold {name} to {place} and handed it over — the protagonist no longer has, carries or wears it\n@@END\n\n@@SECTION INVENTORY.EVENT.SOLD\njust sold {name} and handed it over — the protagonist no longer has, carries or wears it\n@@END\n\n@@SECTION INVENTORY.BOUGHT.PAID\n{name} (paid with {paid})\n@@END\n\n@@SECTION INVENTORY.BOUGHT.PAID_WON\n{name} (paid with {paid} + {price} won)\n@@END\n\n@@SECTION INVENTORY.TAG.IN_HAND\nin hand\n@@END\n\n@@SECTION INVENTORY.TAG.WORN\nworn\n@@END\n\n@@SECTION INVENTORY.TAG.USED_UP\nused up\n@@END\n\n@@SECTION INVENTORY.TAG.USES_LEFT\n{n} uses left\n@@END\n\n@@SECTION INVENTORY.TAG.USE_LEFT\n{n} use left\n@@END\n\n@@SECTION INVENTORY.TAG.DAMAGED\ndamaged\n@@END\n\n@@SECTION INVENTORY.TAG.BROKEN\nbroken, cannot be used\n@@END\n\n@@SECTION INVENTORY.LINE.READS\n— reads: "{text}"\n@@END\n\n@@SECTION INVENTORY.REALLY_LINE\n- {name}: {truth}\n@@END\n\n@@SECTION INVENTORY.REALLY_LINE_LABEL\n- {name}: {truth} (the label says 「{effect}」)\n@@END\n\n@@SECTION INVENTORY.REALLY_UNKNOWN_LABEL\n(the label says 「{effect}」 and may be false)\n@@END\n\n@@SECTION INVENTORY.LOG.GET\ngot {name}\n@@END\n\n@@SECTION INVENTORY.LOG.USE\nused {name}\n@@END\n\n@@SECTION INVENTORY.LOG.DROP\ndropped {name}\n@@END\n\n@@SECTION INVENTORY.LOG.GONE\nlost {name}\n@@END\n\n@@SECTION INVENTORY.LOG.DESTROY\ndestroyed {name}\n@@END\n\n@@SECTION INVENTORY.LOG.MERGE\ncombined into {name}\n@@END\n\n@@SECTION INVENTORY.LOG.SELL\nsold {name}\n@@END\n\n@@SECTION INVENTORY.LOG.LEFT\nleft behind {name}\n@@END\n\n@@SECTION INVENTORY.LOG.OFF\ntook off {name}\n@@END\n\n@@SECTION INVENTORY.LOG.PUT_AWAY\nput {name} away\n@@END\n\n@@SECTION INVENTORY.LOG.USED_UP\nused up {name}\n@@END\n\n@@SECTION WORLD.FIELD.agent.age\nAge\n@@END\n\n@@SECTION WORLD.FIELD.agent.gender\nGender\n@@END\n\n@@SECTION WORLD.FIELD.agent.organization\nOrganization\n@@END\n\n@@SECTION WORLD.FIELD.agent.department_en\nDepartment\n@@END\n\n@@SECTION WORLD.FIELD.agent.role\nRole\n@@END\n\n@@SECTION WORLD.FIELD.agent.physique\nPhysique\n@@END\n\n@@SECTION WORLD.FIELD.agent.appearance\nAppearance\n@@END\n\n@@SECTION WORLD.FIELD.agent.outfit\nOutfit\n@@END\n\n@@SECTION WORLD.FIELD.agent.character\nCharacter\n@@END\n\n@@SECTION WORLD.FIELD.agent.voice\nVoice\n@@END\n\n@@SECTION WORLD.FIELD.agent.background\nBackground\n@@END\n\n@@SECTION WORLD.FIELD.agent.abilities\nAbilities\n@@END\n\n@@SECTION WORLD.FIELD.org.intro\nIdentity\n@@END\n\n@@SECTION WORLD.FIELD.org.doctrine\nDoctrine\n@@END\n\n@@SECTION WORLD.FIELD.org.hq\nHeadquarters and Sites\n@@END\n\n@@SECTION WORLD.FIELD.org.structure\nStructure\n@@END\n\n@@SECTION WORLD.FIELD.org.hierarchy\nHierarchy\n@@END\n\n@@SECTION WORLD.FIELD.org.recruitment\nRecruitment\n@@END\n\n@@SECTION WORLD.FIELD.org.assets\nCore Assets and Traits\n@@END\n\n@@SECTION WORLD.FIELD.org.personnel\nPersonnel\n@@END\n\n@@SECTION WORLD.FIELD.anomaly.identity\nIdentity\n@@END\n\n@@SECTION WORLD.FIELD.anomaly.entry\nEntry Conditions\n@@END\n\n@@SECTION WORLD.FIELD.anomaly.space\nStructure\n@@END\n\n@@SECTION WORLD.FIELD.anomaly.rules\nRules\n@@END\n\n@@SECTION WORLD.FIELD.anomaly.entities\nSub-Entities\n@@END\n\n@@SECTION WORLD.FIELD.anomaly.survival\nSurvival and Clear\n@@END\n\n@@SECTION WORLD.FIELD.anomaly.notes\nNotes\n@@END\n\n@@SECTION WORLD.FIELD.site.identity\nIdentity\n@@END\n\n@@SECTION WORLD.FIELD.site.access\nAccess\n@@END\n\n@@SECTION WORLD.FIELD.site.location\nLocation and Appearance\n@@END\n\n@@SECTION WORLD.FIELD.site.environment\nEnvironment\n@@END\n\n@@SECTION WORLD.FIELD.site.rules\nRules and Trade\n@@END\n\n@@SECTION WORLD.FIELD.site.keeper\nKeeper\n@@END\n\n@@SECTION WORLD.AGENT.HEAD\n### Character - {name}\n@@END\n\n@@SECTION WORLD.AGENT.IDENTITY\n#### Identity\n@@END\n\n@@SECTION WORLD.AGENT.APPEARANCE\n#### Appearance\n@@END\n\n@@SECTION WORLD.ANOMALY.HEAD\n### Instructions for the Implementation of the Anomaly - {title}\n@@END\n\n@@SECTION WORLD.ANOMALY.HEAD_RAW\n### Instructions for the Implementation of {title}\n@@END\n\n@@SECTION WORLD.ORG.CODE\n[Affiliation code: {code}]\n@@END\n\n@@SECTION WORLD.ANOMALY.NOTE\n[Simulation-only] This entry defines anomaly mechanics, labels, and survival guidance for simulation control, not an in-world script, briefing, or known lore. No character has prior information about it. Never have a character speak, explain, hint at, or present this entry as guidance.\n@@END\n\n@@SECTION WORLD.FACTION.HEAD\n## Faction\n@@END\n\n@@SECTION WORLD.FACTION.RELATIONS_HEAD\n## Faction Relations\n@@END\n\n@@SECTION WORLD.FACTION.TABLE_HEAD\n| viewer \\ target | {cols} |\n@@END\n\n@@SECTION WORLD.FACTION.NOTES\nNotes:\n@@END\n\n@@SECTION WORLD.FACTION.DOCTRINE_HEAD\n## Faction Doctrine and Relations\n@@END\n\n@@SECTION WORLD.FACTION.MARK.hostile\nH\n@@END\n\n@@SECTION WORLD.FACTION.MARK.wary\nW\n@@END\n\n@@SECTION WORLD.FACTION.MARK.neutral\nN\n@@END\n\n@@SECTION WORLD.FACTION.MARK.favorable\nF\n@@END\n\n@@SECTION WORLD.FACTION.MARK.friendly\nA\n@@END\n\n@@SECTION WORLD.FACTION.MARK.self\n-\n@@END\n\n@@SECTION WORLD.ROSTER.HEAD\n## Roster\n@@END\n\n@@SECTION WORLD.FACTION.TYPE.org\nOrganization: runs operations, has internal notices and its own agents.\n@@END\n\n@@SECTION WORLD.FACTION.TYPE.civilian\nCivilian-type: no operations; members only visit and move around.\n@@END\n\n@@SECTION WORLD.FACTION.TYPE.freelancer\nFreelancer-type: members take contracted missions.\n@@END\n\n@@SECTION WORLD.FACTION.EXTRA_DESC\nA faction the protagonist can belong to. See the 「{org}」 entry.\n@@END\n\n@@SECTION WORLD.REPORT.AN.NEW\nNEW [AN|{loc}|{name}|활성|<등급>|<배치>|<상황>]\n@@END\n\n@@SECTION WORLD.REPORT.AN.LINE\n[AN|{loc}|{name}|{state}|{grade}|{deploy}|{situation}]\n@@END\n\n@@SECTION WORLD.REPORT.IN.NEW\nNEW [IN|{loc}|{name}|진행|<배치>|<상황>]\n@@END\n\n@@SECTION WORLD.REPORT.IN.LINE\n[IN|{loc}|{name}|{state}|{deploy}|{situation}]\n@@END\n\n@@SECTION WORLD.REPORT.MS.NEW\nNEW [MS|{loc}|{name}|출현|<방문자>|<상황>]\n@@END\n\n@@SECTION WORLD.REPORT.MS.LINE\n[MS|{loc}|{name}|{state}|{visitors}|{situation}]\n@@END\n\n@@SECTION WORLD.REPORT.AG.NEW\nNEW [AG|{id}|<상태>|<상황>]\n@@END\n\n@@SECTION WORLD.REPORT.AG.LINE\n[AG|{id}|{state}|{situation}]\n@@END\n\n@@SECTION WORLD.REPORT.AG.CODE\n- code: {list}\n@@END\n\n@@SECTION WORLD.REPORT.AG.CODE_NONE\n- code: none\n@@END\n\n@@SECTION WORLD.REPORT.AGE\n{h}시간 {m}분 전\n@@END\n\n@@SECTION WORLD.REPORT.DUE\n유지 기한 {time}\n@@END\n\n@@SECTION WORLD.REPORT.UNNAMED\n<발생지점>\n@@END\n\n@@SECTION WORLD.REPORT.REGION\n<발생 지역: 시도와 시군구>\n@@END\n\n@@SECTION WORLD.REPORT.SITUATION\n<상황>\n@@END\n\n@@SECTION PEOPLE.STAGE.0\n극도의 적대\n@@END\n\n@@SECTION PEOPLE.STAGE.1\n적대\n@@END\n\n@@SECTION PEOPLE.STAGE.2\n혐오\n@@END\n\n@@SECTION PEOPLE.STAGE.3\n무관심\n@@END\n\n@@SECTION PEOPLE.STAGE.4\n인식\n@@END\n\n@@SECTION PEOPLE.STAGE.5\n관심\n@@END\n\n@@SECTION PEOPLE.STAGE.6\n끌림\n@@END\n\n@@SECTION PEOPLE.STAGE.7\n애정\n@@END\n\n@@SECTION FACTION.LABEL.friendly\n우호\n@@END\n\n@@SECTION FACTION.LABEL.favorable\n호의\n@@END\n\n@@SECTION FACTION.LABEL.neutral\n중립\n@@END\n\n@@SECTION FACTION.LABEL.wary\n경계\n@@END\n\n@@SECTION FACTION.LABEL.hostile\n적대\n@@END\n\n@@SECTION WALLET.MEMO.ADJUST\n잔고 수정\n@@END\n\n@@SECTION WALLET.MEMO.POINTS_ADJUST\n포인트 수정\n@@END\n\n@@SECTION WALLET.MEMO.FIELD\n필드 거래\n@@END\n\n@@SECTION INVENTORY.SHOP.PAID_POINTS\n{price} Baekilmong points{extra}\n@@END\n\n@@SECTION STATUS.RECENT_POINT_LINE\n{amount} p {memo}\n@@END\n\n@@SECTION WORLD.AFFILIATION_UNKNOWN\n미등록\n@@END\n';
+
+  // 지침/갱신기_덧붙임.txt
+  var __default18 = '<!-- UpdaterExtra: 인물 기록 갱신기에 설정에 따라 덧붙는 글 (기록 언어·추적 인물·상점 판단 칸·말투 다변화·성적 프로필)과 기록 정리(CONSOLIDATE) 지침. {이름} 자리는 플러그인이 채웁니다. 절 구분 줄은 그대로 두세요. -->\n@@SECTION LANG_EN\n## Record language\nWrite every free-text field you produce in English even where this document says Korean: entry `text`, cue `reason`, new person `identity` and `speech`, doc `text`, suspicion text, and `next_note`.\nKeep exactly as the Korean source writes them: `name`, `aliases`, `key`, `target`, address terms and register words (존댓말/반말/혼합/하게체/하오체), `faction`, `rank`, the Korean prefixes [시작]/[단서]/[반응]/[해소], slot names, and every `quote`.\n@@END\n\n@@SECTION TRACKING_RULE\nReview every listed person after this completed exchange even when absent from the text. Tracking is permission to review, not evidence of participation, acquired knowledge, emotion or change. Never force a rewrite to fill the card; for an unchanged person return a `no_canonical_change` issue.\n@@END\n\n@@SECTION SIGNAL_STATE\nRecord how and why in `state`; add one `history` line.\n@@END\n\n@@SECTION SHOP_KEY\nAdd this key to the JSON output: "shop":{"name":"<Korean ≤30 chars>","owner":"<name or empty>","m":"<shop_check.m>"} or null.\n@@END\n\n@@SECTION PICKUP_KEY\nAdd this key to the JSON output: "pickup":["<name from pickup_check.items>"].\n@@END\n\n@@SECTION SPEECH.VARIETY\n## Speech variety (user setting)\nThe user switched on speech variety. These lines add to the `speech` slot rules above and win where they differ.\nIn each `speech` entry, after the form of address and the register, also write, in Korean and only from dialogue this character actually spoke in the supplied span:\n- what is different in how the character speaks to this target compared with other targets;\n- speech habits that were actually observed: sentence endings, sentence length and pace, recurring openers or interjections.\nYou may quote one short line as an example. Keep the whole entry under {chars} characters.\nIf the character has not spoken to this target yet, write only the address and register. Never invent a habit, an ending or an example.\nComplete old entries: when a stored `speech` entry for a target holds only address and register (no difference toward this target, no speech habits), and the supplied span contains dialogue this character speaks to that target, upsert that entry in this response to add those details. This is required and overrides the rule above that tells you to leave an unchanged `speech` entry alone.\nCompleting an entry is not a register change: keep the stored form of address and honorific level exactly as they are, and return no `address` item for it.\nAn entry that already lists speech habits is complete. Leave it alone unless the span shows a clearly new habit that is not listed yet.\n@@END\n\n@@SECTION SPEECH.SIGN\nSpeech change signs are also on.\nA sign is evidence in this span that the way the character speaks to one target is starting to shift: closer (more relaxed, familiar, warmer) or more distant (stiffer, colder, more formal). Growing or broken closeness, a change of status or role, and a clear rise or fall of affinity all count when the span shows them.\nWhen this span gives a sign for a target, upsert that `speech` entry with its stored wording kept, and end the text with exactly this form: `SIGN closer: <reason in Korean, under 60 characters>` or `SIGN distant: <reason in Korean, under 60 characters>`. At most one sign per target in one response. A span without a sign needs no upsert.\nDo not put a SIGN in the same upsert that completes an old entry with speech habits: when a SIGN is present the program keeps the stored wording and drops the rest. Complete the entry first and report the sign in a later span.\nDo not change the form of address or the honorific level because of a sign, and return no `address` item for it. The program counts the signs and rejects an `address` change while it is counting.\nBracket text that begins with 말투 변화 or 말투 변경 belongs to the program. Never write, edit or remove it yourself.\nOnly when the stored entry contains text beginning with [말투 변경 가능 may you rewrite the address and register of that entry (and return the matching `address` item) to fit the listed reasons and the current span. If the span does not support a change after all, leave the entry alone.\n@@END\n\n@@SECTION SPEECH.FREE\nSpeech change by your own judgment is also on.\nWhen the span shows that closeness, status or role, or affinity toward a target has really changed, you may update the form of address and the register of that `speech` entry in the same response (and return the matching `address` item), without waiting for a second scene. Write the reason for the change in the entry in Korean.\nA passing mood, a joke or one angry line is still not a change.\n@@END\n\n@@SECTION SEXUAL.CONTEXT_RULE\nSexual desire and paraphilia fields are `sexual_context_only`. They are inactive during ordinary conversation, work, dating, flirting, handholding, hugs, and light kisses. Apply them only after a clear adult sexual proposition enters an imminent sexual situation, sexual touching begins, sexually intended exposure occurs, foreplay begins, or sexual activity is ongoing. Current consent, boundaries, and explicit conditions remain authoritative.\n@@END\n\n@@SECTION SEXUAL.EXPLICIT_STYLE\nVocabulary rule, mandatory: write like adults talking dirty in private. Name body parts and acts with the crude Korean words actually used (`자지`, `보지`, `젖`, `엉덩이`, `박다`, `빨다`, `싸다` and similar), and name positions and play plainly. Euphemism, medical or academic terms, poetic wording, and softened phrasing are errors; if a sentence could appear in a romance novel, rewrite it cruder.\n@@END\n\n@@SECTION SEXUAL.PLAIN_STYLE\nUse the 0.10.7 style: blunt everyday sex words and slang, crude terms included, with no euphemism, clinical vocabulary, literary wording, or psychological analysis. Keep it direct but do not force the stronger explicit vocabulary examples.\n@@END\n\n@@SECTION SEXUAL.PROMPT_RULES\nSexual desire is a concrete list of what this adult character likes in bed: favorite positions and poses, favorite kinds of play, preferred pace and roughness, whether they lead or follow, spots and touches that work, and what kills the mood. Write 3 to 5 short direct Korean sentences, each naming something specific. Paraphilia is chosen from this closed list of adult-consensual types: fetishism focused on a body part, object, or material; sadism; masochism; exhibitionism; voyeurism; cross-dressing fixation; frotteuristic roleplay; fixation on a specific fluid or smell; fixation on body modification or scars; humiliation or submission dependency; and comparable named types. Judge in order: explicit statements, sexual history or reactions, the supplied openness lewdness value and stage, then personality traits such as control, submission, shame, exposure, possessiveness, or fixation. Use exact prefix "<추정>" for a plausible inference supported by weak or indirect evidence instead of returning "미확인". Return exact text "미확인" only for a minor or ambiguous age, an inference requiring non-consent, or when the data truly offers no basis at all. Never fabricate a concrete history; every inferred inclination must use that inference prefix and name its basis.\n@@END\n\n@@SECTION SEXUAL.INIT_DESIRE\n`sexual_desire`: 3 to 5 short direct Korean sentences listing concretely what the adult character likes in bed.\n@@END\n\n@@SECTION SEXUAL.INIT_PARAPHILIA\n`paraphilia`: chosen from named adult-consensual types.\n@@END\n\n@@SECTION SEXUAL.WRITER\n## 7b. Sexual desire and paraphilia (Risupot sexual profile; user setting)\nEach person\'s data carries `sexual`: which of {fields} this person uses, the current text of each (or null), `init_needed` (fields still empty) and `explicit_style` (true = explicit vocabulary, false = blunt style). A field this person does not use is omitted completely: never write it.\n- **First text once (`sexual_init`)**: only for a person whose `sexual.init_needed` lists the field. {init_desire}{init_paraphilia}Consider explicit facts, sexual history or reactions, the supplied openness lewdness value and stage (`openness_now` when present), then personality. A weak but plausible inference is prefixed with exact text "<추정>" and names its basis. Use exact text "미확인" only for a minor or ambiguous age, an inference requiring non-consent, or no usable basis at all. Cite `m` and `quote` from the span that gives the basis; when the only basis is the record, cite the span line where the person appears.\n- **Wording style is selected per person** (`sexual.explicit_style`). {plain_false} When true, {explicit_true} In both modes avoid clinical, academic, poetic, or psychological-analysis wording.\n- **Existing text is never overwritten directly.** An `observations` item may use `axis` {axis}, `direction` `replace`, and `pattern` (Korean ≤700) as the proposed complete replacement only when the confirmed span depicts an actual adult sexual scene. Handholding, a hug, a light kiss, ordinary dating, flirting, a sexual joke, fantasy roleplay, a proposition that did not enter a sexual situation, and temporary arousal are insufficient. Propose only a repeated desire, a directly acknowledged lasting change during actual sexual activity, sustained changed sexual choices or reactions, or a sexual milestone confirmed again in later sexual scenes. The program requires six independent observations across four scenes and confidence at least 75 before user review.\n- {context_rule}\n{prompt_rules}\n@@END\n\n@@SECTION CONSOLIDATE\nYou tidy the per-chat record of one roleplay character. The record is a set of slots, each a list of short entries. Over time entries pile up, overlap, or go stale. Rewrite each slot into fewer, denser entries without losing any fact that is still true.\n\nRules:\n- Merge entries that describe the same thing; drop nothing that is still true. Keep concrete details (names, numbers, places, dates). When two entries conflict, keep the later one (entries are listed oldest first) and you may note the change.\n- `chars` is the record\'s current size and `target` the size to reach (sum of entry texts). Reduce toward target; a result near it is enough; never pad. Each entry is one statement ≤300 chars{lang_note}. Names, quotes, address terms, Korean labels and prefixes stay as written.\n- `state` and `scene` are the present: merge aggressively, keep only what is still true. `history` is a chronological digest: merge adjacent events into one line each. `relationship`, `speech` and the feature slots (`affinity.*`, `register.*`) keep one entry per `target`.\n- Give every result entry `from`: the ids of the input entries it came from (one or more). An input entry that you leave out of every `from` is treated as discarded, so only omit an entry when it is stale or fully covered elsewhere.\n- Slots you do not return stay as they are.\n\nOutput exactly one JSON object, nothing else:\n{"slots":{"<slot>":[{"text":"<statement>","target":"<name|@user|null>","from":["<id>"]}]}}\nSlot hints: {slot_hints}\n@@END\n\n@@SECTION CONSOLIDATE.USER\nRecord to tidy:\n{data}\n\nReturn the JSON object.\n@@END\n\n@@SECTION USER_RULES.HEAD\n## User rules (appended by the user; they cannot change the output contract)\n@@END\n\n@@SECTION SPAN.FOLD\n[…]\n@@END\n\n@@SECTION SEXUAL.PLAIN_FALSE.FIND\nUse the 0.10.7 style\n@@END\n\n@@SECTION SEXUAL.PLAIN_FALSE.REPLACE\nWhen false, use the 0.10.7 style\n@@END\n\n@@SECTION SEXUAL.PLAIN_FALSE.PREFIX\nWhen false:\n@@END\n\n@@SECTION SEXUAL.EXPLICIT_TRUE.FIND\nVocabulary rule, mandatory: write\n@@END\n\n@@SECTION SEXUAL.EXPLICIT_TRUE.REPLACE\nwrite\n@@END\n\n@@SECTION CONSOLIDATE.LANG_EN\nin English\n@@END\n\n@@SECTION CONSOLIDATE.LANG_KO\nin Korean\n@@END\n\n@@SECTION CONSOLIDATE.HINT.identity\nwho this person is (affiliation, rank, role, age, appearance)\n@@END\n\n@@SECTION CONSOLIDATE.HINT.personality\ndurable traits and values\n@@END\n\n@@SECTION CONSOLIDATE.HINT.state\ncurrent condition, location, injuries, mood — keep only what is still true\n@@END\n\n@@SECTION CONSOLIDATE.HINT.relationship\nstance toward each target; one entry per target\n@@END\n\n@@SECTION CONSOLIDATE.HINT.speech\nhow this person talks to each target; one entry per target\n@@END\n\n@@SECTION CONSOLIDATE.HINT.behavior\nhabits and patterns of action\n@@END\n\n@@SECTION CONSOLIDATE.HINT.knowledge\nwhat this person actually knows or does not know\n@@END\n\n@@SECTION CONSOLIDATE.HINT.threads\nopen promises, goals, unresolved matters\n@@END\n\n@@SECTION CONSOLIDATE.HINT.history\nnotable past events with this person, oldest first\n@@END\n\n@@SECTION CONSOLIDATE.HINT.scene\npresent scene facts\n@@END\n\n@@SECTION CONSOLIDATE.HINT.suspicion\nsuspicion cases (prefixes [시작]/[단서]/[반응]/[해소] stay)\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.profile\nthe person\'s scope of interest, observable tastes and aversions, form of feeling, restraint and approach style, with evidence\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.values\nvalue priorities, observation criteria, general biases, and the person\'s logic for them\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.appraisal\nfirst impression only: the unchanging initial appearance-based appraisal and feeling\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.current_appraisal\ncurrent evaluation only: the present appraisal, its evidence and resulting feeling\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.intent\nnature of target-specific interest and its primary and secondary intents\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.stance\ncurrent target-specific interpretation and treatment, with evidence for change\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.bind\nconstraints, how they are handled, rationalization, and evidence for an actual transition\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.private\nunexpressed feeling, conditions limiting expression, actual leaks, and who perceived them\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.approach\nactual approach, the target\'s response, confirmed boundaries, and the currently permitted range\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.surface_actual\noutward conduct and actual purpose of exploitative or abusive intent, accumulated attempts, witnesses, and results\n@@END\n\n@@SECTION CONSOLIDATE.HINT.register.context\nwhere and when each address and register applies (public/private, before third parties), and which status difference applies\n@@END\n\n@@SECTION CONSOLIDATE.HINT.register.stage_assessment\nthe relationship\'s current position as acknowledged shared experience, never a number or grade\n@@END\n\n@@SECTION CONSOLIDATE.HINT.register.knowledge_gap\nlast contact point and the unverified range since\n@@END\n\n@@SECTION CONSOLIDATE.HINT.register.restraint\nthe gap between inner feeling and permitted expression\n@@END\n\n@@SECTION CONSOLIDATE.HINT.perception.profile\ndurable observation tendency and domain expertise\n@@END\n\n@@SECTION CONSOLIDATE.HINT.perception.modifiers\ncurrent impairments or enhancements of perception, with evidence\n@@END\n\n@@SECTION CONSOLIDATE.HINT.perception.channels\nthe scene\'s sensory conditions (distance, light, noise, call connection)\n@@END\n\n@@SECTION CONSOLIDATE.HINT.perception.reading\na clue actually perceived and its interpretation; a clue appearing is not a clue noticed\n@@END\n\n@@SECTION CONSOLIDATE.HINT.perception.secret\none entry per meaningful secret this person holds: who knows it and who does not\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.regard\nqualitative: the current goodwill or ill will toward this target, what it rests on, what the person accepted, and which reactions now differ; never a score, grade or threshold\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.speech\nqualitative: how current goodwill adjusts speech toward this target, kept apart from the base speech entry\n@@END\n\n@@SECTION CONSOLIDATE.HINT.affinity.behavior\nqualitative: how current goodwill adjusts attention, questions, care and distance toward this target\n@@END\n\n@@SECTION CONSOLIDATE.HINT.suspicion.concern\nqualitative: what this person actually received about the target, why it raises a question, which counterevidence they accepted, and what remains; no score or band\n@@END\n\n@@SECTION CONSOLIDATE.HINT.suspicion.speech\nqualitative: how the suspicion adjusts speech toward this target\n@@END\n\n@@SECTION CONSOLIDATE.HINT.suspicion.behavior\nqualitative: what the person actually does about the suspicion toward this target (watching, testing, confronting, reporting)\n@@END\n\n@@SECTION CONSOLIDATE.HINT.openness.attitude\nqualitative: the current attitude in intimate contexts and its evidence; never a score, band or stage\n@@END\n\n@@SECTION CONSOLIDATE.HINT.openness.speech\nqualitative: how that attitude shows in speech toward this target\n@@END\n\n@@SECTION CONSOLIDATE.HINT.openness.behavior\nqualitative: how that attitude shows in conduct, stated conditions and hesitation toward this target\n@@END\n\n@@SECTION CONSOLIDATE.HINT.openness.context\nconditions and attitudes actually shown in intimate contexts (contraception demands, boundaries, refusals), as text\n@@END\n\n@@SECTION ITEMS.SCOPE.NARROW\nReport `new` only for things with a use in the story: weapons, tools and devices, medicine, keys, talismans, sealed objects, anomaly-related objects, valuables. Do not report clothes, food and drink, documents or small everyday things.\n@@END\n\n@@SECTION ITEMS.SCOPE.MID\nReport `new` for things with a use in the story and for issued or bought gear worn or carried on the body (clothes, bags) and mission documents. Do not report food and drink or small everyday things.\n@@END\n\n@@SECTION ITEMS.SKIP\nNever report as `new`: {skip}\n@@END\n\n@@SECTION AXES.BAND.relationalInitiative.0\n관계를 거의 먼저 시작하지 않음\n@@END\n\n@@SECTION AXES.BAND.relationalInitiative.1\n상대가 이끌 때 주로 반응함\n@@END\n\n@@SECTION AXES.BAND.relationalInitiative.2\n상황에 따라 주도와 반응을 오감\n@@END\n\n@@SECTION AXES.BAND.relationalInitiative.3\n필요하면 먼저 다가가 관계를 이끔\n@@END\n\n@@SECTION AXES.BAND.relationalInitiative.4\n지속적으로 관계의 방향을 주도함\n@@END\n\n@@SECTION AXES.BAND.expressionDirectness.0\n뜻을 거의 직접 말하지 않음\n@@END\n\n@@SECTION AXES.BAND.expressionDirectness.1\n돌려 말하거나 암시를 선호함\n@@END\n\n@@SECTION AXES.BAND.expressionDirectness.2\n상황에 따라 직접성과 완곡함을 조절함\n@@END\n\n@@SECTION AXES.BAND.expressionDirectness.3\n의도와 요구를 비교적 분명히 말함\n@@END\n\n@@SECTION AXES.BAND.expressionDirectness.4\n생각과 의도를 매우 직접적으로 표현함\n@@END\n\n@@SECTION AXES.BAND.emotionalExpressiveness.0\n감정을 거의 겉으로 드러내지 않음\n@@END\n\n@@SECTION AXES.BAND.emotionalExpressiveness.1\n감정 단서가 작고 제한적임\n@@END\n\n@@SECTION AXES.BAND.emotionalExpressiveness.2\n상황에 따라 감정을 보이거나 감춤\n@@END\n\n@@SECTION AXES.BAND.emotionalExpressiveness.3\n감정이 말과 행동에 자주 드러남\n@@END\n\n@@SECTION AXES.BAND.emotionalExpressiveness.4\n감정을 매우 선명하고 즉각적으로 표출함\n@@END\n\n@@SECTION AXES.BAND.guardedness.0\n타인을 쉽게 믿고 경계를 거의 세우지 않음\n@@END\n\n@@SECTION AXES.BAND.guardedness.1\n초기 경계가 낮고 비교적 빨리 마음을 엶\n@@END\n\n@@SECTION AXES.BAND.guardedness.2\n신뢰와 경계를 상황에 맞춰 조절함\n@@END\n\n@@SECTION AXES.BAND.guardedness.3\n쉽게 속내를 보이지 않고 경계를 유지함\n@@END\n\n@@SECTION AXES.BAND.guardedness.4\n강한 경계로 접근과 자기 공개를 엄격히 제한함\n@@END\n\n@@SECTION AXES.BAND.impulsivity.0\n충동을 강하게 억제하고 숙고함\n@@END\n\n@@SECTION AXES.BAND.impulsivity.1\n대체로 생각한 뒤 행동함\n@@END\n\n@@SECTION AXES.BAND.impulsivity.2\n상황에 따라 숙고와 즉흥 행동이 섞임\n@@END\n\n@@SECTION AXES.BAND.impulsivity.3\n감정과 욕구에 따라 빠르게 행동함\n@@END\n\n@@SECTION AXES.BAND.impulsivity.4\n결과를 따지기 전에 매우 충동적으로 행동함\n@@END\n\n@@SECTION AXES.BAND.relationshipPersistence.0\n관계를 쉽게 놓고 오래 유지하려 하지 않음\n@@END\n\n@@SECTION AXES.BAND.relationshipPersistence.1\n갈등이나 거리가 생기면 물러나기 쉬움\n@@END\n\n@@SECTION AXES.BAND.relationshipPersistence.2\n관계 가치에 따라 유지 여부를 판단함\n@@END\n\n@@SECTION AXES.BAND.relationshipPersistence.3\n어려움이 있어도 관계를 오래 지키려 함\n@@END\n\n@@SECTION AXES.BAND.relationshipPersistence.4\n관계를 매우 끈질기게 유지하고 회복하려 함\n@@END\n\n@@SECTION ERR.NO_JSON\nJSON 객체가 없어요\n@@END\n\n@@SECTION ERR.NOT_OBJECT\nJSON 객체가 아니에요\n@@END\n\n@@SECTION ERR.NOT_LIST\n{key}는 목록이어야 해요\n@@END\n\n@@SECTION CONSOLIDATE.ERR.SLOTS\nslots 는 객체여야 해요\n@@END\n\n@@SECTION ENTRY.RESOLVED\n(해소)\n@@END\n\n@@SECTION HYPA.FACTS\n사실\n@@END\n\n@@SECTION HYPA.MEMORY\n기억\n@@END\n\n@@SECTION WALLET.MEMO.OUT\n지출\n@@END\n\n@@SECTION WALLET.MEMO.IN\n수입\n@@END\n\n@@SECTION POINTS.MEMO.OUT\n사용\n@@END\n\n@@SECTION POINTS.MEMO.IN\n지급\n@@END\n';
+
+  // 지침/이미지_보조모델.txt
+  var __default19 = '<!-- Asset: 보조 모델이 완성된 본문에 캐릭터 이미지 태그를 넣을 때 주는 지침. {이름} 자리는 플러그인이 채웁니다 ({limit} 캐릭터당 장수, {names} 캐릭터 목록, {keywords} 표정 목록, {narrative} 본문). 절 구분 줄은 그대로 두세요. -->\n@@SECTION PROMPT\n# Insert <img> tags into a finished narrative.\n\nOutput ONLY a JSON array. No text. No explanation. No code fence.\n\n## Format\n[{"line":N,"tag":"<img=\\"Character_keyword\\">"}]\n\n- `line`: 1-based paragraph number from the numbered narrative below. The tag is inserted AFTER that paragraph (the tag represents that paragraph\'s character).\n- `tag`: full `<img="Name_keyword">` string with Name and keyword from the allowed lists.\n- If no listed character appears in the narrative, output `[]`.\n\n## Rules\n- ONE tag per paragraph maximum. If multiple listed characters appear in the same paragraph, choose the one who is the FOCUS of that paragraph.\n- EVIDENCE-BASED: a character MUST be explicitly mentioned by name (English prefix OR Korean alias) in that paragraph\'s text to be tagged.\n- FORBIDDEN: tagging characters not present in the narrative. Absence in narrative = NO TAG.\n- MUST tag every visible listed character at least ONCE when they appear and are the focus.\n- Tag at first appearance AND when emotion changes SIGNIFICANTLY (smile → cry, calm → angry, neutral → shocked).\n- DO NOT tag minor variations (smile → bigger smile = SAME tag, skip).\n{no_tag_rule}\n- DO NOT invent character names or keywords. Use only the lists below.\n\n## HARD LIMIT (per-character, independent count)\n- Each listed character has their OWN independent counter for tags. The limit is {limit} tag{plural} PER character, NOT a total for the whole response.\n- Character A may receive up to {limit} tag(s). Character B may ALSO receive up to {limit} tag(s). They do not share a budget.\n- If 3 characters appear and each is the focus of separate paragraphs, you may output up to {limit_x3} tags total (3 characters × {limit} each).\n- Per-character priority when over the limit: KEEP the most significant emotion moments, SKIP the rest.\n- This per-character limit is absolute — exceeding it for any single character is a hard error. Under-using it (when more legitimate tags exist for that character) wastes the budget.\n\n## Allowed Character Names (use exactly as written)\n{names}\n\n{aliases}## Allowed Keywords (use exactly as written)\nSFW: {keywords}\n\n## Examples\n\n### NEGATIVE (do not do this)\nNarrative:\n[1] The room is empty.\n[2] Wind blows through the window.\n\nWrong output:\n[{"line":1,"tag":"<img=\\"{first}_neutral\\">"}]   <- no listed character present\n\nCorrect output:\n[]\n\n### POSITIVE (do this)\nNarrative:\n[1] {first} walked into the room with a quiet smile.\n[2] {first} glanced at the figure standing by the desk, her expression hardening into something sharper.\n\nCorrect output:\n[{"line":1,"tag":"<img=\\"{first}_default\\">"},{"line":2,"tag":"<img=\\"{first}_serious\\">"}]\n\n## Narrative (numbered by paragraph)\n\n{narrative}\n\n# Reminder: Output ONLY the JSON array. No prose. No explanation. If no listed character appears, output [].\n@@END\n\n@@SECTION NO_TAG\n- DO NOT tag the narrator or undefined NPCs.\n@@END\n\n@@SECTION NO_TAG_USER\n- DO NOT tag {{user}}, the narrator, or undefined NPCs.\n@@END\n\n@@SECTION MAIN_USER_RULE\n- Do not create tags for {{user}}.\n@@END\n\n@@SECTION MAIN_USER_SKIP\n{{user}}\n@@END\n\n@@SECTION ALIASES_HEAD\n## Aliases (for presence verification — still use the full English name in tag)\n@@END\n\n@@SECTION MAIN_TEMPLATE\n## Inserting Character Visual Images\n\n### Objective\n- Generate character image tags only when a defined character is present and performing an action or expressing emotion in that paragraph.\n- Do NOT generate tags for {user_skip}undefined characters.\n\n### Placement Rules\n- Conditional Tagging: Insert an image tag only if a defined character from the lists below is the focus of that paragraph.\n- Skip Rule: If a paragraph focuses solely on {user_skip}narration without characters, or undefined NPCs, do not insert any image tag.\n- Empty Line Buffer: When inserting a tag, place one blank line before and after.\n\n- Example Structure:\nParagraph Text\n\n<img={name}_{keyword}>\n\nNext Paragraph Text\n\n### Tag Construction Logic\n- Identify the character type and follow the specific string format below.\n{user_rule}\n\n#### Defined Characters\n- Format: <img={name}_{keyword}>\n- Characters {name}: {characters}\n- Available {keyword}: {keywords}\n\n### Logic Priority\n- If only {user_skip}undefined NPCs, or pure narration: Do NOT insert any tag.\n- Strict Adherence: Do not invent new {name}, or {keyword}. Only use those provided.\n\n---\n@@END\n\n@@SECTION MAIN_KEYWORDS\ndefault, angry, annoyed, bored, confused, contemptuous, crying, curious, dumbfounded, embarrassed, excited, exhausted, happy, laughing, lovestruck, lustful, nervous, proud, sad, scared, serious, shy, smile, smirk, smug, surprised, thinking, suspicious, worried, relieved, disgusted, determined, jealous, pleading, forced smiling, indifferent, guilty, pouting, angry smile, expressionless, tormented, crazy smile\n@@END\n\n@@SECTION EXAMPLE_NAME\nLee Ha-neul\n@@END\n\n@@SECTION ALIASES_LINE\n- {name} ({aliases})\n@@END\n\n@@SECTION NARRATIVE_LINE\n[{n}] {text}\n@@END\n';
+
+  // src/core/guides.ts
+  var GUIDE_NAMES = ["GNet", "Gal", "Wpf", "Salmon", "Cos", "Bm", "BmDesk", "Hs", "Phone", "Wiki", "Directive", "RP", "Tag", "Shop", "Updater", "UpdaterCompact", "Director", "Router", "Consult", "Common", "Main", "UpdaterExtra", "Asset"];
+  var GUIDE_LABEL = { GNet: "괴담넷", Gal: "괴담갤", Wpf: "세정게", Salmon: "연어 마켓", Cos: "우주 쇼핑몰", Bm: "백일몽 포인트몰", BmDesk: "포인트몰 1:1 상담", Hs: "망상홈쇼핑", Phone: "괴담톡", Wiki: "괴이위키", Directive: "이동·임무 지시문", RP: "RP 지침(봇 설명)", Tag: "상태창·태그", Shop: "상점", Updater: "인물 기록 갱신기(자세히)", UpdaterCompact: "인물 기록 갱신기(간결)", Director: "Director(이번 턴 연기 지시)", Router: "Router(장면 인물 고르기)", Consult: "AI 상담", Common: "요청 공통", Main: "메인 요청에 붙는 글", UpdaterExtra: "갱신기(덧붙임·정리)", Asset: "이미지(보조 모델)" };
+  var DEFAULTS = {
+    GNet: __default.replace(/\r/g, ""),
+    Gal: __default2.replace(/\r/g, ""),
+    Wpf: __default3.replace(/\r/g, ""),
+    Salmon: __default4.replace(/\r/g, ""),
+    Cos: __default5.replace(/\r/g, ""),
+    Bm: __default6.replace(/\r/g, ""),
+    BmDesk: __default7.replace(/\r/g, ""),
+    Hs: __default8.replace(/\r/g, ""),
+    Phone: __default9.replace(/\r/g, ""),
+    Wiki: __default10.replace(/\r/g, ""),
+    Directive: __default11.replace(/\r/g, ""),
+    RP: RP_default.replace(/\r/g, ""),
+    Tag: __default12.replace(/\r/g, ""),
+    Shop: __default13.replace(/\r/g, ""),
+    Updater: __default14.replace(/\r/g, ""),
+    UpdaterCompact: __default15.replace(/\r/g, ""),
+    Director: Director_default.replace(/\r/g, ""),
+    Router: Router_default.replace(/\r/g, ""),
+    Consult: AI_default.replace(/\r/g, ""),
+    Common: __default16.replace(/\r/g, ""),
+    Main: __default17.replace(/\r/g, ""),
+    UpdaterExtra: __default18.replace(/\r/g, ""),
+    Asset: __default19.replace(/\r/g, "")
+  };
+  var overrides = /* @__PURE__ */ new Map();
+  function setGuideOverride(name, text5) {
+    if (text5 && text5.trim()) overrides.set(name, text5.replace(/\r/g, ""));
+    else overrides.delete(name);
+  }
+  var isGuideName = (name) => GUIDE_NAMES.includes(name);
+  var guideDefault = (name) => DEFAULTS[name];
+  var guideText = (name) => overrides.get(name) ?? DEFAULTS[name];
+  var guideOverridden = (name) => overrides.has(name);
+  var RP_HEAD = "## RP Guidance";
+  function splitBy(text5, re, headOf2) {
+    const hits2 = [...text5.matchAll(re)];
+    if (!hits2.length) return [{ title: "전체", head: "", body: text5.replace(/\s+$/, ""), tail: text5.match(/\s+$/)?.[0] ?? "" }];
+    const out2 = [];
+    const pre2 = text5.slice(0, hits2[0].index);
+    if (pre2.trim()) out2.push({ title: "머리", head: "", body: pre2.replace(/\s+$/, ""), tail: pre2.match(/\s+$/)?.[0] ?? "" });
+    else if (pre2) out2.push({ title: "머리", head: pre2, body: "", tail: "" });
+    hits2.forEach((m, i) => {
+      const start3 = m.index + m[0].length;
+      const end = i + 1 < hits2.length ? hits2[i + 1].index : text5.length;
+      const raw = text5.slice(start3, end);
+      const tail2 = raw.match(/\s+$/)?.[0] ?? "";
+      out2.push({ ...headOf2(m), body: raw.slice(0, raw.length - tail2.length), tail: tail2 });
+    });
+    return out2;
+  }
+  function splitGuide(text5) {
+    if (text5.includes("@@SECTION")) {
+      const re = /@@SECTION ([^\n]+)\n([\s\S]*?)\n@@END/g;
+      const hits2 = [...text5.matchAll(re)];
+      const out2 = [];
+      const pre2 = text5.slice(0, hits2[0]?.index ?? 0);
+      if (pre2.trim()) out2.push({ title: "머리", head: "", body: pre2.replace(/\s+$/, ""), tail: pre2.match(/\s+$/)?.[0] ?? "" });
+      else if (pre2) out2.push({ title: "머리", head: pre2, body: "", tail: "" });
+      hits2.forEach((m, i) => {
+        const end = m.index + m[0].length;
+        const gap = text5.slice(end, i + 1 < hits2.length ? hits2[i + 1].index : text5.length);
+        out2.push({ title: m[1].trim(), head: `@@SECTION ${m[1]}
+`, body: m[2], tail: `
+@@END${gap}` });
+      });
+      return out2;
+    }
+    if (/^===[^=\n]+===$/m.test(text5)) return splitBy(text5, /^===([^=\n]+)===\n/gm, (m) => ({ title: m[1].trim(), head: m[0] }));
+    if (/^#{2,3} /m.test(text5)) return splitBy(text5, /^#{2,3} ([^\n]*)\n/gm, (m) => ({ title: m[1].trim(), head: m[0] }));
+    return splitBy(text5, /$^/g, () => ({ title: "전체", head: "" }));
+  }
+  var joinGuide = (parts) => parts.map((p2) => p2.head + p2.body + p2.tail).join("");
+  var RULE_TARGETS = ["RP", "Directive", "GNet", "Gal", "Wpf", "Salmon", "Phone", "Wiki"];
+  var RULE_TARGET_LABEL = { RP: "RP", Directive: "이동·임무", GNet: "괴담넷", Gal: "괴담갤", Wpf: "세정게", Salmon: "연어 마켓", Phone: "괴담톡", Wiki: "위키" };
+  var RULE_SECTION = { RP: null, Directive: "COMMON", GNet: "LB", Gal: "LB", Wpf: "LB", Salmon: "LB", Phone: "COMMON", Wiki: "NW.GUIDE" };
+  var userRules = [];
+  function setUserRules(rules3) {
+    userRules = Array.isArray(rules3) ? rules3.filter((r) => r && typeof r.id === "string") : [];
+  }
+  var getUserRules = () => userRules;
+  function rulesFor(name) {
+    if (!RULE_TARGETS.includes(name)) return "";
+    const hit4 = userRules.filter((r) => r.on && r.text.trim() && r.to.includes(name));
+    if (!hit4.length) return "";
+    return `${guideTxt("Common", "USER_RULES.HEAD")}
+${hit4.map((r) => guideTxt("Common", "USER_RULES.ITEM", { title: r.title.trim() || guideTxt("Common", "USER_RULES.DEFAULT_TITLE"), text: r.text.trim() })).join("\n\n")}`;
+  }
+  var promptCache = /* @__PURE__ */ new Map();
+  function guidePrompt(name) {
+    const base = guideText(name);
+    const rules3 = rulesFor(name);
+    if (!rules3) return base;
+    const hit4 = promptCache.get(name);
+    if (hit4 && hit4.base === base && hit4.rules === rules3) return hit4.out;
+    const out2 = joinRules(name, base, rules3);
+    promptCache.set(name, { base, rules: rules3, out: out2 });
+    return out2;
+  }
+  function joinRules(name, base, rules3) {
+    const at = RULE_SECTION[name];
+    if (!at) return `${base.replace(/\s+$/, "")}
+
+${rules3}
+`;
+    const parts = splitGuide(base);
+    const i = parts.findIndex((p2) => p2.title === at);
+    if (i < 0) return base;
+    parts[i] = { ...parts[i], body: `${parts[i].body}
+
+${rules3}` };
+    return joinGuide(parts);
+  }
+  function guideSections(name) {
+    const out2 = {};
+    for (const m of guidePrompt(name).matchAll(/@@SECTION ([^\n]+)\n([\s\S]*?)\n@@END/g)) out2[m[1].trim()] = m[2];
+    return out2;
+  }
+  var fillGuide = (text5, vars) => String(text5 ?? "").replace(/\{([a-z_]+)\}/g, (all, k) => k in vars ? vars[k] : all).trim();
+  var secCache = /* @__PURE__ */ new Map();
+  function guideSec(name, section3) {
+    const src = guidePrompt(name);
+    let c = secCache.get(name);
+    if (!c || c.src !== src) {
+      const secs2 = {};
+      for (const m of src.matchAll(/@@SECTION ([^\n]+)\n([\s\S]*?)\n@@END/g)) secs2[m[1].trim()] = m[2];
+      c = { src, secs: secs2 };
+      secCache.set(name, c);
+    }
+    return c.secs[section3]?.trim() || null;
+  }
+  var fillVars = (text5, vars) => text5.replace(/(?<!\{)\{([a-z0-9_]+)\}(?!\})/g, (all, k) => k in vars ? String(vars[k]) : all);
+  var BLANK_DEFAULT_ALL = ["Common", "Main", "UpdaterExtra", "Asset"];
+  var BLANK_DEFAULT_GNET = /^(LANGUAGE|IMPORTANT_NOTE|POST\.TAG_RULE|POST\.TAG_FORMAT|COMMENT\.TIME_RULE|KEYFIGURES\.FORMAT|SAMPLING|ACTION\.COMMENT|ACTION\.POST_REFRESH|PUBLIC\.ACCESS|RETRY\.FORMAT|DM\.QUOTE_UNKNOWN|PICS_(NONE|PEOPLE|EXPR|THINGS))$/;
+  var BLANK_DEFAULT_SHOP = /^(TRUTH_(ALL|MIX|NONE)|SECRET_NOTE|WHERE_(ANY|SHOP)|ASSIGN_(ROLE_USEFUL|ROLE_BROAD|RULE)|HEAD_(REFS|ASSIGN|ORDERS|NOTES))$/;
+  var BLANK_DEFAULT = {
+    GNet: BLANK_DEFAULT_GNET,
+    Gal: BLANK_DEFAULT_GNET,
+    Wpf: BLANK_DEFAULT_GNET,
+    Salmon: BLANK_DEFAULT_GNET,
+    Phone: /^(LANGUAGE|RETRY\.REFRESH)$/,
+    Shop: BLANK_DEFAULT_SHOP,
+    Cos: BLANK_DEFAULT_SHOP,
+    Bm: BLANK_DEFAULT_SHOP,
+    // 1:1 상담 머리말 (전수검사 11-13)
+    BmDesk: /^HEAD_(REFS|PAST|PROTAGONIST|STATUS|SITUATION|STORY)$/,
+    Director: /^(SEARCH|PASS2|OUTPUT|APPLY\..+|REPAIR|MAIN_NOTE)$/,
+    Hs: /^MAIN_CONTEXT$/
+  };
+  var BLANK_DEFAULT_MOVED = {
+    GNet: ["SYSTEM.PROTAGONIST_HEAD", "DM.ROLE_BINDING", "REQUEST.HEAD_REFS", "REQUEST.HEAD_STORY", "REQUEST.HEAD_TASK", "REFS.SITUATION_SOURCE", "SAMPLING.SEED", "INCOMING.OPTIONS_HEAD", "DM.ORIGIN", "DM.ORIGIN_QUOTE", "DM.STORY_TIME", "DM.PUBLIC_HEAD", "MAIN_CONTEXT.ACCESS_POST", "MAIN_CONTEXT.ACCESS_DM", "POST.INPUT_TAG", "SITE.NAME"],
+    Gal: ["SYSTEM.PROTAGONIST_HEAD", "DM.ROLE_BINDING", "REQUEST.HEAD_REFS", "REQUEST.HEAD_STORY", "REQUEST.HEAD_TASK", "REFS.SITUATION_SOURCE", "SAMPLING.SEED", "INCOMING.OPTIONS_HEAD", "DM.ORIGIN", "DM.ORIGIN_QUOTE", "DM.STORY_TIME", "DM.PUBLIC_HEAD", "MAIN_CONTEXT.ACCESS_POST", "MAIN_CONTEXT.ACCESS_DM", "POST.INPUT_TAG", "SITE.NAME"],
+    Wpf: ["SYSTEM.PROTAGONIST_HEAD", "DM.ROLE_BINDING", "REQUEST.HEAD_REFS", "REQUEST.HEAD_STORY", "REQUEST.HEAD_TASK", "REFS.SITUATION_SOURCE", "SAMPLING.SEED", "INCOMING.OPTIONS_HEAD", "DM.ORIGIN", "DM.ORIGIN_QUOTE", "DM.STORY_TIME", "DM.PUBLIC_HEAD", "MAIN_CONTEXT.ACCESS_POST", "MAIN_CONTEXT.ACCESS_DM", "POST.INPUT_TAG", "SITE.NAME"],
+    Salmon: ["SYSTEM.PROTAGONIST_HEAD", "DM.ROLE_BINDING", "REQUEST.HEAD_REFS", "REQUEST.HEAD_STORY", "REQUEST.HEAD_TASK", "REFS.SITUATION_SOURCE", "SAMPLING.SEED", "INCOMING.OPTIONS_HEAD", "DM.ORIGIN", "DM.ORIGIN_QUOTE", "DM.STORY_TIME", "DM.PUBLIC_HEAD", "MAIN_CONTEXT.ACCESS_POST", "MAIN_CONTEXT.ACCESS_DM", "POST.INPUT_TAG", "SITE.NAME", "POST.TRADE_TAG.SELL", "POST.TRADE_TAG.BUY", "POST.TRADE_TAG.FREE", "POST.TRADE_TAG.INFO"],
+    Cos: ["HEAD_SHOP", "HEAD_SHOP_OWNER", "HEAD_IDENTITY_WON", "HEAD_IDENTITY_POINTS", "HEAD_PROTAGONIST", "HEAD_STATUS", "HEAD_SITUATION", "HEAD_STORY", "TALK_LINE_ME", "TALK_LINE_OWNER", "HEAD_VISIT_TALK", "TASK_FIRST", "TASK_RESTOCK", "HEAD_SHELF_NOW", "SHELF_EMPTY", "TAG_RARE", "TAG_SALE", "HEAD_BOUGHT", "HEAD_OWNER_BOUGHT", "NOTE_ITEM_BOUGHT", "NOTE_ITEM_OPEN", "HEAD_QUOTES", "QUOTE_ITEM_PAID", "QUOTE_ITEM_OPEN", "HEAD_SELLING", "SELLING_TRUTH", "SELLING_PAID", "SELLING_OFFER_WON", "SELLING_OFFER_POINTS", "HEAD_TALK_NOW", "SIZE_EXACT", "SIZE_RANGE", "LINE", "ORDERS_ITEM", "ORDERS_READY", "ORDERS_DUE", "ORDERS_DUE_IN", "ASSIGN_UNIT", "ASSIGN_UNITS", "ASSIGN_LINE", "ASSIGN_LINE_ROLE", "ASSIGN_PRICE", "ROLL_GENRES", "ROLL_TIERS", "ASK_CHIP", "MALL_NAME", "OWNER_NAME", "TALK_NO_STOCK", "ORDER_COLUMNS", "ARRIVE", "ARRIVE_ORDER"],
+    Bm: ["HEAD_SHOP", "HEAD_SHOP_OWNER", "HEAD_IDENTITY_WON", "HEAD_IDENTITY_POINTS", "HEAD_PROTAGONIST", "HEAD_STATUS", "HEAD_SITUATION", "HEAD_STORY", "TALK_LINE_ME", "TALK_LINE_OWNER", "HEAD_VISIT_TALK", "TASK_FIRST", "TASK_RESTOCK", "HEAD_SHELF_NOW", "SHELF_EMPTY", "TAG_RARE", "TAG_SALE", "HEAD_BOUGHT", "HEAD_OWNER_BOUGHT", "NOTE_ITEM_BOUGHT", "NOTE_ITEM_OPEN", "HEAD_QUOTES", "QUOTE_ITEM_PAID", "QUOTE_ITEM_OPEN", "HEAD_SELLING", "SELLING_TRUTH", "SELLING_PAID", "SELLING_OFFER_WON", "SELLING_OFFER_POINTS", "HEAD_TALK_NOW", "SIZE_EXACT", "SIZE_RANGE", "LINE", "HEAD_NOTES", "ASSIGN_UNIT", "ASSIGN_UNITS", "ASSIGN_LINE", "ASSIGN_LINE_ROLE", "ASSIGN_PRICE", "ROLL_GENRES", "ROLL_TIERS", "MALL_NAME", "ARRIVE"],
+    BmDesk: ["DICE_DEFAULT", "AGENT_TAG", "SHELF", "SHELF_LINE", "NONE", "CUSTOMER", "CARD", "DICE_LINE", "PAST_LINE", "MAKE_USER", "TALK_USER", "TALK_ME", "TALK_OP", "ERR_NO_CARD", "ERR_NO_NAME", "ERR_NO_GREETING", "ERR_NO_SAY", "SHOP_NAME"],
+    Hs: ["LINE", "SIZE_EXACT", "SIZE_RANGE", "HEAD_CHANNEL", "HEAD_CHANNEL_HOST", "TASK_PROGRAM", "HEAD_REFS", "HEAD_PROTAGONIST", "HEAD_STATUS", "HEAD_SITUATION", "HEAD_STORY", "BLOCK_HEAD", "BOX_NAME", "BOX_DESC", "ERR_NO_CUE", "ERR_CUE_LINES", "ERR_NO_SAY", "ERR_NO_OPERATOR", "COUNT_RANGE", "SAY_NOW", "SAY_NOW_TITLED", "SAY_HOST_LINE", "SAY_CHAT_LINE", "SAY_FLOWED", "SAY_USER", "ORDER_LOG", "ORDER_BARTER", "ORDER_INSTALLMENT", "ORDER_WON", "ORDER_OTHER", "ORDER_JOIN", "PAY_BOTH", "PAY_WON", "PAY_APPEAR", "ORDER_PAID", "ORDER_BARTER_NOTE", "MAIN_CONTEXT_ACCESS", "SAY_ME_NICK", "PLAYER_SYS_NICK", "PLAYER_SYS_ORDER", "PLAYER_SYS_AUDIENCE", "CHAT_ANON_NICK", "CHANNEL_NAME", "HOST_NAME", "IDENTITY_PRICES", "LOG_HOST_NICK", "LOG_STICKER_NICK", "LOG_OPERATOR_NICK", "TASK_OPERATOR", "HEAD_ON_AIR", "HEAD_OFFERED", "OFFERED_LINE", "OFFERED_TRUTH", "OFFERED_DAMAGED", "OFFERED_BROKEN", "OFFERED_INTACT", "HEAD_TERMS", "TERMS_NONE", "HEAD_CALL", "CALL_LINE_ME", "CALL_LINE_OP", "CALL_OFFER", "ARRIVE"],
+    Phone: ["ANNOUNCEMENT_ACCESS.CIVILIAN", "ANNOUNCEMENT_ACCESS.FREELANCER", "ANNOUNCEMENT_ACCESS.ORG", "MAIN_CONTEXT.NOTICE_ACCESS", "FIRST_CONTACT", "CALL", "ERR.EMPTY", "ERR.NOT_JSON", "ERR.JSON_SYNTAX", "ERR.PATCH_NOT_ARRAY", "ERR.OP_NOT_OBJECT", "ERR.ROOM_NAME", "ERR.REACTION", "ERR.ADD_ONLY", "ERR.MESSAGE_FIELDS", "ERR.EXIT", "ERR.PAUSE", "ERR.MESSAGE_TYPE", "ERR.TOO_MANY_BUBBLES", "ERR.NOT_MEMBER", "ERR.GROUP_GIFT", "ERR.REPLY_TOKENS", "ERR.REACT_TARGET", "ERR.PAUSE_EMPTY", "ERR.PAUSE_TOKENS", "ERR.EXIT_MEMBER", "ERR.NO_PATCH_TAG", "ERR.NOTICES_NOT_ARRAY", "ERR.TOO_MANY_NOTICES", "ERR.NOTICE_FORMAT", "ERR.NOTICE_CATEGORY", "ERR.NOTICE_FIELDS", "ERR.NOTICE_TOKENS", "ERR.INVITES_NOT_ARRAY", "ERR.TOO_MANY_INVITES", "ERR.INVITE_FORMAT", "ERR.INVITE_NAME", "ERR.INVITE_SIZE", "ERR.INVITE_MEMBER", "ERR.INVITE_INVITER", "ERR.INVITE_DUP", "ERR.INVITE_EXISTS", "ERR.REFRESH_FORMAT", "ERR.UPDATES_NOT_ARRAY", "ERR.REFRESH_ROOM", "ERR.REFRESH_NOT_ALLOWED", "ROOM.FALLBACK_GROUP", "ROOM.FALLBACK_DM", "SYSTEM.INVITED", "SYSTEM.EXITED", "SYSTEM.INVITED_ME", "CONTACT.GROUP_CUSTOM", "NOTICE_CHANNEL.D00", "NOTICE_CHANNEL.E00", "VIEW.NAME.SIDE", "VIEW.NAME.MONO", "VIEW.NAME.MULTI", "ERR.VIEW_FORMAT", "ERR.VIEW_POV", "ERR.VIEW_EMPTY"],
+    Wiki: ["NW.HEAD_TITLE", "NW.HEAD_REFS", "NW.HEAD_STORY", "NW.HEAD_PREVIOUS", "NW.HEAD_REQUEST_ALL", "NW.HEAD_REQUEST_DOC", "NW.IMAGES_ITEM", "NW.TITLE_HEAD_CANDIDATES", "NW.TITLE_HEAD_WRITTEN", "NW.TITLE_HEAD_STORY", "NW.TITLE_ITEM", "MAIN_CONTEXT.CUT", "NW.ERR_EMPTY", "NW.ERR_UNCLOSED", "NW.ERR_FORMAT", "NW.ERR_NO_PARAGRAPH", "NW.ERR_TITLE_NOT_CANDIDATE"],
+    Shop: ["HEAD_SHOP", "HEAD_SHOP_OWNER", "HEAD_IDENTITY_WON", "HEAD_IDENTITY_POINTS", "HEAD_PROTAGONIST", "HEAD_STATUS", "HEAD_SITUATION", "HEAD_STORY", "TALK_LINE_ME", "TALK_LINE_OWNER", "HEAD_VISIT_TALK", "TASK_FIRST", "TASK_RESTOCK", "HEAD_SHELF_NOW", "SHELF_EMPTY", "TAG_RARE", "TAG_SALE", "HEAD_BOUGHT", "HEAD_OWNER_BOUGHT", "NOTE_ITEM_BOUGHT", "NOTE_ITEM_OPEN", "HEAD_QUOTES", "QUOTE_ITEM_PAID", "QUOTE_ITEM_OPEN", "HEAD_SELLING", "SELLING_TRUTH", "SELLING_PAID", "SELLING_OFFER_WON", "SELLING_OFFER_POINTS", "HEAD_TALK_NOW", "SIZE_EXACT", "SIZE_RANGE", "LINE", "OWN_SHOP_ITEM", "OWN_SHOP_ITEM_ALSO", "OWN_HOW_BOTH", "OWN_HOW_WEB", "OWN_HOW_VISIT", "REFS_WIKI_SOURCE", "ERROR_NO_SHELF", "ERROR_NO_ITEMS", "ERROR_NO_IDENTITY", "ERROR_NO_SELLS", "ERROR_NO_OWNER", "ERROR_ALL_EMPTY", "ASK_CHIP", "ASK_SELL", "ASK_SELL_BARE", "TRAIT_HAND", "TRAIT_GEAR", "TRAIT_USE", "TRAIT_USES", "TALK_NO_STOCK"],
+    Director: ["USER_RULES.HEAD", "LANG.KO", "LANG.EN", "MAIN_NOTE.HEAD", "MAIN_NOTE.ITEM", "MAIN_NOTE.REACT", "MAIN_NOTE.MUST_NOT", "MAIN_NOTE.UNCERTAIN", "ERR.NO_JSON", "ERR.SEARCH_IN_PASS2", "ERR.EMPTY_NEED", "ERR.NO_NOTES"],
+    Router: ["USER_RULES.HEAD", "ERR.NO_JSON", "ERR.NO_SELECTED"],
+    Consult: ["USER", "LIST.MENU", "LIST.NONE", "PENDING.LINE", "PENDING.NONE", "TALK.ME", "TALK.OP", "ERR.NO_SAY", "LABEL.ON", "LABEL.OFF", "LABEL.EMPTY", "LABEL.BLANK", "CHOICE.NUM", "CHOICE.STEP", "CHOICE.STEP_UNIT", "CHOICE.STEP_STRIDE", "CHOICE.STEP_BUTTONS", "CHOICE.TEXT", "CHOICE.TEXT_MAX", "CHOICE.TEXT_MULTI", "CHOICE.TEXT_SINGLE", "ITEM.INFO", "ITEM.LINE", "ITEM.LOCKED", "ITEM.CHOICES", "ITEM.SCOPE", "ITEM.HELP", "STATE.SUMMARY", "STATE.SUMMARY_MAYBE", "STATE.SUMMARY_TOKENS", "STATE.NOT_STARTED", "STATE.PRE", "STATE.MAIN", "STATE.POST", "STATE.MANUAL", "STATE.NODE", "STATE.NODE_ON", "STATE.NODE_OFF", "STATE.NODE_MODEL", "STATE.NODE_TOKENS", "STATE.MAIN_NODE", "STATE.MANUAL_NODE", "LAST.NONE", "LAST.HEAD", "LAST.TOKENS", "LAST.NO_RECORD", "LAST.MODEL_MAIN", "LAST.MODEL_AUX", "LAST.MODEL_ID", "LAST.CALL", "LAST.OK", "LAST.FAIL", "LAST.TOTAL", "MENUS.LINE", "MENUS.INTRO", "MENUS.OTHERS_HEAD", "CATALOG.FOLDED_COUNT", "CATALOG.FOLDED_NOTE", "MENUS.LINE_SHORT"]
+  };
+  var blankUsesDefault = (name, section3) => BLANK_DEFAULT_ALL.includes(name) || !!BLANK_DEFAULT[name]?.test(section3.trim()) || !!BLANK_DEFAULT_MOVED[name]?.includes(section3.trim());
+  var defCache = /* @__PURE__ */ new Map();
+  function guideDefaultSec(name, section3) {
+    let secs2 = defCache.get(name);
+    if (!secs2) {
+      secs2 = {};
+      for (const m of DEFAULTS[name].matchAll(/@@SECTION ([^\n]+)\n([\s\S]*?)\n@@END/g)) secs2[m[1].trim()] = m[2];
+      defCache.set(name, secs2);
+    }
+    return secs2[section3]?.trim() || null;
+  }
+  function guideTxt(name, section3, vars) {
+    const t = guideSec(name, section3) ?? guideDefaultSec(name, section3) ?? "";
+    return vars ? fillVars(t, vars) : t;
+  }
+
+  // src/core/dispatch.ts
+  var DirectiveError = class extends Error {
+  };
+  var REQUIRED = ["COMMON", "OPENING", "CONTINUATION", "CONTEXT"];
+  function parseDirective(_lore) {
+    return parseDirectiveText(guidePrompt("Directive"));
+  }
+  function parseDirectiveText(raw) {
+    if (typeof raw !== "string" || !raw.trim()) throw new DirectiveError("Directive 지침을 읽지 못했어요.");
+    const sections3 = {};
+    const heads = [...raw.matchAll(/===([A-Z][A-Z0-9_]*)===/g)];
+    heads.forEach((h, i) => {
+      const name = h[1];
+      if (name in sections3) throw new DirectiveError(`Directive 섹션이 중복됐어요: ${name}`);
+      const start3 = h.index + h[0].length;
+      const end = i + 1 < heads.length ? heads[i + 1].index : raw.length;
+      sections3[name] = raw.slice(start3, end).trim();
+    });
+    let format;
+    try {
+      format = JSON.parse(sections3.FORMAT ?? "");
+    } catch {
+      throw new DirectiveError("Directive의 FORMAT 섹션은 올바른 JSON이어야 해요.");
+    }
+    const keys = {
+      destination: ["name", "located"],
+      party: ["solo", "group", "support_one", "support_many", "separator", "pair_separator", "last_separator"]
+    };
+    for (const [group4, list4] of Object.entries(keys)) {
+      const obj9 = format?.[group4];
+      if (!obj9 || typeof obj9 !== "object") throw new DirectiveError(`Directive FORMAT.${group4}가 없어요.`);
+      for (const k of list4) if (typeof obj9[k] !== "string") throw new DirectiveError(`Directive FORMAT.${group4}.${k}는 문자열이어야 해요.`);
+    }
+    if (typeof format.user_input !== "string") throw new DirectiveError("Directive FORMAT.user_input은 문자열이어야 해요.");
+    for (const name of REQUIRED) if (!sections3[name]) throw new DirectiveError(`Directive의 ${name} 섹션을 확인하세요.`);
+    return { sections: sections3, format };
+  }
+  function fill(template, values) {
+    return template.replace(/\[\[(\w+)\]\]/g, (_, key) => {
+      if (!(key in values)) throw new DirectiveError(`Directive에서 쓸 수 없는 치환 항목이에요: [[${key}]]`);
+      return String(values[key]);
+    });
+  }
+  function destination(d, name, location) {
+    return fill(location?.trim() ? d.format.destination.located : d.format.destination.name, { NAME: name, LOCATION: location ?? "" });
+  }
+  function joinNames(d, list4) {
+    const f = d.format.party;
+    if (list4.length <= 1) return list4[0] ?? "";
+    if (list4.length === 2) return list4[0] + f.pair_separator + list4[1];
+    return list4.slice(0, -1).join(f.separator) + f.last_separator + list4[list4.length - 1];
+  }
+  function partyClause(d, names4, support) {
+    const f = d.format.party;
+    const members = [...names4];
+    if (support > 0) members.push(fill(support === 1 ? f.support_one : f.support_many, { COUNT: support }));
+    if (!members.length) return fill(f.solo, {});
+    return fill(f.group, { MEMBERS: joinNames(d, members) });
+  }
+  function sceneDirective(d, dest, names4, support, opening) {
+    const values = { DEST: dest, PARTY: partyClause(d, names4, support) };
+    return [d.sections.COMMON, d.sections[opening ? "OPENING" : "CONTINUATION"], d.sections.CONTEXT].map((t) => fill(t, values)).join("\n\n");
+  }
+  var TEAM_MAX = 3;
+  function validTeam(named3, support) {
+    return Number.isInteger(support) && support >= 0 && named3 >= 0 && named3 + support <= TEAM_MAX;
+  }
+  var OPEN_RE = /%%SCENE_CARD:([0-9a-f]+)%%\r?\n/;
+  var CARD_RE = /%%SCENE_CARD:([0-9a-f]+)%%\r?\n([\s\S]*?)\r?\n%%\/SCENE_CARD%%/g;
+  function toHex(s8) {
+    return Array.from(new TextEncoder().encode(s8), (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  function fromHex(hex3) {
+    const bytes = new Uint8Array((hex3.match(/../g) ?? []).map((h) => parseInt(h, 16)));
+    return new TextDecoder().decode(bytes);
+  }
+  function sceneRecord(summary, body5) {
+    return `%%SCENE_CARD:${toHex(JSON.stringify(summary))}%%
+${body5}
+%%/SCENE_CARD%%`;
+  }
+  function hasSceneCard(text5) {
+    return typeof text5 === "string" && text5.includes("%%SCENE_CARD:");
+  }
+  function readScene(text5) {
+    const m = OPEN_RE.exec(text5);
+    if (!m) return null;
+    try {
+      const s8 = JSON.parse(fromHex(m[1]));
+      return { target: String(s8.target ?? ""), party: String(s8.party ?? ""), ...s8.unsent ? { unsent: true } : {} };
+    } catch {
+      return null;
+    }
+  }
+  function setSceneUnsent(text5, on3) {
+    return text5.replace(/%%SCENE_CARD:([0-9a-f]+)%%/g, (all, hex3) => {
+      try {
+        const s8 = JSON.parse(fromHex(hex3));
+        if (!!s8.unsent === on3) return all;
+        const next = { target: s8.target, party: s8.party, ...on3 ? { unsent: true } : {} };
+        return `%%SCENE_CARD:${toHex(JSON.stringify(next))}%%`;
+      } catch {
+        return all;
+      }
+    });
+  }
+  function isSceneUnsent(text5) {
+    return hasSceneCard(text5) && !!readScene(text5)?.unsent;
+  }
+  var UNSENT_MARK = "%%GOEI_UNSENT%%";
+  var UNSENT_RE = /\r?\n?%%GOEI_UNSENT%%/g;
+  function isUnsent(text5) {
+    return typeof text5 === "string" && (text5.includes(UNSENT_MARK) || isSceneUnsent(text5));
+  }
+  function setUnsent(text5, on3) {
+    if (hasSceneCard(text5)) return setSceneUnsent(text5, on3);
+    const plain2 = text5.replace(UNSENT_RE, "");
+    return on3 ? `${plain2}
+${UNSENT_MARK}` : plain2;
+  }
+  var SCENE_MARK = "%%GOEI_SCENE%%";
+  var SCENE_RE = /\r?\n?%%GOEI_SCENE%%/g;
+  var sceneMessage = (text5) => `${text5.replace(SCENE_RE, "").trimEnd()}
+${SCENE_MARK}`;
+  var isSceneMessage = (text5) => typeof text5 === "string" && text5.includes(SCENE_MARK);
+  var stripSceneMark = (text5) => text5.replace(SCENE_RE, "");
+  var START_RE = /%%GOEI_START%%\r?\n([\s\S]*?)\r?\n%%\/GOEI_START%%(\r?\n?%%GOEI_UNSENT%%)?/g;
+  var START_MARK = "%%GOEI_START%%";
+  function startRecord(text5) {
+    return `${START_MARK}
+${text5}
+%%/GOEI_START%%`;
+  }
+  function stripStartCard(text5) {
+    return text5.replace(/%%GOEI_START%%\r?\n/g, "").replace(/\r?\n%%\/GOEI_START%%/g, "");
+  }
+  function renderStartCards(text5, render3) {
+    return text5.replace(START_RE, (_all, body5, unsent) => render3(body5, !!unsent));
+  }
+  function stripUnsentMark(text5) {
+    return text5.replace(UNSENT_RE, "");
+  }
+  function renderUnsentMark(text5, html) {
+    return text5.replace(UNSENT_RE, () => html);
+  }
+  function stripSceneCard(text5) {
+    return text5.replace(/%%SCENE_CARD:[0-9a-f]+%%\r?\n/g, "").replace(/\r?\n%%\/SCENE_CARD%%/g, "");
+  }
+  function renderSceneCards(text5, render3) {
+    const one2 = /^\s*%%SCENE_CARD:([0-9a-f]+)%%\r?\n[\s\S]*?\r?\n%%\/SCENE_CARD%%(?:\r?\n+([\s\S]*?))?\s*$/.exec(text5);
+    if (one2 && one2[2]?.trim()) {
+      try {
+        const s8 = JSON.parse(fromHex(one2[1]));
+        return render3({ target: String(s8.target ?? ""), party: String(s8.party ?? ""), ...s8.unsent ? { unsent: true } : {}, note: one2[2].trim() });
+      } catch {
+      }
+    }
+    return text5.replace(CARD_RE, (all, hex3) => {
+      try {
+        const s8 = JSON.parse(fromHex(hex3));
+        return render3({ target: String(s8.target ?? ""), party: String(s8.party ?? ""), ...s8.unsent ? { unsent: true } : {} });
+      } catch {
+        return all;
+      }
+    });
+  }
+  function defaultDirective() {
+    try {
+      return parseDirectiveText(guideDefault("Directive"));
+    } catch {
+      return null;
+    }
+  }
+  function withUserInput(d, body5, extra2) {
+    if (!extra2.trim()) return body5;
+    const tpl = (d ?? defaultDirective())?.format.user_input ?? "[[INPUT]]";
+    return `${body5}
+
+${tpl.replace(/\[\[INPUT\]\]/g, () => extra2)}`;
+  }
+
+  // src/core/journal/types.ts
+  var JOURNAL_KEY = "$goei_journal";
+  var REPORTS_KEY = "$goei_reports";
+  var JOURNAL_KIND_LABEL = { an: "괴이", in: "사건", ms: "특수", fd: "출동" };
+  var RESULT_ROW_MAX = 120;
+  var RESULT_REPORT_MAX = 400;
+
+  // src/core/journal/settings.ts
+  var JR = (key) => `$jr_${key}`;
+  var JR_DEFAULTS = {
+    /** off / mine / all. 기본 mine (2026-11-05 사용자: 그대로 둔다) */
+    chat_card: "mine",
+    journal_cap: "500",
+    report_cap: "100",
+    /** 쌓이는 목록(일지·연대기·가계부 거래·소지품 기록)에 한 번에 보일 줄 수. 넘는 줄은 「더 보기」 (2026-11-12 사용자, ui/more.ts) */
+    list_page: "30",
+    /** 보고서 한 건에 남기는 경과 줄 수 (상황판 항목이 쌓는 경과도 같은 수) · 인물 변화 줄 수 · 거래 줄 수 */
+    trail_max: "24",
+    people_max: "12",
+    trades_max: "12"
+  };
+  var JR_JOURNAL_CAP = { min: 100, max: 2e3 };
+  var JR_REPORT_CAP = { min: 20, max: 300 };
+  var JR_LIST_PAGE = { min: 10, max: 100 };
+  var JR_TRAIL_MAX = { min: 8, max: 96 };
+  var JR_PEOPLE_MAX = { min: 4, max: 48 };
+  var JR_TRADES_MAX = { min: 4, max: 48 };
+  function jrValue(state2, key) {
+    const v = state2?.[JR(key)];
+    return v === void 0 || v === null || v === "" || v === "null" ? JR_DEFAULTS[key] ?? "" : String(v);
+  }
+  function journalSettings(state2) {
+    const v = (k) => jrValue(state2, k);
+    const num8 = (k, min, max) => {
+      const n3 = Math.trunc(Number(v(k)));
+      return Math.max(min, Math.min(max, Number.isFinite(n3) ? n3 : Number(JR_DEFAULTS[k])));
+    };
+    const card3 = v("chat_card");
+    const journalCap = num8("journal_cap", JR_JOURNAL_CAP.min, JR_JOURNAL_CAP.max);
+    return {
+      chatCard: card3 === "off" || card3 === "all" ? card3 : "mine",
+      journalCap,
+      // 보고서 상한은 일지 상한을 넘지 못한다: 줄은 지워졌는데 보고서만 남아 열 길이 없는 일을 막는다 (전수검사 11-13, 사용자 13-2 (다))
+      reportCap: Math.min(num8("report_cap", JR_REPORT_CAP.min, JR_REPORT_CAP.max), journalCap),
+      listPage: num8("list_page", JR_LIST_PAGE.min, JR_LIST_PAGE.max),
+      trailMax: num8("trail_max", JR_TRAIL_MAX.min, JR_TRAIL_MAX.max),
+      peopleMax: num8("people_max", JR_PEOPLE_MAX.min, JR_PEOPLE_MAX.max),
+      tradesMax: num8("trades_max", JR_TRADES_MAX.min, JR_TRADES_MAX.max)
+    };
+  }
+
+  // src/core/journal/store.ts
+  function journalHash(text5) {
+    let h = 2166136261;
+    for (const ch of text5) {
+      h ^= ch.codePointAt(0);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0).toString(36);
+  }
+  var KINDS = /* @__PURE__ */ new Set(["an", "in", "ms", "fd"]);
+  var CAUSES = /* @__PURE__ */ new Set(["model", "ttl", "manual", "field"]);
+  var isRow = (r) => {
+    const x = r;
+    return !!x && typeof x === "object" && typeof x.id === "string" && KINDS.has(x.kind) && typeof x.name === "string" && typeof x.loc === "string" && typeof x.idx === "number" && typeof x.anchor === "string" && typeof x.mine === "boolean" && CAUSES.has(x.cause) && Array.isArray(x.agents) && typeof x.result === "string";
+  };
+  var isReport = (r) => {
+    const x = r;
+    return !!x && typeof x === "object" && typeof x.id === "string" && typeof x.no === "string" && typeof x.full === "boolean" && typeof x.mine === "boolean" && KINDS.has(x.kind) && CAUSES.has(x.cause) && !!x.head && typeof x.head === "object" && Array.isArray(x.trail) && Array.isArray(x.agents) && typeof x.result === "string" && typeof x.idx === "number" && typeof x.anchor === "string" && typeof x.savedAt === "string";
+  };
+  var varsOf = (src) => src && typeof src === "object" && "message" in src ? src.scriptstate : src;
+  var emptyJournal = () => ({ v: 1, rows: [] });
+  var emptyReports = () => ({ v: 1, items: [] });
+  function readJournal(src) {
+    const raw = varsOf(src)?.[JOURNAL_KEY];
+    if (typeof raw !== "string" || !raw) return emptyJournal();
+    try {
+      const j = JSON.parse(raw);
+      if (j && j.v === 1 && Array.isArray(j.rows)) return { v: 1, rows: j.rows.filter(isRow) };
+    } catch {
+    }
+    return emptyJournal();
+  }
+  function readReports(src) {
+    const raw = varsOf(src)?.[REPORTS_KEY];
+    if (typeof raw !== "string" || !raw) return emptyReports();
+    try {
+      const r = JSON.parse(raw);
+      if (r && r.v === 1 && Array.isArray(r.items)) return { v: 1, items: r.items.filter(isReport) };
+    } catch {
+    }
+    return emptyReports();
+  }
+  var journalVars = (j) => ({ [JOURNAL_KEY]: JSON.stringify(j) });
+  var reportVars = (r) => ({ [REPORTS_KEY]: JSON.stringify(r) });
+  var recordVars = (j, r) => ({ ...journalVars(j), ...reportVars(r) });
+  function journalNewestFirst(rows3) {
+    return rows3.map((r, i) => ({ r, i })).sort((a, b) => a.r.at === null ? b.r.at === null ? b.i - a.i : 1 : b.r.at === null ? -1 : b.r.at - a.r.at || b.i - a.i).map((x) => x.r);
+  }
+  function trimJournal(j, cap, keep2 = /* @__PURE__ */ new Set()) {
+    const kept = (r) => !!r.rpt && keep2.has(r.rpt);
+    const loose = j.rows.filter((r) => !kept(r)).length;
+    if (loose <= cap) return j;
+    let drop = loose - cap;
+    return { v: 1, rows: j.rows.filter((r) => {
+      if (kept(r) || drop <= 0) return true;
+      drop -= 1;
+      return false;
+    }) };
+  }
+  function trimReports(r, j, cap) {
+    const loose = r.items.filter((x) => !x.pin).length;
+    if (loose <= cap) return { reports: r, journal: j, removed: [] };
+    let drop = loose - cap;
+    const removed = [];
+    const items = r.items.filter((x) => {
+      if (x.pin || drop <= 0) return true;
+      drop -= 1;
+      removed.push(x.id);
+      return false;
+    });
+    return { reports: { v: 1, items }, journal: unlinkReports(j, removed), removed };
+  }
+  function unlinkReports(j, ids) {
+    if (!ids.length) return j;
+    const gone = new Set(ids);
+    if (!j.rows.some((row8) => row8.rpt && gone.has(row8.rpt))) return j;
+    return { v: 1, rows: j.rows.map((row8) => row8.rpt && gone.has(row8.rpt) ? { ...row8, rpt: void 0 } : row8) };
+  }
+  function pinReport(r, id2, on3) {
+    if (!r.items.some((x) => x.id === id2)) return r;
+    return { v: 1, items: r.items.map((x) => x.id === id2 ? { ...x, pin: on3 || void 0 } : x) };
+  }
+  function rewindClosures(j, r, target) {
+    const auto = (cause) => cause === "model" || cause === "ttl";
+    const pinned = new Set(r.items.filter((x) => x.pin).map((x) => x.id));
+    const made = Array.isArray(target) ? new Set(target.map((id2) => id2.slice(1))) : null;
+    const hitRow = (row8) => made ? made.has(row8.id.slice(1)) : row8.idx === target;
+    const hitRpt = (x) => made ? made.has(x.id.slice(1)) : x.idx === target;
+    const items = r.items.filter((x) => !(hitRpt(x) && auto(x.cause) && !x.pin));
+    const rows3 = j.rows.filter((row8) => !(hitRow(row8) && auto(row8.cause) && !(row8.rpt && pinned.has(row8.rpt))));
+    const changed = items.length !== r.items.length || rows3.length !== j.rows.length;
+    return { journal: changed ? { v: 1, rows: rows3 } : j, reports: changed ? { v: 1, items } : r, changed };
+  }
+
+  // src/core/cbs.ts
+  var truthy = (v) => v === "1" || v.toLowerCase() === "true";
+  function splitTop(s8) {
+    const out2 = [];
+    let depth = 0;
+    let cur = "";
+    for (let i = 0; i < s8.length; i++) {
+      if (s8[i] === "{" && s8[i + 1] === "{") {
+        depth++;
+        cur += "{{";
+        i++;
+      } else if (s8[i] === "}" && s8[i + 1] === "}") {
+        depth--;
+        cur += "}}";
+        i++;
+      } else if (depth === 0 && s8[i] === ":" && s8[i + 1] === ":") {
+        out2.push(cur);
+        cur = "";
+        i++;
+      } else cur += s8[i];
+    }
+    out2.push(cur);
+    return out2;
+  }
+  function closeOf(s8, i) {
+    let depth = 0;
+    for (let j = i; j < s8.length - 1; j++) {
+      if (s8[j] === "{" && s8[j + 1] === "{") {
+        depth++;
+        j++;
+      } else if (s8[j] === "}" && s8[j + 1] === "}") {
+        depth--;
+        j++;
+        if (depth === 0) return j + 1;
+      }
+    }
+    return -1;
+  }
+  function getvar(env3, name) {
+    const v = env3.vars[`$${name.trim()}`] ?? env3.vars[name.trim()];
+    return v === void 0 || v === null ? "null" : String(v);
+  }
+  var SLOT = /^\u0000(\d+)\u0000$/;
+  function calc(expr, slots = []) {
+    const src = expr.trim();
+    const tokens2 = src.match(/\u0000\d+\u0000|\d+(?:\.\d+)?|null|true|false|&&|\|\||==|!=|>=|<=|[-+*/%()<>!]|"[^"]*"|[^\s()<>=!&|+*/%-]+/g) ?? [];
+    let pos = 0;
+    const peek = () => tokens2[pos];
+    const OPS = /* @__PURE__ */ new Set(["&&", "||", "==", "!=", ">=", "<=", "+", "-", "*", "/", "%", "(", ")", "<", ">", "!"]);
+    const isWord2 = (t) => t !== void 0 && !OPS.has(t);
+    const num8 = (v) => typeof v === "number" ? v : typeof v === "boolean" ? Number(v) : v === null ? 0 : Number(v);
+    const atom = () => {
+      const t = tokens2[pos++];
+      if (t === void 0) return null;
+      const slot = SLOT.exec(t);
+      if (slot) {
+        const val = slots[Number(slot[1])] ?? "";
+        return val === "null" ? null : val;
+      }
+      if (t === "(") {
+        const v = or();
+        pos++;
+        return v;
+      }
+      if (t === "!") return !truthyV(atom());
+      if (t === "-") return -num8(atom());
+      if (t === "null") return null;
+      if (t === "true") return true;
+      if (t === "false") return false;
+      if (/^\d/.test(t) && !isWord2(peek())) return Number(t);
+      let word = t.replace(/^"|"$/g, "");
+      while (isWord2(peek())) word += ` ${tokens2[pos++].replace(/^"|"$/g, "")}`;
+      return word;
+    };
+    const truthyV = (v) => typeof v === "boolean" ? v : typeof v === "number" ? v !== 0 : v !== null && v !== "" && v !== "0";
+    const mul = () => {
+      let v = atom();
+      while (["*", "/", "%"].includes(peek())) {
+        const op = tokens2[pos++];
+        const r = num8(atom());
+        v = op === "*" ? num8(v) * r : op === "/" ? num8(v) / r : num8(v) % r;
+      }
+      return v;
+    };
+    const add = () => {
+      let v = mul();
+      while (["+", "-"].includes(peek())) {
+        const op = tokens2[pos++];
+        const r = num8(mul());
+        v = op === "+" ? num8(v) + r : num8(v) - r;
+      }
+      return v;
+    };
+    const cmp = () => {
+      let v = add();
+      while ([">", "<", ">=", "<=", "==", "!="].includes(peek())) {
+        const op = tokens2[pos++];
+        const r = add();
+        const eq = (a, b) => a === null || b === null ? a === b || a === null && b === "null" || b === null && a === "null" : String(a) === String(b);
+        v = op === "==" ? eq(v, r) : op === "!=" ? !eq(v, r) : op === ">" ? num8(v) > num8(r) : op === "<" ? num8(v) < num8(r) : op === ">=" ? num8(v) >= num8(r) : num8(v) <= num8(r);
+      }
+      return v;
+    };
+    const and = () => {
+      let v = cmp();
+      while (peek() === "&&") {
+        pos++;
+        const r = cmp();
+        v = truthyV(v) && truthyV(r);
+      }
+      return v;
+    };
+    const or = () => {
+      let v = and();
+      while (peek() === "||") {
+        pos++;
+        const r = and();
+        v = truthyV(v) || truthyV(r);
+      }
+      return v;
+    };
+    try {
+      const v = or();
+      if (typeof v === "boolean") return v ? "1" : "0";
+      return v === null ? "null" : String(v);
+    } catch {
+      return "0";
+    }
+  }
+  function fn(inner, env3) {
+    if (inner.startsWith("?")) return calc(inner.slice(1));
+    const parts = inner.split("::");
+    const name = parts[0].trim().toLowerCase();
+    const a = parts.slice(1);
+    switch (name) {
+      case "getvar":
+        return getvar(env3, a[0] ?? "");
+      case "equal":
+        return a[0] === a[1] ? "1" : "0";
+      case "not_equal":
+      case "notequal":
+        return a[0] !== a[1] ? "1" : "0";
+      case "and":
+        return a.every((x) => truthy(x.trim())) ? "1" : "0";
+      case "or":
+        return a.some((x) => truthy(x.trim())) ? "1" : "0";
+      case "not":
+        return truthy((a[0] ?? "").trim()) ? "0" : "1";
+      // 사용자 글에 '::'가 들어 있어도 글 전체를 본다
+      case "length":
+        return String(a.join("::").trim().length);
+      case "trim":
+        return a.join("::").trim();
+      case "user":
+        return env3.user ?? "{{user}}";
+      case "char":
+      case "bot":
+        return env3.char ?? "{{char}}";
+      case "char_desc":
+      case "description":
+        return env3.charDesc ?? "";
+      case "maxcontext":
+        return String(env3.maxContext ?? 99999);
+    }
+    return null;
+  }
+  function whenCond(head3, env3) {
+    const rest = head3.replace(/^#when/, "");
+    if (!rest.startsWith("::")) return truthy(evaluate(rest, env3).trim());
+    const p2 = splitTop(rest.slice(2)).map((x) => evaluate(x, env3));
+    if (p2.length === 1) return truthy(p2[0].trim());
+    if (p2.length >= 3) {
+      const [x, op, y] = [p2[0], p2[1].trim(), p2[2]];
+      switch (op) {
+        case "is":
+          return x === y;
+        case "isnot":
+          return x !== y;
+        case "vis":
+          return getvar(env3, x) === y;
+        case "visnot":
+          return getvar(env3, x) !== y;
+        case "and":
+          return truthy(x) && truthy(y);
+        case "or":
+          return truthy(x) || truthy(y);
+        case ">":
+          return Number(x) > Number(y);
+        case "<":
+          return Number(x) < Number(y);
+        case ">=":
+          return Number(x) >= Number(y);
+        case "<=":
+          return Number(x) <= Number(y);
+      }
+    }
+    if (p2.length === 2 && p2[0].trim() === "not") return !truthy(p2[1].trim());
+    return truthy(p2[p2.length - 1].trim());
+  }
+  function blockEnd(s8, from) {
+    let depth = 1;
+    let elseAt = -1;
+    let elseEnd = -1;
+    let i = from;
+    while (i < s8.length) {
+      const j = s8.indexOf("{{", i);
+      if (j < 0) return null;
+      const k = closeOf(s8, j);
+      if (k < 0) return null;
+      const inner = s8.slice(j + 2, k - 2).trim();
+      if (inner.startsWith("#if") || inner.startsWith("#when")) depth++;
+      else if (inner === "/if" || inner === "/when" || inner === "/") {
+        depth--;
+        if (depth === 0) return { else: elseAt, elseEnd, close: j, end: k };
+      } else if (depth === 1 && (inner === ":else" || inner === "else")) {
+        elseAt = j;
+        elseEnd = k;
+      }
+      i = k;
+    }
+    return null;
+  }
+  function evaluate(text5, env3, slots) {
+    if (!text5.includes("{{")) return text5;
+    const put = (v) => {
+      if (!slots) return v;
+      slots.push(v);
+      return `\0${slots.length - 1}\0`;
+    };
+    let out2 = "";
+    let i = 0;
+    while (i < text5.length) {
+      const j = text5.indexOf("{{", i);
+      if (j < 0) {
+        out2 += text5.slice(i);
+        break;
+      }
+      out2 += text5.slice(i, j);
+      const k = closeOf(text5, j);
+      if (k < 0) {
+        out2 += text5.slice(j);
+        break;
+      }
+      const raw = text5.slice(j + 2, k - 2);
+      const head3 = raw.trim();
+      if (head3.startsWith("#if") || head3.startsWith("#when")) {
+        const b = blockEnd(text5, k);
+        if (!b) {
+          out2 += text5.slice(j, k);
+          i = k;
+          continue;
+        }
+        const yes = head3.startsWith("#if") ? truthy(evaluate(head3.replace(/^#if(::)?/, ""), env3).trim()) : whenCond(head3, env3);
+        const body5 = yes ? text5.slice(k, b.else >= 0 ? b.else : b.close) : b.else >= 0 ? text5.slice(b.elseEnd, b.close) : "";
+        out2 += evaluate(body5, env3);
+        i = b.end;
+        continue;
+      }
+      if (head3.startsWith("?")) {
+        const vals = [];
+        const expr = evaluate(raw, env3, vals).trim();
+        out2 += put(calc(expr.slice(1), vals));
+        i = k;
+        continue;
+      }
+      const inner = evaluate(raw, env3);
+      const v = fn(inner, env3);
+      out2 += v === null ? `{{${inner}}}` : put(v);
+      i = k;
+    }
+    return out2;
+  }
+
+  // src/core/lorebooks.ts
+  var DIRECTORY_COMMENT = "Directory";
+  var MANIFEST_COMMENT = "Plugin manifest";
+  var OLD_DIRECTORY = "괴이봇 명부";
+  var OLD_MANIFEST = "괴이봇 플러그인 매니페스트";
+  var LEGACY_DATA = ["World catalog", "Agent roster", "Faction display", "Phone tabs", "Start trigger"];
+  var RETIRED = ["LB Backend", OLD_MANIFEST];
+  var isDirectory = (comment) => comment === DIRECTORY_COMMENT || comment === OLD_DIRECTORY;
+  function named(lore, name, old) {
+    const list4 = lore ?? [];
+    const hit4 = list4.filter((e) => e.comment === name);
+    return hit4.length ? hit4 : list4.filter((e) => e.comment === old);
+  }
+  var directoryEntries = (lore) => named(lore, DIRECTORY_COMMENT, OLD_DIRECTORY);
+  var manifestEntry = (lore) => named(lore, MANIFEST_COMMENT, OLD_MANIFEST)[0];
+  function parseSeedManifest(raw) {
+    const map = /* @__PURE__ */ new Map();
+    for (const line2 of raw.split("\n")) {
+      const t = line2.replace(/\r/g, "").trim();
+      if (!t || t.startsWith("#")) continue;
+      const m = /^([\w-]+)\s*:\s*(.*)$/.exec(t);
+      if (!m) continue;
+      const names4 = m[2].split("|").map((s8) => s8.trim()).filter(Boolean);
+      if (names4.length) map.set(m[1], names4);
+    }
+    return map;
+  }
+
+  // src/core/world/roster-v.ts
+  var ROSTER_V = 8;
+  var NEUTRAL_GROUP = "이면의 주민들";
+  var NEUTRAL_GROUP_OLD = ["중립", "다른 세력"];
+  var NEUTRAL_IDS = ["P043", "P044", "P045", "P046", "P047", "P048", "P049", "P050", "P051", "P052", "P053", "P054", "P055"];
+  var NEUTRAL_ENGLISH = "Residents of the Hidden World";
+  var NEUTRAL_ENGLISH_OLD = ["Neutral", "Other Factions"];
+  var NEUTRAL_BLURB = "저마다의 사정과 목적을 품고, 서울의 이면을 살아가는 이들.";
+  var NEUTRAL_BLURB_OLD = [
+    "어느 조직에도 속하지 않은 사람들. 교황청 수녀, 이슬람 성전사, 마녀, 흡혈귀, 중림 상인, 그리고 사람이 아닌 것까지.",
+    "요원이 아닌 쪽에서 괴이와 얽힌 사람들. 사냥하거나, 거래하거나, 혹은 스스로 괴이다.",
+    "제 조직과 제 목적을 따로 가진 자들. 누구의 편도 아니고, 필요하면 누구와도 손을 잡는다.",
+    "다른 세력의 인물 하나를 골라 그 사람으로 시작한다."
+  ];
+  var s = (v) => typeof v === "string" ? v.trim() : "";
+  function freeGroupCode(used) {
+    const set2 = new Set(used);
+    for (let c = "F".charCodeAt(0); c <= "Z".charCodeAt(0); c++) {
+      const want = `${String.fromCharCode(c)}00`;
+      if (!set2.has(want)) return want;
+    }
+    return "";
+  }
+  function migrateNeutral(d) {
+    const groups = d["시작 묶음"] ??= {};
+    for (const old of NEUTRAL_GROUP_OLD) {
+      if (!groups[old]) continue;
+      if (!groups[NEUTRAL_GROUP]) groups[NEUTRAL_GROUP] = groups[old];
+      delete groups[old];
+    }
+    const used = [...d.codes_used ?? [], ...Object.values(d.조직 ?? {}).map((o) => s(o.code)), ...Object.values(groups).map((g3) => s(g3.code))];
+    let code2;
+    if (!Object.keys(groups).includes(NEUTRAL_GROUP)) {
+      code2 = freeGroupCode(used);
+      if (!code2) return;
+      groups[NEUTRAL_GROUP] = { code: code2, blurb: NEUTRAL_BLURB, english: NEUTRAL_ENGLISH };
+      d.codes_used = [.../* @__PURE__ */ new Set([...d.codes_used ?? [], code2])].sort();
+    } else {
+      code2 = s(groups[NEUTRAL_GROUP].code);
+      if (NEUTRAL_BLURB_OLD.includes(s(groups[NEUTRAL_GROUP].blurb))) groups[NEUTRAL_GROUP].blurb = NEUTRAL_BLURB;
+      if (NEUTRAL_ENGLISH_OLD.includes(s(groups[NEUTRAL_GROUP].english))) groups[NEUTRAL_GROUP].english = NEUTRAL_ENGLISH;
+    }
+    if (!code2) return;
+    for (const row8 of Object.values(d.요원 ?? {})) {
+      const r = row8;
+      if (!NEUTRAL_IDS.includes(s(r.id))) continue;
+      const list4 = Array.isArray(r.roster_for) ? r.roster_for.map(s).filter(Boolean) : [];
+      if (!list4.includes(code2)) r.roster_for = [...list4, code2];
+    }
+  }
+  var SENIOR_V7 = ["스팡달", "잼트리", "고르고디오", "큐라스"];
+  var SDRA = "특수재난대응협회";
+  var SDRA_OLD = "협회";
+  var SEED_E001_OLD = [SDRA_OLD, "차여진", "서윤지"];
+  var rec = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : null;
+  function migrateV7(d) {
+    const agents = rec(d.요원);
+    for (const name of SENIOR_V7) {
+      const row8 = rec(agents?.[name]);
+      if (row8 && row8.rank === "요원") row8.rank = "선임 요원";
+    }
+    const base = rec(rec(d.거점)?.[SDRA]);
+    if (base && base.lore === SDRA_OLD) base.lore = SDRA;
+    const seeds = rec(d["시작 로어북"]);
+    const e = seeds?.["E00-1"];
+    if (seeds && Array.isArray(e) && e.length === SEED_E001_OLD.length && e.every((x, i) => x === SEED_E001_OLD[i])) seeds["E00-1"] = [SDRA, ...SEED_E001_OLD.slice(1)];
+  }
+  var T04_OLD = ["A00", "B00", "C00", "D00", "E00"];
+  function closeNeutralTab(tabs2) {
+    if (!Array.isArray(tabs2)) return;
+    for (const t of tabs2) {
+      const row8 = rec(t);
+      const vis = row8?.visible_for;
+      if (row8?.id === "T04" && Array.isArray(vis) && vis.length === T04_OLD.length && T04_OLD.every((c) => vis.includes(c))) row8.visible_for = vis.filter((c) => c !== "D00");
+    }
+  }
+  function migrateRoster(d) {
+    const v = d.roster_v ?? 1;
+    if (v >= ROSTER_V) return d;
+    if (v < 2) {
+      const strip = (rows3) => {
+        for (const r of Object.values(rows3 ?? {})) if (Array.isArray(r.roster_for)) r.roster_for = r.roster_for.filter((f) => f !== "D00" && f !== "E00");
+      };
+      strip(d.조직);
+      strip(d.요원);
+    }
+    if (v < 6) migrateNeutral(d);
+    if (v < 7) migrateV7(d);
+    if (v < 8) closeNeutralTab(rec(d["괴담톡 탭"])?.tabs);
+    d.roster_v = ROSTER_V;
+    return d;
+  }
+  function renameNeutralTab(tabs2) {
+    if (!Array.isArray(tabs2)) return;
+    for (const t of tabs2) {
+      const row8 = rec(t);
+      if (row8?.id === "T04" && NEUTRAL_GROUP_OLD.includes(s(row8.name))) row8.name = NEUTRAL_GROUP;
+    }
+  }
+
+  // src/data/scenarios.json
+  var scenarios_default = {
+    languages: [
+      { code: "ko", label: "한국어" },
+      { code: "en", label: "English" }
+    ],
+    factions: [
+      {
+        code: "A00",
+        name: "관리국",
+        affiliation: "관리국",
+        blurb: "괴이로부터 인류를 지키는 비밀 조직. 소수 정예 초인 요원들이 일상 뒤에 숨어 움직인다.",
+        scenarios: [
+          { fm: 1, label: "면접", kind: "opening" },
+          { fm: 2, label: "코드네임", kind: "opening" },
+          { fm: 3, label: "근무 수칙", kind: "opening" },
+          { fm: 4, label: "격리 실습", kind: "opening" },
+          { fm: 5, label: "격리팀", kind: "opening" },
+          { fm: 6, label: "교전", kind: "opening" },
+          { fm: 7, label: "한설인육공장", kind: "opening" },
+          { fm: 8, label: "직접 입력", kind: "direct" },
+          { fm: 9, label: "커스텀 임무", kind: "preset" }
+        ]
+      },
+      {
+        code: "B00",
+        name: "가짜 관리국",
+        affiliation: "관리국",
+        blurb: "스스로를 진짜 관리국이라 여기는 또 하나의 관리국. 괴이를 이물이라 부르며 체계화된 무력으로 대응한다.",
+        scenarios: [
+          { fm: 1, label: "취조실", kind: "opening" },
+          { fm: 2, label: "신입 교육", kind: "opening" },
+          { fm: 3, label: "오리엔테이션", kind: "opening" },
+          { fm: 4, label: "스카우트", kind: "opening" },
+          { fm: 5, label: "검사부대", kind: "opening" },
+          { fm: 6, label: "데이터베이스", kind: "opening" },
+          { fm: 7, label: "상황 발생", kind: "opening" },
+          { fm: 8, label: "직접 입력", kind: "direct" },
+          { fm: 9, label: "커스텀 임무", kind: "preset" }
+        ]
+      },
+      {
+        code: "C00",
+        name: "백일몽 주식회사",
+        affiliation: "백일몽 주식회사",
+        blurb: "괴이를 상품으로 만드는 제약 대기업. 겉으로는 제약사, 진짜 상품은 꿈결이다.",
+        scenarios: [
+          { fm: 1, label: "신입 OT", kind: "opening" },
+          { fm: 2, label: "D조 첫 출근", kind: "opening" },
+          { fm: 3, label: "화요 퀴즈쇼", kind: "opening" },
+          { fm: 4, label: "유쾌 테마파크", kind: "opening" },
+          { fm: 5, label: "커스텀 장비", kind: "opening" },
+          { fm: 6, label: "착한 친구", kind: "opening" },
+          { fm: 7, label: "세광특별시", kind: "opening" },
+          { fm: 8, label: "직접 입력", kind: "direct" },
+          { fm: 9, label: "커스텀 임무", kind: "preset" }
+        ]
+      },
+      {
+        code: "D00",
+        name: "민간인",
+        affiliation: "민간인",
+        blurb: "괴이의 존재를 모르는 평범한 사람. 우연한 조우가 모든 것을 바꾼다.",
+        scenarios: [
+          { fm: 1, label: "지하철의 여자", kind: "opening" },
+          { fm: 2, label: "기독교 상점", kind: "opening" },
+          { fm: 3, label: "세계정치 게시판", kind: "opening" },
+          { fm: 4, label: "무엇이든 자판기", kind: "opening" },
+          { fm: 5, label: "중림 지하상가", kind: "opening" },
+          { fm: 6, label: "직접 입력", kind: "direct" },
+          { fm: 7, label: "커스텀 임무", kind: "preset" }
+        ]
+      },
+      {
+        code: "E00",
+        name: "프리랜서",
+        affiliation: "프리랜서",
+        blurb: "특수재난대응협회와 뒷골목 알선소의 의뢰로 먹고사는 해결사.",
+        scenarios: [
+          { fm: 1, label: "협회 접수창구", kind: "opening" },
+          { fm: 2, label: "대박알선", kind: "opening" },
+          { fm: 3, label: "직접 입력", kind: "direct" },
+          { fm: 4, label: "커스텀 임무", kind: "preset" }
+        ]
+      }
+    ],
+    defaultScenario: { A00: 2, B00: 2, C00: 2, D00: 1, E00: 1 }
+  };
+
+  // src/core/scenarios.ts
+  var SCENARIOS = scenarios_default;
+  function findFaction(code2, list4 = SCENARIOS.factions) {
+    return list4.find((f) => f.code === code2);
+  }
+  function findScenario(code2, fm, list4 = SCENARIOS.factions) {
+    return findFaction(code2, list4)?.scenarios.find((s8) => s8.fm === fm);
+  }
+  function isLang(value) {
+    return SCENARIOS.languages.some((l) => l.code === value);
+  }
+  function isFaction(value) {
+    return typeof value === "string" && /^[A-Z]00$/.test(value);
+  }
+  function defaultScenario(code2, list4 = SCENARIOS.factions) {
+    return SCENARIOS.defaultScenario[code2] ?? findFaction(code2, list4)?.scenarios[0]?.fm ?? 1;
+  }
+  function greetingKey(faction, lang, fm) {
+    return `${faction}-${lang}-${fm}`;
+  }
+
+  // src/core/world/schema.ts
+  var WORLD_KIND_LABEL = { agent: "요원", org: "조직", anomaly: "괴이", site: "파밍", appendix: "부록" };
+  var AGENT_FIELDS = titled("agent", [
+    { id: "age", label: "나이", type: "line", sec: "identity" },
+    { id: "gender", label: "성별", type: "line", sec: "identity", hint: "로어 글의 Gender 줄. 명부 성별 칸과 별개로 모델에게 보이는 표기" },
+    { id: "organization", label: "소속 표기", type: "line", sec: "identity", hint: "비우면 명부 소속·호칭 표로 자동. 「Walpurgis Society, the Ten Witches」처럼 다르게 쓰고 싶을 때만" },
+    { id: "department_en", label: "부서 표기", type: "line", sec: "identity", hint: "모델에게 보이는 부서 이름(영문). 명부 부서 칸은 묶는 데 쓰고 이 칸이 글에 들어감" },
+    { id: "role", label: "역할", type: "line", sec: "identity" },
+    { id: "physique", label: "체격", type: "line", sec: "appearance" },
+    { id: "appearance", label: "외모", type: "line", sec: "appearance" },
+    { id: "outfit", label: "복장", type: "line", sec: "appearance" },
+    { id: "character", label: "성격", type: "text", hint: "글머리 그대로. 결점([Flaws])도 이 안에" },
+    { id: "voice", label: "말투", type: "text" },
+    { id: "background", label: "배경", type: "text" },
+    { id: "abilities", label: "능력", type: "text" },
+    // 소개 칸은 조립 절이 아니라 Roster 줄이라 절 제목이 모델에 가지 않는다: 편집 화면에만 보이는 고정 제목
+    { id: "intro", label: "소개", title: "Roster", type: "line", hint: "Roster 지침의 한 줄. 「(나이/성별, 직급): 외모; 성격; 능력」 꼴" }
+  ]);
+  var ORG_FIELDS = titled("org", [
+    { id: "intro", label: "소개", type: "text", hint: "첫 문단은 Faction 지침 요약에, 나머지는 세력 상세 로어에" },
+    { id: "doctrine", label: "교리·방침", type: "text" },
+    { id: "hq", label: "본부·거점", type: "text" },
+    { id: "structure", label: "조직 구조", type: "text" },
+    { id: "hierarchy", label: "계급", type: "text" },
+    { id: "recruitment", label: "모집·첫 접촉", type: "text" },
+    { id: "assets", label: "핵심 자산·특성", type: "text" },
+    { id: "personnel", label: "인원", type: "text" }
+  ]);
+  var ANOMALY_FIELDS = titled("anomaly", [
+    { id: "identity", label: "정체", type: "text", hint: "뭐가 어떻게 된 괴이인지, 어디에 깃드는지" },
+    { id: "entry", label: "입장 조건", type: "text", hint: "들어가는 길·징후·돌아갈 수 있는 시점" },
+    { id: "space", label: "공간·구조", type: "text", hint: "구역·층·동선·공간 규칙" },
+    { id: "rules", label: "규칙", type: "text", hint: "안에서 지켜야 하는 것, 어기면 생기는 일" },
+    { id: "entities", label: "개체", type: "text", hint: "등장하는 존재들 (여럿이면 ##### 소제목)" },
+    { id: "survival", label: "생존·탈출", type: "text", hint: "클리어 조건·출구·하면 안 되는 것·약점" },
+    { id: "notes", label: "비고", type: "text", hint: "등급·발생지 같은 짧은 정보, 외부 노출" }
+  ]);
+  var SITE_FIELDS = titled("site", [
+    { id: "identity", label: "정체", type: "text" },
+    { id: "access", label: "접근", type: "text" },
+    { id: "location", label: "위치와 외관", type: "text" },
+    { id: "environment", label: "환경", type: "text" },
+    { id: "rules", label: "이용 규칙(거래·대가)", type: "text" },
+    { id: "keeper", label: "주인/운영자", type: "text" }
+  ]);
+  var APPENDIX_FIELDS = [
+    { id: "title", label: "제목", title: "", type: "line", hint: "「### 」 뒤에 붙는 제목 줄" },
+    { id: "body", label: "본문", title: "", type: "text" }
+  ];
+  var FIELDS = { agent: AGENT_FIELDS, org: ORG_FIELDS, anomaly: ANOMALY_FIELDS, site: SITE_FIELDS, appendix: APPENDIX_FIELDS };
+  function titled(kind, list4) {
+    return list4.map((f) => f.title !== void 0 ? f : Object.defineProperty({ ...f }, "title", { get: () => guideTxt("Main", `WORLD.FIELD.${kind}.${f.id}`), enumerable: true }));
+  }
+  var anomalyNoteDefault = () => guideTxt("Main", "WORLD.ANOMALY.NOTE");
+
+  // src/core/world/records.ts
+  var RELATION_STAGES = ["hostile", "wary", "neutral", "favorable", "friendly"];
+  var relationLabel = (s8) => guideTxt("Main", `FACTION.LABEL.${s8}`);
+  var RELATION_LABEL = {
+    get hostile() {
+      return relationLabel("hostile");
+    },
+    get wary() {
+      return relationLabel("wary");
+    },
+    get neutral() {
+      return relationLabel("neutral");
+    },
+    get favorable() {
+      return relationLabel("favorable");
+    },
+    get friendly() {
+      return relationLabel("friendly");
+    }
+  };
+  var data = globalThis.__goeiWorldData ?? null;
+  function setWorldData(d) {
+    for (const k of ["agent", "org", "anomaly", "site", "appendix"]) {
+      if (!d[k] || typeof d[k] !== "object" || Array.isArray(d[k])) throw new Error(`세계 자료 형식이 달라요 (${k}).`);
+    }
+    if (!d.relations || typeof d.relations.pairs !== "object" || typeof d.relations.common !== "string") throw new Error("세계 자료 형식이 달라요 (relations).");
+    if (d.scenes && (typeof d.scenes !== "object" || typeof d.scenes.세력 !== "object" || typeof d.scenes.인물 !== "object")) throw new Error("세계 자료 형식이 달라요 (scenes).");
+    data = d;
+    dataGen++;
+  }
+  var dataGen = 0;
+  var worldDataGen = () => dataGen;
+  var defaultScenes = () => world().scenes ?? { 세력: {}, 인물: {} };
+  function defaultAppendixWhen(name) {
+    const row8 = data?.appendixWhen?.[name];
+    return row8 && typeof row8 === "object" && !Array.isArray(row8) ? row8 : void 0;
+  }
+  function world() {
+    if (!data) throw new Error("세계 자료(goei-data-world)가 아직 없어요. 본체 부팅이 자료 받기를 끝내기 전에 세계 기록을 읽었어요.");
+    return data;
+  }
+  var DEFAULTS2 = (kind) => world()[kind];
+  var DEFAULT_RELATIONS = () => world().relations;
+  function renameOrgOverrides(over, from, to) {
+    if (!from || !to || from === to) return over;
+    const next = { ...over };
+    if (over.org && from in over.org && !(to in over.org)) {
+      const org = { ...over.org };
+      org[to] = org[from];
+      delete org[from];
+      next.org = org;
+    }
+    const pairs2 = over.relations?.pairs;
+    if (pairs2 && Object.keys(pairs2).some((k) => k.split(">").includes(from))) {
+      const moved = {};
+      for (const [k, v] of Object.entries(pairs2)) {
+        const [a, b] = k.split(">");
+        moved[b === void 0 ? k : `${a === from ? to : a}>${b === from ? to : b}`] = v;
+      }
+      next.relations = { ...over.relations, pairs: moved };
+    }
+    return next;
+  }
+  var worldAnomalyNote = (over) => typeof over?.anomalyNote === "string" ? over.anomalyNote : anomalyNoteDefault();
+  var str = (v) => typeof v === "string" ? v : "";
+  var obj = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
+  function cleanExtra(v) {
+    if (!Array.isArray(v)) return [];
+    return v.map((x) => obj(x)).filter((x) => str(x.name).trim()).map((x) => ({
+      name: str(x.name).trim(),
+      value: str(x.value),
+      kind: x.kind === "line" ? "line" : "block",
+      ...x.sec === "identity" || x.sec === "appearance" ? { sec: x.sec, at: str(x.at) } : {}
+    }));
+  }
+  function mergeRecord(base, over) {
+    if (over?.deleted) return null;
+    if (!base && !over) return null;
+    const fields3 = { ...base?.fields ?? {} };
+    for (const [k, v] of Object.entries(obj(over?.fields))) if (typeof v === "string") fields3[k] = v;
+    const variants = {};
+    for (const [code2, vf] of Object.entries(obj(over?.variants ?? base?.variants))) {
+      const m = {};
+      for (const [k, v] of Object.entries(obj(vf))) if (typeof v === "string") m[k] = v;
+      if (Object.keys(m).length) variants[code2] = m;
+    }
+    const out2 = {
+      fields: fields3,
+      extra: over?.extra !== void 0 ? cleanExtra(over.extra) : base?.extra ?? []
+    };
+    const keys = over?.keys ?? base?.keys;
+    if (keys) out2.keys = keys;
+    const title2 = over?.title ?? base?.title;
+    if (title2) out2.title = title2;
+    if (over?.titleRaw ?? base?.titleRaw) out2.titleRaw = true;
+    const order2 = over?.order ?? base?.order;
+    if (Array.isArray(order2) && order2.length) out2.order = order2.map(String);
+    if (Object.keys(variants).length) out2.variants = variants;
+    const departments = over?.departments ?? base?.departments;
+    if (departments && Object.keys(departments).length) out2.departments = { ...departments };
+    if (over?.summaryOnly ?? base?.summaryOnly) out2.summaryOnly = true;
+    if (over?.noSummary ?? base?.noSummary) out2.noSummary = true;
+    if (over?.rosterOff ?? base?.rosterOff) out2.rosterOff = true;
+    if (over?.relOff ?? base?.relOff) out2.relOff = true;
+    const notes = over?.roster_notes ?? base?.roster_notes;
+    if (Array.isArray(notes) && notes.length) out2.roster_notes = notes.map((n3) => ({ department: String(n3.department ?? ""), label: String(n3.label ?? "") }));
+    return out2;
+  }
+  function worldRecords(kind, overrides2) {
+    const base = DEFAULTS2(kind);
+    const over = overrides2?.[kind] ?? {};
+    const out2 = /* @__PURE__ */ new Map();
+    for (const [name, rec3] of Object.entries(base)) {
+      const m = mergeRecord(rec3, over[name]);
+      if (m) out2.set(name, m);
+    }
+    for (const [name, rec3] of Object.entries(over)) {
+      if (out2.has(name) || base[name]) continue;
+      const m = mergeRecord(void 0, rec3);
+      if (m) out2.set(name, m);
+    }
+    return out2;
+  }
+  var worldRecord = (kind, name, overrides2) => worldRecords(kind, overrides2).get(name) ?? null;
+  function worldRelations(overrides2) {
+    const pairs2 = { ...DEFAULT_RELATIONS().pairs };
+    for (const [k, v] of Object.entries(overrides2?.relations?.pairs ?? {})) {
+      if (v === null) delete pairs2[k];
+      else if (v && RELATION_STAGES.includes(v.stage)) pairs2[k] = { stage: v.stage, ...v.memo ? { memo: v.memo } : {} };
+    }
+    return { pairs: pairs2, common: overrides2?.relations?.common ?? DEFAULT_RELATIONS().common };
+  }
+  var placeholderOrgs = () => new Set(data?.placeholderOrgs ?? []);
+  var excludedOrgs = (orgs) => /* @__PURE__ */ new Set([...[...orgs.entries()].filter(([, r]) => r.relOff).map(([n3]) => n3), ...placeholderOrgs()]);
+  function filterRelations(rel, excluded) {
+    if (!excluded.size) return rel;
+    const pairs2 = {};
+    for (const [k, v] of Object.entries(rel.pairs)) {
+      const [a, b] = k.split(">");
+      if (!excluded.has(a) && !excluded.has(b)) pairs2[k] = v;
+    }
+    return { ...rel, pairs: pairs2 };
+  }
+  var isDefaultRecord = (kind, name) => name in DEFAULTS2(kind);
+  var defaultRecord = (kind, name) => DEFAULTS2(kind)[name];
+  var worldOrgCodes = () => ({ ...data?.orgCodes ?? {} });
+  var active = null;
+  function setActiveWorld(relations, orgCodes, anomalyNote = anomalyNoteDefault()) {
+    active = { relations, orgCodes: { ...worldOrgCodes(), ...orgCodes }, anomalyNote };
+  }
+  var activeRelations = () => active?.relations ?? DEFAULT_RELATIONS();
+  var activeAnomalyNote = () => active?.anomalyNote ?? anomalyNoteDefault();
+  var activeOrgName = (codeOrName) => (active?.orgCodes ?? worldOrgCodes())[codeOrName] ?? codeOrName;
+  var STAGE_VALUE = { hostile: -80, wary: -40, neutral: 0, favorable: 40, friendly: 80 };
+  function relationStage(viewer, target, rel = activeRelations()) {
+    return rel.pairs[`${activeOrgName(viewer)}>${activeOrgName(target)}`]?.stage ?? "neutral";
+  }
+  function fieldOrder(kind, rec3) {
+    const base = FIELDS[kind].map((f) => f.id);
+    const extras2 = rec3.extra.map((e) => `x:${e.name}`);
+    const all = [...base, ...extras2];
+    if (!rec3.order) return all;
+    const seen4 = /* @__PURE__ */ new Set();
+    const out2 = [];
+    for (const id2 of rec3.order) if (all.includes(id2) && !seen4.has(id2)) seen4.add(id2), out2.push(id2);
+    for (const id2 of all) if (!seen4.has(id2)) out2.push(id2);
+    return out2;
+  }
+  function fieldValue(rec3, id2, faction) {
+    const v = faction ? rec3.variants?.[faction]?.[id2] : void 0;
+    return (v ?? rec3.fields[id2] ?? "").trim();
+  }
+
+  // src/core/scenes.ts
+  var CUSTOM_FM = 101;
+  var s2 = (v) => typeof v === "string" ? v : "";
+  var obj2 = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
+  function pickScenes(raw) {
+    const d = obj2(raw);
+    const out2 = {};
+    const one2 = (v) => {
+      const o = obj2(v);
+      const row8 = {};
+      if (s2(o.label).trim()) row8.label = s2(o.label).trim();
+      if (s2(o.ko).trim()) row8.ko = s2(o.ko);
+      if (s2(o.en).trim()) row8.en = s2(o.en);
+      if (o.hidden === true) row8.hidden = true;
+      const names4 = Array.isArray(o.lore) ? o.lore.map((x) => s2(x).trim()).filter(Boolean) : [];
+      if (names4.length) row8.lore = names4;
+      return Object.keys(row8).length ? row8 : null;
+    };
+    for (const [code2, rows3] of Object.entries(obj2(d.세력))) {
+      for (const [fm, v] of Object.entries(obj2(rows3))) {
+        if (!/^\d+$/.test(fm)) continue;
+        const row8 = one2(v);
+        if (row8) ((out2.세력 ??= {})[code2] ??= {})[fm] = row8;
+      }
+    }
+    for (const [id2, v] of Object.entries(obj2(d.인물))) {
+      const row8 = one2(v);
+      if (row8) (out2.인물 ??= {})[id2] = row8;
+    }
+    return out2;
+  }
+  function safeDefaults() {
+    try {
+      return defaultScenes();
+    } catch {
+      return { 세력: {}, 인물: {} };
+    }
+  }
+  function factionScenes(code2, saved) {
+    const base = safeDefaults().세력[code2] ?? {};
+    const over = saved?.세력?.[code2] ?? {};
+    const fms = [.../* @__PURE__ */ new Set([...Object.keys(base), ...Object.keys(over)])].map(Number).filter((n3) => Number.isInteger(n3) && n3 > 0).sort((a, b) => a - b);
+    return fms.map((fm) => {
+      const b = base[String(fm)];
+      const o = over[String(fm)] ?? {};
+      return {
+        fm,
+        label: o.label || b?.label || `장면 ${fm}`,
+        ko: o.ko || b?.ko || "",
+        en: o.en || b?.en || "",
+        hidden: !!o.hidden,
+        custom: !b,
+        hasDefault: !!b
+      };
+    });
+  }
+  function agentScene(agentId, saved) {
+    const b = safeDefaults().인물[agentId];
+    const o = saved?.인물?.[agentId];
+    const ko = o?.ko || b?.ko || "";
+    const en2 = o?.en || b?.en || "";
+    const label2 = (o?.label || b?.label || "").trim();
+    const lore = o?.lore?.length ? o.lore : (b?.lore ?? []).filter((x) => typeof x === "string" && x.trim());
+    return ko.trim() || en2.trim() ? { ko, en: en2, label: label2, lore } : null;
+  }
+  function agentSceneSaved(agentId, saved) {
+    return saved?.인물?.[agentId];
+  }
+  var sceneText = (row8, lang) => row8 ? lang === "en" ? row8.en : row8.ko : "";
+  function nextCustomFm(rows3) {
+    return Math.max(CUSTOM_FM - 1, ...rows3.map((r) => r.fm)) + 1;
+  }
+
+  // src/core/factions.ts
+  var BUILTIN = ["A00", "B00", "C00", "D00", "E00"];
+  var TAG_BOOK = "🏷️Tag";
+  var FACTION_BOOK = "📜Faction";
+  var FACTION_TYPES = [
+    // 유형이 바꾸는 것은 Faction 지침의 소개 끝 한 줄(TYPE_GM)과 사진 없을 때의 공용 대체 그림뿐 (2026-11-05 사용자 질문에 맞춰 설명을 사실대로)
+    { id: "org", label: "조직형", help: "직접 추가한 조직을 플레이 세력으로 켜면 Faction 세력 목록에 붙는 소개 끝 한 줄이 「작전을 운영하고 내부 공지와 소속 요원이 있다」가 돼요. 카드에 있던 조직은 사진 없을 때의 대체 그림 종류만 달라져요" },
+    { id: "civilian", label: "민간형", help: "직접 추가한 조직을 플레이 세력으로 켜면 Faction 세력 목록에 붙는 소개 끝 한 줄이 「작전 없음, 구성원은 방문·이동만」이 돼요. 카드에 있던 조직은 사진 없을 때의 대체 그림 종류만 달라져요" },
+    { id: "freelancer", label: "프리랜서형", help: "직접 추가한 조직을 플레이 세력으로 켜면 Faction 세력 목록에 붙는 소개 끝 한 줄이 「구성원은 계약 임무를 받는다」가 돼요. 카드에 있던 조직은 사진 없을 때의 대체 그림 종류만 달라져요" }
+  ];
+  var EXTRA_SCENARIOS = [
+    { fm: 1, label: "직접 입력", kind: "direct" },
+    { fm: 2, label: "커스텀 임무", kind: "preset" }
+  ];
+  var isFactionCode = (v) => typeof v === "string" && /^[A-Z]00$/.test(v);
+  var PLAYER_FM = 0;
+  var playerScenario = (name, label2) => ({ fm: PLAYER_FM, label: label2?.trim() || `${name}의 첫 장면`, kind: "opening" });
+  var s3 = (v) => typeof v === "string" ? v.trim() : "";
+  var list = (v) => Array.isArray(v) ? v.map(s3).filter(Boolean) : [];
+  var obj3 = (v) => v && typeof v === "object" && !Array.isArray(v) ? v : {};
+  function pickSpec(raw) {
+    const d = obj3(raw);
+    const out2 = {};
+    if (isFactionCode(d.code)) out2.code = d.code;
+    if (d.playable === true) out2.playable = true;
+    if (d.hidden === true) out2.hidden = true;
+    if (FACTION_TYPES.some((t) => t.id === d.type)) out2.type = d.type;
+    for (const k of ["title", "blurb", "photo", "face", "crop", "english", "gm_name", "gm_desc", "tab"]) if (s3(d[k])) out2[k] = s3(d[k]);
+    if (Array.isArray(d.seed)) out2.seed = list(d.seed);
+    return out2;
+  }
+  function loreText(lore, comment) {
+    return lore.filter((e) => e.comment === comment && typeof e.content === "string").map((e) => e.content).join("\n");
+  }
+  function directoryRaw(lore) {
+    const raw = directoryEntries(lore).map((e) => String(e.content ?? "")).join("\n").trim();
+    if (!raw) return {};
+    try {
+      const d = obj3(JSON.parse(raw.replace(/^﻿/, "").replace(/^```[\w-]*\s*\n/, "").replace(/\n\s*```\s*$/, "")));
+      return d.schema === 1 ? migrateRoster(d) : {};
+    } catch {
+      return {};
+    }
+  }
+  function scenesOf(lore) {
+    return pickScenes(directoryRaw(lore ?? [])["첫 장면"]);
+  }
+  function scenarioList(code2, scenes, tail2) {
+    const openings = factionScenes(code2, scenes).filter((r) => !r.hidden && (r.ko.trim() || r.en.trim())).map((r) => ({ fm: r.fm, label: r.label, kind: "opening" }));
+    return [...openings, ...tail2.filter((t) => t.kind !== "opening")];
+  }
+  function orgSpecs(lore) {
+    return Object.entries(obj3(directoryRaw(lore).조직)).map(([name, v]) => [name.trim(), pickSpec(v)]).filter(([name]) => name);
+  }
+  function startGroups(lore) {
+    const out2 = [];
+    for (const [name, raw] of Object.entries(obj3(directoryRaw(lore ?? [])["시작 묶음"]))) {
+      const d = obj3(raw);
+      if (!s3(name) || !isFactionCode(d.code) || BUILTIN.includes(d.code) || out2.some((g3) => g3.code === d.code)) continue;
+      out2.push({ name: s3(name), code: d.code, blurb: s3(d.blurb), english: s3(d.english), photo: s3(d.photo), hidden: d.hidden === true });
+    }
+    return out2;
+  }
+  function startOrder(lore) {
+    return list(obj3(directoryRaw(lore ?? [])["시작 화면"]).order);
+  }
+  function sortByStart(codes, list4) {
+    if (!codes.length) return list4;
+    const at = new Map(codes.map((c, i) => [c, i]));
+    return [...list4].sort((a, b) => (at.get(a.code) ?? 1e9 + list4.indexOf(a)) - (at.get(b.code) ?? 1e9 + list4.indexOf(b)));
+  }
+  function placeholdersReady(lore) {
+    const books = (lore ?? []).filter((e) => e.goeiVirtual !== true);
+    const tag = books.some((e) => e.comment === TAG_BOOK) ? loreText(books, TAG_BOOK) : guideText("Tag");
+    const fac = loreText(books, FACTION_BOOK);
+    return tag.includes("{{getvar::fac_codes}}") && tag.includes("{{getvar::fac_ac}}") && (!fac || placeFactionExtra(fac) === fac);
+  }
+  var builtinType = (code2) => code2 === "D00" ? "civilian" : code2 === "E00" ? "freelancer" : "org";
+  var OPEN_TO = BUILTIN.filter((f) => builtinType(f) !== "civilian");
+  var extraTabId = (code2) => `T${100 + code2.charCodeAt(0) - 65}`;
+  var cache = /* @__PURE__ */ new WeakMap();
+  function factionList(lore) {
+    const books = lore ?? [];
+    const hit4 = cache.get(books);
+    if (hit4) return hit4;
+    const specs = orgSpecs(books);
+    const scenes = scenesOf(books);
+    const out2 = SCENARIOS.factions.map((f, i) => {
+      const spec = specs.find(([, v]) => v.code === f.code)?.[1] ?? {};
+      return {
+        ...f,
+        scenarios: scenarioList(f.code, scenes, f.scenarios),
+        name: spec.title || f.name,
+        blurb: spec.blurb || f.blurb,
+        photo: spec.photo ?? "",
+        english: spec.english ?? "",
+        type: builtinType(f.code),
+        builtin: true,
+        hidden: !!spec.hidden
+      };
+    });
+    if (placeholdersReady(books)) {
+      const extras2 = [];
+      for (const [name, spec] of specs) {
+        if (!spec.playable || !spec.code || BUILTIN.includes(spec.code) || extras2.some((f) => f.code === spec.code)) continue;
+        extras2.push({
+          code: spec.code,
+          name: spec.title || name,
+          affiliation: name,
+          blurb: spec.blurb ?? "",
+          scenarios: scenarioList(spec.code, scenes, EXTRA_SCENARIOS),
+          photo: spec.photo ?? "",
+          english: spec.english ?? "",
+          type: spec.type ?? "org",
+          builtin: false,
+          hidden: false,
+          gmName: spec.gm_name ?? "",
+          gmDesc: spec.gm_desc ?? "",
+          seed: spec.seed ?? [name],
+          tab: spec.tab || Array.from(name).slice(0, 2).join(""),
+          org: name
+        });
+      }
+      out2.push(...extras2.sort((a, b) => a.code.localeCompare(b.code)));
+    }
+    for (const g3 of startGroups(books)) {
+      if (out2.some((f) => f.code === g3.code)) continue;
+      out2.push({ code: g3.code, name: g3.name, affiliation: g3.name, blurb: g3.blurb, scenarios: scenarioList(g3.code, scenes, EXTRA_SCENARIOS), photo: g3.photo, english: g3.english, type: "org", builtin: false, hidden: g3.hidden, group: true });
+    }
+    const sorted = sortByStart(startOrder(books), out2);
+    cache.set(books, sorted);
+    return sorted;
+  }
+  var extraFactions = (lore) => factionList(lore).filter((f) => !f.builtin && !f.group);
+  var openTabCodes = (lore) => factionList(lore).filter((f) => !f.builtin).map((f) => f.code);
+  function factionType(code2, lore) {
+    if (BUILTIN.includes(code2)) return builtinType(code2);
+    return factionList(lore).find((f) => f.code === code2)?.type ?? "org";
+  }
+  function extraNames(lore) {
+    const out2 = {};
+    for (const f of extraFactions(lore)) out2[f.code] = f.org ?? f.name;
+    return out2;
+  }
+  function extraTabs(lore) {
+    return extraFactions(lore).map((f) => ({ id: extraTabId(f.code), name: f.tab ?? f.code, visibleFor: [f.code] }));
+  }
+  function nextCode(used) {
+    const taken = /* @__PURE__ */ new Set([...BUILTIN, ...used]);
+    for (let c = "F".charCodeAt(0); c <= "Z".charCodeAt(0); c++) {
+      const code2 = `${String.fromCharCode(c)}00`;
+      if (!taken.has(code2)) return code2;
+    }
+    return null;
+  }
+  var typeGm = (type) => guideTxt("Main", `WORLD.FACTION.TYPE.${type}`);
+  function factionVars(lore) {
+    const extras2 = extraFactions(lore);
+    const tag = loreText(lore ?? [], TAG_BOOK);
+    const gmName = (f) => f.gmName || f.org || f.name;
+    const poolLine = /\n[ \t]*- Faction pool:([^\n]*)/.exec(tag)?.[1] ?? "";
+    const inPool = new Set(poolLine.split("|").map((x) => x.trim()).filter(Boolean));
+    return {
+      $fac_codes: extras2.map((f) => ` | ${f.code}`).join(""),
+      $fac_ac: extras2.map((f) => `
+   - ${f.code} = ${gmName(f)}`).join(""),
+      $fac_pool: extras2.map((f) => f.org ?? f.name).filter((n3) => !inPool.has(n3)).map((n3) => ` | ${n3}`).join(""),
+      $fac_extra: extras2.map((f) => `
+
+### ${gmName(f)} [${f.code}]
+${f.gmDesc || guideTxt("Main", "WORLD.FACTION.EXTRA_DESC", { org: String(f.org) })}
+${typeGm(f.type ?? "org")}`).join("")
+    };
+  }
+  var FACTION_VAR_KEYS = ["$fac_codes", "$fac_ac", "$fac_pool", "$fac_extra"];
+  function staleFactionVars(lore, ss) {
+    const want = factionVars(lore);
+    const v = ss ?? {};
+    return FACTION_VAR_KEYS.some((k) => String(v[k] ?? "") !== want[k]) ? want : null;
+  }
+  var AC_CODES = /(code = A00 \| B00 \| C00 \| D00 \| E00)(?!\{\{getvar::fac_codes\}\})/;
+  var AC_LAST = /(\n[ \t]*- E00 = [^\n]*)(?!\{\{getvar::fac_ac\}\})/;
+  var POOL = /(\n[ \t]*- Faction pool:[^\n]*?)( \| etc\.)?(\n)/;
+  var EXTRA = "{{getvar::fac_extra}}";
+  function placeFactionExtra(text5) {
+    const bare = text5.split(EXTRA).join("");
+    const body5 = bare.replace(/\s+$/, "");
+    const next = body5.slice(1).search(/\n## /);
+    if (next < 0) return text5.includes(EXTRA) ? text5 : `${body5}${EXTRA}
+`;
+    const at = next + 1;
+    const want = `${body5.slice(0, at).replace(/\s+$/, "")}${EXTRA}
+
+${body5.slice(at).replace(/^\s+/, "")}
+`;
+    if (text5.includes(EXTRA) && text5.indexOf(EXTRA) === want.indexOf(EXTRA) && text5.split(EXTRA).length === 2) return text5;
+    return want;
+  }
+  function withFactionPlaceholders(lore) {
+    const missing = [];
+    let changed = false;
+    const tagAt = lore.findIndex((e) => e.comment === TAG_BOOK && typeof e.content === "string");
+    const facAt = lore.findIndex((e) => e.comment === FACTION_BOOK && typeof e.content === "string");
+    const next = lore.slice();
+    if (tagAt < 0) missing.push(TAG_BOOK);
+    else {
+      let t = next[tagAt].content;
+      if (!t.includes("{{getvar::fac_codes}}")) {
+        if (AC_CODES.test(t)) t = t.replace(AC_CODES, "$1{{getvar::fac_codes}}");
+        else missing.push("[AC] 코드 목록");
+      }
+      if (!t.includes("{{getvar::fac_ac}}")) {
+        if (AC_LAST.test(t)) t = t.replace(AC_LAST, "$1{{getvar::fac_ac}}");
+        else missing.push("[AC] E00 줄");
+      }
+      if (!t.includes("{{getvar::fac_pool}}")) {
+        if (POOL.test(t)) t = t.replace(POOL, (_m, line2, etc, nl) => `${line2}{{getvar::fac_pool}}${etc ?? ""}${nl}`);
+        else missing.push("Faction pool 줄");
+      }
+      if (t !== next[tagAt].content) {
+        next[tagAt] = { ...next[tagAt], content: t };
+        changed = true;
+      }
+    }
+    if (facAt < 0) missing.push(FACTION_BOOK);
+    else {
+      const f = next[facAt].content;
+      const t = placeFactionExtra(f);
+      if (t !== f) {
+        next[facAt] = { ...next[facAt], content: t };
+        changed = true;
+      }
+    }
+    return { lore: next, changed, missing };
+  }
+
+  // src/data/picwords.json
+  var picwords_default = {
+    places: [
+      {
+        k: "Apartment",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "주공아파트",
+              "임대아파트",
+              "연립주택",
+              "다세대주택"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "복도식아파트",
+              "아파트복도",
+              "고시원",
+              "고시텔",
+              "쪽방"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "아파트",
+            "아파트단지",
+            "오피스텔",
+            "맨션",
+            "빌라",
+            "주상복합"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Apartment"
+        ]
+      },
+      {
+        k: "Home",
+        w: [
+          "거실",
+          "안방",
+          "현관",
+          "베란다",
+          "발코니",
+          "다락방",
+          "부엌",
+          "주방",
+          "침실",
+          "욕실",
+          "자택",
+          "가정집",
+          "살림집",
+          "집안",
+          "신혼집",
+          "본가",
+          "친정집",
+          "시댁",
+          "아파트집"
+        ],
+        near: "Apartment 2",
+        inc: [
+          "Apartment",
+          "Residential"
+        ]
+      },
+      {
+        k: "StudioFlat",
+        w: [
+          "자취방",
+          "원룸",
+          "투룸",
+          "반지하",
+          "옥탑방",
+          "하숙집",
+          "셋방",
+          "단칸방",
+          "원룸텔",
+          "자취집"
+        ],
+        near: "Apartment 2",
+        inc: [
+          "Residential",
+          "Apartment"
+        ]
+      },
+      {
+        k: "Alley",
+        w: [
+          "골목",
+          "골목길",
+          "주택가",
+          "뒷골목",
+          "막다른길",
+          "판자촌",
+          "쪽방촌",
+          "빌라촌",
+          "원룸촌",
+          "담벼락",
+          "전봇대"
+        ],
+        near: "Village 1",
+        inc: [
+          "Residential"
+        ]
+      },
+      {
+        k: "HillsideStairs",
+        w: [
+          "달동네",
+          "계단길",
+          "산동네",
+          "언덕동네",
+          "언덕길",
+          "비탈길",
+          "계단골목"
+        ],
+        near: "Village 1",
+        inc: [
+          "Residential"
+        ]
+      },
+      {
+        k: "House",
+        w: [
+          "단독주택",
+          "주택",
+          "양옥",
+          "전원주택",
+          "별장",
+          "저택",
+          "사택",
+          "관사",
+          "양옥집",
+          "이층집",
+          "2층집"
+        ],
+        near: "Village 1",
+        inc: [
+          "Residential"
+        ]
+      },
+      {
+        k: "Hanok",
+        w: [
+          "고택",
+          "한옥",
+          "한옥마을",
+          "초가집",
+          "기와집",
+          "종갓집",
+          "종가",
+          "한옥집",
+          "고가옥"
+        ],
+        near: "Village 1",
+        inc: [
+          "Residential"
+        ]
+      },
+      {
+        k: "Village",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "시골집",
+              "폐가",
+              "흉가",
+              "빈집",
+              "농가",
+              "민가",
+              "외딴집"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "당산나무",
+              "성황당",
+              "서낭당",
+              "장승",
+              "정자나무",
+              "마을입구",
+              "마을회관",
+              "경로당",
+              "노인정",
+              "느티나무"
+            ]
+          }
+        ],
+        g: {
+          w: [
+            "마을",
+            "시골마을",
+            "농촌",
+            "산골",
+            "촌락"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Farm",
+          "Residential"
+        ]
+      },
+      {
+        k: "Stairwell",
+        w: [
+          "계단",
+          "계단실",
+          "비상계단",
+          "비상구",
+          "층계",
+          "층계참",
+          "계단참"
+        ],
+        near: "Apartment 2",
+        inc: [
+          "Apartment",
+          "Residential"
+        ]
+      },
+      {
+        k: "Basement",
+        w: [
+          "지하실",
+          "보일러실",
+          "기계실",
+          "전기실",
+          "지하창고",
+          "배관실",
+          "물탱크실",
+          "지하",
+          "지하층",
+          "반지하창고"
+        ],
+        near: "Parking 1",
+        inc: [
+          "Apartment",
+          "Residential"
+        ]
+      },
+      {
+        k: "Forest",
+        pics: [
+          {
+            n: 2,
+            w: [
+              "놀이터",
+              "근린공원",
+              "어린이공원",
+              "공원",
+              "그네",
+              "미끄럼틀",
+              "벤치",
+              "소공원"
+            ]
+          },
+          {
+            n: 1,
+            w: [
+              "둘레길",
+              "산길계단",
+              "임야",
+              "수풀",
+              "능선",
+              "정상",
+              "봉우리",
+              "봉",
+              "령",
+              "휴양림",
+              "자연휴양림",
+              "약수터길"
+            ]
+          }
+        ],
+        g: {
+          w: [
+            "산",
+            "숲",
+            "야산",
+            "등산로",
+            "숲길"
+          ],
+          p: [
+            1
+          ]
+        },
+        inc: [
+          "Mountain"
+        ]
+      },
+      {
+        k: "UrbanPark",
+        w: [
+          "호수공원",
+          "체육공원",
+          "수변공원",
+          "생태공원",
+          "잔디밭",
+          "유원지",
+          "시민공원",
+          "도시공원",
+          "중앙공원",
+          "자전거도로"
+        ],
+        s: [
+          "산책로",
+          "산책길",
+          "조깅코스"
+        ],
+        near: "Forest 2",
+        inc: [
+          "Park"
+        ]
+      },
+      {
+        k: "Redevelopment",
+        w: [
+          "재개발구역",
+          "철거촌",
+          "철거현장",
+          "재건축",
+          "재개발",
+          "빈집촌",
+          "폐건물",
+          "공가",
+          "재개발지구",
+          "재건축단지"
+        ],
+        near: "Ruin 1",
+        inc: [
+          "Residential"
+        ]
+      },
+      {
+        k: "Ruin",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "폐창고",
+              "폐건물외관",
+              "폐업",
+              "폐쇄"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "폐병원",
+              "폐모텔",
+              "폐호텔",
+              "폐아파트",
+              "폐상가",
+              "폐빌딩",
+              "폐연구소"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "폐허",
+            "폐공장",
+            "폐시설"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Factory"
+        ]
+      },
+      {
+        k: "NightlifeStreet",
+        w: [
+          "번화가",
+          "유흥가",
+          "먹자골목",
+          "술집거리",
+          "클럽거리",
+          "모텔촌",
+          "홍등가",
+          "네온사인",
+          "상점가",
+          "로데오거리",
+          "대학가",
+          "학원가",
+          "환락가",
+          "유흥거리",
+          "밤거리"
+        ],
+        near: "Road 2",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "Road",
+        pics: [
+          {
+            n: 2,
+            w: [
+              "횡단보도",
+              "사거리",
+              "교차로",
+              "삼거리",
+              "로터리",
+              "건널목신호",
+              "도심도로",
+              "대로",
+              "차도",
+              "신호등"
+            ],
+            inc: [
+              "Street"
+            ]
+          },
+          {
+            n: 1,
+            w: [
+              "산길",
+              "고갯길",
+              "커브길",
+              "갓길",
+              "굽잇길",
+              "임도",
+              "시골길",
+              "고개",
+              "재"
+            ]
+          }
+        ],
+        g: {
+          w: [
+            "도로"
+          ],
+          p: [
+            1
+          ]
+        },
+        inc: [
+          "Highway"
+        ]
+      },
+      {
+        k: "ProvincialRoad",
+        w: [
+          "국도",
+          "지방도",
+          "농어촌도로",
+          "들판길",
+          "직선도로",
+          "국도변",
+          "시골도로"
+        ],
+        near: "Road 1",
+        inc: [
+          "Highway"
+        ]
+      },
+      {
+        k: "Expressway",
+        w: [
+          "고속도로",
+          "나들목",
+          "분기점",
+          "자동차전용도로",
+          "순환도로",
+          "고속국도",
+          "도시고속도로"
+        ],
+        near: "Road 1",
+        inc: [
+          "Highway"
+        ]
+      },
+      {
+        k: "TollGate",
+        w: [
+          "톨게이트",
+          "요금소",
+          "하이패스",
+          "영업소"
+        ],
+        near: "Road 1",
+        inc: [
+          "Highway"
+        ]
+      },
+      {
+        k: "RestArea",
+        w: [
+          "휴게소",
+          "졸음쉼터",
+          "간이휴게소",
+          "화물차휴게소",
+          "주차쉼터",
+          "고속도로휴게소"
+        ],
+        near: "Parking 2",
+        inc: [
+          "Highway"
+        ]
+      },
+      {
+        k: "ElevatedRoad",
+        w: [
+          "고가밑",
+          "고가아래",
+          "고가하부",
+          "고가도로",
+          "고가차도",
+          "교각아래",
+          "교각밑",
+          "다리밑"
+        ],
+        near: "Road 2",
+        inc: [
+          "Highway",
+          "Street"
+        ]
+      },
+      {
+        k: "RailUnderpass",
+        w: [
+          "굴다리",
+          "철교밑",
+          "토끼굴",
+          "암거",
+          "철둑",
+          "철둑길",
+          "철길굴다리"
+        ],
+        near: "Tunnel 2",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "Tunnel",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "터널",
+              "폐터널",
+              "지하차도",
+              "해저터널"
+            ],
+            in: true
+          },
+          {
+            n: 2,
+            w: [
+              "지하보도",
+              "지하도",
+              "지하통로",
+              "연결통로",
+              "지하연결로"
+            ],
+            in: true
+          }
+        ],
+        inc: [
+          "Tunnel",
+          "Highway"
+        ]
+      },
+      {
+        k: "Cave",
+        w: [
+          "동굴",
+          "석회동굴",
+          "용암동굴",
+          "굴",
+          "토굴",
+          "방공굴",
+          "땅굴",
+          "종유굴",
+          "석굴"
+        ],
+        near: "Tunnel 1",
+        inc: [
+          "Mountain"
+        ]
+      },
+      {
+        k: "SeaCave",
+        w: [
+          "해식동굴",
+          "해안동굴",
+          "바닷가동굴",
+          "해식굴"
+        ],
+        near: "Sea 1",
+        inc: [
+          "Sea"
+        ]
+      },
+      {
+        k: "CityPlaza",
+        w: [
+          "광장",
+          "분수대",
+          "시계탑",
+          "동상",
+          "시민광장",
+          "야외무대",
+          "중앙광장",
+          "분수광장"
+        ],
+        near: "Road 2",
+        inc: [
+          "CityHall",
+          "Street"
+        ]
+      },
+      {
+        k: "StationPlaza",
+        w: [
+          "역전광장",
+          "역광장",
+          "역앞광장",
+          "역전앞",
+          "역앞"
+        ],
+        near: "Subway 1",
+        inc: [
+          "Station",
+          "Street"
+        ]
+      },
+      {
+        k: "ObservationTower",
+        w: [
+          "전망대",
+          "타워",
+          "전망탑",
+          "스카이라운지",
+          "케이블카",
+          "곤돌라",
+          "관람차"
+        ],
+        near: "Rooftop 2",
+        inc: [
+          "Tower",
+          "Street"
+        ]
+      },
+      {
+        k: "Amusement",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "놀이공원",
+              "놀이동산",
+              "테마파크",
+              "유원시설",
+              "회전목마",
+              "롤러코스터",
+              "귀신의집",
+              "폐놀이공원",
+              "랜드",
+              "월드"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "서커스",
+              "천막극장",
+              "극단",
+              "곡예단",
+              "공연천막",
+              "축제장"
+            ],
+            in: true
+          }
+        ],
+        inc: [
+          "Stadium",
+          "Park"
+        ]
+      },
+      {
+        k: "Zoo",
+        w: [
+          "동물원",
+          "사파리",
+          "조류원",
+          "맹수사",
+          "동물사",
+          "동물원우리"
+        ],
+        near: "Amusement 1",
+        inc: [
+          "Park"
+        ]
+      },
+      {
+        k: "Aquarium",
+        w: [
+          "수족관",
+          "아쿠아리움",
+          "수조",
+          "해양관"
+        ],
+        near: "Amusement 1",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "BotanicalGlasshouse",
+        w: [
+          "식물원",
+          "온실",
+          "유리온실",
+          "열대식물원",
+          "온실정원"
+        ],
+        near: "Forest 2",
+        inc: [
+          "Park"
+        ]
+      },
+      {
+        k: "FormalGarden",
+        w: [
+          "수목원",
+          "화원",
+          "정원",
+          "꽃밭",
+          "장미원",
+          "미로정원",
+          "산울타리",
+          "정원수"
+        ],
+        near: "Forest 2",
+        inc: [
+          "Park"
+        ]
+      },
+      {
+        k: "TraditionalMarket",
+        w: [
+          "시장",
+          "재래시장",
+          "전통시장",
+          "야시장",
+          "오일장",
+          "장터",
+          "벼룩시장",
+          "청과시장",
+          "도매시장",
+          "좌판",
+          "노점",
+          "5일장",
+          "골목시장"
+        ],
+        near: "Restaurant 1",
+        inc: [
+          "Market"
+        ]
+      },
+      {
+        k: "FishMarket",
+        w: [
+          "수산시장",
+          "어시장",
+          "수산물시장",
+          "활어시장",
+          "회센터",
+          "수산센터",
+          "수산물도매시장"
+        ],
+        near: "Restaurant 1",
+        inc: [
+          "Market",
+          "Sea"
+        ]
+      },
+      {
+        k: "Mall",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "백화점",
+              "쇼핑몰",
+              "아울렛",
+              "복합쇼핑몰",
+              "대형마트",
+              "마트",
+              "면세점",
+              "에스컬레이터",
+              "쇼핑센터",
+              "아트리움"
+            ],
+            in: true
+          },
+          {
+            n: 2,
+            w: [
+              "지하상가",
+              "상가",
+              "상가건물",
+              "지하쇼핑센터",
+              "셔터",
+              "폐상가복도"
+            ],
+            in: true
+          }
+        ],
+        inc: [
+          "Mall",
+          "Market"
+        ]
+      },
+      {
+        k: "Store",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "구멍가게",
+              "슈퍼",
+              "슈퍼마켓",
+              "동네슈퍼",
+              "가게",
+              "상점",
+              "매점"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "편의점내부",
+              "진열대",
+              "무인편의점"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "편의점"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Market",
+          "Street"
+        ]
+      },
+      {
+        k: "Laundromat",
+        w: [
+          "빨래방",
+          "코인빨래방",
+          "셀프빨래방",
+          "코인세탁소",
+          "무인세탁소",
+          "세탁방",
+          "세탁소"
+        ],
+        near: "Store 1",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "VendingCorner",
+        w: [
+          "무인점포",
+          "무인가게",
+          "무인카페",
+          "인형뽑기방",
+          "무인사진관",
+          "자판기",
+          "공중전화",
+          "자판기코너",
+          "무인판매대"
+        ],
+        near: "Store 1",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "Cafe",
+        w: [
+          "카페",
+          "커피숍",
+          "찻집",
+          "다방",
+          "디저트카페",
+          "북카페",
+          "키즈카페",
+          "만화카페",
+          "커피전문점",
+          "브런치카페"
+        ],
+        near: "Restaurant 2",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "EscapeRoom",
+        w: [
+          "방탈출카페",
+          "방탈출",
+          "보드게임카페",
+          "테마방"
+        ],
+        near: "Arcade 2",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "Restaurant",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "포장마차",
+              "먹자골목포차",
+              "노점식당",
+              "실내포차",
+              "야식골목"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "식당",
+              "음식점",
+              "국밥집",
+              "분식집",
+              "중국집",
+              "고깃집",
+              "횟집",
+              "한식당",
+              "백반집",
+              "기사식당",
+              "구내식당",
+              "급식실",
+              "뷔페",
+              "푸드코트"
+            ],
+            in: true
+          }
+        ],
+        inc: [
+          "Market",
+          "Street"
+        ]
+      },
+      {
+        k: "BasementBar",
+        w: [
+          "술집",
+          "주점",
+          "호프집",
+          "바",
+          "선술집",
+          "이자카야",
+          "단란주점",
+          "유흥주점",
+          "룸살롱",
+          "지하술집",
+          "칵테일바",
+          "와인바"
+        ],
+        near: "Arcade 1",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "Nightclub",
+        w: [
+          "클럽",
+          "나이트클럽",
+          "라운지",
+          "댄스클럽"
+        ],
+        near: "Arcade 1",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "Arcade",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "노래방건물",
+              "피시방건물",
+              "오락실",
+              "게임장",
+              "지하업소"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "노래방",
+              "노래연습장",
+              "코인노래방",
+              "가라오케"
+            ],
+            in: true
+          }
+        ],
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "PCBang",
+        w: [
+          "PC방",
+          "피시방",
+          "피씨방",
+          "게임방",
+          "만화방",
+          "PC카페",
+          "플스방"
+        ],
+        near: "Arcade 1",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "BilliardHall",
+        w: [
+          "당구장",
+          "볼링장",
+          "탁구장",
+          "스크린골프",
+          "실내야구장",
+          "사격게임장",
+          "포켓볼"
+        ],
+        near: "Arcade 1",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "Bank",
+        w: [
+          "은행",
+          "금고",
+          "금고실",
+          "현금인출기",
+          "ATM",
+          "대여금고",
+          "새마을금고",
+          "신협",
+          "증권사",
+          "환전소",
+          "은행지점",
+          "저축은행"
+        ],
+        near: "Office 1",
+        inc: [
+          "Bank",
+          "Street"
+        ]
+      },
+      {
+        k: "HairSalon",
+        w: [
+          "미용실",
+          "이발소",
+          "이용원",
+          "네일샵",
+          "피부관리실",
+          "마사지샵",
+          "의상실",
+          "수선집",
+          "안경점",
+          "헤어샵",
+          "미장원",
+          "바버샵"
+        ],
+        near: "Store 1",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "PhotoStudio",
+        w: [
+          "사진관",
+          "사진스튜디오",
+          "증명사진",
+          "사진원"
+        ],
+        near: "Store 1",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "Pawnshop",
+        w: [
+          "전당포",
+          "골동품점",
+          "중고가게",
+          "만물상",
+          "헌책방",
+          "잡화점",
+          "철물점",
+          "금은방",
+          "중고상"
+        ],
+        near: "Store 1",
+        inc: [
+          "Market",
+          "Street"
+        ]
+      },
+      {
+        k: "Scrapyard",
+        w: [
+          "고물상",
+          "폐지수집소",
+          "고철상",
+          "폐차장",
+          "재활용상"
+        ],
+        near: "Ruin 1",
+        inc: [
+          "Market",
+          "Street"
+        ]
+      },
+      {
+        k: "GasStation",
+        w: [
+          "주유소",
+          "충전소",
+          "셀프주유소",
+          "LPG충전소",
+          "전기차충전소",
+          "수소충전소"
+        ],
+        near: "Store 1",
+        inc: [
+          "GasStation",
+          "Street"
+        ]
+      },
+      {
+        k: "CarWash",
+        w: [
+          "세차장",
+          "자동세차",
+          "셀프세차",
+          "손세차",
+          "세차소",
+          "정비소",
+          "카센터",
+          "공업사",
+          "타이어가게"
+        ],
+        near: "Store 1",
+        inc: [
+          "GasStation",
+          "Street"
+        ]
+      },
+      {
+        k: "WeddingHall",
+        w: [
+          "예식장",
+          "웨딩홀",
+          "연회장",
+          "컨벤션홀",
+          "연회실",
+          "피로연장",
+          "돌잔치홀",
+          "호텔연회장",
+          "결혼식장",
+          "웨딩컨벤션"
+        ],
+        inc: [
+          "Hotel",
+          "Street"
+        ]
+      },
+      {
+        k: "Lodging",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "여인숙",
+              "민박",
+              "산장",
+              "게스트하우스",
+              "러브호텔",
+              "콘도"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "호텔복도",
+              "객실복도",
+              "모텔복도",
+              "호텔방",
+              "스위트룸"
+            ],
+            s: [
+              "객실"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "모텔",
+            "호텔",
+            "여관",
+            "숙소",
+            "리조트",
+            "펜션"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Hotel",
+          "Street"
+        ]
+      },
+      {
+        k: "Bathhouse",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "대중탕",
+              "온천장",
+              "스파",
+              "굴뚝"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "탕",
+              "욕탕",
+              "온천탕",
+              "한증막",
+              "탈의실",
+              "냉탕"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "목욕탕",
+            "찜질방",
+            "사우나",
+            "온천"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "IndoorPool",
+        w: [
+          "수영장",
+          "실내수영장",
+          "풀장",
+          "다이빙풀",
+          "수영센터"
+        ],
+        near: "Bathhouse 2",
+        inc: [
+          "Stadium",
+          "Street"
+        ]
+      },
+      {
+        k: "WaterPark",
+        w: [
+          "워터파크",
+          "물놀이장",
+          "유수풀",
+          "야외수영장",
+          "물놀이공원",
+          "파도풀"
+        ],
+        near: "Amusement 1",
+        inc: [
+          "Park"
+        ]
+      },
+      {
+        k: "SchoolGymnasium",
+        w: [
+          "체육관",
+          "강당",
+          "실내체육관",
+          "학교체육관",
+          "대강당"
+        ],
+        near: "School 2",
+        inc: [
+          "School",
+          "Stadium"
+        ]
+      },
+      {
+        k: "FitnessGym",
+        w: [
+          "헬스장",
+          "체육시설",
+          "도장",
+          "무도장",
+          "태권도장",
+          "검도장",
+          "필라테스",
+          "요가원",
+          "연습실",
+          "무용실",
+          "피트니스",
+          "헬스클럽",
+          "복싱장",
+          "합기도장"
+        ],
+        near: "Office 2",
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "Stadium",
+        w: [
+          "경기장",
+          "야구장",
+          "축구장",
+          "종합운동장",
+          "월드컵경기장",
+          "관중석",
+          "스타디움",
+          "경마장",
+          "경륜장",
+          "빙상장",
+          "스케이트장"
+        ],
+        near: "School 1",
+        inc: [
+          "Stadium",
+          "Street"
+        ]
+      },
+      {
+        k: "Theater",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "단관극장",
+              "시네마",
+              "공연장"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "상영관",
+              "객석",
+              "소극장",
+              "콘서트홀",
+              "무대",
+              "오페라하우스",
+              "강연장"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "극장",
+            "영화관"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Stadium",
+          "Street"
+        ]
+      },
+      {
+        k: "Library",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "박물관",
+              "미술관",
+              "기념관",
+              "과학관",
+              "전시관",
+              "기록관",
+              "문화회관",
+              "시민회관"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "서고",
+              "열람실",
+              "서가",
+              "서점",
+              "책방",
+              "자료실"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "도서관"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "CityHall",
+          "Street"
+        ]
+      },
+      {
+        k: "ArtGallery",
+        w: [
+          "전시장",
+          "전시실",
+          "갤러리",
+          "박람회장",
+          "컨벤션센터",
+          "화랑",
+          "시립미술관",
+          "현대미술관"
+        ],
+        near: "Library 1",
+        inc: [
+          "CityHall",
+          "Street"
+        ]
+      },
+      {
+        k: "Museum",
+        w: [
+          "밀랍인형관",
+          "수장고",
+          "역사관",
+          "민속관",
+          "유물관",
+          "역사박물관",
+          "민속박물관",
+          "국립박물관",
+          "시립박물관"
+        ],
+        near: "Library 1",
+        inc: [
+          "CityHall",
+          "Street"
+        ]
+      },
+      {
+        k: "School",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "교정",
+              "운동장",
+              "교문"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "교실",
+              "교무실",
+              "과학실",
+              "음악실",
+              "미술실",
+              "방송실",
+              "양호실",
+              "보건실",
+              "도서실",
+              "시청각실"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "학교",
+            "초등학교",
+            "중학교",
+            "고등학교",
+            "폐교",
+            "분교",
+            "여고",
+            "남고",
+            "고교",
+            "초교"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "School"
+        ]
+      },
+      {
+        k: "College",
+        w: [
+          "대학",
+          "대학교",
+          "캠퍼스",
+          "강의실",
+          "강의동",
+          "학생회관",
+          "동아리방",
+          "대학원",
+          "단과대학"
+        ],
+        near: "School 1",
+        inc: [
+          "Campus",
+          "School"
+        ]
+      },
+      {
+        k: "Dormitory",
+        w: [
+          "기숙사",
+          "합숙소",
+          "생활관",
+          "고시원형기숙사",
+          "연수원",
+          "유스호스텔",
+          "학생기숙사"
+        ],
+        near: "Lodging 2",
+        inc: [
+          "Campus",
+          "School"
+        ]
+      },
+      {
+        k: "CramSchool",
+        w: [
+          "학원",
+          "교습소",
+          "입시학원",
+          "기숙학원",
+          "공부방",
+          "과외방",
+          "보습학원",
+          "학원건물"
+        ],
+        near: "School 2",
+        inc: [
+          "School"
+        ]
+      },
+      {
+        k: "StudyHall",
+        w: [
+          "독서실",
+          "스터디카페",
+          "스터디룸",
+          "공부카페"
+        ],
+        near: "School 2",
+        inc: [
+          "School"
+        ]
+      },
+      {
+        k: "Kindergarten",
+        w: [
+          "유치원",
+          "어린이집",
+          "놀이방",
+          "병설유치원"
+        ],
+        near: "School 2",
+        inc: [
+          "School"
+        ]
+      },
+      {
+        k: "Orphanage",
+        w: [
+          "보육원",
+          "고아원",
+          "아동센터",
+          "지역아동센터",
+          "아동복지시설",
+          "아동양육시설",
+          "그룹홈"
+        ],
+        near: "School 2",
+        inc: [
+          "School"
+        ]
+      },
+      {
+        k: "Hospital",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "응급실입구",
+              "병원본관"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "병동",
+              "병실",
+              "병원복도",
+              "중환자실",
+              "입원실",
+              "요양병원",
+              "정신병원",
+              "폐쇄병동",
+              "응급실"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "병원",
+            "대학병원",
+            "종합병원",
+            "의료원"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Hospital"
+        ]
+      },
+      {
+        k: "Clinic",
+        w: [
+          "의원",
+          "보건소",
+          "치과",
+          "한의원",
+          "산부인과",
+          "소아과",
+          "진료소",
+          "접종실",
+          "조리원",
+          "동물병원",
+          "내과",
+          "정형외과",
+          "이비인후과",
+          "피부과",
+          "동네병원",
+          "보건지소"
+        ],
+        near: "Hospital 2",
+        inc: [
+          "Hospital"
+        ]
+      },
+      {
+        k: "Pharmacy",
+        w: [
+          "약국",
+          "약방",
+          "한약방",
+          "드럭스토어"
+        ],
+        near: "Store 1",
+        inc: [
+          "Hospital",
+          "Street"
+        ]
+      },
+      {
+        k: "OperatingRoom",
+        w: [
+          "수술실",
+          "분만실",
+          "검사실",
+          "엑스레이실",
+          "회복실",
+          "처치실",
+          "수술방"
+        ],
+        near: "Hospital 2",
+        inc: [
+          "Hospital"
+        ]
+      },
+      {
+        k: "Morgue",
+        w: [
+          "영안실",
+          "시체안치소",
+          "부검실",
+          "해부실",
+          "안치실",
+          "시신안치실"
+        ],
+        near: "Hospital 2",
+        inc: [
+          "Hospital"
+        ]
+      },
+      {
+        k: "NursingHome",
+        w: [
+          "요양원",
+          "양로원",
+          "실버타운",
+          "요양시설",
+          "복지관",
+          "재활원",
+          "호스피스",
+          "노인요양원",
+          "주간보호센터"
+        ],
+        near: "Hospital 2",
+        inc: [
+          "Hospital"
+        ]
+      },
+      {
+        k: "FuneralHall",
+        w: [
+          "장례식장",
+          "빈소",
+          "장의사",
+          "상갓집",
+          "영결식장",
+          "조문객"
+        ],
+        near: "Shrine 2",
+        inc: [
+          "Hospital"
+        ]
+      },
+      {
+        k: "Columbarium",
+        w: [
+          "납골당",
+          "봉안당",
+          "추모공원",
+          "화장터",
+          "화장장",
+          "추모관",
+          "납골묘",
+          "승화원"
+        ],
+        near: "Shrine 1",
+        inc: [
+          "Mountain"
+        ]
+      },
+      {
+        k: "Shrine",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "무덤",
+              "묘지",
+              "공동묘지",
+              "봉분",
+              "선산",
+              "묘소",
+              "왕릉",
+              "고분",
+              "능"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "신당",
+              "굿당",
+              "점집",
+              "무당집",
+              "사당",
+              "제단",
+              "법당",
+              "굿판",
+              "당집"
+            ],
+            in: true
+          }
+        ],
+        inc: [
+          "Mountain"
+        ]
+      },
+      {
+        k: "Temple",
+        w: [
+          "절",
+          "사찰",
+          "암자",
+          "대웅전",
+          "일주문",
+          "산사",
+          "폐사지",
+          "석탑",
+          "불당",
+          "향교",
+          "서원",
+          "절간",
+          "템플스테이"
+        ],
+        near: "Shrine 2",
+        inc: [
+          "Mountain"
+        ]
+      },
+      {
+        k: "Church",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "예배당",
+              "수도원",
+              "수녀원",
+              "기도원",
+              "교회당"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "예배실",
+              "본당",
+              "고해소",
+              "성전",
+              "채플"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "교회",
+            "성당"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Street"
+        ]
+      },
+      {
+        k: "Office",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "업무지구"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "사무실",
+              "회의실",
+              "야근",
+              "탕비실",
+              "콜센터",
+              "사무소",
+              "작업실"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "회사",
+            "빌딩",
+            "오피스",
+            "사옥",
+            "본사",
+            "오피스빌딩",
+            "고층빌딩"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Tower",
+          "Street"
+        ]
+      },
+      {
+        k: "Laboratory",
+        w: [
+          "연구소",
+          "실험실",
+          "연구실",
+          "연구동",
+          "시험장",
+          "무균실",
+          "격리실",
+          "연구단지"
+        ],
+        near: "Office 2",
+        inc: [
+          "Factory"
+        ]
+      },
+      {
+        k: "ServerRoom",
+        w: [
+          "서버실",
+          "전산실",
+          "데이터센터",
+          "통신실",
+          "서버룸",
+          "IDC"
+        ],
+        near: "Office 2",
+        inc: [
+          "Tower",
+          "Street"
+        ]
+      },
+      {
+        k: "SecurityRoom",
+        w: [
+          "관제실",
+          "상황실",
+          "CCTV실",
+          "방재실",
+          "경비실",
+          "관리실",
+          "관리사무소",
+          "숙직실",
+          "경비초소",
+          "수위실",
+          "통제실",
+          "보안실"
+        ],
+        near: "Office 2",
+        inc: [
+          "Tower",
+          "Street"
+        ]
+      },
+      {
+        k: "TVStudio",
+        w: [
+          "방송국",
+          "스튜디오",
+          "촬영장",
+          "세트장",
+          "편집실",
+          "공개홀",
+          "신문사",
+          "방송사",
+          "방송센터"
+        ],
+        near: "Theater 2",
+        inc: [
+          "Tower",
+          "Street"
+        ]
+      },
+      {
+        k: "RadioStudio",
+        w: [
+          "녹음실",
+          "라디오부스",
+          "라디오방송국",
+          "라디오스튜디오",
+          "녹음부스"
+        ],
+        near: "Office 2",
+        inc: [
+          "Tower",
+          "Street"
+        ]
+      },
+      {
+        k: "DistrictOffice",
+        w: [
+          "구청",
+          "시청",
+          "군청",
+          "도청",
+          "주민센터",
+          "동사무소",
+          "면사무소",
+          "읍사무소",
+          "관공서",
+          "청사",
+          "민원실",
+          "세무서",
+          "등기소",
+          "행정복지센터"
+        ],
+        near: "Office 1",
+        inc: [
+          "CityHall",
+          "Street"
+        ]
+      },
+      {
+        k: "Courthouse",
+        w: [
+          "법원",
+          "검찰청",
+          "국회",
+          "지방법원",
+          "대법원",
+          "가정법원",
+          "헌법재판소",
+          "법정",
+          "재판정"
+        ],
+        near: "Office 1",
+        inc: [
+          "CityHall",
+          "Street"
+        ]
+      },
+      {
+        k: "PostOffice",
+        w: [
+          "우체국",
+          "우편집중국",
+          "택배영업소",
+          "집배센터",
+          "우편물분류실"
+        ],
+        near: "Office 1",
+        inc: [
+          "CityHall",
+          "Street"
+        ]
+      },
+      {
+        k: "ApartmentLobby",
+        w: [
+          "아파트로비",
+          "아파트현관",
+          "공동현관",
+          "우편함"
+        ],
+        near: "Elevator 2",
+        inc: [
+          "Apartment"
+        ]
+      },
+      {
+        k: "FireStation",
+        w: [
+          "소방서",
+          "119안전센터",
+          "구조대",
+          "소방파출소",
+          "소방본부",
+          "119구조대",
+          "소방센터"
+        ],
+        near: "Police 1",
+        inc: [
+          "CityHall",
+          "Street"
+        ]
+      },
+      {
+        k: "Police",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "파출소",
+              "지구대",
+              "경찰서",
+              "치안센터",
+              "초소"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "유치장",
+              "교도소",
+              "구치소",
+              "감옥",
+              "감방",
+              "소년원",
+              "취조실",
+              "조사실",
+              "면회실"
+            ],
+            in: true
+          }
+        ],
+        inc: [
+          "CityHall",
+          "Street"
+        ]
+      },
+      {
+        k: "Military",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "군부대",
+              "부대",
+              "위병소",
+              "막사",
+              "훈련소",
+              "연병장",
+              "군기지",
+              "사격장",
+              "예비군훈련장",
+              "검문소"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "벙커",
+              "방공호",
+              "탄약고",
+              "지하벙커",
+              "대피소",
+              "참호",
+              "GP",
+              "GOP"
+            ],
+            in: true
+          }
+        ],
+        inc: [
+          "Military"
+        ]
+      },
+      {
+        k: "Elevator",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "리프트",
+              "화물엘리베이터"
+            ],
+            in: true
+          },
+          {
+            n: 2,
+            w: [
+              "엘리베이터홀",
+              "승강기홀",
+              "로비",
+              "현관로비"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "엘리베이터",
+            "승강기"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Apartment",
+          "Tower"
+        ]
+      },
+      {
+        k: "Parking",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "지하주차장",
+              "주차타워",
+              "기계식주차장",
+              "차고"
+            ],
+            in: true
+          },
+          {
+            n: 2,
+            w: [
+              "옥상주차장",
+              "노상주차장",
+              "공영주차장",
+              "주차빌딩",
+              "야외주차장"
+            ]
+          }
+        ],
+        g: {
+          w: [
+            "주차장"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Apartment",
+          "Street"
+        ]
+      },
+      {
+        k: "Rooftop",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "물탱크",
+              "옥상정원",
+              "빨랫줄",
+              "옥탑"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "옥상문",
+              "옥상출입구",
+              "루프탑",
+              "헬기장"
+            ]
+          }
+        ],
+        g: {
+          w: [
+            "옥상"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Apartment",
+          "Street"
+        ]
+      },
+      {
+        k: "Hallway",
+        w: [
+          "복도",
+          "통로",
+          "회랑",
+          "긴복도",
+          "연결복도",
+          "건물복도"
+        ],
+        near: "Lodging 2",
+        inc: [
+          "Tower",
+          "Street"
+        ]
+      },
+      {
+        k: "Stockroom",
+        w: [
+          "창고",
+          "자재실",
+          "비품실",
+          "물품보관소",
+          "광",
+          "헛간",
+          "곳간",
+          "창고방",
+          "재고실"
+        ],
+        near: "Ruin 1",
+        inc: [
+          "Warehouse",
+          "Factory"
+        ]
+      },
+      {
+        k: "SelfStorage",
+        w: [
+          "사물함",
+          "보관함",
+          "컨테이너창고",
+          "개인창고",
+          "셀프스토리지",
+          "짐보관소",
+          "미니창고"
+        ],
+        near: "Ruin 1",
+        inc: [
+          "Warehouse",
+          "Factory"
+        ]
+      },
+      {
+        k: "Restroom",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "공중화장실",
+              "공원화장실",
+              "간이화장실",
+              "화장실건물"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "화장실",
+              "변소",
+              "샤워실",
+              "세면대",
+              "세면장",
+              "거울",
+              "칸막이"
+            ],
+            in: true
+          }
+        ],
+        inc: [
+          "Park",
+          "Street"
+        ]
+      },
+      {
+        k: "Subway",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "승강장",
+              "역사",
+              "플랫폼",
+              "스크린도어",
+              "선로",
+              "폐역",
+              "환승통로",
+              "개찰구"
+            ],
+            in: true
+          },
+          {
+            n: 2,
+            w: [
+              "전동차",
+              "객차",
+              "열차",
+              "지하철안",
+              "전철안",
+              "막차",
+              "기차안",
+              "KTX",
+              "무궁화호",
+              "새마을호",
+              "통일호",
+              "비둘기호"
+            ],
+            in: true
+          }
+        ],
+        g: {
+          w: [
+            "지하철",
+            "지하철역",
+            "전철역",
+            "역"
+          ],
+          p: [
+            1,
+            2
+          ]
+        },
+        inc: [
+          "Subway"
+        ]
+      },
+      {
+        k: "RuralStation",
+        w: [
+          "기차역",
+          "간이역",
+          "정거장",
+          "시골역",
+          "무인역"
+        ],
+        near: "Subway 1",
+        inc: [
+          "Station",
+          "Subway"
+        ]
+      },
+      {
+        k: "TrainStation",
+        w: [
+          "대합실",
+          "철도역",
+          "역무실",
+          "승차장",
+          "기차역대합실",
+          "KTX역",
+          "고속철도역",
+          "중앙역"
+        ],
+        near: "Subway 1",
+        inc: [
+          "Station",
+          "Subway"
+        ]
+      },
+      {
+        k: "Anomaly",
+        base: true,
+        w: [
+          "철길",
+          "건널목",
+          "철로",
+          "폐철로",
+          "철도건널목",
+          "폐선"
+        ],
+        inc: [
+          "Station"
+        ]
+      },
+      {
+        k: "Bus",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "버스정류장",
+              "정류장",
+              "정류소",
+              "시골정류장",
+              "종점",
+              "승강장쉼터"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "버스",
+              "버스안",
+              "시내버스",
+              "심야버스",
+              "마을버스",
+              "고속버스",
+              "시외버스",
+              "통학버스"
+            ],
+            in: true
+          }
+        ],
+        inc: [
+          "Terminal",
+          "Street"
+        ]
+      },
+      {
+        k: "BusTerminal",
+        w: [
+          "터미널",
+          "버스터미널",
+          "고속터미널",
+          "시외버스터미널",
+          "차고지",
+          "환승센터",
+          "고속버스터미널",
+          "종합터미널"
+        ],
+        near: "Bus 1",
+        inc: [
+          "Terminal",
+          "Street"
+        ]
+      },
+      {
+        k: "Taxi",
+        w: [
+          "택시",
+          "차안",
+          "운전석",
+          "뒷좌석",
+          "블랙박스",
+          "조수석",
+          "차량내부",
+          "택시안",
+          "승용차",
+          "자가용",
+          "콜택시"
+        ],
+        near: "Bus 2",
+        inc: [
+          "Highway",
+          "Street"
+        ]
+      },
+      {
+        k: "Airport",
+        w: [
+          "공항",
+          "활주로",
+          "격납고",
+          "탑승구",
+          "출국장",
+          "입국장",
+          "수하물",
+          "비행기",
+          "기내",
+          "관제탑",
+          "비행장",
+          "국제공항",
+          "공항터미널"
+        ],
+        inc: [
+          "Airport"
+        ]
+      },
+      {
+        k: "Sea",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "바다",
+              "등대",
+              "해안",
+              "해변",
+              "갯바위",
+              "해안도로",
+              "방파제",
+              "곶",
+              "해안절벽",
+              "바닷가"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "항구",
+              "포구",
+              "어항",
+              "부두",
+              "선착장",
+              "어선",
+              "어촌",
+              "항",
+              "나루터",
+              "나루",
+              "조선소"
+            ]
+          }
+        ],
+        inc: [
+          "Sea",
+          "Port"
+        ]
+      },
+      {
+        k: "Beach",
+        w: [
+          "해수욕장",
+          "백사장",
+          "모래사장",
+          "해변가",
+          "사구",
+          "해송숲",
+          "야영해변"
+        ],
+        near: "Sea 1",
+        inc: [
+          "Sea",
+          "Port"
+        ]
+      },
+      {
+        k: "Mudflat",
+        w: [
+          "갯벌",
+          "개펄",
+          "간척지",
+          "새만금",
+          "양식장",
+          "김양식장",
+          "갯골"
+        ],
+        near: "Sea 1",
+        inc: [
+          "Sea",
+          "Port"
+        ]
+      },
+      {
+        k: "SaltPan",
+        w: [
+          "염전",
+          "소금창고",
+          "천일염전",
+          "소금밭"
+        ],
+        near: "Sea 1",
+        inc: [
+          "Sea",
+          "Port"
+        ]
+      },
+      {
+        k: "IslandVillage",
+        w: [
+          "섬",
+          "무인도",
+          "외딴섬",
+          "암초",
+          "섬마을",
+          "낙도",
+          "섬분교"
+        ],
+        near: "Sea 1",
+        inc: [
+          "Sea",
+          "Port"
+        ]
+      },
+      {
+        k: "Ferry",
+        w: [
+          "여객선",
+          "유람선",
+          "배",
+          "선박",
+          "화물선",
+          "크루즈",
+          "갑판",
+          "선실",
+          "폐선박",
+          "잠수함",
+          "요트",
+          "낚싯배",
+          "세월호",
+          "타이타닉호",
+          "서해훼리호",
+          "유령선",
+          "난파선",
+          "침몰선",
+          "페리호",
+          "훼리호",
+          "카페리",
+          "여객터미널",
+          "연안여객터미널",
+          "국제여객터미널"
+        ],
+        near: "Sea 2",
+        inc: [
+          "Sea",
+          "Port"
+        ]
+      },
+      {
+        k: "ContainerPort",
+        w: [
+          "항만",
+          "컨테이너부두",
+          "야적장",
+          "하역장",
+          "컨테이너",
+          "크레인",
+          "물류항",
+          "컨테이너터미널",
+          "연안부두",
+          "컨테이너야드",
+          "무역항",
+          "신항"
+        ],
+        near: "Sea 2",
+        inc: [
+          "Port"
+        ]
+      },
+      {
+        k: "Bridge",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "다리",
+              "대교",
+              "교량",
+              "철교",
+              "한강다리",
+              "현수교",
+              "잠수교",
+              "출렁다리"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "육교",
+              "보도교",
+              "구름다리",
+              "인도교"
+            ]
+          }
+        ],
+        inc: [
+          "Bridge",
+          "River"
+        ]
+      },
+      {
+        k: "Lake",
+        pics: [
+          {
+            n: 1,
+            w: [
+              "저수지",
+              "호수",
+              "호",
+              "낚시터",
+              "유료낚시터",
+              "낚시데크",
+              "댐",
+              "연못",
+              "늪",
+              "못",
+              "소류지",
+              "담수호",
+              "소양호",
+              "충주호",
+              "청풍호",
+              "대청호",
+              "안동호",
+              "임하호",
+              "옥정호",
+              "청평호",
+              "의암호",
+              "춘천호",
+              "파로호",
+              "팔당호",
+              "영랑호",
+              "청초호",
+              "경포호",
+              "송지호",
+              "화진포호",
+              "광포호",
+              "시화호",
+              "화성호",
+              "아산호",
+              "삽교호",
+              "평택호",
+              "남양호",
+              "담양호",
+              "장성호",
+              "나주호",
+              "광주호",
+              "영산호",
+              "영암호",
+              "금호호",
+              "주암호",
+              "동복호",
+              "보문호",
+              "덕동호",
+              "진양호",
+              "합천호",
+              "운문호",
+              "영천호",
+              "안계호",
+              "용담호",
+              "탑정호",
+              "예당호",
+              "대호호",
+              "간월호",
+              "부남호",
+              "금강호",
+              "새만금호",
+              "횡성호",
+              "화천호",
+              "도암호",
+              "괴산호",
+              "초평호",
+              "대아호",
+              "동화호",
+              "수어호",
+              "상사호",
+              "밀양호",
+              "회야호",
+              "사연호",
+              "대암호",
+              "영주호",
+              "군위호",
+              "부항호",
+              "보령호",
+              "단양호",
+              "백운호",
+              "일감호",
+              "석촌호",
+              "일산호",
+              "광교호",
+              "기흥호",
+              "신갈호",
+              "물왕호",
+              "백제호",
+              "달천호",
+              "산정호",
+              "고삼호",
+              "금광호",
+              "이동호",
+              "송전호",
+              "낙동강호",
+              "서호호"
+            ]
+          },
+          {
+            n: 2,
+            w: [
+              "우물",
+              "샘",
+              "약수터",
+              "우물가",
+              "샘터",
+              "두레박",
+              "펌프"
+            ]
+          }
+        ],
+        inc: [
+          "Dam",
+          "River"
+        ]
+      },
+      {
+        k: "RiversidePark",
+        w: [
+          "하천",
+          "개천",
+          "강",
+          "강변",
+          "천변",
+          "둔치",
+          "제방",
+          "둑",
+          "둑길",
+          "강둑",
+          "개울",
+          "시내",
+          "도랑",
+          "보",
+          "수문",
+          "하구",
+          "수로",
+          "천",
+          "한강공원",
+          "강변공원",
+          "고수부지",
+          "둔치공원"
+        ],
+        near: "Lake 1",
+        inc: [
+          "River"
+        ],
+        s: [
+          "수변"
+        ]
+      },
+      {
+        k: "MountainValley",
+        w: [
+          "계곡",
+          "소",
+          "계류",
+          "물놀이계곡",
+          "협곡",
+          "골짜기",
+          "계곡물",
+          "산골짜기"
+        ],
+        near: "Forest 1",
+        inc: [
+          "Mountain",
+          "River"
+        ]
+      },
+      {
+        k: "Waterfall",
+        w: [
+          "폭포",
+          "폭포수",
+          "용소"
+        ],
+        near: "Forest 1",
+        inc: [
+          "Mountain",
+          "River"
+        ]
+      },
+      {
+        k: "BambooGrove",
+        w: [
+          "대나무숲",
+          "대밭",
+          "대숲",
+          "죽림",
+          "자작나무숲",
+          "삼나무숲"
+        ],
+        near: "Forest 1",
+        inc: [
+          "Mountain"
+        ]
+      },
+      {
+        k: "SilverGrassField",
+        w: [
+          "억새밭",
+          "갈대밭",
+          "갈대숲",
+          "메밀밭",
+          "억새군락",
+          "갈대습지"
+        ],
+        near: "Forest 1",
+        inc: [
+          "Mountain"
+        ]
+      },
+      {
+        k: "Campsite",
+        w: [
+          "캠핑장",
+          "야영장",
+          "글램핑장",
+          "오토캠핑장",
+          "수련원야영장",
+          "캠프장",
+          "텐트"
+        ],
+        near: "Forest 1",
+        inc: [
+          "Mountain"
+        ]
+      },
+      {
+        k: "RetreatCenter",
+        w: [
+          "수련원",
+          "수련회장",
+          "청소년수련원",
+          "수련관",
+          "청소년수련관",
+          "수련시설"
+        ],
+        near: "School 1",
+        inc: [
+          "School",
+          "Mountain"
+        ]
+      },
+      {
+        k: "SkiResort",
+        w: [
+          "스키장",
+          "눈썰매장",
+          "설산",
+          "눈밭",
+          "설원",
+          "스키리조트",
+          "슬로프"
+        ],
+        near: "Forest 1",
+        inc: [
+          "Mountain"
+        ]
+      },
+      {
+        k: "FrozenReservoir",
+        w: [
+          "빙판",
+          "얼음낚시터",
+          "얼어붙은호수",
+          "얼음낚시",
+          "빙어낚시",
+          "얼어붙은저수지"
+        ],
+        near: "Lake 1",
+        inc: [
+          "Dam",
+          "River"
+        ]
+      },
+      {
+        k: "Mine",
+        w: [
+          "폐광",
+          "광산",
+          "탄광",
+          "갱도",
+          "금광",
+          "채석장",
+          "석산",
+          "폐갱도",
+          "갱구",
+          "탄광촌"
+        ],
+        near: "Tunnel 1",
+        inc: [
+          "Mountain"
+        ]
+      },
+      {
+        k: "RiceFields",
+        w: [
+          "논",
+          "밭",
+          "논밭",
+          "들판",
+          "평야",
+          "논두렁",
+          "밭두렁",
+          "농로",
+          "들",
+          "허수아비",
+          "논길",
+          "다랭이논"
+        ],
+        near: "Bus 1",
+        inc: [
+          "Farm"
+        ]
+      },
+      {
+        k: "VinylGreenhouses",
+        w: [
+          "비닐하우스",
+          "온상",
+          "하우스단지",
+          "인삼밭",
+          "묘목장",
+          "농원",
+          "딸기하우스"
+        ],
+        near: "Village 2",
+        inc: [
+          "Farm"
+        ]
+      },
+      {
+        k: "Orchard",
+        w: [
+          "과수원",
+          "포도밭",
+          "사과밭",
+          "배밭",
+          "감나무밭",
+          "귤밭",
+          "복숭아밭"
+        ],
+        near: "Village 2",
+        inc: [
+          "Farm"
+        ]
+      },
+      {
+        k: "CattleBarn",
+        w: [
+          "축사",
+          "농장",
+          "양계장",
+          "돈사",
+          "우사",
+          "도축장",
+          "도계장",
+          "양돈장",
+          "개사육장",
+          "마구간",
+          "외양간",
+          "사육장",
+          "한우농장"
+        ],
+        near: "Village 1",
+        inc: [
+          "Farm"
+        ]
+      },
+      {
+        k: "Pasture",
+        w: [
+          "목장",
+          "초원",
+          "목초지",
+          "풀밭",
+          "방목장",
+          "양떼목장"
+        ],
+        near: "Village 1",
+        inc: [
+          "Farm"
+        ]
+      },
+      {
+        k: "ConstructionSite",
+        w: [
+          "공사장",
+          "공사현장",
+          "건설현장",
+          "신축현장",
+          "타워크레인",
+          "공사판",
+          "모델하우스",
+          "분양사무소",
+          "가설울타리",
+          "비계",
+          "건축현장",
+          "신축공사장"
+        ],
+        near: "Ruin 1",
+        inc: [
+          "Construction"
+        ]
+      },
+      {
+        k: "FactoryFloor",
+        w: [
+          "공장",
+          "화학공장",
+          "조립공장",
+          "봉제공장",
+          "인쇄소",
+          "제재소",
+          "양조장",
+          "작업장",
+          "공방",
+          "생산라인",
+          "공장내부"
+        ],
+        near: "Ruin 1",
+        inc: [
+          "Factory"
+        ]
+      },
+      {
+        k: "IndustrialComplex",
+        w: [
+          "공단",
+          "산업단지",
+          "국가산업단지",
+          "공업단지",
+          "농공단지",
+          "제철소",
+          "정유공장",
+          "석유화학단지
